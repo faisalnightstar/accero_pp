@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-deep-burgundy: #8B1E2D;
+  --color-crimson: #E63946;
+  --color-gold: #F4D35E;
+  --color-steel-blue: #457B9D;
+  --color-navy: #1D3557;
+  --color-bg-light: #F0F4F8;
+  --color-card-surface: #FFFFFF;
+  --color-border-light: #E2E8F0;
+  --border-radius-card: 16px;
+  --border-radius-input: 10px;
+  --shadow-card: 0 12px 30px rgba(29, 53, 87, 0.12);
+  --shadow-button-hover: 0 8px 20px rgba(230, 57, 70, 0.35);
+}
+
+body {
+  background-color: var(--color-bg-light);
+  color: var(--color-navy);
+  font-feature-settings: "rlig" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Card Print Rules */
+@media print {
+  @page {
+    size: 85.6mm 53.98mm;
+    margin: 0;
+  }
+
+  body {
+    background: transparent !important;
+    color: #000000 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .card-container-printable {
+    page-break-after: always;
+    break-after: page;
+    width: 85.6mm !important;
+    height: 53.98mm !important;
+    margin: 0 auto !important;
+    overflow: hidden !important;
+  }
+}
