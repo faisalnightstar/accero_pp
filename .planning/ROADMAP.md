@@ -62,9 +62,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 03-01: Split-screen studio layout and two-way reactive state machine.
-- [ ] 03-02: Missing field detection engine, warning badges, and Dropify photo/signature uploaders.
-- [ ] 03-03: MongoDB Document model, snapshot persistence, and document retrieval dashboard.
+- [x] 03-01: Split-screen studio layout and two-way reactive state machine.
+- [x] 03-02: Missing field detection engine, warning badges, and Dropify photo/signature uploaders.
+- [x] 03-03: MongoDB Document model, snapshot persistence, and document retrieval dashboard.
 
 ### Phase 4: Multi-Provider Verification & Fallback APIs
 **Goal**: Build secure, server-side verification pipelines connecting to third-party endpoints with graceful error fallbacks and seamless routing into the Split-Screen Studio.
