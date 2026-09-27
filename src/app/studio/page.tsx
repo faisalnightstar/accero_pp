@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Link from 'next/link';
 import {
   ArrowLeft,
@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import StudioLayout from '@/components/studio/StudioLayout';
 import CardForm from '@/components/studio/CardForm';
+import MissingFieldBanner from '@/components/studio/MissingFieldBanner';
 import Cr80CardContainer from '@/components/cards/Cr80CardContainer';
 import PrintControls from '@/components/cards/PrintControls';
 import PanCardCanvas from '@/components/cards/PanCardCanvas';
@@ -20,6 +21,7 @@ import AadhaarCardCanvas from '@/components/cards/AadhaarCardCanvas';
 import DlCardCanvas from '@/components/cards/DlCardCanvas';
 import RcCardCanvas from '@/components/cards/RcCardCanvas';
 import { useCardStudio } from '@/hooks/useCardStudio';
+import { analyzeDocumentCompleteness } from '@/lib/missingFields';
 import { DocumentType } from '@/types/cards';
 
 export default function StudioPage() {
@@ -27,6 +29,20 @@ export default function StudioPage() {
   const [zoom, setZoom] = useState<number>(1.5);
   const [showGuides, setShowGuides] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'both' | 'flip'>('both');
+
+  // Analyze completeness dynamically on every state change
+  const completeness = useMemo(() => {
+    return analyzeDocumentCompleteness(docType, cardData);
+  }, [docType, cardData]);
+
+  // Jump to specific input field
+  const handleJumpToField = (key: string) => {
+    const inputEl = document.getElementById(`input-${key}`);
+    if (inputEl) {
+      inputEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      inputEl.focus();
+    }
+  };
 
   // Render front and back for the selected card tab
   let cardFront: React.ReactNode;
@@ -64,11 +80,11 @@ export default function StudioPage() {
             <h1 className="text-base font-bold text-navy flex items-center gap-2">
               Interactive Card Studio
               <span className="bg-crimson/10 text-crimson border border-crimson/30 text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                Live Dual-Pane Editor
+                Zero Missing-Data Engine
               </span>
             </h1>
             <p className="text-xs text-gray-500">
-              Zero Missing-Data Failures — Edit and Complete Incomplete Records in Real-Time
+              Audit, Complete, and Edit Missing Fields in Real-Time on Live Canvases
             </p>
           </div>
         </div>
@@ -140,11 +156,19 @@ export default function StudioPage() {
         />
       }
       form={
-        <CardForm
-          docType={docType}
-          data={cardData}
-          onFieldChange={updateField}
-        />
+        <div className="space-y-4">
+          <MissingFieldBanner
+            completeness={completeness}
+            onJumpToField={handleJumpToField}
+          />
+
+          <CardForm
+            docType={docType}
+            data={cardData}
+            onFieldChange={updateField}
+            missingKeys={completeness.missingKeys}
+          />
+        </div>
       }
       preview={
         <Cr80CardContainer
