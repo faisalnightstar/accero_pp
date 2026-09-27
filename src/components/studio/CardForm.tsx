@@ -36,7 +36,7 @@ export default function CardForm({
     required: boolean = false
   ) => {
     const isMissing = missingKeys.includes(key);
-    const value = data[key] ?? '';
+    const value = data ? (data[key] ?? '') : '';
 
     return (
       <div className="flex flex-col gap-1.5" id={`field-container-${key}`}>

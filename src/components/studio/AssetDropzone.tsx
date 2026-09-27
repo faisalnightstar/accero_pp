@@ -78,6 +78,7 @@ export default function AssetDropzone({
     if (e.target.files && e.target.files.length > 0) {
       handleFileProcess(e.target.files[0]);
     }
+    e.target.value = '';
   };
 
   const triggerSelect = () => {

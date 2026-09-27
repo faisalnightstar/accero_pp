@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
+import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/mongodb';
 import DocumentRecord from '@/models/DocumentRecord';
 import { getSession } from '@/lib/auth';
@@ -55,6 +56,13 @@ export async function POST(request: Request) {
     let record;
 
     if (validated.id) {
+      if (!mongoose.Types.ObjectId.isValid(validated.id)) {
+        return NextResponse.json(
+          { error: 'Invalid document ID format.' },
+          { status: 400 }
+        );
+      }
+
       record = await DocumentRecord.findOne({
         _id: validated.id,
         userId: session.userId,

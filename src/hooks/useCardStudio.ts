@@ -189,8 +189,8 @@ export const blankTemplates: Record<DocumentType, any> = {
 
 export function useCardStudio(initialType: DocumentType = 'pan') {
   const [docType, setDocType] = useState<DocumentType>(initialType);
-  const [cardData, setCardData] = useState<any>(defaultMockData[initialType]);
-  const [originalSnapshot, setOriginalSnapshot] = useState<any>(defaultMockData[initialType]);
+  const [cardData, setCardData] = useState<any>(() => structuredClone(defaultMockData[initialType]));
+  const [originalSnapshot, setOriginalSnapshot] = useState<any>(() => structuredClone(defaultMockData[initialType]));
 
   const updateField = useCallback((key: string, value: any) => {
     setCardData((prev: any) => ({
@@ -201,23 +201,26 @@ export function useCardStudio(initialType: DocumentType = 'pan') {
 
   const switchDocType = useCallback((newType: DocumentType, useBlank: boolean = false) => {
     setDocType(newType);
-    const template = useBlank ? blankTemplates[newType] : defaultMockData[newType];
+    const template = useBlank
+      ? structuredClone(blankTemplates[newType])
+      : structuredClone(defaultMockData[newType]);
     setCardData(template);
     setOriginalSnapshot(template);
   }, []);
 
   const resetToOriginal = useCallback(() => {
-    setCardData(originalSnapshot);
+    setCardData(structuredClone(originalSnapshot));
   }, [originalSnapshot]);
 
   const loadData = useCallback((type: DocumentType, incomingData: any) => {
     setDocType(type);
-    setCardData(incomingData);
-    setOriginalSnapshot(incomingData);
+    const cloned = structuredClone(incomingData);
+    setCardData(cloned);
+    setOriginalSnapshot(cloned);
   }, []);
 
   const resetToBlank = useCallback(() => {
-    const blank = blankTemplates[docType];
+    const blank = structuredClone(blankTemplates[docType]);
     setCardData(blank);
   }, [docType]);
 

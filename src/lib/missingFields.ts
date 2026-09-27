@@ -95,7 +95,7 @@ export function analyzeDocumentCompleteness(
   const missingKeys: string[] = [];
 
   for (const rule of requiredRules) {
-    const value = data[rule.key];
+    const value = data ? data[rule.key] : undefined;
     const isBlank =
       value === undefined ||
       value === null ||
