@@ -14,6 +14,11 @@ import {
   AlertTriangle,
   ArrowRight,
   ShieldCheck,
+  Edit3,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  FolderOpen,
 } from 'lucide-react';
 
 interface UserData {
@@ -23,6 +28,19 @@ interface UserData {
   phone: string;
   role: string;
   walletBalance: number;
+}
+
+interface SavedDocument {
+  id: string;
+  docType: string;
+  cardIdentifier: string;
+  inputMode: string;
+  missingFields: string[];
+  isComplete: boolean;
+  printCount: number;
+  lastPrintedAt?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const cardServices = [
@@ -77,9 +95,11 @@ export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [savedDocs, setSavedDocs] = useState<SavedDocument[]>([]);
+  const [docsLoading, setDocsLoading] = useState(true);
 
   useEffect(() => {
-    async function loadSession() {
+    async function loadSessionAndDocs() {
       try {
         const res = await fetch('/api/auth/me');
         if (!res.ok) {
@@ -88,13 +108,21 @@ export default function DashboardPage() {
         }
         const data = await res.json();
         setUser(data.user);
+
+        // Fetch user's saved documents from MongoDB
+        const docsRes = await fetch('/api/documents?limit=10');
+        if (docsRes.ok) {
+          const docsData = await docsRes.json();
+          setSavedDocs(docsData.documents || []);
+        }
       } catch {
         router.push('/login');
       } finally {
         setLoading(false);
+        setDocsLoading(false);
       }
     }
-    loadSession();
+    loadSessionAndDocs();
   }, [router]);
 
   const handleLogout = async () => {
@@ -136,13 +164,23 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <button
-          onClick={handleLogout}
-          className="self-start md:self-auto inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 border border-red-200 transition-colors"
-        >
-          <LogOut className="w-4 h-4" />
-          <span>Sign Out</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/studio"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-burgundy hover:bg-burgundy/90 shadow-sm transition-all"
+          >
+            <Edit3 className="w-4 h-4" />
+            <span>Launch Studio</span>
+          </Link>
+
+          <button
+            onClick={handleLogout}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50 border border-red-200 transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            <span>Sign Out</span>
+          </button>
+        </div>
       </div>
 
       {/* Wallet Balance Card */}
@@ -157,7 +195,7 @@ export default function DashboardPage() {
             </div>
             <div className="mt-3 flex items-baseline gap-2">
               <span className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
-                ₹{user?.walletBalance.toFixed(2) || '0.00'}
+                ₹{typeof user?.walletBalance === 'number' ? user.walletBalance.toFixed(2) : '0.00'}
               </span>
               <span className="text-sm text-slate-400">INR</span>
             </div>
@@ -213,6 +251,110 @@ export default function DashboardPage() {
         </div>
       </div>
 
+      {/* Saved Documents Section */}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <FolderOpen className="w-5 h-5 text-burgundy" />
+            <h2 className="text-lg font-bold text-[#1D3557]">Saved Document Records</h2>
+          </div>
+          <span className="text-xs text-slate-500">
+            {savedDocs.length} {savedDocs.length === 1 ? 'Record' : 'Records'} stored in MongoDB
+          </span>
+        </div>
+
+        {docsLoading ? (
+          <div className="py-8 flex items-center justify-center gap-2 text-slate-400 text-xs">
+            <Loader2 className="w-4 h-4 animate-spin text-burgundy" />
+            <span>Loading document library...</span>
+          </div>
+        ) : savedDocs.length === 0 ? (
+          <div className="py-8 text-center border-2 border-dashed border-slate-200 rounded-xl space-y-2">
+            <p className="text-xs text-slate-500 font-medium">
+              No documents saved yet. Launch a studio below to format or edit your first card.
+            </p>
+            <Link
+              href="/studio?type=pan"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-burgundy hover:text-white bg-burgundy/5 hover:bg-burgundy border border-burgundy/20 rounded-lg transition-colors"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>Create PAN Card</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-slate-100 text-slate-400 uppercase text-[10px] tracking-wider">
+                  <th className="py-2.5 px-3 font-semibold">Document</th>
+                  <th className="py-2.5 px-3 font-semibold">Identifier</th>
+                  <th className="py-2.5 px-3 font-semibold">Source</th>
+                  <th className="py-2.5 px-3 font-semibold">Status</th>
+                  <th className="py-2.5 px-3 font-semibold">Last Saved</th>
+                  <th className="py-2.5 px-3 font-semibold text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {savedDocs.map((doc) => (
+                  <tr key={doc.id} className="hover:bg-slate-50/70 transition-colors">
+                    <td className="py-3 px-3">
+                      <span className="inline-flex items-center gap-1 font-bold text-navy uppercase">
+                        <CreditCard className="w-3.5 h-3.5 text-burgundy" />
+                        {doc.docType}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3 font-mono font-semibold text-slate-800">
+                      {doc.cardIdentifier}
+                    </td>
+                    <td className="py-3 px-3">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-600">
+                        {doc.inputMode}
+                      </span>
+                    </td>
+                    <td className="py-3 px-3">
+                      {doc.isComplete ? (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
+                          <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                          Ready to Print
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                          <AlertCircle className="w-3 h-3 text-amber-600" />
+                          {doc.missingFields.length} Missing
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-3 text-slate-500 text-[11px]">
+                      {new Date(doc.updatedAt || doc.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="py-3 px-3 text-right">
+                      <div className="inline-flex items-center gap-1.5">
+                        <Link
+                          href={`/studio?id=${doc.id}`}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-navy bg-slate-100 hover:bg-burgundy hover:text-white transition-colors"
+                          title="Open in split-screen studio"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                          <span>Edit</span>
+                        </Link>
+                        <Link
+                          href={`/studio?id=${doc.id}`}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-steel-blue bg-blue-50 hover:bg-steel-blue hover:text-white transition-colors"
+                          title="Print CR80 card"
+                        >
+                          <Printer className="w-3 h-3" />
+                          <span>Print</span>
+                        </Link>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
       {/* Card Studios Grid */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -250,7 +392,7 @@ export default function DashboardPage() {
 
               <div className="mt-6 pt-4 border-t border-slate-100">
                 <Link
-                  href={`/studio/${card.type}`}
+                  href={`/studio?type=${card.type}`}
                   className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-50 hover:bg-[#8B1E2D] text-[#1D3557] hover:text-white text-sm font-semibold transition-all"
                 >
                   <span>Open Split-Screen Studio</span>

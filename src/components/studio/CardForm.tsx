@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { DocumentType } from '@/types/cards';
+import AssetDropzone from '@/components/studio/AssetDropzone';
 import {
   CreditCard,
   User,
@@ -99,6 +100,27 @@ export default function CardForm({
               {renderInput('category', 'Entity Category', 'Individual', 'text', false)}
             </div>
           </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+            <AssetDropzone
+              label="Cardholder Photograph"
+              value={data.photoUrl}
+              onChange={(val) => onFieldChange('photoUrl', val)}
+              onClear={() => onFieldChange('photoUrl', '')}
+              aspectRatio="photo"
+              helperText="Passport photograph (White background)"
+              isMissing={missingKeys.includes('photoUrl')}
+            />
+            <AssetDropzone
+              label="Cardholder Signature"
+              value={data.signatureUrl}
+              onChange={(val) => onFieldChange('signatureUrl', val)}
+              onClear={() => onFieldChange('signatureUrl', '')}
+              aspectRatio="signature"
+              helperText="Scanned signature on plain white paper"
+              isMissing={missingKeys.includes('signatureUrl')}
+            />
+          </div>
         </div>
       )}
 
@@ -138,6 +160,18 @@ export default function CardForm({
             <div className="sm:col-span-2">
               {renderInput('addressRegional', 'Full Address (Hindi / Regional)', 'मकान नं, गली, शहर, राज्य - पिन', 'text', false)}
             </div>
+          </div>
+
+          <div className="border-t border-gray-100 pt-4">
+            <AssetDropzone
+              label="Resident Photograph"
+              value={data.photoUrl}
+              onChange={(val) => onFieldChange('photoUrl', val)}
+              onClear={() => onFieldChange('photoUrl', '')}
+              aspectRatio="photo"
+              helperText="Official UIDAI Resident Portrait"
+              isMissing={missingKeys.includes('photoUrl')}
+            />
           </div>
         </div>
       )}
@@ -191,6 +225,18 @@ export default function CardForm({
               {renderInput('fullAddressRegional', 'Full Address (Regional)', 'गाँव/मोहल्ला, जिला, राज्य', 'text', false)}
             </div>
           </div>
+
+          <div className="border-t border-gray-100 pt-4">
+            <AssetDropzone
+              label="Elector Photograph"
+              value={data.photoUrl}
+              onChange={(val) => onFieldChange('photoUrl', val)}
+              onClear={() => onFieldChange('photoUrl', '')}
+              aspectRatio="photo"
+              helperText="Election Commission ID portrait"
+              isMissing={missingKeys.includes('photoUrl')}
+            />
+          </div>
         </div>
       )}
 
@@ -230,6 +276,27 @@ export default function CardForm({
             <div className="sm:col-span-2">
               {renderInput('address', 'Permanent Address', 'Full Residential Address', 'text', true)}
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
+            <AssetDropzone
+              label="Driver Photograph"
+              value={data.photoUrl}
+              onChange={(val) => onFieldChange('photoUrl', val)}
+              onClear={() => onFieldChange('photoUrl', '')}
+              aspectRatio="photo"
+              helperText="35mm × 45mm Driving Licence Photo"
+              isMissing={missingKeys.includes('photoUrl')}
+            />
+            <AssetDropzone
+              label="Driver Signature"
+              value={data.signatureUrl}
+              onChange={(val) => onFieldChange('signatureUrl', val)}
+              onClear={() => onFieldChange('signatureUrl', '')}
+              aspectRatio="signature"
+              helperText="Official Driver Specimen Signature"
+              isMissing={missingKeys.includes('signatureUrl')}
+            />
           </div>
         </div>
       )}
