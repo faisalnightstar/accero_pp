@@ -7,7 +7,7 @@ PrintPortal Next.js modernizes and replaces the legacy PHP document printing pla
 ## Phases
 
 - [x] **Phase 1: Foundation & Architecture Setup** - Initialize Next.js 15 App Router in root with TypeScript, Tailwind design tokens, cached MongoDB Mongoose connection, and authentication. (completed 2026-09-27)
-- [ ] **Phase 2: Preformatted Vector Card Canvas & Print Engine** - Build high-DPI vector card renderers for PAN, Aadhaar, Voter, DL, and RC with exact ISO 7810 CR80 physical dimensions (`@page 85.6mm 53.98mm`) and PDF/PNG export.
+- [x] **Phase 2: Preformatted Vector Card Canvas & Print Engine** - Build high-DPI vector card renderers for PAN, Aadhaar, Voter, DL, and RC with exact ISO 7810 CR80 physical dimensions (`@page 85.6mm 53.98mm`) and PDF/PNG export. (completed 2026-09-27)
 - [ ] **Phase 3: Interactive Split-Screen Studio & Missing Field Editor** - Implement the dual-pane studio featuring real-time missing-field detection, live two-way canvas synchronization, and manual data/image uploads.
 - [ ] **Phase 4: Multi-Provider Verification & Fallback APIs** - Integrate server-side verification pipelines for NeoAPI, AxenAPI, and FastNexora with error interception and studio routing.
 - [ ] **Phase 5: Wallet & Credits Management** - Develop MongoDB wallet balance ledger, atomic deductions (`$gte`), low-balance alerts, and transaction history.
@@ -45,9 +45,9 @@ Plans:
 **Plans**: 3 plans
 
 Plans:
-- [ ] 02-01: CR80 Card Canvas base container, QR code generator, and CSS `@page` print stylesheets.
-- [ ] 02-02: PAN and Voter card canvas components with front/back vector overlays and regional typography.
-- [ ] 02-03: Aadhaar, Driving License (DL), and Vehicle RC card canvas components, plus 1-click PDF export utility.
+- [x] 02-01: CR80 Card Canvas base container, QR code generator, and CSS `@page` print stylesheets.
+- [x] 02-02: PAN and Voter card canvas components with front/back vector overlays and regional typography.
+- [x] 02-03: Aadhaar, Driving License (DL), and Vehicle RC card canvas components, plus 1-click PDF export utility.
 
 ### Phase 3: Interactive Split-Screen Studio & Missing Field Editor
 **Goal**: Solve the core problem of incomplete data with a responsive dual-pane studio where missing API fields are detected, highlighted, and editable in real time alongside the live card canvas.
@@ -122,7 +122,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation & Architecture Setup | 3/3 | Complete    | 2026-09-27 |
-| 2. Preformatted Vector Card Canvas & Print Engine | 0/3 | Not started | - |
+| 2. Preformatted Vector Card Canvas & Print Engine | 3/3 | Complete    | 2026-09-27 |
 | 3. Interactive Split-Screen Studio & Missing Field Editor | 0/3 | Not started | - |
 | 4. Multi-Provider Verification & Fallback APIs | 0/2 | Not started | - |
 | 5. Wallet & Credits Management | 0/2 | Not started | - |
