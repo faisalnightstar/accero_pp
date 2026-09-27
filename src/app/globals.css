@@ -24,18 +24,27 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Card Print Rules */
-@media print {
-  @page {
-    size: 85.6mm 53.98mm;
-    margin: 0;
-  }
+/* Strict CR80 ID-1 Physical Dimensions */
+@page {
+  size: 85.6mm 53.98mm;
+  margin: 0;
+}
 
-  body {
+@page a4-card-sheet {
+  size: A4 portrait;
+  margin: 10mm;
+}
+
+/* Print Rules & Exact Color Adjustment */
+@media print {
+  html, body {
     background: transparent !important;
+    background-color: transparent !important;
     color: #000000 !important;
     margin: 0 !important;
     padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 
   .no-print {
@@ -46,12 +55,36 @@ body {
     display: block !important;
   }
 
-  .card-container-printable {
-    page-break-after: always;
-    break-after: page;
+  /* Single-card PVC Tray Printing (Default) */
+  .cr80-print-tray {
     width: 85.6mm !important;
     height: 53.98mm !important;
-    margin: 0 auto !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-after: always;
+    break-after: page;
+    page-break-inside: avoid;
+    break-inside: avoid;
     overflow: hidden !important;
+    position: relative !important;
+    box-sizing: border-box !important;
   }
+
+  /* A4 Sheet Multi-Card Printing (Side by Side with Cut Guides) */
+  .cr80-print-a4 {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin: 6mm !important;
+    display: inline-block !important;
+  }
+}
+
+/* CR80 Screen Geometry Token (Aspect Ratio 85.6 / 53.98 ≈ 1.5858) */
+.cr80-canvas {
+  width: 85.6mm;
+  height: 53.98mm;
+  border-radius: 3.18mm;
+  overflow: hidden;
+  position: relative;
+  box-sizing: border-box;
 }
