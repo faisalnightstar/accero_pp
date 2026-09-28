@@ -64,10 +64,13 @@ export default function RcCardCanvas({
   if (side === 'back') {
     return (
       <div
-        className={`w-full h-full relative overflow-hidden bg-gradient-to-br from-[#E0F2FE]/70 via-[#F8FAFC] to-[#F0F9FF] text-black p-2 flex flex-col justify-between font-sans select-none rounded-[3.18mm] border border-[#B9E2FE] shadow-2xs ${className}`}
+        className={`w-full h-full relative overflow-hidden bg-white text-black p-2 flex flex-col justify-between font-sans select-none rounded-[3.18mm] border border-[#B9E2FE] shadow-2xs ${className}`}
       >
-        {/* Top Header: Badges & Vehicle Class (No artificial dividing line) */}
-        <div className="flex items-center justify-between">
+        {/* Official Back Header Light Sky Blue Dividing Banner */}
+        <div className="absolute top-0 left-0 right-0 h-[36px] bg-[#DEF0FC] pointer-events-none z-0" />
+
+        {/* Top Header: Badges & Vehicle Class (Inside light blue banner) */}
+        <div className="relative z-10 flex items-center justify-between px-0.5 pt-0.5">
           <div className="flex items-center gap-1">
             <RcCircleBadge text={derived.transportType} variant="cyan" />
             <RcCircleBadge text={derived.stateCode} variant="orange" />
@@ -80,7 +83,7 @@ export default function RcCardCanvas({
         </div>
 
         {/* Two-Column Form 23A Specifications Grid */}
-        <div className="grid grid-cols-12 gap-2 my-auto items-start pr-3">
+        <div className="relative z-10 grid grid-cols-12 gap-2 my-auto items-start pr-6 pt-1">
           {/* Left Column: Reg No, Large QR Code (~29.4% width), Mfg Date, Cylinders */}
           <div className="col-span-4 flex flex-col justify-between h-full space-y-1">
             <div>
@@ -176,9 +179,13 @@ export default function RcCardCanvas({
           </div>
         </div>
 
-        {/* Rotated Vertical Border Label: Form 23A (Reading bottom-to-top) */}
+        {/* Rotated Vertical Border Label: Form 23A (Hugging right border, zero collision) */}
         <div
-          className="absolute right-0.5 top-1/2 -translate-y-1/2 text-[7px] font-black tracking-wider text-gray-800 pointer-events-none select-none origin-center -rotate-90 whitespace-nowrap"
+          className="absolute right-1 top-1/2 -translate-y-1/2 text-[7px] font-black tracking-wider text-gray-800 pointer-events-none select-none z-10"
+          style={{
+            writingMode: 'vertical-rl',
+            transform: 'rotate(180deg)',
+          }}
         >
           Form 23A
         </div>
@@ -191,33 +198,46 @@ export default function RcCardCanvas({
    * ----------------------------------------------------------- */
   return (
     <div
-      className={`w-full h-full relative overflow-hidden bg-gradient-to-br from-[#E0F2FE]/70 via-[#F8FAFC] to-[#F0F9FF] text-black p-2 flex flex-col justify-between font-sans select-none rounded-[3.18mm] border border-[#B9E2FE] shadow-2xs ${className}`}
+      className={`w-full h-full relative overflow-hidden bg-white text-black p-2 flex flex-col justify-between font-sans select-none rounded-[3.18mm] border border-[#B9E2FE] shadow-2xs ${className}`}
     >
-      {/* Top Header: Real Ashoka Emblem + Title + State Badges (No artificial dividing line) */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <RcAshokaCrest className="w-[28px] h-[42px]" />
-          <div className="flex flex-col">
+      {/* Official Front Header Light Sky Blue Scalloped Dividing Banner */}
+      <svg
+        viewBox="0 0 457 285"
+        preserveAspectRatio="none"
+        className="absolute inset-0 w-full h-full pointer-events-none z-0"
+      >
+        <path
+          d="M 0,0 L 457,0 L 457,48 L 78,48 Q 68,48 68,56 L 68,64 Q 68,72 56,72 L 0,72 Z"
+          fill="#DEF0FC"
+        />
+      </svg>
+
+      {/* Top Header: Real Ashoka Emblem + Title + State Badges */}
+      <div className="relative z-10 flex items-start justify-between">
+        <div className="flex items-start gap-1.5">
+          {/* Prominent Ashoka Emblem matching official scale */}
+          <RcAshokaCrest className="w-[35px] h-[52px]" />
+          <div className="flex flex-col pt-1">
             <span className="text-[9.5px] sm:text-[10px] font-black text-black tracking-tight leading-tight">
               Indian Union Vehicle Registration Certificate
             </span>
-            <span className="text-[7.5px] sm:text-[8px] font-medium text-gray-800 leading-tight">
+            <span className="text-[7.5px] sm:text-[8px] font-medium text-gray-800 leading-tight mt-0.5">
               {derived.stateIssued}
             </span>
           </div>
         </div>
 
         {/* Dual Circle Badges with white text */}
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-1 shrink-0 pt-1">
           <RcCircleBadge text={derived.transportType} variant="cyan" />
           <RcCircleBadge text={derived.stateCode} variant="orange" />
         </div>
       </div>
 
-      {/* Main Body Area: Chip on Left, 6-Row Grid on Right */}
-      <div className="grid grid-cols-12 gap-1.5 my-auto items-center pr-2.5">
+      {/* Main Body Area: Chip on Left, 6-Row Grid on Right (with pr-6 safe margin) */}
+      <div className="relative z-10 grid grid-cols-12 gap-1.5 my-auto items-center pr-6">
         {/* Left Side: Real Microchip + Blue Arrow Pointer + Fuel & Emission Norms */}
-        <div className="col-span-3 flex flex-col justify-between h-full pt-0.5 space-y-2">
+        <div className="col-span-3 flex flex-col justify-between h-full pt-1 space-y-2">
           {/* Microchip Contact with Royal Blue Arrow Pointer */}
           <RcSmartChipWithPointer />
 
@@ -336,9 +356,13 @@ export default function RcCardCanvas({
         </div>
       </div>
 
-      {/* Rotated Vertical Border Label: Card Issue Date (Reading bottom-to-top) */}
+      {/* Rotated Vertical Border Label: Card Issue Date (Hugging right border, zero collision) */}
       <div
-        className="absolute right-0.5 top-1/2 -translate-y-1/2 text-[6.5px] font-bold tracking-wider text-gray-700 pointer-events-none select-none origin-center -rotate-90 whitespace-nowrap"
+        className="absolute right-1 top-1/2 -translate-y-1/2 text-[6.5px] font-bold tracking-wider text-gray-700 pointer-events-none select-none z-10"
+        style={{
+          writingMode: 'vertical-rl',
+          transform: 'rotate(180deg)',
+        }}
       >
         Card Issue Date ({cardIssueDate})
       </div>

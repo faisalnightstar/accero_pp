@@ -211,7 +211,7 @@ export function RcCircleBadge({
  * Official Indian National Emblem (Lion Capital of Ashoka with Satyameva Jayate)
  */
 export function RcAshokaCrest({
-  className = 'w-[28px] h-[42px]',
+  className = 'w-[35px] h-[52px]',
 }: {
   className?: string;
 }) {
@@ -221,7 +221,7 @@ export function RcAshokaCrest({
       <img
         src="/assets/rc/AshokaEmblem.png"
         alt="National Emblem of India"
-        className="w-full h-full object-contain pointer-events-none select-none"
+        className="w-full h-full object-contain pointer-events-none select-none drop-shadow-2xs"
         loading="eager"
       />
     </div>
