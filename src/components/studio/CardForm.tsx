@@ -301,56 +301,155 @@ export default function CardForm({
         </div>
       )}
 
-      {/* ---------------- VEHICLE RC FORM ---------------- */}
+      {/* ---------------- VEHICLE RC FORM (Form 23A) ---------------- */}
       {docType === 'rc' && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-            <Car className="w-5 h-5 text-burgundy" />
-            <h3 className="text-sm font-bold text-navy">Vehicle RC (Form 23) Details</h3>
+        <div className="space-y-6">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <div className="flex items-center gap-2">
+              <Car className="w-5 h-5 text-burgundy" />
+              <h3 className="text-sm font-bold text-navy">
+                Official Vehicle RC (Form 23A) Details
+              </h3>
+            </div>
+            <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              Form 23A Standard
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
-              {renderInput('registrationNumber', 'Registration Number (RC)', 'e.g. UP16DL3137', 'text', true)}
+          {/* Section 1: Registration Header & Badges */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <CreditCard className="w-3.5 h-3.5 text-burgundy" />
+              <span>1. Registration Header & Badges</span>
             </div>
-            <div>
-              {renderInput('registrationDate', 'Registration Date', '10/05/2021', 'text', true)}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-1">
+                {renderInput('registrationNumber', 'Regn No', 'e.g. UP16DL3137', 'text', true)}
+              </div>
+              <div>
+                {renderInput('registrationDate', 'Date of Regn.', 'e.g. 22-Oct-2022', 'text', true)}
+              </div>
+              <div>
+                {renderInput('regnValidity', 'Regn. Validity', 'e.g. 22-Oct-2037', 'text', true)}
+              </div>
+              <div>
+                {renderInput('ownerSerial', 'Owner Serial', 'e.g. 1', 'number', false)}
+              </div>
+              <div>
+                {renderInput('transportType', 'Badge 1 (Transport Type)', 'NT', 'text', false)}
+              </div>
+              <div>
+                {renderInput('stateCode', 'Badge 2 (State Code)', 'UP', 'text', false)}
+              </div>
+              <div className="sm:col-span-3">
+                {renderInput('stateIssued', 'Issuing Government', 'Issued by Government of Uttar Pradesh', 'text', false)}
+              </div>
             </div>
-            <div>
-              {renderInput('vehicleClass', 'Vehicle Class', 'M-CYCLE/SCOOTER(2WN)', 'text', true)}
+          </div>
+
+          {/* Section 2: Vehicle Identification & Class */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <Shield className="w-3.5 h-3.5 text-burgundy" />
+              <span>2. Vehicle Identification & Model</span>
             </div>
-            <div>
-              {renderInput('chassisNumber', 'Chassis Number', 'e.g. ME4JF504LKV012345', 'text', true)}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                {renderInput('vehicleClass', 'Vehicle Class', 'M-CYCLE/SCOOTER', 'text', true)}
+              </div>
+              <div>
+                {renderInput('maker', 'Maker Description', 'TVS MOTOR COMPANY LTD', 'text', true)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('model', 'Model Description', 'TVSNTORQ125-SUPER SQUADEDITION', 'text', true)}
+              </div>
+              <div>
+                {renderInput('chassisNumber', 'Chassis No', 'MD626AK35N3K13433', 'text', true)}
+              </div>
+              <div>
+                {renderInput('engineNumber', 'Engine/Motor No', 'AK3KN3704338', 'text', true)}
+              </div>
+              <div>
+                {renderInput('color', 'Color', 'BLACK', 'text', false)}
+              </div>
+              <div>
+                {renderInput('bodyType', 'Body Type', '2 WHEELER', 'text', false)}
+              </div>
             </div>
-            <div>
-              {renderInput('engineNumber', 'Engine Number', 'e.g. JF50E72012345', 'text', true)}
+          </div>
+
+          {/* Section 3: Owner Particulars */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <User className="w-3.5 h-3.5 text-burgundy" />
+              <span>3. Registered Owner Particulars</span>
             </div>
-            <div className="sm:col-span-2">
-              {renderInput('ownerName', 'Registered Owner Name', 'e.g. ABU FAISAL', 'text', true)}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="sm:col-span-2">
+                {renderInput('ownerName', 'Owner Name', 'ABU FAISAL', 'text', true)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('sonWifeDaughterOf', 'Son/Daughter/Wife of (In case of Individual Owner)', 'OBAIDULLA', 'text', false)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('address', 'Permanent Address', 'Full Residential Address', 'text', true)}
+              </div>
             </div>
-            <div className="sm:col-span-2">
-              {renderInput('sonWifeDaughterOf', 'Son/Wife/Daughter of', 'e.g. MOHAMMAD FAISAL', 'text', false)}
+          </div>
+
+          {/* Section 4: Technical Specifications */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <FileCheck className="w-3.5 h-3.5 text-burgundy" />
+              <span>4. Technical & Manufacturing Specifications</span>
             </div>
-            <div className="sm:col-span-2">
-              {renderInput('makerModel', 'Maker & Model Description', 'e.g. HONDA MOTORCYCLES / ACTIVA 6G', 'text', true)}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                {renderInput('fuelType', 'Fuel', 'PETROL', 'text', true)}
+              </div>
+              <div>
+                {renderInput('emissionNorm', 'Emission Norms', 'BHARAT STAGE VI', 'text', false)}
+              </div>
+              <div>
+                {renderInput('seatingCapacity', 'Seating(in all) Capacity', '0', 'text', false)}
+              </div>
+              <div>
+                {renderInput('unladenWeight', 'Unladen Weight (Kg)', '0', 'text', false)}
+              </div>
+              <div>
+                {renderInput('cubicCapacity', 'Cubic Cap.', '124.8', 'text', false)}
+              </div>
+              <div>
+                {renderInput('horsePower', 'Horse Power (BHP/Kw)', '0', 'text', false)}
+              </div>
+              <div>
+                {renderInput('wheelBase', 'Wheel Base (mm)', '0', 'text', false)}
+              </div>
+              <div>
+                {renderInput('monthYearOfMfg', 'Month -Year of Mfg.', '9/2022', 'text', false)}
+              </div>
+              <div>
+                {renderInput('noOfCylinders', 'No of Cylinders', '0', 'text', false)}
+              </div>
             </div>
-            <div>
-              {renderInput('fuelType', 'Fuel Type', 'PETROL', 'text', true)}
+          </div>
+
+          {/* Section 5: Financial, Authority & Regulatory */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <Calendar className="w-3.5 h-3.5 text-burgundy" />
+              <span>5. Financial & Registration Authority</span>
             </div>
-            <div>
-              {renderInput('emissionNorm', 'Emission Norms', 'BHARAT STAGE VI', 'text', false)}
-            </div>
-            <div>
-              {renderInput('fitnessValidUpto', 'Fitness Valid Upto', '09/05/2036', 'text', false)}
-            </div>
-            <div>
-              {renderInput('taxPaidUpto', 'Tax Paid Upto', 'L.T.T (One Time)', 'text', false)}
-            </div>
-            <div className="sm:col-span-2">
-              {renderInput('hypothecatedTo', 'Hypothecated To (Financier Bank)', 'e.g. STATE BANK OF INDIA', 'text', false)}
-            </div>
-            <div className="sm:col-span-2">
-              {renderInput('address', 'Owner Address', 'Full Residential Address', 'text', true)}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="sm:col-span-2">
+                {renderInput('financier', 'Financier / Hypothecated To', 'BANDHAN BANK LTD', 'text', false)}
+              </div>
+              <div>
+                {renderInput('registeringAuthority', 'Registration Authority', 'Noida, Uttar Pradesh', 'text', true)}
+              </div>
+              <div>
+                {renderInput('cardIssueDate', 'Card Issue Date', '30-08-2026', 'text', false)}
+              </div>
             </div>
           </div>
         </div>
