@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   DocumentType,
   PanCardData,
@@ -224,6 +224,10 @@ export function useCardStudio(initialType: DocumentType = 'pan') {
     setCardData(blank);
   }, [docType]);
 
+  const isDirty = React.useMemo(() => {
+    return JSON.stringify(cardData) !== JSON.stringify(originalSnapshot);
+  }, [cardData, originalSnapshot]);
+
   return {
     docType,
     cardData,
@@ -232,5 +236,6 @@ export function useCardStudio(initialType: DocumentType = 'pan') {
     resetToOriginal,
     resetToBlank,
     loadData,
+    isDirty,
   };
 }

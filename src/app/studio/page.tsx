@@ -28,6 +28,8 @@ import VoterCardCanvas from '@/components/cards/VoterCardCanvas';
 import AadhaarCardCanvas from '@/components/cards/AadhaarCardCanvas';
 import DlCardCanvas from '@/components/cards/DlCardCanvas';
 import RcCardCanvas from '@/components/cards/RcCardCanvas';
+import { StudioSearchBar } from '@/components/studio/StudioSearchBar';
+import { verifyDocument } from '@/actions/verify';
 import { useCardStudio } from '@/hooks/useCardStudio';
 import { analyzeDocumentCompleteness } from '@/lib/missingFields';
 import { DocumentType } from '@/types/cards';
@@ -37,6 +39,7 @@ function StudioPageContent() {
   const searchParams = useSearchParams();
   const urlDocId = searchParams.get('id');
   const urlDocType = searchParams.get('type') as DocumentType | null;
+  const urlLookup = searchParams.get('lookup');
 
   const validTypes: DocumentType[] = ['pan', 'aadhaar', 'voter', 'dl', 'rc'];
   const resolvedType: DocumentType = urlDocType && validTypes.includes(urlDocType) ? urlDocType : 'pan';
@@ -49,10 +52,12 @@ function StudioPageContent() {
     resetToOriginal,
     resetToBlank,
     loadData,
+    isDirty,
   } = useCardStudio(resolvedType);
 
   const [currentDocId, setCurrentDocId] = useState<string | null>(urlDocId);
   const [isLoadingDoc, setIsLoadingDoc] = useState<boolean>(false);
+  const [toastAlert, setToastAlert] = useState<{ message: string; type: 'info' | 'warning' | 'error' | 'success' } | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [saveSuccess, setSaveSuccess] = useState<{
     show: boolean;
@@ -102,6 +107,42 @@ function StudioPageContent() {
       switchDocType(urlDocType);
     }
   }, [urlDocType, urlDocId, docType, switchDocType]);
+
+  // Handle auto-lookup from query params (e.g. redirected from Dashboard modal)
+  useEffect(() => {
+    if (!urlLookup || urlDocId) return;
+
+    let isMounted = true;
+    setIsLoadingDoc(true);
+
+    verifyDocument(resolvedType, urlLookup)
+      .then((res) => {
+        if (isMounted && res.success && res.data) {
+          loadData(resolvedType, res.data);
+          if (res.isPartial) {
+            setToastAlert({
+              message: 'Partial record retrieved — please complete the missing fields highlighted in amber.',
+              type: 'warning',
+            });
+          } else {
+            setToastAlert({
+              message: `Retrieved record for ${urlLookup} via ${res.provider || 'Gateway'}.`,
+              type: 'success',
+            });
+          }
+        }
+      })
+      .catch((err) => {
+        console.error('Auto lookup error:', err);
+      })
+      .finally(() => {
+        if (isMounted) setIsLoadingDoc(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [urlLookup, urlDocId, resolvedType, loadData]);
 
   // Analyze completeness dynamically on every state change
   const completeness = useMemo(() => {
@@ -396,6 +437,41 @@ function StudioPageContent() {
         }
         form={
           <div className="space-y-4">
+            <StudioSearchBar
+              docType={docType}
+              isDirty={isDirty}
+              onDataLoaded={(data) => {
+                loadData(docType, data);
+                setCurrentDocId(null);
+                setSaveSuccess(null);
+              }}
+              onToast={(msg, type) => {
+                setToastAlert({ message: msg, type });
+                setTimeout(() => setToastAlert(null), 5000);
+              }}
+            />
+
+            {toastAlert && (
+              <div
+                className={`p-3 rounded-xl text-xs font-medium flex items-center justify-between border shadow-xs animate-in fade-in duration-150 ${
+                  toastAlert.type === 'warning'
+                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                    : toastAlert.type === 'error'
+                    ? 'bg-red-500/10 border-red-500/30 text-red-300'
+                    : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                }`}
+              >
+                <span>{toastAlert.message}</span>
+                <button
+                  type="button"
+                  onClick={() => setToastAlert(null)}
+                  className="ml-2 font-bold opacity-75 hover:opacity-100"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
             <MissingFieldBanner
               completeness={completeness}
               onJumpToField={handleJumpToField}

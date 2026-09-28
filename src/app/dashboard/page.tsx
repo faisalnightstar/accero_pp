@@ -19,7 +19,11 @@ import {
   AlertCircle,
   Loader2,
   FolderOpen,
+  Sparkles,
+  Search,
 } from 'lucide-react';
+import { QuickLookupModal } from '@/components/dashboard/QuickLookupModal';
+import { DocumentType } from '@/types/cards';
 
 interface UserData {
   id: string;
@@ -97,6 +101,8 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [savedDocs, setSavedDocs] = useState<SavedDocument[]>([]);
   const [docsLoading, setDocsLoading] = useState(true);
+  const [showLookupModal, setShowLookupModal] = useState(false);
+  const [lookupDocType, setLookupDocType] = useState<DocumentType>('pan');
 
   useEffect(() => {
     async function loadSessionAndDocs() {
@@ -164,12 +170,24 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              setLookupDocType('pan');
+              setShowLookupModal(true);
+            }}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-[#8B1E2D] hover:bg-[#A82537] shadow-sm transition-all"
+          >
+            <Sparkles className="w-4 h-4 text-amber-300" />
+            <span>Quick Lookup</span>
+          </button>
+
           <Link
             href="/studio"
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-white bg-burgundy hover:bg-burgundy/90 shadow-sm transition-all"
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-sm font-semibold text-slate-700 hover:text-navy bg-slate-100 hover:bg-slate-200 transition-all border border-slate-200"
           >
-            <Edit3 className="w-4 h-4" />
+            <Edit3 className="w-4 h-4 text-slate-500" />
             <span>Launch Studio</span>
           </Link>
 
@@ -390,19 +408,36 @@ export default function DashboardPage() {
                 </div>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-100">
+              <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLookupDocType(card.type as DocumentType);
+                    setShowLookupModal(true);
+                  }}
+                  className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-[#8B1E2D]/10 hover:bg-[#8B1E2D] text-[#8B1E2D] hover:text-white text-xs font-bold transition-all border border-[#8B1E2D]/20"
+                >
+                  <Search className="w-3.5 h-3.5" />
+                  <span>Quick Number Lookup</span>
+                </button>
                 <Link
                   href={`/studio?type=${card.type}`}
-                  className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-50 hover:bg-[#8B1E2D] text-[#1D3557] hover:text-white text-sm font-semibold transition-all"
+                  className="w-full inline-flex items-center justify-center gap-2 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-[#1D3557] text-xs font-semibold transition-all border border-slate-200"
                 >
-                  <span>Open Split-Screen Studio</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Open Blank Studio</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>
           ))}
         </div>
       </div>
+
+      <QuickLookupModal
+        isOpen={showLookupModal}
+        onClose={() => setShowLookupModal(false)}
+        initialType={lookupDocType}
+      />
     </div>
   );
 }
