@@ -15,18 +15,21 @@ Effortless, pixel-perfect card printing with zero missing-data failures — allo
 - ✓ Manual and API lookup for PAN, Aadhaar, Voter ID, Driving License, and Vehicle RC — legacy PHP implementation
 - ✓ Preformatted card templates with regional language font support — legacy templates
 - ✓ Wallet and per-service credit balance deduction — legacy MySQL ledger
+- ✓ Next.js 15+ App Router full-stack architecture with React 19, TypeScript, and clean modular UI — v1.0
+- ✓ MongoDB with Mongoose document modeling for flexible document storage and user wallet ledgers — v1.0
+- ✓ Split-screen live preview card editor: form on left with missing-field detection & highlights, real-time updated preformatted card canvas on right — v1.0
+- ✓ Preformatted printable cards for all 5 document types: PAN card, Aadhaar card, Voter EPIC card, Driving License (DL), and Vehicle Registration Certificate (RC) — v1.0
+- ✓ High-DPI physical card export: CSS print stylesheets (`@page 85.6mm 53.98mm`) and high-resolution PDF/image generation matching standard CR80 PVC dimensions — v1.0
+- ✓ Resilient multi-provider API integrations with graceful fallbacks on partial data or timeout — v1.0
+- ✓ Wallet & credits management: user authentication, balance dashboard, top-up/recharge flow, and audit trail — v1.0
+- ✓ Full SEO, GEO, and AEO suite: SSR public landing pages, programmatic regional state/district pages (GEO), and JSON-LD structured schemas (`FAQPage`, `HowTo`, `SoftwareApplication`) for high search & AI engine visibility — v1.0
 
-### Active
+### Active (v1.1 / Future Planning)
 
-- [ ] Next.js 15+ App Router full-stack architecture with React 19, TypeScript, and clean modular UI
-- [ ] MongoDB with Mongoose document modeling for flexible document storage and user wallet ledgers
-- [ ] Split-screen live preview card editor: form on left with missing-field detection & highlights, real-time updated preformatted card canvas on right
-- [ ] Preformatted printable cards for all 5 document types: PAN card, Aadhaar card, Voter EPIC card, Driving License (DL), and Vehicle Registration Certificate (RC)
-- [ ] High-DPI physical card export: CSS print stylesheets (`@page 85.6mm 53.98mm`) and high-resolution PDF/image generation matching standard CR80 PVC dimensions
-- [ ] Resilient multi-provider API integrations (NeoAPI, AxenAPI, FastNexora) with graceful fallbacks on partial data or timeout
-- [ ] Wallet & credits management: user authentication, balance dashboard, top-up/recharge flow, and audit trail
-- [ ] Full SEO, GEO, and AEO suite: SSR public landing pages, programmatic regional state/district pages (GEO), and JSON-LD structured schemas (`FAQPage`, `HowTo`, `SoftwareApplication`) for high search & AI engine visibility
-- [ ] Production Vercel deployment with Edge caching, robust security headers, and sanitized environment variables
+- [ ] Automated Optical Character Recognition (OCR) to extract card data directly from uploaded photo scans
+- [ ] Multi-language UI toggle (Hindi, Bengali, Marathi, Tamil, Telugu, Gujarati) across the entire portal interface
+- [ ] Automated dynamic UPI QR payment gateway integration for automated instant wallet balance top-ups
+- [ ] Bulk batch card printing: CSV upload generating multi-page card print sheets for institutional operators
 
 ### Out of Scope
 
@@ -36,10 +39,10 @@ Effortless, pixel-perfect card printing with zero missing-data failures — allo
 
 ## Context
 
-- Migrating from a legacy brownfield PHP codebase (`printportal/`) with 50+ MySQL tables and procedural page controllers.
-- Legacy system experienced frequent issues with incomplete API responses rendering broken cards; the Next.js portal prioritizes an interactive split-screen editing gateway to solve this.
-- Modernized color palette adopted from legacy design specification (`printportal/design.md`): Deep Burgundy (`#8B1E2D`), Crimson Red (`#E63946`), Warm Gold (`#F4D35E`), Steel Blue (`#457B9D`), and Dark Navy (`#1D3557`).
-- Security enhancement: All hardcoded credentials and API keys in legacy code will be migrated exclusively to Vercel/serverless environment variables.
+- Successfully migrated and modernized from legacy brownfield PHP codebase (`printportal/`) to Next.js 15 App Router.
+- Current codebase status: 15 plans across 6 phases fully implemented and tested.
+- Modernized color palette active: Deep Burgundy (`#8B1E2D`), Crimson Red (`#E63946`), Warm Gold (`#F4D35E`), Steel Blue (`#457B9D`), and Dark Navy (`#1D3557`).
+- Security architecture: All server credentials, third-party API keys, and JWT secrets isolated strictly to server-only runtime environment variables.
 
 ## Constraints
 
@@ -51,11 +54,12 @@ Effortless, pixel-perfect card printing with zero missing-data failures — allo
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Next.js App Router + Vercel | Maximizes SEO indexing, Edge performance, and modern React 19 server components | — Pending |
-| MongoDB for Document Storage | Schemaless flexibility accommodates varying document payloads and custom user edits | — Pending |
-| Split-Screen Live Preview | Immediate visual feedback when completing missing API fields before printing | — Pending |
-| Wallet & Credits Billing | Familiar business model for cyber café / CSC operators printing multiple cards daily | — Pending |
-| Full SEO + GEO + AEO Suite | Programmatic regional pages and JSON-LD schemas capture high-intent local search queries | — Pending |
+| Next.js App Router + Vercel | Maximizes SEO indexing, Edge performance, and modern React 19 server components | ✓ Good |
+| MongoDB for Document Storage | Schemaless flexibility accommodates varying document payloads and custom user edits | ✓ Good |
+| Split-Screen Live Preview | Immediate visual feedback when completing missing API fields before printing | ✓ Good |
+| Wallet & Credits Billing | Familiar business model for cyber café / CSC operators printing multiple cards daily | ✓ Good |
+| Full SEO + GEO + AEO Suite | Programmatic regional pages and JSON-LD schemas capture high-intent local search queries | ✓ Good |
+| Decoupled Wallet Constants | Separate client-safe pricing constants from server mongoose models to prevent Webpack bundling errors | ✓ Good |
 
 ## Evolution
 
@@ -75,4 +79,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-09-28 after initialization*
+*Last updated: 2026-09-29 after v1.0 milestone*
