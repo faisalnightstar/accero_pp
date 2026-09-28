@@ -34,8 +34,8 @@ Full phase plans and archived roadmap details: [.planning/milestones/v1.0-ROADMA
   4. Physical print preview and 1-click PDF/PNG downloads lock strictly to ISO/IEC 7810 ID-1 standard dimensions (85.60 mm × 53.98 mm) with zero drift on PVC printer trays.
 
 Plans:
-- [ ] 07-01: Data schema extension (`RcCardData`) and pixel-perfect front and back vector canvas components (`RcCardCanvas.tsx`).
-- [ ] 07-02: Studio form integration, sample data update, and print/PDF export verification.
+- [x] 07-01: Data schema extension (`RcCardData`) and pixel-perfect front and back vector canvas components (`RcCardCanvas.tsx`).
+- [x] 07-02: Studio form integration, sample data update, and print/PDF export verification.
 
 ---
 
@@ -52,7 +52,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 4. Multi-Provider Verification & Fallback APIs | v1.0 | 2/2 | Complete | 2026-09-28 |
 | 5. Wallet & Credits Management | v1.0 | 2/2 | Complete | 2026-09-28 |
 | 6. Full SEO, GEO & AEO Search Engine | v1.0 | 2/2 | Complete | 2026-09-28 |
-| 7. Exact Official Vehicle RC Smart Card Engine | v1.1 | 0/2 | Not started | - |
+| 7. Exact Official Vehicle RC Smart Card Engine | v1.1 | 2/2 | Complete | 2026-09-29 |
 
 ---
 *Roadmap updated: 2026-09-29 for milestone v1.1*

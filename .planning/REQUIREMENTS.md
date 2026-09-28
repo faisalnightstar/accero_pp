@@ -8,11 +8,11 @@
 
 ### Vehicle RC Smart Card Engine (RC)
 
-- [ ] **RC-01**: Extended `RcCardData` schema supporting all Form 23A vehicle parameters (state issued, state code badge, transport type badge, owner serial, registration validity, card issue date, maker, model, body type, cubic capacity, BHP, wheelbase, manufacturing date, cylinder count, financier, and registering authority) with smart auto-derivation.
-- [ ] **RC-02**: Exact official Front Canvas layout: subtle sky-blue/cyan gradient background, Ashoka Lion emblem with curved blue crest, dual NT/State circular badge pills, smart card chip with directional arrow pointer (`◀`), 6-row label/value hierarchy, left-side fuel & emission norms, and rotated right-edge card issue date.
-- [ ] **RC-03**: Exact official Back Canvas layout (Form 23A): top NT/State circular badges with Vehicle Class header, left column with registration number, dense square QR code, manufacturing date, and cylinder count; right column with maker, model, color, body type, seating capacity, unladen weight, cubic cap / BHP / wheelbase, financier, registration authority, and rotated right-edge Form 23A label.
-- [ ] **RC-04**: Interactive Split-Screen Studio integration: comprehensive form fields for all Form 23A parameters with real-time two-way canvas synchronization, missing-field assistance, and updated realistic sample data.
-- [ ] **RC-05**: High-precision physical print and export verification: seamless ISO/IEC 7810 ID-1 dimensions (85.60 mm × 53.98 mm) print styling and high-DPI PDF/PNG export.
+- [x] **RC-01**: Extended `RcCardData` schema supporting all Form 23A vehicle parameters (state issued, state code badge, transport type badge, owner serial, registration validity, card issue date, maker, model, body type, cubic capacity, BHP, wheelbase, manufacturing date, cylinder count, financier, and registering authority) with smart auto-derivation.
+- [x] **RC-02**: Exact official Front Canvas layout: subtle sky-blue/cyan gradient background, Ashoka Lion emblem with curved blue crest, dual NT/State circular badge pills, smart card chip with directional arrow pointer (`◀`), 6-row label/value hierarchy, left-side fuel & emission norms, and rotated right-edge card issue date.
+- [x] **RC-03**: Exact official Back Canvas layout (Form 23A): top NT/State circular badges with Vehicle Class header, left column with registration number, dense square QR code, manufacturing date, and cylinder count; right column with maker, model, color, body type, seating capacity, unladen weight, cubic cap / BHP / wheelbase, financier, registration authority, and rotated right-edge Form 23A label.
+- [x] **RC-04**: Interactive Split-Screen Studio integration: comprehensive form fields for all Form 23A parameters with real-time two-way canvas synchronization, missing-field assistance, and updated realistic sample data.
+- [x] **RC-05**: High-precision physical print and export verification: seamless ISO/IEC 7810 ID-1 dimensions (85.60 mm × 53.98 mm) print styling and high-DPI PDF/PNG export.
 
 ## Future Requirements (v1.2+)
 
@@ -32,11 +32,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| RC-01 | Phase 7 | Pending |
-| RC-02 | Phase 7 | Pending |
-| RC-03 | Phase 7 | Pending |
-| RC-04 | Phase 7 | Pending |
-| RC-05 | Phase 7 | Pending |
+| RC-01 | Phase 7 | Complete |
+| RC-02 | Phase 7 | Complete |
+| RC-03 | Phase 7 | Complete |
+| RC-04 | Phase 7 | Complete |
+| RC-05 | Phase 7 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 5 total
