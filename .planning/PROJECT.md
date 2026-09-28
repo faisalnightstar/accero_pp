@@ -24,7 +24,15 @@ Effortless, pixel-perfect card printing with zero missing-data failures — allo
 - ✓ Wallet & credits management: user authentication, balance dashboard, top-up/recharge flow, and audit trail — v1.0
 - ✓ Full SEO, GEO, and AEO suite: SSR public landing pages, programmatic regional state/district pages (GEO), and JSON-LD structured schemas (`FAQPage`, `HowTo`, `SoftwareApplication`) for high search & AI engine visibility — v1.0
 
-### Active (v1.1 / Future Planning)
+### Active (v1.1 - Exact Official Vehicle RC Smart Card Engine)
+
+- [ ] Pixel-perfect Front Canvas matching official Indian Union Vehicle Registration Certificate (subtle cyan/sky gradient background, Ashoka Lion emblem crest, NT/state badge pills, contact chip with arrow pointer, exact 6-row label/value hierarchy, left fuel/emission specs, rotated card issue date on right edge).
+- [ ] Pixel-perfect Back Canvas matching official Form 23A layout (NT/state badge pills, Vehicle Class header, left column with registration number, dense square QR code, mfg date, cylinders count; right column with maker, model, color/body type, seating, weight, cubic capacity/BHP/wheelbase, financier, registration authority, rotated Form 23A label).
+- [ ] Extended `RcCardData` schema and validation to seamlessly support all detailed Form 23A vehicle parameters with smart defaults and regional state/transport-type derivation.
+- [ ] Studio editor and sample data update for Vehicle RC to expose the complete Form 23A specifications with missing-field assistance.
+- [ ] Zero-drift print preview and high-DPI export verification matching standard ISO 7810 CR80 physical tray alignment.
+
+### Future (v1.2+)
 
 - [ ] Automated Optical Character Recognition (OCR) to extract card data directly from uploaded photo scans
 - [ ] Multi-language UI toggle (Hindi, Bengali, Marathi, Tamil, Telugu, Gujarati) across the entire portal interface
