@@ -1,38 +1,13 @@
 import connectToDatabase from '@/lib/mongodb';
 import DocumentRecord from '@/models/DocumentRecord';
 import mongoose from 'mongoose';
+import {
+  SERVICE_FEES,
+  LOW_BALANCE_THRESHOLD,
+  normalizeDocType,
+} from './constants';
 
-/**
- * Official Service Fee Structure (in INR ₹)
- * D-01: Tiered pricing per document type
- */
-export const SERVICE_FEES: Record<string, number> = {
-  PAN: 50,
-  RC: 35,
-  DL: 30,
-  AADHAAR: 25,
-  VOTER: 20,
-  MANUAL: 5,
-};
-
-/**
- * Low balance threshold triggering amber warning alerts
- */
-export const LOW_BALANCE_THRESHOLD = 50;
-
-/**
- * Normalize document type key to match standard format
- */
-export function normalizeDocType(type: string): string {
-  const upper = type.toUpperCase().trim();
-  if (upper === 'VOTER' || upper === 'EPIC') return 'VOTER';
-  if (upper === 'PAN') return 'PAN';
-  if (upper === 'AADHAAR' || upper === 'UID') return 'AADHAAR';
-  if (upper === 'DL' || upper === 'DRIVING_LICENSE') return 'DL';
-  if (upper === 'RC' || upper === 'VEHICLE_RC') return 'RC';
-  if (upper === 'MANUAL') return 'MANUAL';
-  return upper;
-}
+export { SERVICE_FEES, LOW_BALANCE_THRESHOLD, normalizeDocType };
 
 /**
  * Check if the document has already been generated and saved for this user.

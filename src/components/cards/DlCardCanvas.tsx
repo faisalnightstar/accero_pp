@@ -43,7 +43,7 @@ export default function DlCardCanvas({
               </tr>
             </thead>
             <tbody>
-              {data.vehicleClasses && data.vehicleClasses.length > 0 ? (
+              {Array.isArray(data.vehicleClasses) && data.vehicleClasses.length > 0 ? (
                 data.vehicleClasses.map((cov, idx) => (
                   <tr key={idx} className="border-b border-gray-200">
                     <td className="p-0.5 font-bold font-mono text-burgundy">{cov.code}</td>

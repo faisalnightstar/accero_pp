@@ -7,7 +7,7 @@ import { verifyDocument } from '@/actions/verify';
 import { OverwriteConfirmModal } from './OverwriteConfirmModal';
 import InsufficientBalanceModal from '@/components/wallet/InsufficientBalanceModal';
 import RechargeModal from '@/components/wallet/RechargeModal';
-import { SERVICE_FEES } from '@/lib/wallet/pricing';
+import { SERVICE_FEES } from '@/lib/wallet/constants';
 
 interface StudioSearchBarProps {
   docType: DocumentType;
