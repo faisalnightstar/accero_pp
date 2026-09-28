@@ -9,36 +9,36 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Foundation & Infrastructure (FOUND)
 
-- [ ] **FOUND-01**: Next.js 15+ App Router full-stack architecture initialized with TypeScript, Tailwind CSS, and modular layout.
-- [ ] **FOUND-02**: MongoDB database integration with cached Mongoose connection pattern optimized for Vercel serverless functions.
-- [ ] **FOUND-03**: Custom design system and palette tokens matching brand identity (`#8B1E2D` Burgundy, `#E63946` Crimson, `#F4D35E` Gold, `#457B9D` Steel Blue).
-- [ ] **FOUND-04**: User authentication system (JWT session management, sign-up, sign-in, and protected dashboard routes).
+- [x] **FOUND-01**: Next.js 15+ App Router full-stack architecture initialized with TypeScript, Tailwind CSS, and modular layout.
+- [x] **FOUND-02**: MongoDB database integration with cached Mongoose connection pattern optimized for Vercel serverless functions.
+- [x] **FOUND-03**: Custom design system and palette tokens matching brand identity (`#8B1E2D` Burgundy, `#E63946` Crimson, `#F4D35E` Gold, `#457B9D` Steel Blue).
+- [x] **FOUND-04**: User authentication system (JWT session management, sign-up, sign-in, and protected dashboard routes).
 
 ### Card Canvas & Print Engine (CARD)
 
-- [ ] **CARD-01**: Preformatted vector card canvas for PAN Card (standard front and back layouts with photo, signature, father name, and QR code).
-- [ ] **CARD-02**: Preformatted vector card canvas for Aadhaar Card (front and back layouts with Devanagari/regional text, demographic box, and high-density QR code).
-- [ ] **CARD-03**: Preformatted vector card canvas for Voter ID / EPIC Card (front portrait, EPIC number, constituency, and back details).
-- [ ] **CARD-04**: Preformatted vector card canvas for Driving License (DL) (standard smart card chip layout, vehicle classes, issue/expiry dates).
-- [ ] **CARD-05**: Preformatted vector card canvas for Vehicle Registration Certificate (RC) (vehicle details, chassis, engine, fuel type, owner info).
-- [ ] **CARD-06**: Exact physical print scaling via CSS `@page { size: 85.6mm 53.98mm; margin: 0; }` preventing margin drift on PVC card printers.
-- [ ] **CARD-07**: Direct 1-click high-DPI PDF and PNG export for digital archival and offline card tray printing.
+- [x] **CARD-01**: Preformatted vector card canvas for PAN Card (standard front and back layouts with photo, signature, father name, and QR code).
+- [x] **CARD-02**: Preformatted vector card canvas for Aadhaar Card (front and back layouts with Devanagari/regional text, demographic box, and high-density QR code).
+- [x] **CARD-03**: Preformatted vector card canvas for Voter ID / EPIC Card (front portrait, EPIC number, constituency, and back details).
+- [x] **CARD-04**: Preformatted vector card canvas for Driving License (DL) (standard smart card chip layout, vehicle classes, issue/expiry dates).
+- [x] **CARD-05**: Preformatted vector card canvas for Vehicle Registration Certificate (RC) (vehicle details, chassis, engine, fuel type, owner info).
+- [x] **CARD-06**: Exact physical print scaling via CSS `@page { size: 85.6mm 53.98mm; margin: 0; }` preventing margin drift on PVC card printers.
+- [x] **CARD-07**: Direct 1-click high-DPI PDF and PNG export for digital archival and offline card tray printing.
 
 ### Split-Screen Studio & Interactive Editor (STUDIO)
 
-- [ ] **STUDIO-01**: Responsive split-screen studio layout: editable form controls on the left, reactive live card canvas preview on the right.
-- [ ] **STUDIO-02**: Automatic missing-field detection that scans incoming API records and visually highlights missing/incomplete fields in amber/yellow.
-- [ ] **STUDIO-03**: Real-time two-way data binding: typing or updating any form input instantly reflects on the live card canvas without page reload.
-- [ ] **STUDIO-04**: Manual entry mode supporting full blank document creation with photo and signature image uploads (Dropify / drag-and-drop).
-- [ ] **STUDIO-05**: Document record persistence saving completed card snapshots, user modifications, and timestamps into MongoDB.
+- [x] **STUDIO-01**: Responsive split-screen studio layout: editable form controls on the left, reactive live card canvas preview on the right.
+- [x] **STUDIO-02**: Automatic missing-field detection that scans incoming API records and visually highlights missing/incomplete fields in amber/yellow.
+- [x] **STUDIO-03**: Real-time two-way data binding: typing or updating any form input instantly reflects on the live card canvas without page reload.
+- [x] **STUDIO-04**: Manual entry mode supporting full blank document creation with photo and signature image uploads (Dropify / drag-and-drop).
+- [x] **STUDIO-05**: Document record persistence saving completed card snapshots, user modifications, and timestamps into MongoDB.
 
 ### Verification & Multi-Provider APIs (VERIF)
 
-- [ ] **VERIF-01**: Secure server-only API route handlers/server actions executing third-party verification requests without exposing API keys to client bundles.
-- [ ] **VERIF-02**: Voter ID (EPIC) verification integration with captcha solver and fallback lookup.
-- [ ] **VERIF-03**: PAN verification integration returning cardholder name, father name, and DOB.
-- [ ] **VERIF-04**: Driving License and Vehicle RC verification integration returning vehicle and license demographic payloads.
-- [ ] **VERIF-05**: Resilient error handling that intercepts API timeouts or partial payloads, gracefully routing available data into the Split-Screen Studio for missing-field completion.
+- [x] **VERIF-01**: Secure server-only API route handlers/server actions executing third-party verification requests without exposing API keys to client bundles.
+- [x] **VERIF-02**: Voter ID (EPIC) verification integration with captcha solver and fallback lookup.
+- [x] **VERIF-03**: PAN verification integration returning cardholder name, father name, and DOB.
+- [x] **VERIF-04**: Driving License and Vehicle RC verification integration returning vehicle and license demographic payloads.
+- [x] **VERIF-05**: Resilient error handling that intercepts API timeouts or partial payloads, gracefully routing available data into the Split-Screen Studio for missing-field completion.
 
 ### Wallet & Credits Management (WALL)
 
@@ -77,27 +77,27 @@ Which phases cover which requirements. (To be mapped in ROADMAP.md).
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| FOUND-01 | Phase 1 | Pending |
-| FOUND-02 | Phase 1 | Pending |
-| FOUND-03 | Phase 1 | Pending |
-| FOUND-04 | Phase 1 | Pending |
-| CARD-01 | Phase 2 | Pending |
-| CARD-02 | Phase 2 | Pending |
-| CARD-03 | Phase 2 | Pending |
-| CARD-04 | Phase 2 | Pending |
-| CARD-05 | Phase 2 | Pending |
-| CARD-06 | Phase 2 | Pending |
-| CARD-07 | Phase 2 | Pending |
-| STUDIO-01 | Phase 3 | Pending |
-| STUDIO-02 | Phase 3 | Pending |
-| STUDIO-03 | Phase 3 | Pending |
-| STUDIO-04 | Phase 3 | Pending |
-| STUDIO-05 | Phase 3 | Pending |
-| VERIF-01 | Phase 4 | Pending |
-| VERIF-02 | Phase 4 | Pending |
-| VERIF-03 | Phase 4 | Pending |
-| VERIF-04 | Phase 4 | Pending |
-| VERIF-05 | Phase 4 | Pending |
+| FOUND-01 | Phase 1 | Complete |
+| FOUND-02 | Phase 1 | Complete |
+| FOUND-03 | Phase 1 | Complete |
+| FOUND-04 | Phase 1 | Complete |
+| CARD-01 | Phase 2 | Complete |
+| CARD-02 | Phase 2 | Complete |
+| CARD-03 | Phase 2 | Complete |
+| CARD-04 | Phase 2 | Complete |
+| CARD-05 | Phase 2 | Complete |
+| CARD-06 | Phase 2 | Complete |
+| CARD-07 | Phase 2 | Complete |
+| STUDIO-01 | Phase 3 | Complete |
+| STUDIO-02 | Phase 3 | Complete |
+| STUDIO-03 | Phase 3 | Complete |
+| STUDIO-04 | Phase 3 | Complete |
+| STUDIO-05 | Phase 3 | Complete |
+| VERIF-01 | Phase 4 | Complete |
+| VERIF-02 | Phase 4 | Complete |
+| VERIF-03 | Phase 4 | Complete |
+| VERIF-04 | Phase 4 | Complete |
+| VERIF-05 | Phase 4 | Complete |
 | WALL-01 | Phase 5 | Pending |
 | WALL-02 | Phase 5 | Pending |
 | WALL-03 | Phase 5 | Pending |
