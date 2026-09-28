@@ -94,8 +94,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: MongoDB Wallet model, atomic deduction transaction logic, and header balance indicator.
-- [ ] 05-02: Wallet recharge modal, payment mock/gateway integration, and transaction audit history table.
+- [ ] 05-01: Wallet ledger backend, tiered pricing engine, and atomic conditional deductions.
+- [ ] 05-02: Dual-mode recharge modal, live navbar balance pill, studio balance guard, and dedicated /wallet dashboard.
 
 ### Phase 6: Full SEO, GEO & AEO Search Engine
 **Goal**: Establish dominant search engine visibility across traditional organic search, hyper-local queries across India, and modern AI answer engines.
