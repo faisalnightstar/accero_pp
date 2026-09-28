@@ -49,10 +49,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### SEO, GEO & AEO Search Engine (SEO)
 
-- [ ] **SEO-01**: Server-Side Rendered (SSR) public landing pages for each service (`/services/pan-card`, `/services/voter-id`, etc.) with optimized metadata and OpenGraph tags.
-- [ ] **SEO-02**: Programmatic regional GEO landing pages targeting states and major districts across India to capture local search intent.
-- [ ] **SEO-03**: Comprehensive JSON-LD structured schemas (`SoftwareApplication`, `FAQPage`, `HowTo`, `BreadcrumbList`) for Google Rich Results and AI Answer Engines (Perplexity, ChatGPT Search).
-- [ ] **SEO-04**: Dynamic `sitemap.xml` and `robots.txt` generation including all service and regional routes.
+- [x] **SEO-01**: Server-Side Rendered (SSR) public landing pages for each service (`/services/pan-card`, `/services/voter-id`, etc.) with optimized metadata and OpenGraph tags.
+- [x] **SEO-02**: Programmatic regional GEO landing pages targeting states and major districts across India to capture local search intent.
+- [x] **SEO-03**: Comprehensive JSON-LD structured schemas (`SoftwareApplication`, `FAQPage`, `HowTo`, `BreadcrumbList`) for Google Rich Results and AI Answer Engines (Perplexity, ChatGPT Search).
+- [x] **SEO-04**: Dynamic `sitemap.xml` and `robots.txt` generation including all service and regional routes.
 
 ## v2 Requirements
 
