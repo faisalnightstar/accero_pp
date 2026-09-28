@@ -149,3 +149,116 @@ export function GuillochePattern({
     </svg>
   );
 }
+
+/**
+ * Smart Card Microchip Contact with Royal Blue Directional Arrow Pointer (Form 23A)
+ */
+export function RcSmartChipWithPointer({
+  className = 'w-11 h-8',
+}: {
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-center gap-0.5 ${className}`}>
+      {/* Directional Arrow Pointer */}
+      <svg
+        viewBox="0 0 10 16"
+        className="w-2.5 h-3.5 shrink-0"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <polygon points="10,0 0,8 10,16" fill="#2563EB" />
+      </svg>
+
+      {/* 8-Contact Gold Smart Card Microchip */}
+      <svg
+        viewBox="0 0 54 40"
+        className="w-full h-full shrink-0 shadow-xs"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <defs>
+          <linearGradient id="gold-chip-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#FEF08A" />
+            <stop offset="50%" stopColor="#FBBF24" />
+            <stop offset="100%" stopColor="#D97706" />
+          </linearGradient>
+        </defs>
+        <rect
+          x="1"
+          y="1"
+          width="52"
+          height="38"
+          rx="5"
+          fill="url(#gold-chip-grad)"
+          stroke="#B45309"
+          strokeWidth="1.2"
+        />
+        {/* Contact Separator Circuit Traces */}
+        <path
+          d="M 1 14 H 18 V 26 H 1 M 53 14 H 36 V 26 H 53 M 18 1 V 14 M 36 1 V 14 M 18 39 V 26 M 36 39 V 26 M 18 14 H 36 V 26 H 18 Z"
+          fill="none"
+          stroke="#92400E"
+          strokeWidth="1.2"
+        />
+        <rect
+          x="22"
+          y="16"
+          width="10"
+          height="8"
+          rx="2"
+          fill="#FDE047"
+          stroke="#92400E"
+          strokeWidth="0.8"
+        />
+      </svg>
+    </div>
+  );
+}
+
+/**
+ * Circular Header Badge Pill (e.g. NT in Cyan, State in Orange)
+ */
+export function RcCircleBadge({
+  text,
+  variant = 'cyan',
+  className = '',
+}: {
+  text: string;
+  variant?: 'cyan' | 'orange';
+  className?: string;
+}) {
+  const bgClass =
+    variant === 'cyan'
+      ? 'bg-[#38BDF8] border-[#0284C7]'
+      : 'bg-[#F59E0B] border-[#D97706]';
+
+  return (
+    <div
+      className={`w-4 h-4 rounded-full flex items-center justify-center border font-bold text-[7.5px] text-black shadow-2xs leading-none shrink-0 ${bgClass} ${className}`}
+    >
+      <span>{text}</span>
+    </div>
+  );
+}
+
+/**
+ * National Emblem with soft sky blue curved circular crest accent
+ */
+export function RcAshokaCrest({
+  className = 'w-7 h-9',
+}: {
+  className?: string;
+}) {
+  return (
+    <div className={`relative flex items-center justify-center ${className}`}>
+      {/* Soft Blue Radial Background Crest */}
+      <div
+        className="absolute -inset-1 rounded-full opacity-60 pointer-events-none"
+        style={{
+          background: 'radial-gradient(circle, #BAE6FD 20%, #E0F2FE 70%, transparent 100%)',
+        }}
+      />
+      <AshokaEmblem className="w-full h-full relative z-10" fill="#1E293B" />
+    </div>
+  );
+}
+

@@ -90,26 +90,127 @@ export interface DlCardData {
 }
 
 /**
- * Standard Vehicle RC Data Payload (Form 23 - Registration Certificate)
+ * Standard Vehicle RC Data Payload (Form 23A - Smart Registration Certificate)
  */
 export interface RcCardData {
   registrationNumber: string; // e.g. "UP16DL3137"
-  registrationDate: string; // DD/MM/YYYY
+  registrationDate: string; // DD/MM/YYYY or DD-Mon-YYYY
   chassisNumber: string;
   engineNumber: string;
   ownerName: string;
   sonWifeDaughterOf?: string;
   address: string;
-  vehicleClass: string; // e.g. "M-CYCLE/SCOOTER(2WN)" or "MOTOR CAR"
-  makerModel: string; // e.g. "HONDA MOTORCYCLES / ACTIVA 6G"
+  vehicleClass: string; // e.g. "M-CYCLE/SCOOTER" or "MOTOR CAR"
+  makerModel?: string; // Legacy combined string e.g. "HONDA / ACTIVA 6G"
+  maker?: string; // e.g. "TVS MOTOR COMPANY LTD"
+  model?: string; // e.g. "TVSNTORQ125-SUPER SQUADEDITION"
   fuelType: string; // PETROL / DIESEL / CNG / ELECTRIC
   emissionNorm?: string; // BHARAT STAGE VI
-  seatingCapacity?: string | number;
-  unladenWeight?: string;
-  color?: string;
+  seatingCapacity?: string | number; // e.g. 0 or 2
+  unladenWeight?: string | number; // e.g. 0 or 118
+  color?: string; // e.g. "BLACK"
+  bodyType?: string; // e.g. "2 WHEELER"
+  cubicCapacity?: string | number; // e.g. "124.8"
+  horsePower?: string | number; // e.g. "0"
+  wheelBase?: string | number; // e.g. "0"
+  monthYearOfMfg?: string; // e.g. "9/2022"
+  noOfCylinders?: string | number; // e.g. "0"
   hypothecatedTo?: string; // Bank / Financier name
-  fitnessValidUpto?: string;
+  financier?: string; // e.g. "BANDHAN BANK LTD"
+  fitnessValidUpto?: string; // e.g. "22-Oct-2037"
+  regnValidity?: string; // e.g. "22-Oct-2037"
   taxPaidUpto?: string;
   insuranceValidUpto?: string;
   issuingAuthority?: string; // e.g. "RTO NOIDA (UP16)"
+  registeringAuthority?: string; // e.g. "Noida, Uttar Pradesh"
+  stateIssued?: string; // e.g. "Issued by Government of Uttar Pradesh"
+  stateCode?: string; // e.g. "UP"
+  transportType?: string; // e.g. "NT" or "T"
+  ownerSerial?: number | string; // e.g. 1
+  cardIssueDate?: string; // e.g. "30-08-2026"
+  qrPayload?: string;
 }
+
+export const STATE_CODE_TO_NAME: Record<string, string> = {
+  AN: 'Andaman and Nicobar',
+  AP: 'Andhra Pradesh',
+  AR: 'Arunachal Pradesh',
+  AS: 'Assam',
+  BR: 'Bihar',
+  CH: 'Chandigarh',
+  CG: 'Chhattisgarh',
+  DD: 'Daman and Diu',
+  DL: 'Delhi',
+  DN: 'Dadra and Nagar Haveli',
+  GA: 'Goa',
+  GJ: 'Gujarat',
+  HP: 'Himachal Pradesh',
+  HR: 'Haryana',
+  JH: 'Jharkhand',
+  JK: 'Jammu and Kashmir',
+  KA: 'Karnataka',
+  KL: 'Kerala',
+  LA: 'Ladakh',
+  LD: 'Lakshadweep',
+  MH: 'Maharashtra',
+  ML: 'Meghalaya',
+  MN: 'Manipur',
+  MP: 'Madhya Pradesh',
+  MZ: 'Mizoram',
+  NL: 'Nagaland',
+  OD: 'Odisha',
+  PB: 'Punjab',
+  PY: 'Puducherry',
+  RJ: 'Rajasthan',
+  SK: 'Sikkim',
+  TN: 'Tamil Nadu',
+  TR: 'Tripura',
+  TS: 'Telangana',
+  UK: 'Uttarakhand',
+  UP: 'Uttar Pradesh',
+  WB: 'West Bengal',
+};
+
+/**
+ * Smart derivation helper for Form 23A Vehicle RC cards
+ */
+export function getRcDerivedValues(data: Partial<RcCardData>) {
+  const regNo = (data.registrationNumber || 'UP16DL3137').trim().toUpperCase();
+  const rawPrefix = regNo.slice(0, 2);
+  const derivedStateCode = data.stateCode || (STATE_CODE_TO_NAME[rawPrefix] ? rawPrefix : 'UP');
+  const stateName = STATE_CODE_TO_NAME[derivedStateCode] || 'Uttar Pradesh';
+
+  const derivedStateIssued =
+    data.stateIssued || `Issued by Government of ${stateName}`;
+  const derivedTransportType = data.transportType || 'NT';
+  const derivedOwnerSerial = data.ownerSerial || 1;
+  const derivedRegnValidity = data.regnValidity || data.fitnessValidUpto || '22-Oct-2037';
+  const derivedFinancier = data.financier || data.hypothecatedTo || 'BANDHAN BANK LTD';
+  const derivedAuthority = data.registeringAuthority || data.issuingAuthority || 'Noida, Uttar Pradesh';
+
+  // Maker & Model extraction
+  let derivedMaker = data.maker || '';
+  let derivedModel = data.model || '';
+  if ((!derivedMaker || !derivedModel) && data.makerModel) {
+    const parts = data.makerModel.split('/');
+    if (parts.length >= 2) {
+      if (!derivedMaker) derivedMaker = parts[0].trim();
+      if (!derivedModel) derivedModel = parts.slice(1).join('/').trim();
+    } else {
+      if (!derivedMaker) derivedMaker = data.makerModel;
+    }
+  }
+
+  return {
+    stateCode: derivedStateCode,
+    stateIssued: derivedStateIssued,
+    transportType: derivedTransportType,
+    ownerSerial: derivedOwnerSerial,
+    regnValidity: derivedRegnValidity,
+    financier: derivedFinancier,
+    registeringAuthority: derivedAuthority,
+    maker: derivedMaker || 'TVS MOTOR COMPANY LTD',
+    model: derivedModel || 'TVSNTORQ125-SUPER SQUADEDITION',
+  };
+}
+
