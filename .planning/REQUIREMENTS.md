@@ -102,10 +102,10 @@ Which phases cover which requirements. (To be mapped in ROADMAP.md).
 | WALL-02 | Phase 5 | Complete |
 | WALL-03 | Phase 5 | Complete |
 | WALL-04 | Phase 5 | Complete |
-| SEO-01 | Phase 6 | Pending |
-| SEO-02 | Phase 6 | Pending |
-| SEO-03 | Phase 6 | Pending |
-| SEO-04 | Phase 6 | Pending |
+| SEO-01 | Phase 6 | Complete |
+| SEO-02 | Phase 6 | Complete |
+| SEO-03 | Phase 6 | Complete |
+| SEO-04 | Phase 6 | Complete |
 
 **Coverage:**
 - v1 requirements: 29 total
