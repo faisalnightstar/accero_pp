@@ -42,10 +42,10 @@ Requirements for initial release. Each maps to roadmap phases.
 
 ### Wallet & Credits Management (WALL)
 
-- [ ] **WALL-01**: MongoDB wallet ledger tracking user account balance, credit additions, and service fee deductions.
-- [ ] **WALL-02**: Atomic wallet deductions using conditional updates (`$gte`) to prevent race conditions or overdrafts during concurrent card generations.
-- [ ] **WALL-03**: Interactive wallet balance display in header with low-balance warnings and recharge prompt dialog.
-- [ ] **WALL-04**: Transaction history log displaying date, document type, ID number, fee charged, and status.
+- [x] **WALL-01**: MongoDB wallet ledger tracking user account balance, credit additions, and service fee deductions.
+- [x] **WALL-02**: Atomic wallet deductions using conditional updates (`$gte`) to prevent race conditions or overdrafts during concurrent card generations.
+- [x] **WALL-03**: Interactive wallet balance display in header with low-balance warnings and recharge prompt dialog.
+- [x] **WALL-04**: Transaction history log displaying date, document type, ID number, fee charged, and status.
 
 ### SEO, GEO & AEO Search Engine (SEO)
 
@@ -98,10 +98,10 @@ Which phases cover which requirements. (To be mapped in ROADMAP.md).
 | VERIF-03 | Phase 4 | Complete |
 | VERIF-04 | Phase 4 | Complete |
 | VERIF-05 | Phase 4 | Complete |
-| WALL-01 | Phase 5 | Pending |
-| WALL-02 | Phase 5 | Pending |
-| WALL-03 | Phase 5 | Pending |
-| WALL-04 | Phase 5 | Pending |
+| WALL-01 | Phase 5 | Complete |
+| WALL-02 | Phase 5 | Complete |
+| WALL-03 | Phase 5 | Complete |
+| WALL-04 | Phase 5 | Complete |
 | SEO-01 | Phase 6 | Pending |
 | SEO-02 | Phase 6 | Pending |
 | SEO-03 | Phase 6 | Pending |

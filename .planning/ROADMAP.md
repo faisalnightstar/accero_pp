@@ -10,7 +10,7 @@ PrintPortal Next.js modernizes and replaces the legacy PHP document printing pla
 - [x] **Phase 2: Preformatted Vector Card Canvas & Print Engine** - Build high-DPI vector card renderers for PAN, Aadhaar, Voter, DL, and RC with exact ISO 7810 CR80 physical dimensions (`@page 85.6mm 53.98mm`) and PDF/PNG export. (completed 2026-09-27)
 - [x] **Phase 3: Interactive Split-Screen Studio & Missing Field Editor** - Implement the dual-pane studio featuring real-time missing-field detection, live two-way canvas synchronization, and manual data/image uploads. (completed 2026-09-28)
 - [x] **Phase 4: Multi-Provider Verification & Fallback APIs** - Integrate server-side verification pipelines for NeoAPI, AxenAPI, and FastNexora with error interception and studio routing. (completed 2026-09-28)
-- [ ] **Phase 5: Wallet & Credits Management** - Develop MongoDB wallet balance ledger, atomic deductions (`$gte`), low-balance alerts, and transaction history.
+- [x] **Phase 5: Wallet & Credits Management** - Develop MongoDB wallet balance ledger, atomic deductions (`$gte`), low-balance alerts, and transaction history. (completed 2026-09-28)
 - [ ] **Phase 6: Full SEO, GEO & AEO Search Engine** - Deploy SSR public landing pages, programmatic regional state/district routes, and rich JSON-LD structured schemas (`FAQPage`, `HowTo`, `SoftwareApplication`).
 
 ---
@@ -94,8 +94,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 05-01: Wallet ledger backend, tiered pricing engine, and atomic conditional deductions.
-- [ ] 05-02: Dual-mode recharge modal, live navbar balance pill, studio balance guard, and dedicated /wallet dashboard.
+- [x] 05-01: Wallet ledger backend, tiered pricing engine, and atomic conditional deductions.
+- [x] 05-02: Dual-mode recharge modal, live navbar balance pill, studio balance guard, and dedicated /wallet dashboard.
 
 ### Phase 6: Full SEO, GEO & AEO Search Engine
 **Goal**: Establish dominant search engine visibility across traditional organic search, hyper-local queries across India, and modern AI answer engines.
@@ -125,7 +125,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6
 | 2. Preformatted Vector Card Canvas & Print Engine | 3/3 | Complete    | 2026-09-27 |
 | 3. Interactive Split-Screen Studio & Missing Field Editor | 3/3 | Complete | 2026-09-28 |
 | 4. Multi-Provider Verification & Fallback APIs | 2/2 | Complete | 2026-09-28 |
-| 5. Wallet & Credits Management | 0/2 | Not started | - |
+| 5. Wallet & Credits Management | 2/2 | Complete | 2026-09-28 |
 | 6. Full SEO, GEO & AEO Search Engine | 0/2 | Not started | - |
 
 ---
