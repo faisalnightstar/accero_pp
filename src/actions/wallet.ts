@@ -1,0 +1,448 @@
+'use server';
+
+import mongoose from 'mongoose';
+import connectToDatabase from '@/lib/mongodb';
+import Wallet, { IWallet, IWalletTransaction } from '@/models/Wallet';
+import { getSession } from '@/lib/auth';
+import {
+  getRequiredServiceFee,
+  LOW_BALANCE_THRESHOLD,
+  normalizeDocType,
+} from '@/lib/wallet/pricing';
+
+export interface WalletBalanceResult {
+  success: boolean;
+  balance: number;
+  totalCredited: number;
+  totalDebited: number;
+  isLowBalance: boolean;
+  error?: string;
+}
+
+export interface DeductionResult {
+  success: boolean;
+  fee: number;
+  isFreeReprint: boolean;
+  balanceAfter: number;
+  error?: string;
+  requiredFee?: number;
+  currentBalance?: number;
+}
+
+export interface RechargeResult {
+  success: boolean;
+  newBalance: number;
+  error?: string;
+}
+
+export interface PaginatedTransactionsResult {
+  success: boolean;
+  transactions: Array<{
+    id: string;
+    amount: number;
+    type: 'credit' | 'debit';
+    docType?: string;
+    referenceId?: string;
+    description: string;
+    balanceAfter: number;
+    createdAt: string;
+  }>;
+  total: number;
+  page: number;
+  totalPages: number;
+  balance: number;
+  error?: string;
+}
+
+/**
+ * Get current user's wallet balance and summary metrics
+ */
+export async function getWalletBalance(): Promise<WalletBalanceResult> {
+  try {
+    const session = await getSession();
+    if (!session?.userId) {
+      return {
+        success: false,
+        balance: 0,
+        totalCredited: 0,
+        totalDebited: 0,
+        isLowBalance: false,
+        error: 'Unauthorized',
+      };
+    }
+
+    await connectToDatabase();
+
+    let wallet = await Wallet.findOne({
+      userId: new mongoose.Types.ObjectId(session.userId),
+    });
+
+    if (!wallet) {
+      wallet = await Wallet.create({
+        userId: new mongoose.Types.ObjectId(session.userId),
+        balance: 0,
+        currency: 'INR',
+        totalCredited: 0,
+        totalDebited: 0,
+        transactions: [],
+      });
+    }
+
+    return {
+      success: true,
+      balance: wallet.balance,
+      totalCredited: wallet.totalCredited || 0,
+      totalDebited: wallet.totalDebited || 0,
+      isLowBalance: wallet.balance < LOW_BALANCE_THRESHOLD,
+    };
+  } catch (err: any) {
+    console.error('[Wallet] Error fetching balance:', err);
+    return {
+      success: false,
+      balance: 0,
+      totalCredited: 0,
+      totalDebited: 0,
+      isLowBalance: false,
+      error: err.message || 'Failed to fetch wallet balance',
+    };
+  }
+}
+
+/**
+ * Checks whether user can afford the required service fee without executing deduction
+ */
+export async function checkAffordability(
+  docType: string,
+  cardIdentifier?: string,
+  isManual = false
+): Promise<{
+  success: boolean;
+  canAfford: boolean;
+  requiredFee: number;
+  currentBalance: number;
+  isFreeReprint: boolean;
+}> {
+  try {
+    const session = await getSession();
+    if (!session?.userId) {
+      return {
+        success: false,
+        canAfford: false,
+        requiredFee: 0,
+        currentBalance: 0,
+        isFreeReprint: false,
+      };
+    }
+
+    await connectToDatabase();
+
+    const { fee, isFreeReprint } = await getRequiredServiceFee(
+      session.userId,
+      docType,
+      cardIdentifier,
+      isManual
+    );
+
+    if (isFreeReprint || fee === 0) {
+      return {
+        success: true,
+        canAfford: true,
+        requiredFee: 0,
+        currentBalance: 0,
+        isFreeReprint: true,
+      };
+    }
+
+    const wallet = await Wallet.findOne({
+      userId: new mongoose.Types.ObjectId(session.userId),
+    });
+
+    const currentBalance = wallet ? wallet.balance : 0;
+
+    return {
+      success: true,
+      canAfford: currentBalance >= fee,
+      requiredFee: fee,
+      currentBalance,
+      isFreeReprint: false,
+    };
+  } catch (err) {
+    console.error('[Wallet] Error checking affordability:', err);
+    return {
+      success: false,
+      canAfford: false,
+      requiredFee: 0,
+      currentBalance: 0,
+      isFreeReprint: false,
+    };
+  }
+}
+
+/**
+ * Atomically deducts a service fee from the user's wallet
+ * D-02: Uses MongoDB { balance: { $gte: fee } } to prevent race conditions & double-charges
+ */
+export async function deductWalletFee(
+  docType: string,
+  cardIdentifier: string,
+  description?: string,
+  isManual = false
+): Promise<DeductionResult> {
+  try {
+    const session = await getSession();
+    if (!session?.userId) {
+      return {
+        success: false,
+        fee: 0,
+        isFreeReprint: false,
+        balanceAfter: 0,
+        error: 'Unauthorized',
+      };
+    }
+
+    await connectToDatabase();
+    const userIdObj = new mongoose.Types.ObjectId(session.userId);
+
+    const { fee, isFreeReprint, docType: cleanDocType } = await getRequiredServiceFee(
+      session.userId,
+      docType,
+      cardIdentifier,
+      isManual
+    );
+
+    // If document is already generated by this user, re-print is 100% free!
+    if (isFreeReprint || fee === 0) {
+      const currentWallet = await Wallet.findOne({ userId: userIdObj });
+      return {
+        success: true,
+        fee: 0,
+        isFreeReprint: true,
+        balanceAfter: currentWallet ? currentWallet.balance : 0,
+      };
+    }
+
+    const cleanId = (cardIdentifier || '').trim().toUpperCase();
+    const desc = description || `${cleanDocType} Card Verification Fee`;
+
+    // Atomic conditional deduction
+    const updatedWallet = await Wallet.findOneAndUpdate(
+      {
+        userId: userIdObj,
+        balance: { $gte: fee }, // Prevents deduction if balance dropped below fee
+      },
+      {
+        $inc: { balance: -fee, totalDebited: fee },
+        $push: {
+          transactions: {
+            amount: fee,
+            type: 'debit',
+            docType: cleanDocType as any,
+            referenceId: cleanId,
+            description: desc,
+            balanceAfter: 0, // Patched right after
+            createdAt: new Date(),
+          },
+        },
+      },
+      { new: true }
+    );
+
+    if (!updatedWallet) {
+      // Either wallet doesn't exist or balance < fee
+      const currentWallet = await Wallet.findOne({ userId: userIdObj });
+      const currentBal = currentWallet ? currentWallet.balance : 0;
+
+      return {
+        success: false,
+        fee,
+        isFreeReprint: false,
+        balanceAfter: currentBal,
+        error: 'INSUFFICIENT_BALANCE',
+        requiredFee: fee,
+        currentBalance: currentBal,
+      };
+    }
+
+    // Patch the balanceAfter field in the pushed transaction
+    if (updatedWallet.transactions && updatedWallet.transactions.length > 0) {
+      const lastTx = updatedWallet.transactions[updatedWallet.transactions.length - 1];
+      lastTx.balanceAfter = updatedWallet.balance;
+      await updatedWallet.save();
+    }
+
+    return {
+      success: true,
+      fee,
+      isFreeReprint: false,
+      balanceAfter: updatedWallet.balance,
+    };
+  } catch (err: any) {
+    console.error('[Wallet] Error executing deduction:', err);
+    return {
+      success: false,
+      fee: 0,
+      isFreeReprint: false,
+      balanceAfter: 0,
+      error: err.message || 'Failed to deduct wallet fee',
+    };
+  }
+}
+
+/**
+ * Top up user's wallet (Sandbox simulation or UPI QR submission)
+ * D-03: Dual-mode recharge
+ */
+export async function rechargeWallet(
+  amount: number,
+  method: 'SANDBOX' | 'UPI_QR',
+  utrNumber?: string
+): Promise<RechargeResult> {
+  try {
+    const session = await getSession();
+    if (!session?.userId) {
+      return { success: false, newBalance: 0, error: 'Unauthorized' };
+    }
+
+    if (typeof amount !== 'number' || isNaN(amount) || amount < 10) {
+      return { success: false, newBalance: 0, error: 'Minimum recharge amount is ₹10.' };
+    }
+
+    await connectToDatabase();
+    const userIdObj = new mongoose.Types.ObjectId(session.userId);
+
+    const ref =
+      method === 'UPI_QR' && utrNumber?.trim()
+        ? utrNumber.trim().toUpperCase()
+        : `SANDBOX-${Date.now()}`;
+
+    const desc =
+      method === 'SANDBOX'
+        ? `Instant Wallet Top-up (Sandbox ₹${amount})`
+        : `UPI Top-up (UTR: ${ref})`;
+
+    const updatedWallet = await Wallet.findOneAndUpdate(
+      { userId: userIdObj },
+      {
+        $inc: { balance: amount, totalCredited: amount },
+        $push: {
+          transactions: {
+            amount,
+            type: 'credit',
+            docType: 'TOPUP',
+            referenceId: ref,
+            description: desc,
+            balanceAfter: 0,
+            createdAt: new Date(),
+          },
+        },
+      },
+      { new: true, upsert: true }
+    );
+
+    // Patch the balanceAfter
+    if (updatedWallet.transactions && updatedWallet.transactions.length > 0) {
+      const lastTx = updatedWallet.transactions[updatedWallet.transactions.length - 1];
+      lastTx.balanceAfter = updatedWallet.balance;
+      await updatedWallet.save();
+    }
+
+    return {
+      success: true,
+      newBalance: updatedWallet.balance,
+    };
+  } catch (err: any) {
+    console.error('[Wallet] Error recharging wallet:', err);
+    return {
+      success: false,
+      newBalance: 0,
+      error: err.message || 'Failed to recharge wallet',
+    };
+  }
+}
+
+/**
+ * Fetch paginated transaction history for the user's wallet
+ * WALL-04: Transaction history log
+ */
+export async function getWalletTransactions(
+  page = 1,
+  limit = 15,
+  filter: 'all' | 'credit' | 'debit' = 'all'
+): Promise<PaginatedTransactionsResult> {
+  try {
+    const session = await getSession();
+    if (!session?.userId) {
+      return {
+        success: false,
+        transactions: [],
+        total: 0,
+        page: 1,
+        totalPages: 0,
+        balance: 0,
+        error: 'Unauthorized',
+      };
+    }
+
+    await connectToDatabase();
+    const userIdObj = new mongoose.Types.ObjectId(session.userId);
+
+    const wallet = await Wallet.findOne({ userId: userIdObj });
+    if (!wallet || !wallet.transactions || wallet.transactions.length === 0) {
+      return {
+        success: true,
+        transactions: [],
+        total: 0,
+        page: 1,
+        totalPages: 0,
+        balance: wallet ? wallet.balance : 0,
+      };
+    }
+
+    // Filter transactions
+    let txs = [...wallet.transactions];
+    if (filter === 'credit') {
+      txs = txs.filter((t) => t.type === 'credit');
+    } else if (filter === 'debit') {
+      txs = txs.filter((t) => t.type === 'debit');
+    }
+
+    // Sort descending by date
+    txs.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+    const total = txs.length;
+    const totalPages = Math.ceil(total / limit) || 1;
+    const startIndex = (page - 1) * limit;
+    const paginatedTxs = txs.slice(startIndex, startIndex + limit);
+
+    const formatted = paginatedTxs.map((t) => ({
+      id: t._id?.toString() || `${t.createdAt.getTime()}-${Math.random()}`,
+      amount: t.amount,
+      type: t.type,
+      docType: t.docType,
+      referenceId: t.referenceId,
+      description: t.description,
+      balanceAfter: t.balanceAfter,
+      createdAt: t.createdAt.toISOString(),
+    }));
+
+    return {
+      success: true,
+      transactions: formatted,
+      total,
+      page,
+      totalPages,
+      balance: wallet.balance,
+    };
+  } catch (err: any) {
+    console.error('[Wallet] Error fetching transactions:', err);
+    return {
+      success: false,
+      transactions: [],
+      total: 0,
+      page: 1,
+      totalPages: 0,
+      balance: 0,
+      error: err.message || 'Failed to fetch transactions',
+    };
+  }
+}

@@ -19,6 +19,10 @@ export interface VerificationResult<T = Record<string, any>> {
   errorMessage?: string;
   statusCode?: number;
   latencyMs?: number;
+  feeDeducted?: number;
+  requiredFee?: number;
+  currentBalance?: number;
+  isFreeReprint?: boolean;
 }
 
 export interface ProviderAdapter {

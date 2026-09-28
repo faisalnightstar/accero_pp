@@ -4,6 +4,8 @@ import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/mongodb';
 import DocumentRecord from '@/models/DocumentRecord';
 import { getSession } from '@/lib/auth';
+import { deductWalletFee } from '@/actions/wallet';
+import { isDocumentAlreadyPaid } from '@/lib/wallet/pricing';
 
 const saveDocumentSchema = z.object({
   id: z.string().optional(),
@@ -82,6 +84,31 @@ export async function POST(request: Request) {
     }
 
     if (!record) {
+      // If creating a brand-new manual document, deduct the ₹5 manual entry fee
+      if (validated.inputMode === 'MANUAL') {
+        const isPaid = await isDocumentAlreadyPaid(session.userId, normalizedDocType, cardIdentifier);
+        if (!isPaid) {
+          const deduction = await deductWalletFee(
+            normalizedDocType,
+            cardIdentifier,
+            `Manual ${normalizedDocType} Card Creation Fee (${cardIdentifier})`,
+            true
+          );
+
+          if (!deduction.success && deduction.error === 'INSUFFICIENT_BALANCE') {
+            return NextResponse.json(
+              {
+                error: 'INSUFFICIENT_BALANCE',
+                message: 'Insufficient wallet balance. Creating a manual document requires ₹5.',
+                requiredFee: 5,
+                currentBalance: deduction.currentBalance || 0,
+              },
+              { status: 402 }
+            );
+          }
+        }
+      }
+
       record = await DocumentRecord.create({
         userId: session.userId,
         docType: normalizedDocType,

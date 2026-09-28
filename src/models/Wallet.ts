@@ -4,7 +4,7 @@ export interface IWalletTransaction {
   _id?: mongoose.Types.ObjectId;
   amount: number;
   type: 'credit' | 'debit';
-  docType?: 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'TOPUP';
+  docType?: 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'TOPUP' | 'MANUAL';
   referenceId?: string;
   description: string;
   balanceAfter: number;
@@ -36,7 +36,7 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
     },
     docType: {
       type: String,
-      enum: ['PAN', 'AADHAAR', 'VOTER', 'DL', 'RC', 'TOPUP'],
+      enum: ['PAN', 'AADHAAR', 'VOTER', 'DL', 'RC', 'TOPUP', 'MANUAL'],
     },
     referenceId: {
       type: String,
