@@ -33,6 +33,8 @@ import { verifyDocument } from '@/actions/verify';
 import { useCardStudio } from '@/hooks/useCardStudio';
 import { analyzeDocumentCompleteness } from '@/lib/missingFields';
 import { DocumentType } from '@/types/cards';
+import InsufficientBalanceModal from '@/components/wallet/InsufficientBalanceModal';
+import RechargeModal from '@/components/wallet/RechargeModal';
 
 function StudioPageContent() {
   const router = useRouter();
@@ -69,6 +71,12 @@ function StudioPageContent() {
   const [zoom, setZoom] = useState<number>(1.5);
   const [showGuides, setShowGuides] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'both' | 'flip'>('both');
+  const [insufficientBalanceInfo, setInsufficientBalanceInfo] = useState<{
+    requiredFee: number;
+    currentBalance: number;
+    serviceName?: string;
+  } | null>(null);
+  const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
 
   // Load existing document if id in query params
   useEffect(() => {
@@ -192,6 +200,16 @@ function StudioPageContent() {
       if (!res.ok) {
         if (res.status === 401) {
           throw new Error('Please sign in to save documents to your account.');
+        }
+        if (res.status === 402) {
+          setInsufficientBalanceInfo({
+            requiredFee: result.requiredFee || 5,
+            currentBalance: result.currentBalance || 0,
+            serviceName: 'Manual Document Creation',
+          });
+          throw new Error(
+            result.message || 'Insufficient wallet balance. Manual card creation requires ₹5.'
+          );
         }
         throw new Error(result.error || 'Failed to save document');
       }
@@ -494,6 +512,35 @@ function StudioPageContent() {
             showGuides={showGuides}
           />
         }
+      />
+
+      {/* Insufficient Balance Dialog for Manual Saves */}
+      {insufficientBalanceInfo && (
+        <InsufficientBalanceModal
+          isOpen={Boolean(insufficientBalanceInfo)}
+          onClose={() => setInsufficientBalanceInfo(null)}
+          onOpenRecharge={() => {
+            setInsufficientBalanceInfo(null);
+            setIsRechargeModalOpen(true);
+          }}
+          requiredFee={insufficientBalanceInfo.requiredFee}
+          currentBalance={insufficientBalanceInfo.currentBalance}
+          serviceName={insufficientBalanceInfo.serviceName || 'Document Generation'}
+        />
+      )}
+
+      {/* Recharge Modal */}
+      <RechargeModal
+        isOpen={isRechargeModalOpen}
+        onClose={() => setIsRechargeModalOpen(false)}
+        suggestedAmount={100}
+        onSuccess={() => {
+          setIsRechargeModalOpen(false);
+          setToastAlert({
+            message: 'Wallet topped up successfully! You can now save your card.',
+            type: 'success',
+          });
+        }}
       />
     </>
   );

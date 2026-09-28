@@ -23,6 +23,7 @@ import {
   Search,
 } from 'lucide-react';
 import { QuickLookupModal } from '@/components/dashboard/QuickLookupModal';
+import RechargeModal from '@/components/wallet/RechargeModal';
 import { DocumentType } from '@/types/cards';
 
 interface UserData {
@@ -52,7 +53,7 @@ const cardServices = [
     type: 'pan',
     title: 'PAN Card Studio',
     subtitle: 'NSDL & UTI Layouts',
-    fee: '₹20',
+    fee: '₹50',
     color: 'from-[#8B1E2D] to-[#E63946]',
     border: 'border-red-200',
     tag: 'Instant Lookup',
@@ -61,7 +62,7 @@ const cardServices = [
     type: 'aadhaar',
     title: 'Aadhaar PVC Studio',
     subtitle: 'High-Res Hologram & QR',
-    fee: '₹20',
+    fee: '₹25',
     color: 'from-amber-600 to-amber-700',
     border: 'border-amber-200',
     tag: 'Bilingual Font',
@@ -88,7 +89,7 @@ const cardServices = [
     type: 'rc',
     title: 'Vehicle RC Studio',
     subtitle: 'Vahan Smart Card Format',
-    fee: '₹30',
+    fee: '₹35',
     color: 'from-purple-600 to-purple-700',
     border: 'border-purple-200',
     tag: 'Chassis & Engine',
@@ -103,6 +104,7 @@ export default function DashboardPage() {
   const [docsLoading, setDocsLoading] = useState(true);
   const [showLookupModal, setShowLookupModal] = useState(false);
   const [lookupDocType, setLookupDocType] = useState<DocumentType>('pan');
+  const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
 
   useEffect(() => {
     async function loadSessionAndDocs() {
@@ -222,15 +224,23 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center gap-4">
+          <div className="mt-6 pt-4 border-t border-white/10 flex flex-wrap items-center gap-3">
             <button
-              onClick={() => alert('Wallet recharge gateway will be active in Phase 5!')}
+              onClick={() => setIsRechargeModalOpen(true)}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#8B1E2D] to-[#E63946] text-white text-sm font-semibold hover:shadow-btn-hover transition-all"
             >
               <PlusCircle className="w-4 h-4" />
               <span>Top-Up Balance</span>
             </button>
-            <div className="flex items-center gap-2 text-xs text-emerald-400">
+            <Link
+              href="/wallet"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition-colors border border-white/10"
+            >
+              <Wallet className="w-3.5 h-3.5 text-[#F4D35E]" />
+              <span>View Ledger</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <div className="flex items-center gap-2 text-xs text-emerald-400 sm:ml-auto">
               <ShieldCheck className="w-4 h-4" />
               <span>Auto-Debit Protected</span>
             </div>
@@ -437,6 +447,14 @@ export default function DashboardPage() {
         isOpen={showLookupModal}
         onClose={() => setShowLookupModal(false)}
         initialType={lookupDocType}
+      />
+
+      <RechargeModal
+        isOpen={isRechargeModalOpen}
+        onClose={() => setIsRechargeModalOpen(false)}
+        onSuccess={(newBal) => {
+          setUser((prev) => (prev ? { ...prev, walletBalance: newBal } : prev));
+        }}
       />
     </div>
   );

@@ -27,12 +27,13 @@ const docTypesList: Array<{
   hint: string;
   icon: React.ComponentType<{ className?: string }>;
   example: string;
+  fee: number;
 }> = [
-  { id: 'pan', label: 'PAN Card', hint: '10-character PAN number', icon: CreditCard, example: 'ABCDE1234F' },
-  { id: 'voter', label: 'Voter ID', hint: 'Election Commission EPIC number', icon: CheckCircle2, example: 'AXH0801639' },
-  { id: 'dl', label: 'Driving License', hint: 'State transport license number', icon: CreditCard, example: 'DL-0420110123456' },
-  { id: 'rc', label: 'Vehicle RC', hint: 'Vehicle registration certificate number', icon: Car, example: 'UP16DL3137' },
-  { id: 'aadhaar', label: 'Aadhaar Card', hint: '12-digit UIDAI number', icon: ShieldCheck, example: '5749 0326 7673' },
+  { id: 'pan', label: 'PAN Card', hint: '10-character PAN number', icon: CreditCard, example: 'ABCDE1234F', fee: 50 },
+  { id: 'rc', label: 'Vehicle RC', hint: 'Vehicle registration certificate number', icon: Car, example: 'UP16DL3137', fee: 35 },
+  { id: 'dl', label: 'Driving License', hint: 'State transport license number', icon: CreditCard, example: 'DL-0420110123456', fee: 30 },
+  { id: 'aadhaar', label: 'Aadhaar Card', hint: '12-digit UIDAI number', icon: ShieldCheck, example: '5749 0326 7673', fee: 25 },
+  { id: 'voter', label: 'Voter ID', hint: 'Election Commission EPIC number', icon: CheckCircle2, example: 'AXH0801639', fee: 20 },
 ];
 
 export function QuickLookupModal({
@@ -117,8 +118,11 @@ export function QuickLookupModal({
                       : 'bg-slate-800/60 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
                   }`}
                 >
-                  <Icon className={`w-4 h-4 ${isSelected ? 'text-[#E63946]' : 'text-slate-500'}`} />
-                  <span className="text-xs font-semibold">{doc.label}</span>
+                  <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#E63946]' : 'text-slate-500'}`} />
+                  <div className="flex-1 min-w-0">
+                    <span className="text-xs font-semibold block truncate">{doc.label}</span>
+                    <span className="text-[10px] text-[#F4D35E] font-bold">Fee: ₹{doc.fee}</span>
+                  </div>
                 </button>
               );
             })}
