@@ -27,6 +27,8 @@
 - [x] **PRINT-01**: Card Studio & Gallery print isolation: hiding entire editor form, search bar, header, and action controls so only the physical card tray prints.
 - [x] **PRINT-02**: Zero-margin CR80 Tray page break fix: Page 1 = Front (85.60 mm × 53.98 mm), Page 2 = Back (85.60 mm × 53.98 mm), strictly eliminating trailing blank Page 3.
 - [x] **PRINT-03**: Named paged media support for side-by-side foldable sheet printing (171.2 mm × 53.98 mm) without horizontal clipping.
+- [x] **PRINT-04**: Unified single-page side-by-side print layout in `Cr80CardContainer.tsx` rendering Front on left and Back on right with calibrated tray slot gap.
+- [x] **PRINT-05**: Adapt global print CSS (`globals.css`) with `@page { size: auto; margin: 0; }` and zero page-break rules, guaranteeing exactly 1 page output across all 5 card types (PAN, Aadhaar, Voter, DL, RC).
 
 ## Future Requirements (v1.2+)
 
@@ -59,11 +61,13 @@
 | PRINT-01 | Phase 8.1 | Complete |
 | PRINT-02 | Phase 8.1 | Complete |
 | PRINT-03 | Phase 8.1 | Complete |
+| PRINT-04 | Phase 8.2 | Complete |
+| PRINT-05 | Phase 8.2 | Complete |
 
 **Coverage:**
-- Active requirements: 13 total
-- Mapped to phases: 13
+- Active requirements: 15 total
+- Mapped to phases: 15
 - Unmapped: 0 ✓
 
 ---
-*Requirements updated: 2026-10-13 for Phase 8.1 PVC Tray Print Engine Zero-Drift Isolation*
+*Requirements updated: 2026-10-13 for Phase 8.2 Single-Page Side-by-Side PVC Tray Print Engine*

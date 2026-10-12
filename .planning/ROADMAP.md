@@ -55,6 +55,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 7. Exact Official Vehicle RC Smart Card Engine | v1.1 | 2/2 | Complete | 2026-09-29 |
 | 8. Exact Official PAN Card Engine | v1.2 | 2/2 | Complete   | 2026-10-12 |
 | 8.1. PVC Tray Print Engine Zero-Drift Isolation | v1.2 | 1/1 | Complete   | 2026-10-13 |
+| 8.2. Single-Page Side-by-Side PVC Tray Print Engine | v1.2 | 1/1 | Complete   | 2026-10-13 |
 
 ---
 
@@ -90,6 +91,21 @@ Plans:
 
 Plans:
 - [x] 08.1-01: Studio and Gallery print isolation, CSS grid/flex resets, last-card page-break fix, and multi-mode print verification.
+
+---
+
+### Phase 8.2: Single-Page Side-by-Side PVC Tray Print Engine
+**Goal:** Deliver a unified single-page side-by-side print engine for "Print PVC Tray" across all documents (PAN, Aadhaar, Voter, DL, RC), rendering the Front and Back card canvases side-by-side on 1 single page with zero page breaks, matching dual-slot PVC trays (Epson L805/L850, Canon) and A4 cutout sheets.
+**Depends on:** Phase 2, Phase 3, Phase 8, Phase 8.1
+**Requirements**: PRINT-04, PRINT-05
+**Success Criteria** (what must be TRUE):
+  1. Clicking "Print PVC Tray" in Card Studio or Cards Gallery outputs exactly 1 page (0 page breaks, no Page 2).
+  2. Front card renders on the left (85.60 mm × 53.98 mm) and Back card renders on the right (85.60 mm × 53.98 mm) side-by-side with calibrated tray gap.
+  3. Supports all 5 document types (Vehicle RC, PAN Card, Aadhaar Card, Voter ID, Driving License).
+  4. Global print CSS @page rule allows unclipped dual-card horizontal layout without splitting onto a second page.
+
+Plans:
+- [x] 08.2-01: Side-by-side print DOM refactoring in Cr80CardContainer, CSS flex row print rules, @page dimension adaptation, and multi-card verification.
 
 ---
 *Roadmap updated: 2026-10-13 for milestone v1.2*
