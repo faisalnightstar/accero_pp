@@ -40,22 +40,20 @@ export default function PrintControls({
           <button
             type="button"
             onClick={() => onViewModeChange('both')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
-              viewMode === 'both'
-                ? 'bg-white text-navy shadow-sm'
-                : 'text-gray-500 hover:text-navy'
-            }`}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${viewMode === 'both'
+              ? 'bg-white text-navy shadow-sm'
+              : 'text-gray-500 hover:text-navy'
+              }`}
           >
             Side by Side
           </button>
           <button
             type="button"
             onClick={() => onViewModeChange('flip')}
-            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${
-              viewMode === 'flip'
-                ? 'bg-white text-navy shadow-sm'
-                : 'text-gray-500 hover:text-navy'
-            }`}
+            className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-colors ${viewMode === 'flip'
+              ? 'bg-white text-navy shadow-sm'
+              : 'text-gray-500 hover:text-navy'
+              }`}
           >
             Flip View
           </button>
@@ -64,11 +62,10 @@ export default function PrintControls({
         <button
           type="button"
           onClick={onToggleGuides}
-          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${
-            showGuides
-              ? 'bg-crimson/10 border-crimson text-crimson'
-              : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
-          }`}
+          className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-lg border transition-colors ${showGuides
+            ? 'bg-crimson/10 border-crimson text-crimson'
+            : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+            }`}
           title="Toggle 3mm inner safe print margins"
         >
           <Compass className="w-3.5 h-3.5" />
@@ -82,7 +79,7 @@ export default function PrintControls({
           type="button"
           onClick={() => onZoomChange(Math.max(1, Number((zoom - 0.25).toFixed(2))))}
           disabled={zoom <= 1}
-          className="p-1 rounded text-gray-500 hover:text-navy disabled:opacity-40"
+          className="p-1 rounded text-gray-900 hover:text-navy disabled:opacity-40"
           title="Zoom Out"
         >
           <ZoomOut className="w-3.5 h-3.5" />
@@ -94,14 +91,14 @@ export default function PrintControls({
           type="button"
           onClick={() => onZoomChange(Math.min(2.5, Number((zoom + 0.25).toFixed(2))))}
           disabled={zoom >= 2.5}
-          className="p-1 rounded text-gray-500 hover:text-navy disabled:opacity-40"
+          className="p-1 rounded text-gray-900 hover:text-navy disabled:opacity-40"
           title="Zoom In"
         >
           <ZoomIn className="w-3.5 h-3.5" />
         </button>
         <button
           type="button"
-          onClick={() => onZoomChange(1.5)}
+          onClick={() => onZoomChange(1)}
           className="ml-1 p-1 text-[10px] text-gray-500 hover:text-navy font-semibold"
           title="Reset Zoom to 150%"
         >
@@ -116,7 +113,7 @@ export default function PrintControls({
         <button
           type="button"
           onClick={handlePrint}
-          className="inline-flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-burgundy hover:bg-crimson rounded-lg shadow transition-colors"
+          className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-black bg-white hover:bg-crimson rounded-lg shadow transition-colors"
         >
           <Printer className="w-4 h-4" />
           <span>Print PVC Tray</span>
