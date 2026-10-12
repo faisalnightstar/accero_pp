@@ -24,9 +24,9 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Strict CR80 ID-1 Physical Dimensions */
+/* Strict Physical Dimensions with Relaxed Page Width for Side-by-Side PVC Tray */
 @page {
-  size: 85.6mm 53.98mm;
+  size: auto;
   margin: 0;
 }
 
@@ -80,26 +80,56 @@ body {
     print-color-adjust: exact !important;
   }
 
-  /* 3. Single-card PVC Tray Printing (Default) */
+  /* 3. Dual-Card Side-by-Side PVC Tray Print Engine (Single Page) */
+  .cr80-print-tray-row {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 5mm !important;
+    width: max-content !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  .cr80-print-card-slot {
+    width: 85.6mm !important;
+    height: 53.98mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    overflow: hidden !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+    background: #ffffff !important;
+  }
+
+  /* 4. Single-card Fallback (Zero Forced Page Break) */
   .cr80-print-tray {
     width: 85.6mm !important;
     height: 53.98mm !important;
     margin: 0 !important;
     padding: 0 !important;
-    page-break-after: always;
-    break-after: page;
-    page-break-inside: avoid;
-    break-inside: avoid;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
     overflow: hidden !important;
     position: relative !important;
     box-sizing: border-box !important;
   }
 
-  /* 4. Eliminate trailing blank Page 3 */
   .cr80-print-tray:last-child,
   .cr80-print-tray:last-of-type {
-    page-break-after: auto !important;
-    break-after: auto !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
   }
 
   /* 5. Foldable Side-by-Side Sheet Printing (PAN Legacy Layout) */

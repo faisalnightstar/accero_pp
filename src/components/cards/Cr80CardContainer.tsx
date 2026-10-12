@@ -122,19 +122,21 @@ export default function Cr80CardContainer({
         )}
       </div>
 
-      {/* Print Mode Containers (Always present in DOM, hidden on screen, exact mm for printer tray) */}
+      {/* Print Mode Containers (Single Page Side-by-Side: Front on Left, Back on Right) */}
       <div className="hidden print:block w-full">
-        {/* Page 1: Front Card */}
-        <div className="cr80-print-tray">
-          <div className="w-[85.6mm] h-[53.98mm] relative overflow-hidden bg-white">
-            {front}
+        <div className="cr80-print-tray-row">
+          {/* Slot 1: Front Card (85.60mm x 53.98mm) */}
+          <div className="cr80-print-card-slot">
+            <div className="w-[85.6mm] h-[53.98mm] relative overflow-hidden bg-white">
+              {front}
+            </div>
           </div>
-        </div>
 
-        {/* Page 2: Back Card */}
-        <div className="cr80-print-tray">
-          <div className="w-[85.6mm] h-[53.98mm] relative overflow-hidden bg-white">
-            {back}
+          {/* Slot 2: Back Card (85.60mm x 53.98mm) */}
+          <div className="cr80-print-card-slot">
+            <div className="w-[85.6mm] h-[53.98mm] relative overflow-hidden bg-white">
+              {back}
+            </div>
           </div>
         </div>
       </div>
