@@ -14,6 +14,20 @@
 - [x] **RC-04**: Interactive Split-Screen Studio integration: comprehensive form fields for all Form 23A parameters with real-time two-way canvas synchronization, missing-field assistance, and updated realistic sample data.
 - [x] **RC-05**: High-precision physical print and export verification: seamless ISO/IEC 7810 ID-1 dimensions (85.60 mm × 53.98 mm) print styling and high-DPI PDF/PNG export.
 
+### Exact Official PAN Card Engine (PAN)
+
+- [x] **PAN-01**: Asset preparation pipeline extracting high-res NSDL and UTIITSL front, back, and full sheet templates into `public/assets/pan/`.
+- [x] **PAN-02**: Extended `PanCardData` schema supporting `templateVariant?: 'nsdl' | 'utiitsl'`, `gender`, and `layoutFormat?: 'cr80' | 'sheet'`.
+- [x] **PAN-03**: Pixel-perfect `PanCardCanvas.tsx` matching legacy `pan.php` / `pan2.php` micro-coordinates with percentage responsiveness and crisp typography.
+- [x] **PAN-04**: Dynamic official XML QR barcode generator (`<PrintLetterBarcodeData uid="..." name="..." dob="..." .../>`).
+- [x] **PAN-05**: Interactive Split-Screen Studio integration: live switching between NSDL and UTIITSL variants, foldable sheet vs CR80 tray modes, with real-time form two-way sync and 1-click PDF/PNG downloads.
+
+### PVC Tray Print Engine Zero-Drift Isolation (PRINT)
+
+- [x] **PRINT-01**: Card Studio & Gallery print isolation: hiding entire editor form, search bar, header, and action controls so only the physical card tray prints.
+- [x] **PRINT-02**: Zero-margin CR80 Tray page break fix: Page 1 = Front (85.60 mm × 53.98 mm), Page 2 = Back (85.60 mm × 53.98 mm), strictly eliminating trailing blank Page 3.
+- [x] **PRINT-03**: Named paged media support for side-by-side foldable sheet printing (171.2 mm × 53.98 mm) without horizontal clipping.
+
 ## Future Requirements (v1.2+)
 
 - **ENH-01**: Automated Optical Character Recognition (OCR) to extract card data directly from uploaded photo scans.
@@ -37,11 +51,19 @@
 | RC-03 | Phase 7 | Complete |
 | RC-04 | Phase 7 | Complete |
 | RC-05 | Phase 7 | Complete |
+| PAN-01 | Phase 8 | Complete |
+| PAN-02 | Phase 8 | Complete |
+| PAN-03 | Phase 8 | Complete |
+| PAN-04 | Phase 8 | Complete |
+| PAN-05 | Phase 8 | Complete |
+| PRINT-01 | Phase 8.1 | Complete |
+| PRINT-02 | Phase 8.1 | Complete |
+| PRINT-03 | Phase 8.1 | Complete |
 
 **Coverage:**
-- v1.1 requirements: 5 total
-- Mapped to phases: 5
+- Active requirements: 13 total
+- Mapped to phases: 13
 - Unmapped: 0 ✓
 
 ---
-*Requirements defined: 2026-09-29 for milestone v1.1*
+*Requirements updated: 2026-10-13 for Phase 8.1 PVC Tray Print Engine Zero-Drift Isolation*

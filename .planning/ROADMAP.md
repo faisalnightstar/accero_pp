@@ -53,6 +53,43 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 5. Wallet & Credits Management | v1.0 | 2/2 | Complete | 2026-09-28 |
 | 6. Full SEO, GEO & AEO Search Engine | v1.0 | 2/2 | Complete | 2026-09-28 |
 | 7. Exact Official Vehicle RC Smart Card Engine | v1.1 | 2/2 | Complete | 2026-09-29 |
+| 8. Exact Official PAN Card Engine | v1.2 | 2/2 | Complete   | 2026-10-12 |
+| 8.1. PVC Tray Print Engine Zero-Drift Isolation | v1.2 | 1/1 | Complete   | 2026-10-13 |
 
 ---
-*Roadmap updated: 2026-09-29 for milestone v1.1*
+
+## Milestone: v1.2 Exact Official PAN Card Engine
+
+### Phase 8: Exact Official PAN Card Engine
+**Goal:** Deliver a 100% pixel-perfect replica of the official Income Tax Department PAN Card matching legacy `printportal/admin/aadhar/pan.php`, supporting both NSDL (`bpana.jpg`) and UTIITSL (`1panaa.jpg`) authentic background templates, micro-coordinate text & asset placement, dynamic photo & signature overlays, official high-density UIDAI/ITD XML QR code, security hologram, and seamless CR80 dual-side / side-by-side foldable print layouts.
+**Depends on:** Phase 2, Phase 3, Phase 7
+**Requirements**: PAN-01, PAN-02, PAN-03, PAN-04, PAN-05
+**Success Criteria** (what must be TRUE):
+  1. Front canvas accurately aligns photo (60x60px / 15% width), PAN number, applicant name, father's name, DOB, and signature at the exact micro-coordinates defined in legacy `printportal/admin/aadhar/pan.php`.
+  2. Supports both official NSDL (`bpana.jpg`) and UTIITSL (`1panaa.jpg`) authentic background templates with high-fidelity asset rendering, guilloche security patterns, and Mahatma Gandhi watermark.
+  3. Back canvas faithfully renders the official Income Tax Department / NSDL / UTIITSL return instructions, contact details, helpline, and security hologram badge.
+  4. Generates standard scannable QR code formatted to official XML string (`<PrintLetterBarcodeData uid="..." name="..." dob="..." .../>`).
+  5. Dual-mode print & display support: standard ISO/IEC 7810 ID-1 (85.60 mm × 53.98 mm) individual front/back tray mode AND legacy side-by-side foldable cutout sheet mode with central fold guide.
+  6. Interactive Split-Screen Studio provides real-time template switching (NSDL vs UTIITSL), print mode toggling (CR80 vs Side-by-Side Sheet), and instant 2-way synchronized form editing.
+
+Plans:
+- [x] 08-01: Asset extraction pipeline and pixel-perfect `PanCardCanvas.tsx` implementation supporting NSDL/UTIITSL variants and CR80/Sheet modes.
+- [x] 08-02: Studio form integration, template & layout mode selectors, XML QR code formatting, sample data update, and print/PDF export verification.
+
+---
+
+### Phase 8.1: PVC Tray Print Engine Zero-Drift Isolation
+**Goal:** Fix "Print PVC Tray" in Card Studio and Gallery so browser print spoolers output strictly the isolated CR80 PVC card trays (Page 1 = Front, Page 2 = Back; 85.60 mm × 53.98 mm) or side-by-side sheet (171.2 mm × 53.98 mm) with zero drift, zero UI leakage (no form inputs, search bar, dropzones, headers, or banners), and zero blank trailing pages.
+**Depends on:** Phase 2, Phase 3, Phase 8
+**Requirements**: PRINT-01, PRINT-02, PRINT-03
+**Success Criteria** (what must be TRUE):
+  1. Clicking "Print PVC Tray" in Studio or Cards Gallery prints ONLY the physical card canvas, hiding the entire left editor form, search bar, header, and all action buttons.
+  2. Output in CR80 Tray mode is exactly 2 pages: Page 1 Front (85.60 mm × 53.98 mm), Page 2 Back (85.60 mm × 53.98 mm), with zero 3rd blank trailing page.
+  3. Output in Side-by-Side Sheet mode prints a single isolated 171.2 mm × 53.98 mm card sheet without being clipped by CR80 tray dimensions.
+  4. Global print CSS completely eliminates outer padding, margins, flexbox gaps, and CSS grid constraints from `body`, `main`, and studio layout containers during print spooling.
+
+Plans:
+- [x] 08.1-01: Studio and Gallery print isolation, CSS grid/flex resets, last-card page-break fix, and multi-mode print verification.
+
+---
+*Roadmap updated: 2026-10-13 for milestone v1.2*
