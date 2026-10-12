@@ -34,10 +34,14 @@ import {
 const samplePanData: PanCardData = {
   panNumber: 'ABCDE1234F',
   fullName: 'ABU FAISAL',
-  fatherName: 'MOHAMMAD FAISAL',
+  fatherName: 'OBAIDULLA',
   dateOfBirth: '15/08/1990',
+  gender: 'MALE',
   photoUrl: '',
   signatureUrl: '',
+  category: 'Individual',
+  templateVariant: 'nsdl',
+  layoutFormat: 'cr80',
 };
 
 // Realistic sample Voter ID data (matching real sample from pdf.html)
@@ -351,7 +355,7 @@ export default function CardsShowcasePage() {
       </div>
 
       {/* Main preview workspace */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col items-center gap-6">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col items-center gap-6 print:max-w-none print:w-full print:p-0 print:m-0 print:block print:gap-0">
         {/* Controls Toolbar with Export Actions */}
         <PrintControls
           zoom={zoom}
@@ -403,7 +407,7 @@ export default function CardsShowcasePage() {
         />
 
         {/* Card Canvas Container */}
-        <section className="w-full flex justify-center py-4">
+        <section className="w-full flex justify-center py-4 print:py-0 print:block print:w-full">
           <Cr80CardContainer
             front={cardFront}
             back={cardBack}

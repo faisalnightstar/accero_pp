@@ -83,6 +83,69 @@ export default function CardForm({
             <h3 className="text-sm font-bold text-navy">PAN Card Details</h3>
           </div>
 
+          {/* Template & Print Format Selection */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-navy mb-1.5">
+                Official Template Variant
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => onFieldChange('templateVariant', 'nsdl')}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${
+                    (data.templateVariant || 'nsdl') === 'nsdl'
+                      ? 'bg-burgundy text-white border-burgundy shadow-xs'
+                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  NSDL (Standard)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onFieldChange('templateVariant', 'utiitsl')}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${
+                    data.templateVariant === 'utiitsl'
+                      ? 'bg-burgundy text-white border-burgundy shadow-xs'
+                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  UTIITSL (e-PAN)
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-navy mb-1.5">
+                Print & Display Layout
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => onFieldChange('layoutFormat', 'cr80')}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${
+                    (data.layoutFormat || 'cr80') === 'cr80'
+                      ? 'bg-navy text-white border-navy shadow-xs'
+                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  CR80 Tray (Dual)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onFieldChange('layoutFormat', 'sheet')}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${
+                    data.layoutFormat === 'sheet'
+                      ? 'bg-navy text-white border-navy shadow-xs'
+                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  Side-by-Side Sheet
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
               {renderInput('panNumber', 'Permanent Account Number (PAN)', 'e.g. ABCDE1234F', 'text', true)}
@@ -97,6 +160,9 @@ export default function CardForm({
               {renderInput('dateOfBirth', 'Date of Birth (DD/MM/YYYY)', '15/08/1990', 'text', true)}
             </div>
             <div>
+              {renderInput('gender', 'Gender (MALE / FEMALE)', 'MALE', 'text', false)}
+            </div>
+            <div className="sm:col-span-2">
               {renderInput('category', 'Entity Category', 'Individual', 'text', false)}
             </div>
           </div>

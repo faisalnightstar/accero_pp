@@ -63,16 +63,25 @@ export default function RechargeModal({
       MERCHANT_NAME
     )}&am=${currentAmount.toFixed(2)}&cu=INR&tn=Wallet+Recharge`;
 
-    QRCode.toDataURL(upiUri, {
-      width: 400,
-      margin: 1,
-      color: {
-        dark: '#0f172a',
-        light: '#ffffff',
-      },
-    })
-      .then((url) => setQrCodeDataUrl(url))
-      .catch((err) => console.error('[QR] Failed to generate UPI QR:', err));
+    const qrFn =
+      typeof QRCode?.toDataURL === 'function'
+        ? QRCode.toDataURL
+        : typeof (QRCode as any)?.default?.toDataURL === 'function'
+        ? (QRCode as any).default.toDataURL
+        : null;
+
+    if (qrFn) {
+      qrFn(upiUri, {
+        width: 400,
+        margin: 1,
+        color: {
+          dark: '#0f172a',
+          light: '#ffffff',
+        },
+      })
+        .then((url: string) => setQrCodeDataUrl(url))
+        .catch((err: unknown) => console.error('[QR] Failed to generate UPI QR:', err));
+    }
   }, [isOpen, activeTab, amount, customAmount]);
 
   if (!isOpen) return null;
@@ -177,7 +186,7 @@ export default function RechargeModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+    <div className="no-print fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-800 bg-slate-950/60">

@@ -8,11 +8,27 @@ export interface PanCardData {
   fullName: string;
   fatherName: string;
   dateOfBirth: string; // DD/MM/YYYY
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
   photoUrl?: string;
   signatureUrl?: string;
   qrData?: string;
   category?: 'Individual' | 'Company' | 'Trust' | 'HUF';
   issueDate?: string;
+  templateVariant?: 'nsdl' | 'utiitsl';
+  layoutFormat?: 'cr80' | 'sheet';
+}
+
+/**
+ * Generates official Indian e-PAN / UIDAI XML barcode string for high-density QR code
+ */
+export function getPanQrXmlString(data: Partial<PanCardData>): string {
+  if (data.qrData) return data.qrData;
+  const panno = (data.panNumber || 'ABCDE1234F').toUpperCase();
+  const name = (data.fullName || '').toUpperCase();
+  const father = (data.fatherName || '').toUpperCase();
+  const dob = data.dateOfBirth || '';
+  const gender = data.gender === 'FEMALE' ? 'F' : 'M';
+  return `<?xml version="1.0" encoding="UTF-8"?><PrintLetterBarcodeData uid="${panno}" name="${name}" dob="${dob}" gender="${gender}" co="${father}"/>`;
 }
 
 /**

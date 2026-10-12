@@ -14,11 +14,14 @@ export const defaultMockData: Record<DocumentType, any> = {
   pan: {
     panNumber: 'ABCDE1234F',
     fullName: 'ABU FAISAL',
-    fatherName: 'MOHAMMAD FAISAL',
+    fatherName: 'OBAIDULLA',
     dateOfBirth: '15/08/1990',
+    gender: 'MALE',
     photoUrl: '',
     signatureUrl: '',
     category: 'Individual',
+    templateVariant: 'nsdl',
+    layoutFormat: 'cr80',
   } as PanCardData,
 
   aadhaar: {
@@ -121,9 +124,12 @@ export const blankTemplates: Record<DocumentType, any> = {
     fullName: '',
     fatherName: '',
     dateOfBirth: '',
+    gender: 'MALE',
     photoUrl: '',
     signatureUrl: '',
     category: 'Individual',
+    templateVariant: 'nsdl',
+    layoutFormat: 'cr80',
   },
   aadhaar: {
     aadhaarNumber: '',

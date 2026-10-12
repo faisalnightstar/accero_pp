@@ -16,25 +16,25 @@ export default function StudioLayout({
   controls,
 }: StudioLayoutProps) {
   return (
-    <div className="min-h-screen bg-bg-light flex flex-col">
+    <div className="min-h-screen bg-bg-light flex flex-col print:min-h-0 print:bg-transparent print:block print:p-0 print:m-0">
       {/* Top Sticky Header */}
       <header className="no-print bg-white border-b border-gray-200 sticky top-0 z-30 shadow-xs">
         {header}
       </header>
 
       {/* Main Dual-Pane Studio Workspace */}
-      <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col">
+      <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 flex flex-col print:max-w-none print:w-full print:p-0 print:m-0 print:block">
         {controls && <div className="no-print mb-4 w-full flex justify-center">{controls}</div>}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start flex-1">
-          {/* Left Column: Form Editor (5 cols on wide, 6 on desktop) */}
-          <div className="lg:col-span-6 xl:col-span-5 flex flex-col gap-6 order-2 lg:order-1">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start flex-1 print:block print:w-full print:m-0 print:p-0 print:gap-0">
+          {/* Left Column: Form Editor (5 cols on wide, 6 on desktop, completely hidden during print) */}
+          <div className="no-print lg:col-span-6 xl:col-span-5 flex flex-col gap-6 order-2 lg:order-1">
             {form}
           </div>
 
-          {/* Right Column: Sticky Live Card Canvas Preview (7 cols on wide, 6 on desktop) */}
-          <div className="lg:col-span-6 xl:col-span-7 lg:sticky lg:top-24 flex flex-col items-center gap-4 order-1 lg:order-2">
-            <div className="w-full flex flex-col items-center">
+          {/* Right Column: Live Card Canvas Preview (7 cols on wide, 6 on desktop, full-width zero-margin in print) */}
+          <div className="lg:col-span-6 xl:col-span-7 lg:sticky lg:top-24 flex flex-col items-center gap-4 order-1 lg:order-2 print:static print:w-full print:m-0 print:p-0 print:block print:order-none">
+            <div className="w-full flex flex-col items-center print:block print:w-full print:m-0 print:p-0">
               {preview}
             </div>
           </div>

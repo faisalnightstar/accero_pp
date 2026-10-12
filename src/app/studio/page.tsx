@@ -232,8 +232,20 @@ function StudioPageContent() {
   let cardBack: React.ReactNode;
 
   if (docType === 'pan') {
-    cardFront = <PanCardCanvas data={cardData} side="front" />;
-    cardBack = <PanCardCanvas data={cardData} side="back" />;
+    cardFront = (
+      <PanCardCanvas
+        data={cardData}
+        side="front"
+        variant={cardData.templateVariant}
+      />
+    );
+    cardBack = (
+      <PanCardCanvas
+        data={cardData}
+        side="back"
+        variant={cardData.templateVariant}
+      />
+    );
   } else if (docType === 'voter') {
     cardFront = <VoterCardCanvas data={cardData} side="front" />;
     cardBack = <VoterCardCanvas data={cardData} side="back" />;
@@ -389,7 +401,7 @@ function StudioPageContent() {
 
       {/* Save Success Confirmation Modal */}
       {saveSuccess?.show && (
-        <div className="fixed inset-0 z-50 bg-navy/40 backdrop-blur-xs flex items-center justify-center p-4">
+        <div className="no-print fixed inset-0 z-50 bg-navy/40 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-gray-200 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
@@ -504,13 +516,45 @@ function StudioPageContent() {
           </div>
         }
         preview={
-          <Cr80CardContainer
-            front={cardFront}
-            back={cardBack}
-            activeSide={viewMode}
-            zoom={zoom}
-            showGuides={showGuides}
-          />
+          docType === 'pan' && cardData.layoutFormat === 'sheet' ? (
+            <div className="flex flex-col items-center gap-4">
+              <div className="no-print w-full flex flex-col items-center">
+                <span className="text-xs font-semibold tracking-wider uppercase text-gray-500 mb-2">
+                  Side-by-Side Foldable Sheet (Legacy pan.php Layout)
+                </span>
+                <div
+                  className="shadow-2xl border border-gray-200 bg-white relative transition-all duration-200 select-none overflow-hidden rounded-md max-w-full aspect-[1280/386]"
+                  style={{
+                    width: `${648 * zoom}px`,
+                  }}
+                >
+                  <PanCardCanvas
+                    data={cardData}
+                    side="sheet"
+                    variant={cardData.templateVariant}
+                  />
+                </div>
+              </div>
+              {/* Print Mode for Sheet */}
+              <div className="hidden print:block w-full cr80-print-sheet">
+                <div className="w-[171.2mm] h-[53.98mm] relative overflow-hidden bg-white mx-auto">
+                  <PanCardCanvas
+                    data={cardData}
+                    side="sheet"
+                    variant={cardData.templateVariant}
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <Cr80CardContainer
+              front={cardFront}
+              back={cardBack}
+              activeSide={viewMode}
+              zoom={zoom}
+              showGuides={showGuides}
+            />
+          )
         }
       />
 

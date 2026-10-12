@@ -33,7 +33,19 @@ export default function CardQrCode({
 
     let isMounted = true;
 
-    QRCode.toDataURL(value, {
+    const qrFn =
+      typeof QRCode?.toDataURL === 'function'
+        ? QRCode.toDataURL
+        : typeof (QRCode as any)?.default?.toDataURL === 'function'
+        ? (QRCode as any).default.toDataURL
+        : null;
+
+    if (!qrFn) {
+      setHasError(true);
+      return;
+    }
+
+    qrFn(value, {
       width: size * 2, // 2x density for crisp high-DPI rendering
       margin: 0,
       errorCorrectionLevel: level,
@@ -42,13 +54,13 @@ export default function CardQrCode({
         light: lightColor,
       },
     })
-      .then((url) => {
+      .then((url: string) => {
         if (isMounted) {
           setDataUrl(url);
           setHasError(false);
         }
       })
-      .catch((err) => {
+      .catch((err: unknown) => {
         console.error('QR code generation error:', err);
         if (isMounted) {
           setHasError(true);
