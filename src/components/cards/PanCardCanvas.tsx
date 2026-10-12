@@ -120,7 +120,7 @@ export default function PanCardCanvas({
             left: '4.25%',
             top: '75.03%',
             width: '24%',
-            fontSize: 'calc(100% * 0.034)',
+            fontSize: 'calc(100% * 0.045)',
           }}
           title={fatherName}
         >
