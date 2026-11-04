@@ -8,6 +8,8 @@ export interface IUser extends Document {
   role: 'user' | 'admin';
   walletId?: mongoose.Types.ObjectId;
   status: 'active' | 'suspended';
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -55,6 +57,14 @@ const UserSchema: Schema<IUser> = new Schema(
       type: String,
       enum: ['active', 'suspended'],
       default: 'active',
+    },
+    resetPasswordToken: {
+      type: String,
+      select: false,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      select: false,
     },
   },
   {
