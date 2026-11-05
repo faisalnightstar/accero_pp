@@ -17,6 +17,20 @@
   --shadow-button-hover: 0 8px 20px rgba(230, 57, 70, 0.35);
 }
 
+/* Fallback color utilities guaranteeing high contrast and brand fidelity */
+.bg-burgundy {
+  background-color: #8B1E2D !important;
+}
+.text-burgundy {
+  color: #8B1E2D !important;
+}
+.border-burgundy {
+  border-color: #8B1E2D !important;
+}
+.hover\:bg-burgundy:hover {
+  background-color: #8B1E2D !important;
+}
+
 body {
   background-color: var(--color-bg-light);
   color: var(--color-navy);
@@ -80,15 +94,31 @@ body {
     print-color-adjust: exact !important;
   }
 
-  /* 3. Dual-Card Side-by-Side PVC Tray Print Engine (Single Page) */
+  /* 3. Dual-Card Side-by-Side PVC Tray Print Engine (Centered Single Page) */
+  .cr80-print-page-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+    min-height: 100vh !important;
+    height: 100% !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
   .cr80-print-tray-row {
     display: flex !important;
     flex-direction: row !important;
-    align-items: flex-start !important;
-    justify-content: flex-start !important;
-    gap: 5mm !important;
-    width: max-content !important;
-    margin: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 6mm !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: auto !important;
     padding: 0 !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;

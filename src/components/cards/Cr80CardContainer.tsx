@@ -122,8 +122,8 @@ export default function Cr80CardContainer({
         )}
       </div>
 
-      {/* Print Mode Containers (Single Page Side-by-Side: Front on Left, Back on Right) */}
-      <div className="hidden print:block w-full">
+      {/* Print Mode Containers (Centered Dual-Card PVC Tray: Front on Left, Back on Right) */}
+      <div className="hidden print:flex cr80-print-page-wrapper w-full min-h-screen items-center justify-center">
         <div className="cr80-print-tray-row">
           {/* Slot 1: Front Card (85.60mm x 53.98mm) */}
           <div className="cr80-print-card-slot">

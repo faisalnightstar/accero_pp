@@ -85,17 +85,17 @@ export const defaultMockData: Record<DocumentType, any> = {
   } as DlCardData,
 
   rc: {
-    registrationNumber: 'UP05LD1234',
+    registrationNumber: 'UP16DL3137',
     registrationDate: '22-Oct-2022',
     regnValidity: '22-Oct-2037',
     ownerSerial: 1,
     stateCode: 'UP',
     stateIssued: 'Issued by Government of Uttar Pradesh',
     transportType: 'NT',
-    chassisNumber: 'MR123RK21N5K12345',
-    engineNumber: 'AR1CH1234567',
-    ownerName: 'ROHIT KHATRI',
-    sonWifeDaughterOf: 'SUBHASH KHATRI',
+    chassisNumber: 'MD626AK35N3K13433',
+    engineNumber: 'AK3KN3704338',
+    ownerName: 'ABU FAISAL',
+    sonWifeDaughterOf: 'OBAIDULLA',
     address: 'D-74, BETA 1 , GREATER NOIDA, Gautam Buddha Nagar -201308',
     vehicleClass: 'M-CYCLE/SCOOTER',
     maker: 'TVS MOTOR COMPANY LTD',
@@ -114,7 +114,7 @@ export const defaultMockData: Record<DocumentType, any> = {
     financier: 'BANDHAN BANK LTD',
     registeringAuthority: 'Noida, Uttar Pradesh',
     cardIssueDate: '30-08-2026',
-    qrPayload: 'https://vahan.parivahan.gov.in/rc?reg=UP05LD1234',
+    qrPayload: 'https://vahan.parivahan.gov.in/rc?reg=UP16DL3137',
   } as RcCardData,
 };
 
