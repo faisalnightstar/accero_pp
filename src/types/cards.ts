@@ -58,6 +58,7 @@ export interface VoterCardData {
   photoUrl?: string;
   signatureUrl?: string;
   issueDate?: string;
+  templateVariant?: 'hindi' | 'assam';
 }
 
 /**
@@ -80,6 +81,9 @@ export interface AadhaarCardData {
   issueDate?: string;
   vid?: string; // 16-digit Virtual ID
   enrollmentNo?: string;
+  mobile?: string;
+  layoutFormat?: 'cr80' | 'sheet';
+  templateVariant?: 'pvc' | 'default';
 }
 
 /**
@@ -91,10 +95,17 @@ export interface DlCardData {
   fatherOrHusbandName: string;
   dateOfBirth: string; // DD-MM-YYYY
   bloodGroup?: string;
+  gender?: string;
+  organDonor?: string;
   address: string;
+  state?: string; // e.g. "UTTAR PRADESH"
   issueDate: string; // DD-MM-YYYY
   validityNonTransport: string; // DD-MM-YYYY
   validityTransport?: string; // DD-MM-YYYY
+  emergencyContact?: string;
+  adpvehNo?: string;
+  hazardousValidUpto?: string;
+  hillValidUpto?: string;
   vehicleClasses: Array<{
     code: string; // e.g. MCWG, LMV
     desc: string; // e.g. Motor Cycle With Gear, Light Motor Vehicle
@@ -103,13 +114,14 @@ export interface DlCardData {
   issuingAuthority: string; // e.g. "RTO NEW DELHI"
   photoUrl?: string;
   signatureUrl?: string;
+  templateVariant?: 'authentic' | 'vector';
 }
 
 /**
  * Standard Vehicle RC Data Payload (Form 23A - Smart Registration Certificate)
  */
 export interface RcCardData {
-  registrationNumber: string; // e.g. "UP16DL3137"
+  registrationNumber: string; // e.g. "UP05LD1234"
   registrationDate: string; // DD/MM/YYYY or DD-Mon-YYYY
   chassisNumber: string;
   engineNumber: string;
@@ -191,7 +203,7 @@ export const STATE_CODE_TO_NAME: Record<string, string> = {
  * Smart derivation helper for Form 23A Vehicle RC cards
  */
 export function getRcDerivedValues(data: Partial<RcCardData>) {
-  const regNo = (data.registrationNumber || 'UP16DL3137').trim().toUpperCase();
+  const regNo = (data.registrationNumber || 'UP05LD1234').trim().toUpperCase();
   const rawPrefix = regNo.slice(0, 2);
   const derivedStateCode = data.stateCode || (STATE_CODE_TO_NAME[rawPrefix] ? rawPrefix : 'UP');
   const stateName = STATE_CODE_TO_NAME[derivedStateCode] || 'Uttar Pradesh';

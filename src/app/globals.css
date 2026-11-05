@@ -141,6 +141,11 @@ body {
     background: #ffffff !important;
   }
 
+  .cr80-print-card-slot.portrait-slot {
+    width: 53.98mm !important;
+    height: 85.6mm !important;
+  }
+
   /* 4. Single-card Fallback (Zero Forced Page Break) */
   .cr80-print-tray {
     width: 85.6mm !important;

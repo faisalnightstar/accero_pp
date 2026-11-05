@@ -56,6 +56,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7
 | 8. Exact Official PAN Card Engine | v1.2 | 2/2 | Complete   | 2026-10-12 |
 | 8.1. PVC Tray Print Engine Zero-Drift Isolation | v1.2 | 1/1 | Complete   | 2026-10-13 |
 | 8.2. Single-Page Side-by-Side PVC Tray Print Engine | v1.2 | 1/1 | Complete   | 2026-10-13 |
+| 9. Authentic Official Card Templates (Aadhaar, Voter, DL) | v1.3 | 3/3 | Complete | 2026-11-06 |
 
 ---
 
@@ -108,4 +109,23 @@ Plans:
 - [x] 08.2-01: Side-by-side print DOM refactoring in Cr80CardContainer, CSS flex row print rules, @page dimension adaptation, and multi-card verification.
 
 ---
-*Roadmap updated: 2026-10-13 for milestone v1.2*
+
+## Milestone: v1.3 Authentic Official Document Templates (Aadhaar, Voter ID, Driving License)
+
+### Phase 9: Authentic Official Card Templates (Aadhaar, Voter ID, Driving License)
+**Goal:** Deliver 100% pixel-perfect authentic background template overlays for Aadhaar Card, Voter ID, and Driving License (DL) using the source assets in `src/assets/`, matching the government card standards and legacy implementations (`dlnew.php`, `voter.php`, `newaadhar.php`).
+**Depends on:** Phase 2, Phase 3, Phase 7, Phase 8
+**Requirements**: TEMPL-01, TEMPL-02, TEMPL-03, TEMPL-04
+**Success Criteria** (what must be TRUE):
+  1. Aadhaar Card Canvas supports authentic PVC background template (`aadhar2.jpg` from `printportal/newportal/admin/aadharpvc/`), correctly aligning photo, Hindi & English names, DOB, gender, 4-digit grouped Aadhaar number, bilingual address, and high-density secure UIDAI QR code.
+  2. Voter ID Canvas renders authentic portrait ID card templates (`src/assets/voter/hindi/voterhindifront.jpg` and `voterhindiback.jpg`, plus optional Assam variant), accurately positioning barcode, EPIC number, elector photo, bilingual elector/relative names, assembly constituency, and returning officer sign.
+  3. Driving License Canvas reproduces authentic government smart card backgrounds (`src/assets/dl/1.png` and `2.png`), accurately overlaying Sarathi Parivahan QR code, photo, signature, biometric chip area, license metadata, and Form 7 vehicle endorsement COV table from `src/assets/dl/dlnew.php`.
+  4. Interactive Studio and Print Engine flawlessly support both landscape and portrait card aspect ratios with centered single-page side-by-side dual PVC printing.
+
+Plans:
+- [x] 09-01: Asset extraction, normalization, and public directory deployment for Aadhaar, Voter, and DL templates.
+- [x] 09-02: Canvas implementation of authentic background templates for `AadhaarCardCanvas.tsx`, `VoterCardCanvas.tsx`, and `DlCardCanvas.tsx`.
+- [x] 09-03: Studio integration, portrait/landscape container support, and multi-card print verification.
+
+---
+*Roadmap updated: 2026-11-06 for milestone v1.3*

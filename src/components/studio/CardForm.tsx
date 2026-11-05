@@ -63,11 +63,10 @@ export default function CardForm({
           value={value}
           onChange={(e) => onFieldChange(key, e.target.value)}
           placeholder={placeholder}
-          className={`w-full px-3 py-2 text-xs rounded-lg border transition-all outline-none font-medium ${
-            isMissing
-              ? 'border-amber-400 bg-amber-50/20 focus:border-amber-500 focus:ring-2 focus:ring-amber-200'
-              : 'border-gray-300 bg-white focus:border-steel-blue focus:ring-2 focus:ring-steel-blue/20 text-navy'
-          }`}
+          className={`w-full px-3 py-2 text-xs rounded-lg border transition-all outline-none font-medium ${isMissing
+            ? 'border-amber-400 bg-amber-50/20 focus:border-amber-500 focus:ring-2 focus:ring-amber-200'
+            : 'border-gray-300 bg-white focus:border-steel-blue focus:ring-2 focus:ring-steel-blue/20 text-navy'
+            }`}
         />
       </div>
     );
@@ -93,22 +92,20 @@ export default function CardForm({
                 <button
                   type="button"
                   onClick={() => onFieldChange('templateVariant', 'nsdl')}
-                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${
-                    (data.templateVariant || 'nsdl') === 'nsdl'
-                      ? 'bg-burgundy text-white border-burgundy shadow-xs'
-                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                  }`}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${(data.templateVariant || 'nsdl') === 'nsdl'
+                    ? 'bg-burgundy text-white border-burgundy shadow-xs'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
                 >
                   NSDL (Standard)
                 </button>
                 <button
                   type="button"
                   onClick={() => onFieldChange('templateVariant', 'utiitsl')}
-                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${
-                    data.templateVariant === 'utiitsl'
-                      ? 'bg-burgundy text-white border-burgundy shadow-xs'
-                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                  }`}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${data.templateVariant === 'utiitsl'
+                    ? 'bg-burgundy text-white border-burgundy shadow-xs'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
                 >
                   UTIITSL (e-PAN)
                 </button>
@@ -123,22 +120,20 @@ export default function CardForm({
                 <button
                   type="button"
                   onClick={() => onFieldChange('layoutFormat', 'cr80')}
-                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${
-                    (data.layoutFormat || 'cr80') === 'cr80'
-                      ? 'bg-navy text-white border-navy shadow-xs'
-                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                  }`}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${(data.layoutFormat || 'cr80') === 'cr80'
+                    ? 'bg-navy text-white border-navy shadow-xs'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
                 >
                   CR80 Tray (Dual)
                 </button>
                 <button
                   type="button"
                   onClick={() => onFieldChange('layoutFormat', 'sheet')}
-                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${
-                    data.layoutFormat === 'sheet'
-                      ? 'bg-navy text-white border-navy shadow-xs'
-                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
-                  }`}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${data.layoutFormat === 'sheet'
+                    ? 'bg-navy text-white border-navy shadow-xs'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
                 >
                   Side-by-Side Sheet
                 </button>
@@ -151,7 +146,7 @@ export default function CardForm({
               {renderInput('panNumber', 'Permanent Account Number (PAN)', 'e.g. ABCDE1234F', 'text', true)}
             </div>
             <div className="sm:col-span-2">
-              {renderInput('fullName', 'Cardholder Full Name', 'e.g. ABU FAISAL', 'text', true)}
+              {renderInput('fullName', 'Cardholder Full Name', 'e.g. ROHIT KHATRI', 'text', true)}
             </div>
             <div className="sm:col-span-2">
               {renderInput('fatherName', "Father's Full Name", 'e.g. MOHAMMAD FAISAL', 'text', true)}
@@ -319,7 +314,7 @@ export default function CardForm({
               {renderInput('dlNumber', 'Driving Licence Number', 'e.g. UP-1620210012345', 'text', true)}
             </div>
             <div className="sm:col-span-2">
-              {renderInput('holderName', 'Driver Full Name', 'e.g. ABU FAISAL', 'text', true)}
+              {renderInput('holderName', 'Driver Full Name', 'e.g. ROHIT KHATRI', 'text', true)}
             </div>
             <div className="sm:col-span-2">
               {renderInput('fatherOrHusbandName', 'S/W/D of', 'e.g. MOHAMMAD FAISAL', 'text', true)}
@@ -328,7 +323,19 @@ export default function CardForm({
               {renderInput('dateOfBirth', 'Date of Birth (DD-MM-YYYY)', '15-08-1990', 'text', true)}
             </div>
             <div>
+              {renderInput('gender', 'Gender', 'MALE', 'text', false)}
+            </div>
+            <div>
               {renderInput('bloodGroup', 'Blood Group', 'O+', 'text', false)}
+            </div>
+            <div>
+              {renderInput('organDonor', 'Organ Donor', 'N', 'text', false)}
+            </div>
+            <div>
+              {renderInput('state', 'State', 'UTTAR PRADESH', 'text', false)}
+            </div>
+            <div>
+              {renderInput('emergencyContact', 'Emergency Contact', '9876543210', 'text', false)}
             </div>
             <div>
               {renderInput('issueDate', 'Issue Date (DD-MM-YYYY)', '10-06-2021', 'text', true)}
@@ -390,7 +397,7 @@ export default function CardForm({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="sm:col-span-1">
-                {renderInput('registrationNumber', 'Regn No', 'e.g. UP16DL3137', 'text', true)}
+                {renderInput('registrationNumber', 'Regn No', 'e.g. UP05LD1234', 'text', true)}
               </div>
               <div>
                 {renderInput('registrationDate', 'Date of Regn.', 'e.g. 22-Oct-2022', 'text', true)}
@@ -430,10 +437,10 @@ export default function CardForm({
                 {renderInput('model', 'Model Description', 'TVSNTORQ125-SUPER SQUADEDITION', 'text', true)}
               </div>
               <div>
-                {renderInput('chassisNumber', 'Chassis No', 'MD626AK35N3K13433', 'text', true)}
+                {renderInput('chassisNumber', 'Chassis No', 'MR123RK21N5K12345', 'text', true)}
               </div>
               <div>
-                {renderInput('engineNumber', 'Engine/Motor No', 'AK3KN3704338', 'text', true)}
+                {renderInput('engineNumber', 'Engine/Motor No', 'AR1CH1234567', 'text', true)}
               </div>
               <div>
                 {renderInput('color', 'Color', 'BLACK', 'text', false)}
@@ -452,10 +459,10 @@ export default function CardForm({
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2">
-                {renderInput('ownerName', 'Owner Name', 'ABU FAISAL', 'text', true)}
+                {renderInput('ownerName', 'Owner Name', 'ROHIT KHATRI', 'text', true)}
               </div>
               <div className="sm:col-span-2">
-                {renderInput('sonWifeDaughterOf', 'Son/Daughter/Wife of (In case of Individual Owner)', 'OBAIDULLA', 'text', false)}
+                {renderInput('sonWifeDaughterOf', 'Son/Daughter/Wife of (In case of Individual Owner)', 'SUBHASH KHATRI', 'text', false)}
               </div>
               <div className="sm:col-span-2">
                 {renderInput('address', 'Permanent Address', 'Full Residential Address', 'text', true)}

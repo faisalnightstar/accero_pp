@@ -33,8 +33,8 @@ import {
 // Realistic sample PAN data
 const samplePanData: PanCardData = {
   panNumber: 'ABCDE1234F',
-  fullName: 'ABU FAISAL',
-  fatherName: 'OBAIDULLA',
+  fullName: 'ROHIT SINGH',
+  fatherName: 'RAJU SINGH',
   dateOfBirth: '15/08/1990',
   gender: 'MALE',
   photoUrl: '',
@@ -87,8 +87,8 @@ const sampleAadhaarData: AadhaarCardData = {
 // Realistic sample Driving License data
 const sampleDlData: DlCardData = {
   dlNumber: 'UP-1620210012345',
-  holderName: 'ABU FAISAL',
-  fatherOrHusbandName: 'MOHAMMAD FAISAL',
+  holderName: 'ROHIT SINGH',
+  fatherOrHusbandName: 'AMRESH KUMAR',
   dateOfBirth: '15-08-1990',
   bloodGroup: 'O+',
   address: 'FLAT 402, SECTOR 62, NOIDA, GAUTAM BUDDHA NAGAR, UP - 201309',
@@ -104,18 +104,18 @@ const sampleDlData: DlCardData = {
 
 // Realistic sample Vehicle RC data (matching official Form 23A reference card)
 const sampleRcData: RcCardData = {
-  registrationNumber: 'UP16DL3137',
+  registrationNumber: 'UP05LD1234',
   registrationDate: '22-Oct-2022',
   regnValidity: '22-Oct-2037',
   ownerSerial: 1,
   stateCode: 'UP',
   stateIssued: 'Issued by Government of Uttar Pradesh',
   transportType: 'NT',
-  chassisNumber: 'MD626AK35N3K13433',
-  engineNumber: 'AK3KN3704338',
-  ownerName: 'ABU FAISAL',
-  sonWifeDaughterOf: 'OBAIDULLA',
-  address: 'D-74, BETA 1 , GREATER NOIDA, Gautam Buddha Nagar -201308',
+  chassisNumber: 'MR123RK21N5K12345',
+  engineNumber: 'AR1CH1234567',
+  ownerName: 'ROHIT KHATRI',
+  sonWifeDaughterOf: 'SUBHASH KHATRI',
+  address: 'E-04, BETA 2 , GREATER NOIDA, Gautam Buddha Nagar -201308',
   vehicleClass: 'M-CYCLE/SCOOTER',
   maker: 'TVS MOTOR COMPANY LTD',
   model: 'TVSNTORQ125-SUPER SQUADEDITION',
@@ -133,7 +133,7 @@ const sampleRcData: RcCardData = {
   financier: 'BANDHAN BANK LTD',
   registeringAuthority: 'Noida, Uttar Pradesh',
   cardIssueDate: '30-08-2026',
-  qrPayload: 'https://vahan.parivahan.gov.in/rc?reg=UP16DL3137',
+  qrPayload: 'https://vahan.parivahan.gov.in/rc?reg=UP05LD1234',
 };
 
 export default function CardsShowcasePage() {
@@ -277,11 +277,10 @@ export default function CardsShowcasePage() {
           <button
             type="button"
             onClick={() => setActiveTab('pan')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${
-              activeTab === 'pan'
-                ? 'border-burgundy text-burgundy'
-                : 'border-transparent text-gray-500 hover:text-navy'
-            }`}
+            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${activeTab === 'pan'
+              ? 'border-burgundy text-burgundy'
+              : 'border-transparent text-gray-500 hover:text-navy'
+              }`}
           >
             <CreditCard className="w-3.5 h-3.5" />
             <span>PAN Card</span>
@@ -290,11 +289,10 @@ export default function CardsShowcasePage() {
           <button
             type="button"
             onClick={() => setActiveTab('aadhaar')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${
-              activeTab === 'aadhaar'
-                ? 'border-burgundy text-burgundy'
-                : 'border-transparent text-gray-500 hover:text-navy'
-            }`}
+            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${activeTab === 'aadhaar'
+              ? 'border-burgundy text-burgundy'
+              : 'border-transparent text-gray-500 hover:text-navy'
+              }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Aadhaar Card</span>
@@ -303,11 +301,10 @@ export default function CardsShowcasePage() {
           <button
             type="button"
             onClick={() => setActiveTab('voter')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${
-              activeTab === 'voter'
-                ? 'border-burgundy text-burgundy'
-                : 'border-transparent text-gray-500 hover:text-navy'
-            }`}
+            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${activeTab === 'voter'
+              ? 'border-burgundy text-burgundy'
+              : 'border-transparent text-gray-500 hover:text-navy'
+              }`}
           >
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Voter ID (EPIC)</span>
@@ -316,11 +313,10 @@ export default function CardsShowcasePage() {
           <button
             type="button"
             onClick={() => setActiveTab('dl')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${
-              activeTab === 'dl'
-                ? 'border-burgundy text-burgundy'
-                : 'border-transparent text-gray-500 hover:text-navy'
-            }`}
+            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${activeTab === 'dl'
+              ? 'border-burgundy text-burgundy'
+              : 'border-transparent text-gray-500 hover:text-navy'
+              }`}
           >
             <CreditCard className="w-3.5 h-3.5" />
             <span>Driving License</span>
@@ -329,11 +325,10 @@ export default function CardsShowcasePage() {
           <button
             type="button"
             onClick={() => setActiveTab('rc')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${
-              activeTab === 'rc'
-                ? 'border-burgundy text-burgundy'
-                : 'border-transparent text-gray-500 hover:text-navy'
-            }`}
+            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${activeTab === 'rc'
+              ? 'border-burgundy text-burgundy'
+              : 'border-transparent text-gray-500 hover:text-navy'
+              }`}
           >
             <Car className="w-3.5 h-3.5" />
             <span>Vehicle RC</span>
@@ -342,11 +337,10 @@ export default function CardsShowcasePage() {
           <button
             type="button"
             onClick={() => setActiveTab('container')}
-            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${
-              activeTab === 'container'
-                ? 'border-burgundy text-burgundy'
-                : 'border-transparent text-gray-500 hover:text-navy'
-            }`}
+            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${activeTab === 'container'
+              ? 'border-burgundy text-burgundy'
+              : 'border-transparent text-gray-500 hover:text-navy'
+              }`}
           >
             <FileText className="w-3.5 h-3.5" />
             <span>Base Container</span>
@@ -416,6 +410,7 @@ export default function CardsShowcasePage() {
             showGuides={showGuides}
             frontRef={frontCardRef}
             backRef={backCardRef}
+            orientation={activeTab === 'voter' ? 'portrait' : 'landscape'}
           />
         </section>
 

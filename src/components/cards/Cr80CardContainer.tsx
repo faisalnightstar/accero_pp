@@ -12,6 +12,7 @@ export interface Cr80CardContainerProps {
   className?: string;
   frontRef?: React.RefObject<HTMLDivElement | null>;
   backRef?: React.RefObject<HTMLDivElement | null>;
+  orientation?: 'landscape' | 'portrait';
 }
 
 export default function Cr80CardContainer({
@@ -23,14 +24,14 @@ export default function Cr80CardContainer({
   className = '',
   frontRef,
   backRef,
+  orientation = 'landscape',
 }: Cr80CardContainerProps) {
   const [currentSide, setCurrentSide] = useState<'front' | 'back'>('front');
 
-  // Base CR80 screen resolution at 1x: 324px × 204px (1.588 aspect ratio)
-  // At 1.5x zoom (default studio preview): 486px × 306px
-  // At 2x zoom: 648px × 408px
-  const baseWidthPx = 324;
-  const baseHeightPx = 204;
+  const isPortrait = orientation === 'portrait';
+  // Base CR80 screen resolution at 1x: 324px × 204px (landscape) or 204px × 324px (portrait)
+  const baseWidthPx = isPortrait ? 204 : 324;
+  const baseHeightPx = isPortrait ? 324 : 204;
   const cardWidth = baseWidthPx * zoom;
   const cardHeight = baseHeightPx * zoom;
 
@@ -125,16 +126,24 @@ export default function Cr80CardContainer({
       {/* Print Mode Containers (Centered Dual-Card PVC Tray: Front on Left, Back on Right) */}
       <div className="hidden print:flex cr80-print-page-wrapper w-full min-h-screen items-center justify-center">
         <div className="cr80-print-tray-row">
-          {/* Slot 1: Front Card (85.60mm x 53.98mm) */}
-          <div className="cr80-print-card-slot">
-            <div className="w-[85.6mm] h-[53.98mm] relative overflow-hidden bg-white">
+          {/* Slot 1: Front Card */}
+          <div className={`cr80-print-card-slot ${isPortrait ? 'portrait-slot' : ''}`}>
+            <div
+              className={`relative overflow-hidden bg-white ${
+                isPortrait ? 'w-[53.98mm] h-[85.6mm]' : 'w-[85.6mm] h-[53.98mm]'
+              }`}
+            >
               {front}
             </div>
           </div>
 
-          {/* Slot 2: Back Card (85.60mm x 53.98mm) */}
-          <div className="cr80-print-card-slot">
-            <div className="w-[85.6mm] h-[53.98mm] relative overflow-hidden bg-white">
+          {/* Slot 2: Back Card */}
+          <div className={`cr80-print-card-slot ${isPortrait ? 'portrait-slot' : ''}`}>
+            <div
+              className={`relative overflow-hidden bg-white ${
+                isPortrait ? 'w-[53.98mm] h-[85.6mm]' : 'w-[85.6mm] h-[53.98mm]'
+              }`}
+            >
               {back}
             </div>
           </div>

@@ -2,13 +2,12 @@
 
 import React from 'react';
 import { AadhaarCardData } from '@/types/cards';
-import { AshokaEmblem, GuillochePattern } from '@/components/cards/Emblems';
 import CardQrCode from '@/components/cards/CardQrCode';
 import { User } from 'lucide-react';
 
 interface AadhaarCardCanvasProps {
   data: AadhaarCardData;
-  side?: 'front' | 'back';
+  side?: 'front' | 'back' | 'sheet';
   className?: string;
 }
 
@@ -25,174 +24,332 @@ export default function AadhaarCardCanvas({
       : data.aadhaarNumber || '5749 0326 7673';
 
   // Standard UIDAI XML barcode string for high-density QR code
-  const uidaiXml = `<PrintLetterBarcodeData uid="${rawNum}" name="${data.name}" gender="${
+  const uidaiXml = `<PrintLetterBarcodeData uid="${rawNum}" name="${data.name || ''}" gender="${
     data.gender === 'FEMALE' ? 'F' : 'M'
-  }" dob="${data.dateOfBirth}" co="${data.careOf || ''}" house="" street="" dist="" state="" pc=""/>`;
+  }" dob="${data.dateOfBirth || ''}" co="${data.careOf || ''}" house="" street="" dist="" state="" pc=""/>`;
 
-  if (side === 'back') {
+  const frontAsset = '/assets/aadhar/aadhar-pvc-front.jpg';
+  const backAsset = '/assets/aadhar/aadhar-pvc-back.jpg';
+  const sheetAsset = '/assets/aadhar/aadhar-pvc-sheet.jpg';
+
+  /* -------------------------------------------------------------
+   * 1. FULL SIDE-BY-SIDE SHEET MODE (newaadhar.php 1:1 match)
+   * ----------------------------------------------------------- */
+  if (side === 'sheet') {
     return (
       <div
-        className={`w-full h-full relative overflow-hidden bg-gradient-to-br from-amber-50/40 via-white to-blue-50/40 text-navy p-2 flex flex-col justify-between font-sans select-none ${className}`}
+        className={`w-full h-full relative overflow-hidden select-none bg-white font-sans ${className}`}
+        style={{
+          printColorAdjust: 'exact',
+          WebkitPrintColorAdjust: 'exact',
+        }}
       >
-        <GuillochePattern opacity={0.12} strokeColor="#E63946" />
+        {/* Authentic Background Sheet (988x311) */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={sheetAsset}
+          alt="Aadhaar PVC Sheet"
+          className="absolute inset-0 w-full h-full object-fill pointer-events-none select-none"
+        />
 
-        {/* Back Header with Tricolor accent */}
-        <div className="border-b border-gray-300 pb-0.5 flex items-center justify-between">
-          <div className="flex items-center gap-1">
-            <AshokaEmblem className="w-4 h-6 shrink-0" fill="#1D3557" />
-            <div className="leading-none">
-              <span className="text-[7.5px] font-bold text-navy block">भारतीय विशिष्ट पहचान प्राधिकरण</span>
-              <span className="text-[6.5px] font-semibold text-gray-600 block">
-                Unique Identification Authority of India
-              </span>
-            </div>
-          </div>
-          <span className="text-[6.5px] font-bold text-crimson uppercase">पता / Address</span>
+        {/* ---------------- FRONT HALF (Left: 0 to 50%) ---------------- */}
+        {/* Main Photo */}
+        <div
+          className="absolute overflow-hidden rounded-[2px] bg-white border border-gray-400 shadow-2xs flex items-center justify-center"
+          style={{
+            left: '4.25%',
+            top: '26.7%',
+            width: '12.15%',
+            height: '47.3%',
+          }}
+        >
+          {data.photoUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={data.photoUrl} alt="Resident" className="w-full h-full object-cover" />
+          ) : (
+            <User className="w-8 h-8 text-gray-400" />
+          )}
         </div>
 
-        {/* Address and QR Body */}
-        <div className="grid grid-cols-12 gap-2 my-auto items-center">
-          {/* Address Details (8 cols) */}
-          <div className="col-span-8 space-y-1 text-gray-800 leading-tight">
-            {data.careOf && (
-              <div className="text-[7.5px]">
-                <span className="text-[6px] text-gray-500 font-semibold block">आत्मज / C/O:</span>
-                {data.careOfRegional && <span className="block font-medium">{data.careOfRegional}</span>}
-                <span className="font-semibold text-navy">{data.careOf}</span>
-              </div>
-            )}
+        {/* Ghost Photo Watermark */}
+        {data.photoUrl && (
+          <div
+            className="absolute overflow-hidden opacity-60 filter grayscale pointer-events-none"
+            style={{
+              left: '42.0%',
+              top: '25.7%',
+              width: '4.0%',
+              height: '16.0%',
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={data.photoUrl} alt="Ghost" className="w-full h-full object-cover" />
+          </div>
+        )}
 
-            <div className="text-[7.5px]">
-              <span className="text-[6px] text-gray-500 font-semibold block">पता / Address:</span>
-              {data.addressRegional && (
-                <p className="line-clamp-2 font-medium text-gray-800 leading-tight">
-                  {data.addressRegional}
-                </p>
-              )}
-              <p className="line-clamp-2 text-gray-700 leading-tight">
-                {data.address || 'Address Details Pending'}
-              </p>
-            </div>
+        {/* Resident Details */}
+        <div
+          className="absolute flex flex-col justify-start leading-none text-black"
+          style={{
+            left: '17.7%',
+            top: '27.0%',
+            width: '23.0%',
+          }}
+        >
+          {data.nameRegional && (
+            <span className="text-[8.5px] font-bold block text-black truncate">
+              {data.nameRegional}
+            </span>
+          )}
+          <span className="text-[8.5px] font-bold block text-black uppercase truncate mt-0.5">
+            {data.name || 'NAME PENDING'}
+          </span>
+
+          <div className="mt-1.5 text-[7px] text-gray-900 font-bold leading-tight">
+            <span>{data.dateOfBirthRegional || 'जन्म तिथि'}/DOB: </span>
+            <span className="font-mono">{data.dateOfBirth || 'DD/MM/YYYY'}</span>
           </div>
 
-          {/* Secure QR Code (4 cols) */}
-          <div className="col-span-4 flex flex-col items-center justify-center">
-            <div className="bg-white p-0.5 rounded border border-gray-300 shadow-2xs">
-              <CardQrCode value={uidaiXml} size={50} level="M" />
-            </div>
-            <span className="text-[5.5px] text-gray-400 mt-0.5 font-mono">UIDAI SECURE QR</span>
+          <div className="mt-1 text-[7px] text-gray-900 font-bold leading-tight">
+            <span>{data.genderRegional || (data.gender === 'FEMALE' ? 'महिला' : 'पुरुष')} / </span>
+            <span>{data.gender || 'MALE'}</span>
           </div>
         </div>
 
-        {/* Back Footer with 1947 Helpline */}
-        <div className="border-t border-gray-300 pt-0.5 flex items-center justify-between text-[6px] text-gray-600">
-          <div className="flex items-center gap-3">
-            <span>Helpline: <strong>1947</strong></span>
-            <span>help@uidai.gov.in</span>
-            <span>www.uidai.gov.in</span>
-          </div>
-          <span className="font-bold text-crimson">Aadhaar Card</span>
+        {/* Front Aadhaar Number */}
+        <div
+          className="absolute text-center font-black font-mono tracking-widest text-[#1D3557] text-[13px] leading-none"
+          style={{
+            left: '21.0%',
+            bottom: '7.5%',
+            transform: 'translateX(-50%)',
+          }}
+        >
+          {formattedAadhaar}
+        </div>
+
+        {/* ---------------- BACK HALF (Right: 50% to 100%) ---------------- */}
+        {/* Address Details */}
+        <div
+          className="absolute flex flex-col justify-start leading-tight text-black text-[6.5px]"
+          style={{
+            left: '52.5%',
+            top: '23.0%',
+            width: '26.0%',
+          }}
+        >
+          <span className="font-extrabold text-black block">पता / Address:</span>
+          {data.careOf && (
+            <span className="font-bold text-gray-900 block mt-0.5 truncate">
+              {data.careOfRegional ? `${data.careOfRegional} / ` : ''}{data.careOf}
+            </span>
+          )}
+          {data.addressRegional && (
+            <span className="font-medium text-gray-800 line-clamp-2 mt-0.5">
+              {data.addressRegional}
+            </span>
+          )}
+          <span className="font-medium text-gray-800 line-clamp-2 mt-0.5 uppercase">
+            {data.address || 'Address Details Pending'}
+          </span>
+        </div>
+
+        {/* Back Secure QR Code */}
+        <div
+          className="absolute bg-white p-0.5 border border-gray-300 rounded-xs shadow-2xs flex items-center justify-center"
+          style={{
+            left: '81.5%',
+            top: '23.0%',
+            width: '14.5%',
+            height: '46.0%',
+          }}
+        >
+          <CardQrCode value={uidaiXml} size={68} level="M" />
+        </div>
+
+        {/* Back Aadhaar Number */}
+        <div
+          className="absolute text-center font-black font-mono tracking-widest text-[#1D3557] text-[13px] leading-none"
+          style={{
+            left: '71.0%',
+            bottom: '7.5%',
+            transform: 'translateX(-50%)',
+          }}
+        >
+          {formattedAadhaar}
         </div>
       </div>
     );
   }
 
-  // Front Side Layout
-  return (
-    <div
-      className={`w-full h-full relative overflow-hidden bg-gradient-to-br from-amber-50/50 via-white to-emerald-50/40 text-navy p-2 flex flex-col justify-between font-sans select-none ${className}`}
-    >
-      <GuillochePattern opacity={0.12} strokeColor="#457B9D" />
+  /* -------------------------------------------------------------
+   * 2. BACK SIDE LAYOUT (Standard CR80 85.60mm x 53.98mm)
+   * ----------------------------------------------------------- */
+  if (side === 'back') {
+    return (
+      <div
+        className={`w-full h-full relative overflow-hidden select-none bg-white font-sans ${className}`}
+        style={{
+          printColorAdjust: 'exact',
+          WebkitPrintColorAdjust: 'exact',
+        }}
+      >
+        {/* Authentic Background Template */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={backAsset}
+          alt="Aadhaar PVC Back"
+          className="absolute inset-0 w-full h-full object-fill pointer-events-none select-none"
+        />
 
-      {/* Tricolor Header */}
-      <div className="relative z-10 border-b border-navy/20 pb-0.5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-1.5">
-            <AshokaEmblem className="w-4 h-6 shrink-0" fill="#1D3557" />
-            <div className="leading-none">
-              <div className="text-[8px] font-bold text-navy">भारत सरकार</div>
-              <div className="text-[7.5px] font-extrabold text-navy uppercase">
-                GOVERNMENT OF INDIA
-              </div>
-            </div>
-          </div>
-
-          <div className="text-right leading-none">
-            {/* Aadhaar Logo Graphic placeholder */}
-            <div className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30">
-              <span className="text-[8px] font-black text-amber-600">आधार</span>
-              <span className="text-[8px] font-bold text-navy">AADHAAR</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Body (Photo on Left, Details in Center, Tagline) */}
-      <div className="relative z-10 grid grid-cols-12 gap-2 my-auto items-center">
-        {/* Photo Box */}
-        <div className="col-span-4 flex flex-col items-center">
-          <div className="w-16 h-18 rounded border border-gray-400 bg-white overflow-hidden shadow-xs flex items-center justify-center">
-            {data.photoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={data.photoUrl}
-                alt="Aadhaar Resident Photo"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex flex-col items-center text-gray-400">
-                <User className="w-8 h-8" />
-                <span className="text-[6px] uppercase font-semibold">Photo</span>
-              </div>
-            )}
-          </div>
+        {/* Address Details Block */}
+        <div
+          className="absolute flex flex-col justify-start leading-tight text-black text-[7px]"
+          style={{
+            left: '5.5%',
+            top: '23.0%',
+            width: '53.0%',
+          }}
+        >
+          <span className="font-extrabold text-black block">पता / Address:</span>
+          {data.careOf && (
+            <span className="font-bold text-gray-900 block mt-0.5 truncate">
+              {data.careOfRegional ? `${data.careOfRegional} / ` : ''}{data.careOf}
+            </span>
+          )}
+          {data.addressRegional && (
+            <span className="font-medium text-gray-800 line-clamp-2 mt-0.5">
+              {data.addressRegional}
+            </span>
+          )}
+          <span className="font-medium text-gray-800 line-clamp-2 mt-0.5 uppercase">
+            {data.address || 'Address Details Pending'}
+          </span>
         </div>
 
-        {/* Resident Demographic Details */}
-        <div className="col-span-8 space-y-0.5 text-navy leading-none">
-          {/* Name */}
-          <div>
-            {data.nameRegional && (
-              <span className="text-[9px] font-bold block text-navy leading-tight">
-                {data.nameRegional}
-              </span>
-            )}
-            <span className="text-[9px] font-extrabold text-gray-900 uppercase block tracking-wide">
-              {data.name || 'NAME PENDING'}
-            </span>
-          </div>
-
-          {/* DOB */}
-          <div className="pt-0.5">
-            <span className="text-[6px] text-gray-500 block uppercase font-semibold">
-              जन्म तिथि / DOB:
-            </span>
-            <span className="text-[8px] font-bold text-gray-800 font-mono">
-              {data.dateOfBirth || 'DD/MM/YYYY'}
-            </span>
-          </div>
-
-          {/* Gender */}
-          <div>
-            <span className="text-[6px] text-gray-500 block uppercase font-semibold">
-              लिंग / Gender:
-            </span>
-            <span className="text-[8px] font-semibold text-gray-800">
-              {data.genderRegional ? `${data.genderRegional} / ` : ''}
-              {data.gender || 'MALE'}
-            </span>
-          </div>
+        {/* Back Secure QR Code */}
+        <div
+          className="absolute bg-white p-0.5 border border-gray-300 rounded-xs shadow-2xs flex items-center justify-center"
+          style={{
+            right: '6.0%',
+            top: '23.0%',
+            width: '30.0%',
+            height: '48.0%',
+          }}
+        >
+          <CardQrCode value={uidaiXml} size={68} level="M" />
         </div>
-      </div>
 
-      {/* Bottom Aadhaar Number & Tagline Banner */}
-      <div className="relative z-10 border-t border-navy/20 pt-1 flex flex-col items-center">
-        <div className="text-[13px] font-black tracking-widest text-burgundy font-mono leading-none">
+        {/* Back Aadhaar Number */}
+        <div
+          className="absolute text-center font-black font-mono tracking-widest text-[#1D3557] text-[13px] leading-none"
+          style={{
+            left: '50%',
+            bottom: '7.5%',
+            transform: 'translateX(-50%)',
+          }}
+        >
           {formattedAadhaar}
         </div>
-        <div className="text-[7px] font-bold text-steel-blue mt-0.5 tracking-wider">
-          मेरा आधार, मेरी पहचान
+      </div>
+    );
+  }
+
+  /* -------------------------------------------------------------
+   * 3. FRONT SIDE LAYOUT (Standard CR80 85.60mm x 53.98mm)
+   * ----------------------------------------------------------- */
+  return (
+    <div
+      className={`w-full h-full relative overflow-hidden select-none bg-white font-sans ${className}`}
+      style={{
+        printColorAdjust: 'exact',
+        WebkitPrintColorAdjust: 'exact',
+      }}
+    >
+      {/* Authentic Background Template */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={frontAsset}
+        alt="Aadhaar PVC Front"
+        className="absolute inset-0 w-full h-full object-fill pointer-events-none select-none"
+      />
+
+      {/* Main Resident Photo */}
+      <div
+        className="absolute overflow-hidden rounded-[2px] bg-white border border-gray-400 shadow-2xs flex items-center justify-center"
+        style={{
+          left: '8.5%',
+          top: '26.7%',
+          width: '24.3%',
+          height: '47.3%',
+        }}
+      >
+        {data.photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={data.photoUrl} alt="Resident" className="w-full h-full object-cover" />
+        ) : (
+          <div className="flex flex-col items-center justify-center text-gray-400">
+            <User className="w-7 h-7" />
+            <span className="text-[6px] uppercase font-bold mt-0.5">Photo</span>
+          </div>
+        )}
+      </div>
+
+      {/* Ghost Photo Watermark */}
+      {data.photoUrl && (
+        <div
+          className="absolute overflow-hidden opacity-60 filter grayscale pointer-events-none"
+          style={{
+            right: '8.0%',
+            top: '25.7%',
+            width: '8.1%',
+            height: '16.0%',
+          }}
+        >
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={data.photoUrl} alt="Ghost" className="w-full h-full object-cover" />
         </div>
+      )}
+
+      {/* Resident Details */}
+      <div
+        className="absolute flex flex-col justify-start leading-none text-black"
+        style={{
+          left: '35.5%',
+          top: '27.0%',
+          width: '46.0%',
+        }}
+      >
+        {data.nameRegional && (
+          <span className="text-[9px] font-bold block text-black truncate">
+            {data.nameRegional}
+          </span>
+        )}
+        <span className="text-[9px] font-bold block text-black uppercase truncate mt-0.5">
+          {data.name || 'NAME PENDING'}
+        </span>
+
+        <div className="mt-1.5 text-[7.5px] text-gray-900 font-bold leading-tight">
+          <span>{data.dateOfBirthRegional || 'जन्म तिथि'}/DOB: </span>
+          <span className="font-mono">{data.dateOfBirth || 'DD/MM/YYYY'}</span>
+        </div>
+
+        <div className="mt-1 text-[7.5px] text-gray-900 font-bold leading-tight">
+          <span>{data.genderRegional || (data.gender === 'FEMALE' ? 'महिला' : 'पुरुष')} / </span>
+          <span>{data.gender || 'MALE'}</span>
+        </div>
+      </div>
+
+      {/* Front Aadhaar Number */}
+      <div
+        className="absolute text-center font-black font-mono tracking-widest text-[#1D3557] text-[13.5px] leading-none"
+        style={{
+          left: '50%',
+          bottom: '7.5%',
+          transform: 'translateX(-50%)',
+        }}
+      >
+        {formattedAadhaar}
       </div>
     </div>
   );

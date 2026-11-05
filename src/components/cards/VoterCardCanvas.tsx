@@ -2,216 +2,265 @@
 
 import React from 'react';
 import { VoterCardData } from '@/types/cards';
-import { AshokaEmblem, GuillochePattern, EciLogo } from '@/components/cards/Emblems';
-import CardQrCode from '@/components/cards/CardQrCode';
 import { User } from 'lucide-react';
 
 interface VoterCardCanvasProps {
   data: VoterCardData;
   side?: 'front' | 'back';
+  variant?: 'hindi' | 'assam';
   className?: string;
 }
 
 export default function VoterCardCanvas({
   data,
   side = 'front',
+  variant,
   className = '',
 }: VoterCardCanvasProps) {
-  // ECI verification link or standard payload
-  const qrString = `https://electoralsearch.eci.gov.in/?epic=${data.epicNumber}`;
+  const activeVariant = variant || data.templateVariant || 'hindi';
 
+  const frontAsset =
+    activeVariant === 'assam'
+      ? '/assets/voter/voter-assam-front.png'
+      : '/assets/voter/voter-hindi-front.jpg';
+  const backAsset =
+    activeVariant === 'assam'
+      ? '/assets/voter/voter-assam-back.png'
+      : '/assets/voter/voter-hindi-back.jpg';
+
+  const epic = (data.epicNumber || 'AXH0801639').toUpperCase();
+  const name = (data.electorName || 'ELECTOR NAME').toUpperCase();
+  const nameRegional = data.electorNameRegional || 'मतदाता का नाम';
+  const relationName = (data.relationName || "FATHER'S NAME").toUpperCase();
+  const relationNameRegional = data.relationNameRegional || 'पिता का नाम';
+  const gender = (data.gender || 'Male').toUpperCase();
+  const genderRegional = data.genderRegional || (gender === 'MALE' ? 'पुरुष' : 'महिला');
+  const dob = data.dateOfBirth || data.age || '01/01/1990';
+  const ac = data.assemblyConstituency || '14 - GOVINDGANJ';
+  const acRegional = data.assemblyConstituencyRegional || '14 - गोविन्दगंज';
+  const part = data.partNumberAndName || '257 - PRATHMIK VIDYALAY JHAKHARA';
+  const partRegional = data.partNumberAndNameRegional || '257 - प्राथमिक विद्यालय झखरा';
+  const address = data.fullAddress || 'HOUSE NO 12, MAIN ROAD, BIHAR - 845401';
+  const addressRegional = data.fullAddressRegional || 'मकान नं 12, मुख्य मार्ग, बिहार - 845401';
+  const issueDate = data.issueDate || '15/01/2021';
+
+  /* -------------------------------------------------------------
+   * 1. BACK SIDE LAYOUT (Portrait 320x500 / 802x1280)
+   * ----------------------------------------------------------- */
   if (side === 'back') {
     return (
       <div
-        className={`w-full h-full relative overflow-hidden bg-gradient-to-br from-amber-50/70 via-white to-blue-50/50 text-navy p-2.5 flex flex-col justify-between font-sans select-none ${className}`}
+        className={`w-full h-full relative overflow-hidden select-none bg-white font-sans ${className}`}
+        style={{
+          printColorAdjust: 'exact',
+          WebkitPrintColorAdjust: 'exact',
+        }}
       >
-        <GuillochePattern opacity={0.12} strokeColor="#E63946" />
+        {/* Authentic Background Template */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={backAsset}
+          alt="Voter Card Back"
+          className="absolute inset-0 w-full h-full object-fill pointer-events-none select-none"
+        />
 
-        {/* Back Header */}
-        <div className="border-b border-gray-300 pb-1 flex items-center justify-between text-[7px] font-bold text-gray-700">
-          <span>भारत निर्वाचन आयोग</span>
-          <span>ELECTION COMMISSION OF INDIA</span>
+        {/* Gender / Sex */}
+        <div
+          className="absolute flex items-center text-[8.5px] font-bold text-black"
+          style={{
+            left: '6.0%',
+            top: '7.0%',
+          }}
+        >
+          <span className="w-28 shrink-0">लिंग / Sex :</span>
+          <span>{genderRegional} / {gender}</span>
         </div>
 
-        {/* Constituency & Part Details */}
-        <div className="space-y-1 text-[7px] text-gray-800 leading-tight my-auto">
-          {/* Assembly Constituency */}
+        {/* Date of Birth / Age */}
+        <div
+          className="absolute flex items-center text-[8.5px] font-bold text-black"
+          style={{
+            left: '6.0%',
+            top: '11.0%',
+          }}
+        >
+          <span className="w-28 shrink-0">जन्म तिथि / आयु :</span>
+          <span className="font-mono">{dob}</span>
+        </div>
+
+        {/* Address Block */}
+        <div
+          className="absolute flex flex-col text-[8px] font-semibold text-black leading-tight"
+          style={{
+            left: '6.0%',
+            top: '16.5%',
+            width: '88.0%',
+          }}
+        >
+          <span className="font-bold text-[8.5px]">पता / Address :</span>
+          <span className="mt-1 line-clamp-2">{addressRegional}</span>
+          <span className="mt-1 line-clamp-2 uppercase">{address}</span>
+        </div>
+
+        {/* Date and Signature Area */}
+        <div
+          className="absolute flex items-center justify-between text-[7.5px] font-bold text-black"
+          style={{
+            left: '6.0%',
+            right: '6.0%',
+            top: '49.0%',
+          }}
+        >
           <div>
-            <span className="text-[6px] text-gray-500 block uppercase font-semibold">
-              विधान सभा निर्वाचन क्षेत्र संख्या एवं नाम / Assembly Constituency
-            </span>
-            <span className="font-bold text-[8px] text-navy block truncate">
-              {data.assemblyConstituencyRegional && (
-                <span className="mr-1">{data.assemblyConstituencyRegional} /</span>
-              )}
-              {data.assemblyConstituency || 'AC PENDING'}
-            </span>
+            <span className="block">दिनांक / Date :</span>
+            <span className="font-mono">{issueDate}</span>
           </div>
 
-          {/* Part Details */}
-          <div>
-            <span className="text-[6px] text-gray-500 block uppercase font-semibold">
-              भाग संख्या एवं नाम / Part No. and Name
+          <div className="flex flex-col items-center">
+            {data.signatureUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={data.signatureUrl} alt="Signature" className="h-6 object-contain" />
+            ) : (
+              <span className="text-[7px] italic text-gray-700">ERO Sign</span>
+            )}
+            <span className="text-[6.5px] font-bold text-center mt-0.5">
+              निर्वाचक रजिस्ट्रीकरण अधिकारी<br />Electoral Registration Officer
             </span>
-            <span className="font-medium text-[7.5px] text-gray-800 block truncate">
-              {data.partNumberAndNameRegional && (
-                <span className="mr-1">{data.partNumberAndNameRegional} /</span>
-              )}
-              {data.partNumberAndName || 'PART PENDING'}
-            </span>
-          </div>
-
-          {/* Full Address */}
-          <div>
-            <span className="text-[6px] text-gray-500 block uppercase font-semibold">
-              पता / Address
-            </span>
-            <p className="text-[7px] text-gray-700 leading-tight line-clamp-2">
-              {data.fullAddressRegional && (
-                <span className="block">{data.fullAddressRegional}</span>
-              )}
-              <span>{data.fullAddress || 'ADDRESS PENDING'}</span>
-            </p>
           </div>
         </div>
 
-        {/* Back Footer with Digital Sign & QR */}
-        <div className="border-t border-gray-300 pt-1 flex items-end justify-between">
-          <div className="flex flex-col text-[6px] text-gray-600">
-            <span>दिनांक / Date: {data.issueDate || '01/01/2026'}</span>
-            <span className="font-semibold text-navy mt-0.5">
-              निर्वाचक रजिस्ट्रीकरण अधिकारी
-            </span>
-            <span>Electoral Registration Officer</span>
-          </div>
+        {/* Assembly Constituency */}
+        <div
+          className="absolute flex flex-col text-[7.5px] font-bold text-black leading-tight"
+          style={{
+            left: '6.0%',
+            top: '68.0%',
+            width: '88.0%',
+          }}
+        >
+          <span className="text-[7px] text-gray-800">
+            विधान सभा निर्वाचन क्षेत्र संख्या एवं नाम / Assembly Constituency No. & Name :
+          </span>
+          <span className="mt-0.5 truncate">{acRegional} / {ac}</span>
+        </div>
 
-          <div className="flex items-center gap-1.5">
-            <div className="bg-white p-0.5 rounded border border-gray-300 shadow-2xs">
-              <CardQrCode value={qrString} size={38} level="M" />
-            </div>
-            <EciLogo className="w-6 h-6 shrink-0 opacity-80" />
-          </div>
+        {/* Part Number & Name */}
+        <div
+          className="absolute flex flex-col text-[7.5px] font-bold text-black leading-tight"
+          style={{
+            left: '6.0%',
+            top: '79.0%',
+            width: '88.0%',
+          }}
+        >
+          <span className="text-[7px] text-gray-800">
+            भाग संख्या एवं नाम / Part No. & Name :
+          </span>
+          <span className="mt-0.5 truncate">{partRegional} / {part}</span>
         </div>
       </div>
     );
   }
 
-  // Front Side Layout
+  /* -------------------------------------------------------------
+   * 2. FRONT SIDE LAYOUT (Portrait 320x500 / 643x1012)
+   * ----------------------------------------------------------- */
   return (
     <div
-      className={`w-full h-full relative overflow-hidden bg-gradient-to-br from-amber-50/60 via-white to-sky-50/60 text-navy p-2 flex flex-col justify-between font-sans select-none ${className}`}
+      className={`w-full h-full relative overflow-hidden select-none bg-white font-sans ${className}`}
+      style={{
+        printColorAdjust: 'exact',
+        WebkitPrintColorAdjust: 'exact',
+      }}
     >
-      <GuillochePattern opacity={0.15} strokeColor="#1D3557" />
+      {/* Authentic Background Template */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={frontAsset}
+        alt="Voter Card Front"
+        className="absolute inset-0 w-full h-full object-fill pointer-events-none select-none"
+      />
 
-      {/* Top Banner Header with Tricolor accent */}
-      <div className="relative z-10 border-b border-navy/20 pb-1">
-        <div className="flex items-center justify-between">
-          <AshokaEmblem className="w-5 h-7 shrink-0" fill="#1D3557" />
-          <div className="text-center leading-none">
-            <div className="text-[8px] font-bold text-navy">
-              भारत निर्वाचन आयोग
-            </div>
-            <div className="text-[8.5px] font-black text-burgundy uppercase tracking-wide">
-              ELECTION COMMISSION OF INDIA
-            </div>
-            <div className="text-[6px] text-gray-600 font-semibold tracking-wider uppercase mt-0.5">
-              मतदाता फोटो पहचान पत्र - Elector Photo Identity Card
-            </div>
-          </div>
-          <EciLogo className="w-5 h-5 shrink-0" />
+      {/* Barcode Simulator / Strip */}
+      <div
+        className="absolute flex items-center justify-center bg-transparent"
+        style={{
+          left: '19.0%',
+          top: '16.8%',
+          width: '31.5%',
+          height: '4.8%',
+        }}
+      >
+        {/* Clean CSS Barcode Pattern */}
+        <div className="w-full h-full flex items-center justify-between overflow-hidden">
+          {Array.from({ length: 32 }).map((_, i) => (
+            <div
+              key={i}
+              className="bg-black h-full"
+              style={{
+                width: i % 3 === 0 ? '3px' : i % 2 === 0 ? '2px' : '1px',
+              }}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Main Body (Photo on Left, Bilingual Details on Right) */}
-      <div className="relative z-10 grid grid-cols-12 gap-2 my-auto items-center">
-        {/* Photo Box */}
-        <div className="col-span-4 flex flex-col items-center">
-          <div className="w-16 h-18 rounded border border-gray-400 bg-white overflow-hidden shadow-xs flex items-center justify-center">
-            {data.photoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={data.photoUrl}
-                alt="Elector Portrait"
-                className="w-full h-full object-cover"
-              />
-            ) : (
-              <div className="flex flex-col items-center text-gray-400">
-                <User className="w-8 h-8" />
-                <span className="text-[6px] uppercase font-semibold">Photo</span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {/* Elector Details */}
-        <div className="col-span-8 space-y-1 text-navy leading-none">
-          {/* EPIC Number Banner */}
-          <div className="bg-steel-blue/10 border-l-2 border-steel-blue px-1.5 py-0.5 rounded-r">
-            <span className="text-[5.5px] text-gray-500 uppercase font-semibold block">
-              पहचान पत्र क्र. / EPIC NO.
-            </span>
-            <span className="text-[11px] font-black font-mono tracking-wider text-burgundy">
-              {data.epicNumber || 'AXH0000000'}
-            </span>
-          </div>
-
-          {/* Name */}
-          <div>
-            <span className="text-[5.5px] text-gray-500 uppercase font-semibold block">
-              नाम / Name
-            </span>
-            <div className="text-[8.5px] font-bold truncate">
-              {data.electorNameRegional && (
-                <span className="mr-1 text-navy">{data.electorNameRegional}</span>
-              )}
-              <span className="text-gray-900 uppercase">
-                {data.electorName || 'ELECTOR NAME'}
-              </span>
-            </div>
-          </div>
-
-          {/* Father/Husband Name */}
-          <div>
-            <span className="text-[5.5px] text-gray-500 uppercase font-semibold block">
-              {data.relationType === 'HUSBAND'
-                ? 'पति का नाम / Husband Name'
-                : 'पिता का नाम / Father Name'}
-            </span>
-            <div className="text-[8px] font-semibold truncate text-gray-800">
-              {data.relationNameRegional && (
-                <span className="mr-1">{data.relationNameRegional}</span>
-              )}
-              <span className="uppercase">{data.relationName || 'RELATION NAME'}</span>
-            </div>
-          </div>
-
-          {/* Gender & Age */}
-          <div className="flex items-center gap-3">
-            <div>
-              <span className="text-[5.5px] text-gray-500 uppercase font-semibold block">
-                लिंग / Gender
-              </span>
-              <span className="text-[7.5px] font-semibold text-gray-800">
-                {data.genderRegional ? `${data.genderRegional} / ` : ''}
-                {data.gender || 'Male'}
-              </span>
-            </div>
-            <div>
-              <span className="text-[5.5px] text-gray-500 uppercase font-semibold block">
-                आयु / Age
-              </span>
-              <span className="text-[7.5px] font-semibold text-gray-800 font-mono">
-                {data.age ? `${data.age} Yrs` : data.dateOfBirth || '-'}
-              </span>
-            </div>
-          </div>
-        </div>
+      {/* EPIC Number */}
+      <div
+        className="absolute font-black font-mono tracking-wider text-black text-[12px] leading-none"
+        style={{
+          left: '55.0%',
+          top: '17.2%',
+        }}
+      >
+        {epic}
       </div>
 
-      {/* Hologram security footer strip */}
-      <div className="relative z-10 border-t border-navy/20 pt-0.5 flex items-center justify-between text-[6px] text-gray-500">
-        <span>SECURITY HOLOGRAM EMBEDDED</span>
-        <span className="font-mono text-crimson font-bold">ECI OFFICIAL PVC ID</span>
+      {/* Elector Photo */}
+      <div
+        className="absolute overflow-hidden rounded-[2px] bg-white border border-gray-400 shadow-2xs flex items-center justify-center"
+        style={{
+          left: '28.4%',
+          top: '24.6%',
+          width: '43.7%',
+          height: '37.2%',
+        }}
+      >
+        {data.photoUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={data.photoUrl} alt="Elector" className="w-full h-full object-cover" />
+        ) : (
+          <div className="flex flex-col items-center justify-center text-gray-400">
+            <User className="w-12 h-12" />
+            <span className="text-[8px] uppercase font-bold mt-1">Photo</span>
+          </div>
+        )}
+      </div>
+
+      {/* Elector Name */}
+      <div
+        className="absolute flex flex-col justify-start text-black text-[11px] font-bold leading-tight"
+        style={{
+          left: '8.0%',
+          top: '66.2%',
+          width: '84.0%',
+        }}
+      >
+        <span className="truncate">{nameRegional}</span>
+        <span className="truncate mt-1 uppercase">{name}</span>
+      </div>
+
+      {/* Father's / Husband's Name */}
+      <div
+        className="absolute flex flex-col justify-start text-black text-[11px] font-bold leading-tight"
+        style={{
+          left: '8.0%',
+          top: '79.2%',
+          width: '84.0%',
+        }}
+      >
+        <span className="truncate">{relationNameRegional}</span>
+        <span className="truncate mt-1 uppercase">{relationName}</span>
       </div>
     </div>
   );

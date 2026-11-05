@@ -569,6 +569,7 @@ function StudioPageContent() {
               activeSide={viewMode}
               zoom={zoom}
               showGuides={showGuides}
+              orientation={docType === 'voter' ? 'portrait' : 'landscape'}
             />
           )
         }
