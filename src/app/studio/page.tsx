@@ -109,12 +109,34 @@ function StudioPageContent() {
     };
   }, [urlDocId, loadData]);
 
-  // Switch type if urlDocType query param changes and not loading by ID
+  const lastUrlTypeRef = React.useRef<string | null>(urlDocType);
+
+  // Switch type if urlDocType query param changes externally (e.g. browser back/forward or navigation)
   useEffect(() => {
-    if (urlDocType && !urlDocId && urlDocType !== docType) {
-      switchDocType(urlDocType);
+    if (urlDocType && validTypes.includes(urlDocType) && !urlDocId) {
+      if (urlDocType !== lastUrlTypeRef.current) {
+        lastUrlTypeRef.current = urlDocType;
+        switchDocType(urlDocType);
+      }
     }
-  }, [urlDocType, urlDocId, docType, switchDocType]);
+  }, [urlDocType, urlDocId, switchDocType]);
+
+  // Handle explicit tab switching
+  const handleTabChange = useCallback(
+    (newType: DocumentType) => {
+      lastUrlTypeRef.current = newType;
+      switchDocType(newType);
+      setCurrentDocId(null);
+      setSaveSuccess(null);
+      // Synchronize URL search params so browser address matches active tab
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('type', newType);
+      params.delete('id');
+      params.delete('lookup');
+      router.replace(`/studio?${params.toString()}`, { scroll: false });
+    },
+    [switchDocType, searchParams, router]
+  );
 
   // Handle auto-lookup from query params (e.g. redirected from Dashboard modal)
   useEffect(() => {
@@ -368,16 +390,11 @@ function StudioPageContent() {
             <button
               key={item.id}
               type="button"
-              onClick={() => {
-                switchDocType(item.id as DocumentType);
-                setCurrentDocId(null);
-                setSaveSuccess(null);
-              }}
-              className={`py-1.5 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shrink-0 ${
-                isActive
+              onClick={() => handleTabChange(item.id as DocumentType)}
+              className={`py-1.5 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shrink-0 ${isActive
                   ? 'bg-burgundy text-white shadow-xs'
                   : 'text-gray-600 hover:text-navy hover:bg-gray-100'
-              }`}
+                }`}
             >
               <Icon className="w-3.5 h-3.5" />
               <span>{item.label}</span>
@@ -483,13 +500,12 @@ function StudioPageContent() {
 
             {toastAlert && (
               <div
-                className={`p-3 rounded-xl text-xs font-medium flex items-center justify-between border shadow-xs animate-in fade-in duration-150 ${
-                  toastAlert.type === 'warning'
+                className={`p-3 rounded-xl text-xs font-medium flex items-center justify-between border shadow-xs animate-in fade-in duration-150 ${toastAlert.type === 'warning'
                     ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
                     : toastAlert.type === 'error'
-                    ? 'bg-red-500/10 border-red-500/30 text-red-300'
-                    : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
-                }`}
+                      ? 'bg-red-500/10 border-red-500/30 text-red-300'
+                      : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                  }`}
               >
                 <span>{toastAlert.message}</span>
                 <button

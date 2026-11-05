@@ -9,14 +9,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        burgundy: '#8B1E2D',
+        crimson: '#E63946',
+        gold: '#F4D35E',
+        'steel-blue': '#457B9D',
+        steel: '#457B9D',
+        navy: '#1D3557',
+        'bg-light': '#F0F4F8',
         brand: {
-          burgundy: 'var(--color-deep-burgundy, #8B1E2D)',
-          crimson: 'var(--color-crimson, #E63946)',
-          gold: 'var(--color-gold, #F4D35E)',
-          steel: 'var(--color-steel-blue, #457B9D)',
-          navy: 'var(--color-navy, #1D3557)',
-          bg: 'var(--color-bg-light, #F0F4F8)',
-          surface: 'var(--color-card-surface, #FFFFFF)',
+          burgundy: '#8B1E2D',
+          crimson: '#E63946',
+          gold: '#F4D35E',
+          steel: '#457B9D',
+          navy: '#1D3557',
+          bg: '#F0F4F8',
+          surface: '#FFFFFF',
         },
       },
       boxShadow: {
