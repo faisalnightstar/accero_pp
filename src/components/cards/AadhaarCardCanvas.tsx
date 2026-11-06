@@ -24,9 +24,8 @@ export default function AadhaarCardCanvas({
       : data.aadhaarNumber || '5749 0326 7673';
 
   // Standard UIDAI XML barcode string for high-density QR code
-  const uidaiXml = `<PrintLetterBarcodeData uid="${rawNum}" name="${data.name || ''}" gender="${
-    data.gender === 'FEMALE' ? 'F' : 'M'
-  }" dob="${data.dateOfBirth || ''}" co="${data.careOf || ''}" house="" street="" dist="" state="" pc=""/>`;
+  const uidaiXml = `<PrintLetterBarcodeData uid="${rawNum}" name="${data.name || ''}" gender="${data.gender === 'FEMALE' ? 'F' : 'M'
+    }" dob="${data.dateOfBirth || ''}" co="${data.careOf || ''}" house="" street="" dist="" state="" pc=""/>`;
 
   const frontAsset = '/assets/aadhar/aadhar-pvc-front.jpg';
   const backAsset = '/assets/aadhar/aadhar-pvc-back.jpg';
@@ -208,36 +207,47 @@ export default function AadhaarCardCanvas({
           style={{
             left: '5.5%',
             top: '23.0%',
-            width: '53.0%',
+            width: '50.0%',
           }}
         >
-          <span className="font-extrabold text-black block">पता / Address:</span>
-          {data.careOf && (
-            <span className="font-bold text-gray-900 block mt-0.5 truncate">
-              {data.careOfRegional ? `${data.careOfRegional} / ` : ''}{data.careOf}
+          <div>
+            <span className="font-extrabold text-black block">Address:</span>
+            {data.careOf && (
+              <span className="font-bold text-gray-900 block mt-0.5 truncate">
+                {data.careOf}
+              </span>
+            )}
+            <span className="font-medium text-gray-800 line-clamp-2 mt-0.5 uppercase">
+              {data.address || 'Address Details Pending'}
             </span>
-          )}
-          {data.addressRegional && (
-            <span className="font-medium text-gray-800 line-clamp-2 mt-0.5">
-              {data.addressRegional}
-            </span>
-          )}
-          <span className="font-medium text-gray-800 line-clamp-2 mt-0.5 uppercase">
-            {data.address || 'Address Details Pending'}
-          </span>
+          </div>
+          <div>
+            <span className="font-extrabold text-black block">पता:</span>
+            {data.careOf && (
+              <span className="font-bold text-gray-900 block mt-0.5 truncate">
+                {data.careOfRegional ? `${data.careOfRegional}` : ''}
+              </span>
+            )}
+            {data.addressRegional && (
+              <span className="font-medium text-gray-800 line-clamp-2 mt-0.5">
+                {data.addressRegional}
+              </span>
+            )}
+
+          </div>
         </div>
 
         {/* Back Secure QR Code */}
         <div
           className="absolute bg-white p-0.5 border border-gray-300 rounded-xs shadow-2xs flex items-center justify-center"
           style={{
-            right: '6.0%',
-            top: '23.0%',
-            width: '30.0%',
-            height: '48.0%',
+            right: '11.3%',
+            top: '21.8%',
+            width: '34.2%',
+            height: '51.5%',
           }}
         >
-          <CardQrCode value={uidaiXml} size={68} level="M" />
+          <CardQrCode value={uidaiXml} size={100} level="M" />
         </div>
 
         {/* Back Aadhaar Number */}
