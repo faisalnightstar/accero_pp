@@ -33,6 +33,7 @@ export function getPanQrXmlString(data: Partial<PanCardData>): string {
 
 /**
  * Standard Voter ID / EPIC Card Data Payload (Election Commission of India)
+ * Multi-lingual e-EPIC support matching voter_capc-advance.php
  */
 export interface VoterCardData {
   epicNumber: string; // e.g. AXH0801639
@@ -58,7 +59,41 @@ export interface VoterCardData {
   photoUrl?: string;
   signatureUrl?: string;
   issueDate?: string;
-  templateVariant?: 'hindi' | 'assam';
+  // Multi-lingual & Form 23 / advance fields
+  language?: 'HI' | 'PA' | 'GU' | 'MR' | 'TA' | 'KN' | 'BN' | 'TE' | 'OR' | 'SD';
+  houseNo?: string;
+  tehsil?: string;
+  partNo?: string;
+  partName?: string;
+  partNameRegional?: string;
+  acNo?: string;
+  acName?: string;
+  acNameRegional?: string;
+  pollDate?: string;
+  timings?: string;
+  serialNo?: string;
+  pollingStation?: string;
+  downloadDate?: string;
+  labelNameRegional?: string;
+  labelRelationRegional?: string;
+  labelGenderRegional?: string;
+  labelDobRegional?: string;
+  labelAddressRegional?: string;
+  labelSignRegional?: string;
+  layoutFormat?: 'cr80' | 'sheet';
+  templateVariant?:
+    | 'hindi'
+    | 'punjabi'
+    | 'gujarat'
+    | 'marathi'
+    | 'tamil'
+    | 'kannada'
+    | 'bangla'
+    | 'telugu'
+    | 'odia'
+    | 'sindhi'
+    | 'assam'
+    | 'legacy';
 }
 
 /**

@@ -53,9 +53,9 @@ const sampleVoterData: VoterCardData = {
   relationName: 'CHANDRIKA SAH',
   relationNameRegional: 'चंद्रिका साह',
   gender: 'Male',
-  genderRegional: 'पु',
+  genderRegional: 'पुरुष',
   age: '42',
-  dateOfBirth: '',
+  dateOfBirth: '01/01/1982',
   assemblyConstituency: '14 - GOVINDGANJ',
   assemblyConstituencyRegional: '14 - गोविन्दगंज',
   partNumberAndName: '257 - PRATHMIK VIDYALAY JHAKHARA, DAKSHINI BHAG',
@@ -64,9 +64,20 @@ const sampleVoterData: VoterCardData = {
   districtRegional: 'पूर्वी चम्पारण',
   state: 'BIHAR',
   stateRegional: 'बिहार',
-  fullAddress: 'PRATHMIK VIDYALAY JHAKHARA, GOVINDGANJ, PURVI CHAMPARAN, BIHAR',
-  fullAddressRegional: 'प्राथमिक विद्यालय झखरा, गोविन्दगंज, पूर्वी चम्पारण, बिहार',
+  fullAddress: 'HOUSE NO 12, PRATHMIK VIDYALAY JHAKHARA, GOVINDGANJ, PURVI CHAMPARAN, BIHAR - 845401',
+  fullAddressRegional: 'मकान नं १२, प्राथमिक विद्यालय झखरा, गोविन्दगंज, पूर्वी चम्पारण, बिहार - ८४५४०१',
   issueDate: '23/09/2026',
+  downloadDate: '06/11/2026',
+  signatureUrl: '/assets/voter/voter-officer-sign.png',
+  language: 'HI',
+  labelNameRegional: 'नाम',
+  labelRelationRegional: 'पिता का नाम',
+  labelGenderRegional: 'लिंग',
+  labelDobRegional: 'जन्म तिथि / आयु',
+  labelAddressRegional: 'पता',
+  labelSignRegional: 'निर्वाचक रजिस्ट्रीकरण अधिकारी',
+  layoutFormat: 'cr80',
+  templateVariant: 'hindi',
 };
 
 // Realistic sample Aadhaar data
@@ -410,7 +421,11 @@ export default function CardsShowcasePage() {
             showGuides={showGuides}
             frontRef={frontCardRef}
             backRef={backCardRef}
-            orientation={activeTab === 'voter' ? 'portrait' : 'landscape'}
+            orientation={
+              activeTab === 'voter'
+                ? (sampleVoterData.templateVariant === 'assam' || sampleVoterData.templateVariant === 'legacy' ? 'portrait' : 'landscape')
+                : 'landscape'
+            }
           />
         </section>
 

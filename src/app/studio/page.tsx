@@ -538,34 +538,68 @@ function StudioPageContent() {
           </div>
         }
         preview={
-          docType === 'pan' && cardData.layoutFormat === 'sheet' ? (
+          cardData.layoutFormat === 'sheet' && (docType === 'pan' || docType === 'voter' || docType === 'aadhaar') ? (
             <div className="flex flex-col items-center gap-4">
               <div className="no-print w-full flex flex-col items-center">
                 <span className="text-xs font-semibold tracking-wider uppercase text-gray-500 mb-2">
-                  Side-by-Side Foldable Sheet (Legacy pan.php Layout)
+                  {docType === 'pan'
+                    ? 'Side-by-Side Foldable Sheet (Legacy pan.php Layout)'
+                    : docType === 'voter'
+                    ? 'Full Official e-EPIC A4 Document Sheet'
+                    : 'Aadhaar PVC Print Sheet'}
                 </span>
                 <div
-                  className="shadow-2xl border border-gray-200 bg-white relative transition-all duration-200 select-none overflow-hidden rounded-md max-w-full aspect-[1280/386]"
+                  className={`shadow-2xl border border-gray-200 bg-white relative transition-all duration-200 select-none overflow-hidden rounded-md max-w-full ${
+                    docType === 'voter' ? 'aspect-[2480/3508]' : 'aspect-[1280/386]'
+                  }`}
                   style={{
-                    width: `${648 * zoom}px`,
+                    width: docType === 'voter' ? `${450 * zoom}px` : `${648 * zoom}px`,
                   }}
                 >
-                  <PanCardCanvas
-                    data={cardData}
-                    side="sheet"
-                    variant={cardData.templateVariant}
-                  />
+                  {docType === 'pan' && (
+                    <PanCardCanvas
+                      data={cardData}
+                      side="sheet"
+                      variant={cardData.templateVariant}
+                    />
+                  )}
+                  {docType === 'voter' && (
+                    <VoterCardCanvas
+                      data={cardData}
+                      side="sheet"
+                    />
+                  )}
+                  {docType === 'aadhaar' && (
+                    <AadhaarCardCanvas
+                      data={cardData}
+                      side="sheet"
+                    />
+                  )}
                 </div>
               </div>
               {/* Print Mode for Sheet */}
-              <div className="hidden print:block w-full cr80-print-sheet">
-                <div className="w-[171.2mm] h-[53.98mm] relative overflow-hidden bg-white mx-auto">
-                  <PanCardCanvas
-                    data={cardData}
-                    side="sheet"
-                    variant={cardData.templateVariant}
-                  />
-                </div>
+              <div className="hidden print:block w-full">
+                {docType === 'voter' ? (
+                  <div className="w-[210mm] h-[297mm] relative overflow-hidden bg-white mx-auto">
+                    <VoterCardCanvas data={cardData} side="sheet" />
+                  </div>
+                ) : (
+                  <div className="w-[171.2mm] h-[53.98mm] relative overflow-hidden bg-white mx-auto">
+                    {docType === 'pan' && (
+                      <PanCardCanvas
+                        data={cardData}
+                        side="sheet"
+                        variant={cardData.templateVariant}
+                      />
+                    )}
+                    {docType === 'aadhaar' && (
+                      <AadhaarCardCanvas
+                        data={cardData}
+                        side="sheet"
+                      />
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           ) : (
@@ -575,7 +609,11 @@ function StudioPageContent() {
               activeSide={viewMode}
               zoom={zoom}
               showGuides={showGuides}
-              orientation={docType === 'voter' ? 'portrait' : 'landscape'}
+              orientation={
+                docType === 'voter'
+                  ? (cardData.templateVariant === 'assam' || cardData.templateVariant === 'legacy' ? 'portrait' : 'landscape')
+                  : 'landscape'
+              }
             />
           )
         }

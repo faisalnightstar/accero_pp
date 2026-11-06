@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { DocumentType } from '@/types/cards';
 import AssetDropzone from '@/components/studio/AssetDropzone';
 import {
@@ -12,7 +12,11 @@ import {
   Shield,
   FileCheck,
   AlertCircle,
+  Languages,
+  Sparkles,
+  Loader2,
 } from 'lucide-react';
+import { VOTER_LANGUAGES, VoterLanguageCode, translateVoterText } from '@/lib/voterLanguages';
 
 interface CardFormProps {
   docType: DocumentType;
@@ -27,6 +31,72 @@ export default function CardForm({
   onFieldChange,
   missingKeys = [],
 }: CardFormProps) {
+  const [isTranslating, setIsTranslating] = useState(false);
+
+  // Auto-translate helper for multi-lingual Voter ID
+  const handleVoterTranslate = async (targetLang?: string) => {
+    const lang = targetLang || data.language || 'HI';
+    const langConfig = VOTER_LANGUAGES[lang as VoterLanguageCode] || VOTER_LANGUAGES.HI;
+    setIsTranslating(true);
+
+    try {
+      // 1. Set regional labels from dictionary
+      onFieldChange('language', lang);
+      onFieldChange('labelNameRegional', langConfig.labels.name);
+      const isHusband = data.relationType === 'HUSBAND';
+      onFieldChange(
+        'labelRelationRegional',
+        isHusband ? langConfig.labels.husbandName : langConfig.labels.fatherName
+      );
+      onFieldChange('labelGenderRegional', langConfig.labels.gender);
+      onFieldChange('labelDobRegional', langConfig.labels.dob);
+      onFieldChange('labelAddressRegional', langConfig.labels.address);
+      onFieldChange('labelSignRegional', langConfig.labels.electoralOfficer);
+
+      const isFemale = (data.gender || '').toLowerCase().startsWith('f');
+      onFieldChange('genderRegional', isFemale ? langConfig.labels.female : langConfig.labels.male);
+
+      // 2. Translate dynamic elector values via Google Translate GTX API
+      if (data.electorName) {
+        const transName = await translateVoterText(data.electorName, lang);
+        onFieldChange('electorNameRegional', transName);
+      }
+      if (data.relationName) {
+        const transRel = await translateVoterText(data.relationName, lang);
+        onFieldChange('relationNameRegional', transRel);
+      }
+      if (data.partName || data.partNumberAndName) {
+        const pText = data.partName || data.partNumberAndName;
+        const transPart = await translateVoterText(pText, lang);
+        onFieldChange('partNameRegional', transPart);
+        onFieldChange('partNumberAndNameRegional', transPart);
+      }
+      if (data.acName || data.assemblyConstituency) {
+        const acText = data.acName || data.assemblyConstituency;
+        const transAc = await translateVoterText(acText, lang);
+        onFieldChange('acNameRegional', transAc);
+        onFieldChange('assemblyConstituencyRegional', transAc);
+      }
+      if (data.fullAddress) {
+        const transAddr = await translateVoterText(data.fullAddress, lang);
+        onFieldChange('fullAddressRegional', transAddr);
+      }
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
+  // House No builder matching sethno() from voter_capc-advance.php
+  const handleHouseNoChange = (houseNo: string) => {
+    onFieldChange('houseNo', houseNo);
+    const part = data.partName || data.partNumberAndName || '';
+    const tehsil = data.tehsil || '';
+    const district = data.district || '';
+    const state = data.state || '';
+    const full = [houseNo, part, tehsil, district, state].filter(Boolean).join(', ');
+    onFieldChange('fullAddress', full);
+  };
+
   // Helper to render an input field with optional amber missing-field badge
   const renderInput = (
     key: string,
@@ -239,63 +309,228 @@ export default function CardForm({
 
       {/* ---------------- VOTER CARD FORM ---------------- */}
       {docType === 'voter' && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-            <FileCheck className="w-5 h-5 text-burgundy" />
-            <h3 className="text-sm font-bold text-navy">Voter ID (EPIC) Details</h3>
-          </div>
+        <div className="space-y-5">
+          {/* Header & Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-3">
+            <div className="flex items-center gap-2">
+              <FileCheck className="w-5 h-5 text-burgundy" />
+              <div>
+                <h3 className="text-sm font-bold text-navy">Official Voter ID (e-EPIC) Details</h3>
+                <p className="text-[11px] text-gray-500">Multi-lingual ECI Standard with Auto-Translation</p>
+              </div>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
-              {renderInput('epicNumber', 'EPIC Number', 'e.g. AXH0801639', 'text', true)}
-            </div>
-            <div>
-              {renderInput('electorName', 'Elector Name (English)', 'e.g. RUPLAL SAH', 'text', true)}
-            </div>
-            <div>
-              {renderInput('electorNameRegional', 'Elector Name (Hindi / Regional)', 'e.g. रूपलाल साह', 'text', false)}
-            </div>
-            <div>
-              {renderInput('relationName', "Father's / Husband's Name (English)", 'e.g. CHANDRIKA SAH', 'text', true)}
-            </div>
-            <div>
-              {renderInput('relationNameRegional', "Relation Name (Hindi / Regional)", 'e.g. चंद्रिका साह', 'text', false)}
-            </div>
-            <div>
-              {renderInput('gender', 'Gender', 'Male', 'text', true)}
-            </div>
-            <div>
-              {renderInput('age', 'Age / DOB', '42', 'text', false)}
-            </div>
-            <div className="sm:col-span-2">
-              {renderInput('assemblyConstituency', 'Assembly Constituency (English)', 'e.g. 14 - GOVINDGANJ', 'text', true)}
-            </div>
-            <div className="sm:col-span-2">
-              {renderInput('assemblyConstituencyRegional', 'Assembly Constituency (Regional)', 'e.g. 14 - गोविन्दगंज', 'text', false)}
-            </div>
-            <div className="sm:col-span-2">
-              {renderInput('partNumberAndName', 'Part Number & Name (English)', 'e.g. 257 - PRATHMIK VIDYALAY...', 'text', true)}
-            </div>
-            <div className="sm:col-span-2">
-              {renderInput('partNumberAndNameRegional', 'Part Number & Name (Regional)', 'e.g. 257 - प्राथमिक विद्यालय...', 'text', false)}
-            </div>
-            <div className="sm:col-span-2">
-              {renderInput('fullAddress', 'Full Address (English)', 'Village/Town, Dist, State', 'text', true)}
-            </div>
-            <div className="sm:col-span-2">
-              {renderInput('fullAddressRegional', 'Full Address (Regional)', 'गाँव/मोहल्ला, जिला, राज्य', 'text', false)}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleVoterTranslate()}
+                disabled={isTranslating}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-steel-blue hover:bg-[#346684] rounded-lg shadow-xs transition-colors disabled:opacity-50"
+                title="Translate Name, Relation, Part, and Address into selected regional script"
+              >
+                {isTranslating ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Sparkles className="w-3.5 h-3.5 text-gold" />
+                )}
+                <span>{isTranslating ? 'Translating...' : 'Auto-Translate'}</span>
+              </button>
             </div>
           </div>
 
-          <div className="border-t border-gray-100 pt-4">
+          {/* Configuration: Language & Print Layout */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-3 bg-gray-50/70 border border-gray-200/80 rounded-xl">
+            <div>
+              <label className="text-xs font-bold text-navy flex items-center gap-1.5 mb-1.5">
+                <Languages className="w-4 h-4 text-burgundy" />
+                <span>Card Language / Regional Script</span>
+              </label>
+              <select
+                value={data.language || 'HI'}
+                onChange={(e) => {
+                  const newLang = e.target.value as VoterLanguageCode;
+                  onFieldChange('language', newLang);
+                  handleVoterTranslate(newLang);
+                }}
+                className="w-full text-xs font-semibold rounded-lg border border-gray-300 p-2 bg-white text-navy focus:ring-2 focus:ring-burgundy/20 focus:border-burgundy outline-none transition-all"
+              >
+                {Object.values(VOTER_LANGUAGES).map((item) => (
+                  <option key={item.code} value={item.code}>
+                    {item.name} ({item.nativeName})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-navy flex items-center gap-1.5 mb-1.5">
+                <FileCheck className="w-4 h-4 text-steel-blue" />
+                <span>Print Layout Format</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => onFieldChange('layoutFormat', 'cr80')}
+                  className={`py-1.5 px-3 rounded-lg text-xs font-bold border transition-colors ${
+                    (data.layoutFormat || 'cr80') === 'cr80'
+                      ? 'bg-burgundy text-white border-burgundy shadow-xs'
+                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                >
+                  CR80 Card (PVC)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onFieldChange('layoutFormat', 'sheet')}
+                  className={`py-1.5 px-3 rounded-lg text-xs font-bold border transition-colors ${
+                    data.layoutFormat === 'sheet'
+                      ? 'bg-burgundy text-white border-burgundy shadow-xs'
+                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                >
+                  Full Sheet (A4)
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Primary Elector Identification */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-extrabold uppercase tracking-wider text-gray-500">1. Elector Identity</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                {renderInput('epicNumber', 'EPIC Number', 'e.g. AXH0801639', 'text', true)}
+              </div>
+              <div>
+                {renderInput('electorName', 'Elector Name (English)', 'e.g. RUPLAL SAH', 'text', true)}
+              </div>
+              <div>
+                {renderInput('electorNameRegional', 'Elector Name (Regional)', 'e.g. रूपलाल साह', 'text', false)}
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-700 flex items-center gap-1 mb-1.5">
+                  <span>Relationship Type</span>
+                  <span className="text-crimson">*</span>
+                </label>
+                <select
+                  value={data.relationType || 'FATHER'}
+                  onChange={(e) => {
+                    const rel = e.target.value as 'FATHER' | 'HUSBAND';
+                    onFieldChange('relationType', rel);
+                    const lang = (data.language || 'HI') as VoterLanguageCode;
+                    const langConfig = VOTER_LANGUAGES[lang] || VOTER_LANGUAGES.HI;
+                    onFieldChange(
+                      'labelRelationRegional',
+                      rel === 'HUSBAND' ? langConfig.labels.husbandName : langConfig.labels.fatherName
+                    );
+                  }}
+                  className="w-full text-xs font-semibold rounded-lg border border-gray-300 p-2 bg-white text-navy focus:ring-2 focus:ring-burgundy/20 focus:border-burgundy outline-none transition-all"
+                >
+                  <option value="FATHER">Father</option>
+                  <option value="HUSBAND">Husband</option>
+                </select>
+              </div>
+              <div>
+                {renderInput('relationName', "Relative Name (English)", 'e.g. CHANDRIKA SAH', 'text', true)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('relationNameRegional', 'Relative Name (Regional)', 'e.g. चंद्रिका साह', 'text', false)}
+              </div>
+              <div>
+                <label className="text-xs font-semibold text-gray-700 flex items-center gap-1 mb-1.5">
+                  <span>Gender</span>
+                  <span className="text-crimson">*</span>
+                </label>
+                <select
+                  value={data.gender || 'Male'}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    onFieldChange('gender', val);
+                    const lang = (data.language || 'HI') as VoterLanguageCode;
+                    const langConfig = VOTER_LANGUAGES[lang] || VOTER_LANGUAGES.HI;
+                    onFieldChange('genderRegional', val === 'Female' ? langConfig.labels.female : langConfig.labels.male);
+                  }}
+                  className="w-full text-xs font-semibold rounded-lg border border-gray-300 p-2 bg-white text-navy focus:ring-2 focus:ring-burgundy/20 focus:border-burgundy outline-none transition-all"
+                >
+                  <option value="Male">Male / पुरुष</option>
+                  <option value="Female">Female / महिला</option>
+                  <option value="Other">Other / अन्य</option>
+                </select>
+              </div>
+              <div>
+                {renderInput('dateOfBirth', 'Date of Birth / Age', 'e.g. 01/01/1990 or 42', 'text', false)}
+              </div>
+            </div>
+          </div>
+
+          {/* Polling & Constituency Info */}
+          <div className="space-y-3 border-t border-gray-100 pt-3">
+            <h4 className="text-xs font-extrabold uppercase tracking-wider text-gray-500">2. Constituency & Polling Details</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                {renderInput('assemblyConstituency', 'Assembly Constituency (English)', 'e.g. 14 - GOVINDGANJ', 'text', true)}
+              </div>
+              <div>
+                {renderInput('assemblyConstituencyRegional', 'Assembly Constituency (Regional)', 'e.g. 14 - गोविन्दगंज', 'text', false)}
+              </div>
+              <div>
+                {renderInput('partNumberAndName', 'Part No & Name (English)', 'e.g. 257 - PRATHMIK VIDYALAY...', 'text', true)}
+              </div>
+              <div>
+                {renderInput('partNumberAndNameRegional', 'Part No & Name (Regional)', 'e.g. 257 - प्राथमिक विद्यालय...', 'text', false)}
+              </div>
+              <div>
+                {renderInput('tehsil', 'Tehsil / Taluka', 'e.g. GOVINDGANJ', 'text', false)}
+              </div>
+              <div>
+                {renderInput('district', 'District', 'e.g. PURVI CHAMPARAN', 'text', false)}
+              </div>
+            </div>
+          </div>
+
+          {/* Address Builder & Regional Address */}
+          <div className="space-y-3 border-t border-gray-100 pt-3">
+            <h4 className="text-xs font-extrabold uppercase tracking-wider text-gray-500">3. Address Details</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                <label className="text-xs font-semibold text-gray-700 block mb-1">
+                  House No (Auto-updates Full Address)
+                </label>
+                <input
+                  type="text"
+                  value={data.houseNo || ''}
+                  onChange={(e) => handleHouseNoChange(e.target.value)}
+                  placeholder="e.g. HOUSE NO 12"
+                  className="w-full text-xs font-medium rounded-lg border border-gray-300 p-2 focus:ring-2 focus:ring-burgundy/20 focus:border-burgundy outline-none transition-all"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('fullAddress', 'Full Address (English)', 'Village/Town, Dist, State', 'text', true)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('fullAddressRegional', 'Full Address (Regional)', 'गाँव/मोहल्ला, जिला, राज्य', 'text', false)}
+              </div>
+            </div>
+          </div>
+
+          {/* Photographs & ERO Specimen Signature */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
             <AssetDropzone
               label="Elector Photograph"
               value={data.photoUrl}
               onChange={(val) => onFieldChange('photoUrl', val)}
               onClear={() => onFieldChange('photoUrl', '')}
               aspectRatio="photo"
-              helperText="Election Commission ID portrait"
+              helperText="Official ECI Portrait (Front & Ghost Photo)"
               isMissing={missingKeys.includes('photoUrl')}
+            />
+            <AssetDropzone
+              label="Officer Specimen Signature"
+              value={data.signatureUrl || '/assets/voter/voter-officer-sign.png'}
+              onChange={(val) => onFieldChange('signatureUrl', val)}
+              onClear={() => onFieldChange('signatureUrl', '')}
+              aspectRatio="signature"
+              helperText="Electoral Registration Officer Signature"
             />
           </div>
         </div>
