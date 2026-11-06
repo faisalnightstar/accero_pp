@@ -31,6 +31,29 @@ export default function AadhaarCardCanvas({
   const backAsset = '/assets/aadhar/aadhar-pvc-back.jpg';
   const sheetAsset = '/assets/aadhar/aadhar-pvc-sheet.jpg';
 
+  // Guard against date value erroneously passed into regional DOB label field
+  const isDateValue = (val?: string) => Boolean(val && /\d/.test(val));
+  const dobLabel =
+    data.dateOfBirthRegional && !isDateValue(data.dateOfBirthRegional)
+      ? data.dateOfBirthRegional.trim()
+      : 'जन्म तिथि';
+
+  // Synchronize regional gender with primary English gender
+  const isFemale = (data.gender || '').toUpperCase() === 'FEMALE';
+  const isTransgender = (data.gender || '').toUpperCase() === 'TRANSGENDER';
+  const defaultGenderRegional = isTransgender
+    ? 'ट्रांसजेंडर'
+    : isFemale
+    ? 'महिला'
+    : 'पुरुष';
+
+  let resolvedGenderRegional = data.genderRegional?.trim() || defaultGenderRegional;
+  if (isFemale && resolvedGenderRegional === 'पुरुष') {
+    resolvedGenderRegional = 'महिला';
+  } else if (!isFemale && !isTransgender && resolvedGenderRegional === 'महिला') {
+    resolvedGenderRegional = 'पुरुष';
+  }
+
   /* -------------------------------------------------------------
    * 1. FULL SIDE-BY-SIDE SHEET MODE (newaadhar.php 1:1 match)
    * ----------------------------------------------------------- */
@@ -105,12 +128,12 @@ export default function AadhaarCardCanvas({
           </span>
 
           <div className="mt-1.5 text-[7px] text-gray-900 font-bold leading-tight">
-            <span>{data.dateOfBirthRegional || 'जन्म तिथि'}/DOB: </span>
+            <span>{dobLabel} / DOB: </span>
             <span className="font-mono">{data.dateOfBirth || 'DD/MM/YYYY'}</span>
           </div>
 
           <div className="mt-1 text-[7px] text-gray-900 font-bold leading-tight">
-            <span>{data.genderRegional || (data.gender === 'FEMALE' ? 'महिला' : 'पुरुष')} / </span>
+            <span>{resolvedGenderRegional} / </span>
             <span>{data.gender || 'MALE'}</span>
           </div>
         </div>
@@ -206,21 +229,10 @@ export default function AadhaarCardCanvas({
           className="absolute flex flex-col justify-start leading-tight text-black text-[7px]"
           style={{
             left: '5.5%',
-            top: '23.0%',
+            top: '28.0%',
             width: '50.0%',
           }}
         >
-          <div>
-            <span className="font-extrabold text-black block">Address:</span>
-            {data.careOf && (
-              <span className="font-bold text-gray-900 block mt-0.5 truncate">
-                {data.careOf}
-              </span>
-            )}
-            <span className="font-medium text-gray-800 line-clamp-2 mt-0.5 uppercase">
-              {data.address || 'Address Details Pending'}
-            </span>
-          </div>
           <div>
             <span className="font-extrabold text-black block">पता:</span>
             {data.careOf && (
@@ -235,16 +247,28 @@ export default function AadhaarCardCanvas({
             )}
 
           </div>
+          <div>
+            <span className="font-extrabold text-black block">Address:</span>
+            {data.careOf && (
+              <span className="font-bold text-gray-900 block mt-0.5 truncate">
+                {data.careOf}
+              </span>
+            )}
+            <span className="font-medium text-gray-800 line-clamp-2 mt-0.5 uppercase">
+              {data.address || 'Address Details Pending'}
+            </span>
+          </div>
+
         </div>
 
         {/* Back Secure QR Code */}
         <div
           className="absolute bg-white p-0.5 border border-gray-300 rounded-xs shadow-2xs flex items-center justify-center"
           style={{
-            right: '11.3%',
-            top: '21.8%',
-            width: '34.2%',
-            height: '51.5%',
+            right: '4%',
+            top: '19%',
+            width: '37.2%',
+            height: '56%',
           }}
         >
           <CardQrCode value={uidaiXml} size={100} level="M" />
@@ -255,7 +279,7 @@ export default function AadhaarCardCanvas({
           className="absolute text-center font-black font-mono tracking-widest text-[#1D3557] text-[13px] leading-none"
           style={{
             left: '50%',
-            bottom: '7.5%',
+            bottom: '16.5%',
             transform: 'translateX(-50%)',
           }}
         >
@@ -288,10 +312,10 @@ export default function AadhaarCardCanvas({
       <div
         className="absolute overflow-hidden rounded-[2px] bg-white border border-gray-400 shadow-2xs flex items-center justify-center"
         style={{
-          left: '8.5%',
-          top: '26.7%',
-          width: '24.3%',
-          height: '47.3%',
+          left: '4.6%',
+          top: '23.9%',
+          width: '27%',
+          height: '52%',
         }}
       >
         {data.photoUrl ? (
@@ -310,8 +334,8 @@ export default function AadhaarCardCanvas({
         <div
           className="absolute overflow-hidden opacity-60 filter grayscale pointer-events-none"
           style={{
-            right: '8.0%',
-            top: '25.7%',
+            right: '5.0%',
+            top: '24.5%',
             width: '8.1%',
             height: '16.0%',
           }}
@@ -340,12 +364,12 @@ export default function AadhaarCardCanvas({
         </span>
 
         <div className="mt-1.5 text-[7.5px] text-gray-900 font-bold leading-tight">
-          <span>{data.dateOfBirthRegional || 'जन्म तिथि'}/DOB: </span>
+          <span>{dobLabel} / DOB: </span>
           <span className="font-mono">{data.dateOfBirth || 'DD/MM/YYYY'}</span>
         </div>
 
         <div className="mt-1 text-[7.5px] text-gray-900 font-bold leading-tight">
-          <span>{data.genderRegional || (data.gender === 'FEMALE' ? 'महिला' : 'पुरुष')} / </span>
+          <span>{resolvedGenderRegional} / </span>
           <span>{data.gender || 'MALE'}</span>
         </div>
       </div>
@@ -354,8 +378,8 @@ export default function AadhaarCardCanvas({
       <div
         className="absolute text-center font-black font-mono tracking-widest text-[#1D3557] text-[13.5px] leading-none"
         style={{
-          left: '50%',
-          bottom: '7.5%',
+          left: '53%',
+          bottom: '16.5%',
           transform: 'translateX(-50%)',
         }}
       >

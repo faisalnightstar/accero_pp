@@ -274,10 +274,44 @@ export default function CardForm({
               {renderInput('nameRegional', 'Resident Name (Hindi / Regional)', 'e.g. सुनील सोनकर', 'text', false)}
             </div>
             <div>
-              {renderInput('dateOfBirth', 'Date of Birth (DD/MM/YYYY)', '23/05/1978', 'text', true)}
+              <label className="text-xs font-semibold text-gray-700 flex items-center justify-between mb-1.5">
+                <span>Date of Birth (DD/MM/YYYY)</span>
+                <span className="text-crimson">*</span>
+              </label>
+              <input
+                type="text"
+                value={data.dateOfBirth || ''}
+                onChange={(e) => {
+                  onFieldChange('dateOfBirth', e.target.value);
+                  if (data.dateOfBirthRegional && /\d/.test(data.dateOfBirthRegional)) {
+                    onFieldChange('dateOfBirthRegional', 'जन्म तिथि');
+                  }
+                }}
+                placeholder="23/05/1978"
+                className="w-full text-xs font-semibold rounded-lg border border-gray-300 p-2 bg-white text-navy focus:ring-2 focus:ring-burgundy/20 focus:border-burgundy outline-none transition-all"
+              />
             </div>
             <div>
-              {renderInput('gender', 'Gender (MALE / FEMALE)', 'MALE', 'text', true)}
+              <label className="text-xs font-semibold text-gray-700 flex items-center gap-1 mb-1.5">
+                <span>Gender</span>
+                <span className="text-crimson">*</span>
+              </label>
+              <select
+                value={(data.gender || 'MALE').toUpperCase()}
+                onChange={(e) => {
+                  const val = e.target.value as 'MALE' | 'FEMALE' | 'TRANSGENDER';
+                  onFieldChange('gender', val);
+                  onFieldChange(
+                    'genderRegional',
+                    val === 'FEMALE' ? 'महिला' : val === 'TRANSGENDER' ? 'ट्रांसजेंडर' : 'पुरुष'
+                  );
+                }}
+                className="w-full text-xs font-semibold rounded-lg border border-gray-300 p-2 bg-white text-navy focus:ring-2 focus:ring-burgundy/20 focus:border-burgundy outline-none transition-all"
+              >
+                <option value="MALE">MALE (पुरुष)</option>
+                <option value="FEMALE">FEMALE (महिला)</option>
+                <option value="TRANSGENDER">TRANSGENDER (ट्रांसजेंडर)</option>
+              </select>
             </div>
             <div>
               {renderInput('careOf', 'Care of / Son of (English)', 'S/O: Pyarelal', 'text', false)}

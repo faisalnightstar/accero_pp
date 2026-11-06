@@ -86,7 +86,7 @@ const sampleAadhaarData: AadhaarCardData = {
   name: 'SUNIL SONKAR',
   nameRegional: 'सुनील सोनकर',
   dateOfBirth: '23/05/1978',
-  dateOfBirthRegional: '23/05/1978',
+  dateOfBirthRegional: 'जन्म तिथि',
   gender: 'MALE',
   genderRegional: 'पुरुष',
   careOf: 'S/O: Pyarelal',
