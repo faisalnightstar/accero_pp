@@ -64,12 +64,12 @@ export default function RcCardCanvas({
   if (side === 'back') {
     return (
       <div
-        className={`w-full h-full relative overflow-hidden bg-white text-black p-2 flex flex-col justify-between font-sans select-none rounded-[3.18mm] border border-[#B9E2FE] shadow-2xs ${className}`}
+        className={`w-full h-full relative overflow-hidden text-black p-2 flex flex-col justify-between font-sans select-none rounded-[3.18mm] border border-[#B9E2FE] shadow-2xs ${className}`}
+        style={{
+          background: 'linear-gradient(180deg, #D4EBFA 0%, #E8F4FC 22%, #FFFFFF 58%)',
+        }}
       >
-        {/* Official Back Header Light Sky Blue Banner */}
-        <div className="absolute top-0 left-0 right-0 h-[28px] bg-[#DEF0FC] pointer-events-none z-0" />
-
-        {/* Top Header: Badges & Vehicle Class (Inside light blue banner) */}
+        {/* Top Header: Badges & Vehicle Class */}
         <div className="relative z-10 flex items-center justify-between px-0.5 pt-0.5">
           <div className="flex items-center gap-1">
             <RcCircleBadge text={derived.transportType} variant="cyan" />
@@ -82,22 +82,22 @@ export default function RcCardCanvas({
           </div>
         </div>
 
-        {/* Two-Column Form 23A Specifications Grid (Zero overflow) */}
-        <div className="relative z-10 grid grid-cols-12 gap-2 items-start my-auto pr-3.5 pt-1">
+        {/* Two-Column Form 23A Specifications (Zero overflow, exact spacing) */}
+        <div className="relative z-10 flex items-start gap-2 my-auto pr-3.5 pt-1">
           {/* Left Column: Reg No, QR Code, Mfg Date, Cylinders */}
-          <div className="col-span-4 flex flex-col justify-between h-full space-y-1">
+          <div className="w-[76px] shrink-0 flex flex-col justify-between h-full space-y-1">
             <div>
               <span className="text-[6.5px] font-extrabold text-black uppercase block leading-none">
                 Regn. Number
               </span>
-              <span className="text-[9.5px] font-bold font-mono text-black tracking-wide leading-tight block mt-0.5 whitespace-nowrap">
+              <span className="text-[9px] font-bold font-mono text-black tracking-wide leading-tight block mt-0.5 whitespace-nowrap">
                 {regNo}
               </span>
             </div>
 
             {/* High-Density Square 2D QR Code matching government card scale */}
-            <div className="w-[74px] h-[74px] bg-white p-0.5 rounded-xs border border-gray-400 shadow-2xs flex items-center justify-center shrink-0">
-              <CardQrCode value={qrString} size={70} level="M" />
+            <div className="w-[72px] h-[72px] bg-white p-0.5 rounded-xs border border-gray-400 shadow-2xs flex items-center justify-center shrink-0">
+              <CardQrCode value={qrString} size={68} level="M" />
             </div>
 
             <div className="space-y-0.5 text-[6.5px] leading-tight">
@@ -112,7 +112,7 @@ export default function RcCardCanvas({
           </div>
 
           {/* Right Column: Complete Technical Specifications */}
-          <div className="col-span-8 space-y-0.5 text-[7px] leading-tight pl-1">
+          <div className="flex-1 space-y-[2px] text-[7px] leading-tight pl-1">
             <div>
               <span className="font-extrabold text-black block leading-none text-[6.5px]">Maker:</span>
               <span className="font-bold text-[7.5px] text-black uppercase truncate block mt-0.5">
@@ -127,7 +127,7 @@ export default function RcCardCanvas({
               </span>
             </div>
 
-            <div className="flex items-center justify-start gap-12 text-[7px]">
+            <div className="flex items-center justify-start gap-8 text-[7px]">
               <div className="flex flex-col">
                 <span className="font-extrabold text-black">Color: </span>
                 <span className="font-semibold text-black">{color}</span>
@@ -154,11 +154,11 @@ export default function RcCardCanvas({
                 <span className="font-semibold text-[7px] text-black">{cubicCap}</span>
               </div>
               <div>
-                <span className="font-extrabold text-black block">/Horse Power</span>
+                <span className="font-extrabold text-black block">/Horse Power (BHP/Kw)</span>
                 <span className="font-semibold text-[7px] text-black">{horsePower}</span>
               </div>
               <div>
-                <span className="font-extrabold text-black block">/Wheel Base</span>
+                <span className="font-extrabold text-black block">/Wheel Base (mm)</span>
                 <span className="font-semibold text-[7px] text-black">{wheelBase}</span>
               </div>
             </div>
@@ -181,9 +181,10 @@ export default function RcCardCanvas({
 
         {/* Rotated Vertical Border Label: Form 23A (Hugging right border, zero collision) */}
         <div
-          className="absolute right-0.5 top-1/2 -translate-y-1/2 text-[7px] font-black tracking-wider text-gray-800 pointer-events-none select-none z-10"
+          className="absolute right-1 top-1/2 -translate-y-1/2 text-[7px] font-black tracking-wider text-gray-800 pointer-events-none select-none z-10"
           style={{
             writingMode: 'vertical-rl',
+            transform: 'rotate(180deg)',
           }}
         >
           Form 23A
@@ -197,24 +198,23 @@ export default function RcCardCanvas({
    * ----------------------------------------------------------- */
   return (
     <div
-      className={`w-full h-full relative overflow-hidden bg-white text-black p-2 flex flex-col justify-between font-sans select-none rounded-[3.18mm] border border-[#B9E2FE] shadow-2xs ${className}`}
+      className={`w-full h-full relative overflow-hidden text-black p-2 flex flex-col justify-between font-sans select-none rounded-[3.18mm] border border-[#B9E2FE] shadow-2xs ${className}`}
+      style={{
+        background: 'linear-gradient(180deg, #D4EBFA 0%, #E8F4FC 28%, #FFFFFF 68%)',
+      }}
     >
-      {/* Official Front Header Light Sky Blue Banner with Smooth Rounded Contour */}
-      <div className="absolute top-0 left-0 right-0 h-[34px] bg-[#DEF0FC] pointer-events-none z-0" />
-      <div className="absolute top-0 left-0 w-[48px] h-[44px] bg-[#DEF0FC] rounded-br-2xl pointer-events-none z-0" />
-
-      {/* Top Header: Real Ashoka Emblem + Title + State Badges */}
+      {/* Top Header: Real Ashoka Emblem + Title + State Badges (Smooth gradient, no artificial dividing lines) */}
       <div className="relative z-10 flex items-start justify-between">
-        <div className="flex items-start gap-1.5">
-          {/* Prominent Ashoka Emblem matching official scale */}
-          <div className="flex items-center justify-center -ml-0.5 -mt-0.5 w-[38px] h-[40px] shrink-0">
+        <div className="flex items-start gap-1">
+          {/* Prominent Ashoka Emblem matching official scale (~36px x 50px) */}
+          <div className="flex items-center justify-center -ml-0.5 -mt-0.5 w-[36px] h-[50px] shrink-0">
             <RcAshokaCrest className="w-full h-full" />
           </div>
-          <div className="flex flex-col pt-0.5">
-            <span className="text-[9.5px] sm:text-[8px] font-black text-black tracking-tight leading-tight">
+          <div className="flex flex-col pt-0.5 pl-1">
+            <span className="text-[9.5px] sm:text-[9.5px] font-black text-black tracking-tight leading-tight">
               Indian Union Vehicle Registration Certificate
             </span>
-            <span className="text-[7.5px] sm:text-[8px] font-medium text-gray-800 leading-tight mt-0.5">
+            <span className="text-[7.5px] font-medium text-gray-800 leading-tight mt-0.5">
               {derived.stateIssued}
             </span>
           </div>
@@ -227,20 +227,20 @@ export default function RcCardCanvas({
         </div>
       </div>
 
-      {/* Main Body Area: Chip on Left, 6-Row Grid on Right (with pr-3.5 safe margin for vertical date) */}
-      <div className="relative z-10 grid grid-cols-12 gap-1.5 my-auto items-center pr-3.5">
+      {/* Main Body Area: Chip on Left, 6-Row Grid on Right (with pr-4 safe margin for vertical date) */}
+      <div className="relative z-10 flex items-center gap-1 my-auto pr-4">
         {/* Left Side: Real Microchip + Blue Arrow Pointer + Fuel & Emission Norms */}
-        <div className="col-span-3 flex flex-col justify-center items-center h-full pt-1">
+        <div className="w-[58px] shrink-0 flex flex-col justify-center items-center h-full pt-0.5">
           {/* Microchip Contact with Royal Blue Arrow Pointer */}
           <RcSmartChipWithPointer />
 
           {/* Fuel & Emission Norms Below Chip */}
-          <div className="space-y-0.5 flex flex-col items-start text-[7px] leading-tight mt-3">
+          <div className="space-y-0.5 flex flex-col items-start text-[7px] leading-tight mt-2.5">
             <div>
               <span className="font-extrabold text-black uppercase block leading-none text-[6.5px]">
                 Fuel
               </span>
-              <span className="font-semibold text-[8px] text-black uppercase">
+              <span className="font-bold text-[7.5px] text-black uppercase">
                 {fuelType}
               </span>
             </div>
@@ -248,7 +248,7 @@ export default function RcCardCanvas({
               <span className="font-extrabold text-black uppercase block leading-none text-[6px]">
                 Emission Norms
               </span>
-              <span className="font-semibold text-[7.5px] text-black uppercase">
+              <span className="font-bold text-[7.5px] text-black uppercase">
                 {emissionNorm}
               </span>
             </div>
@@ -256,10 +256,10 @@ export default function RcCardCanvas({
         </div>
 
         {/* Right Side: Exact 6-Row Data Hierarchy */}
-        <div className="col-span-9 space-y-0.5 text-[7.5px] leading-tight pl-1">
-          {/* Row 1: Regn No | Date of Regn. | Regn. Validity | Owner Serial */}
+        <div className="flex-1 space-y-0.5 text-[7.5px] leading-tight pl-1">
+          {/* Row 1: Regn No | Date of Regn. | Regn. Validity | Owner Serial (Strict single lines) */}
           <div className="flex items-start justify-between gap-1">
-            <div className="shrink-0 min-w-0">
+            <div className="shrink-0">
               <span className="font-extrabold text-black block leading-none text-[6.5px]">
                 Regn No
               </span>
@@ -268,30 +268,30 @@ export default function RcCardCanvas({
               </span>
             </div>
 
-            <div className="shrink-0 min-w-0">
+            <div className="shrink-0">
               <span className="font-extrabold text-black block leading-none text-[6.5px]">
                 Date of Regn.
               </span>
-              <span className="text-[7.5px] font-semibold text-black leading-tight block whitespace-nowrap mt-0.5">
+              <span className="text-[7.5px] font-bold text-black leading-tight block whitespace-nowrap mt-0.5">
                 {regDate}
               </span>
             </div>
 
-            <div className="shrink-0 min-w-0">
+            <div className="shrink-0">
               <span className="font-extrabold text-black block leading-none text-[6.5px]">
                 Regn. Validity
               </span>
-              <span className="text-[7.5px] font-semibold text-black leading-tight block whitespace-nowrap mt-0.5">
+              <span className="text-[7.5px] font-bold text-black leading-tight block whitespace-nowrap mt-0.5">
                 {regValidity}
               </span>
             </div>
 
-            <div className="shrink-0 flex items-center gap-1">
-              <div className="flex flex-col text-right">
-                <span className="font-extrabold text-[6.5px] leading-none">Owner</span>
-                <span className="text-[6.5px] font-extrabold leading-none mt-0.5">Serial</span>
+            <div className="shrink-0 flex items-center gap-0.5">
+              <div className="flex flex-col text-right leading-none">
+                <span className="font-extrabold text-[6.5px]">Owner</span>
+                <span className="text-[6.5px] font-extrabold mt-0.5">Serial</span>
               </div>
-              <span className="w-3.5 h-3.5 rounded-full border border-black flex items-center justify-center text-[7.5px] font-bold leading-none shrink-0">
+              <span className="w-3.5 h-3.5 rounded-full border border-black flex items-center justify-center text-[7.5px] font-bold leading-none shrink-0 ml-0.5">
                 {ownerSerial}
               </span>
             </div>
@@ -302,7 +302,7 @@ export default function RcCardCanvas({
             <span className="font-extrabold text-black block leading-none text-[6.5px]">
               Chassis No
             </span>
-            <span className="font-semibold font-mono text-[8px] text-black tracking-wider block mt-0.5">
+            <span className="font-bold font-mono text-[8px] text-black tracking-wider block mt-0.5">
               {chassisNo}
             </span>
           </div>
@@ -312,7 +312,7 @@ export default function RcCardCanvas({
             <span className="font-extrabold text-black block leading-none text-[6.5px]">
               Engine/Motor No
             </span>
-            <span className="font-semibold font-mono text-[8px] text-black tracking-wider block mt-0.5">
+            <span className="font-bold font-mono text-[8px] text-black tracking-wider block mt-0.5">
               {engineNo}
             </span>
           </div>
@@ -322,7 +322,7 @@ export default function RcCardCanvas({
             <span className="font-extrabold text-black block leading-none text-[6.5px]">
               Owner Name
             </span>
-            <span className="font-bold text-[8.5px] text-black uppercase tracking-wide block mt-0.5">
+            <span className="font-black text-[8.5px] text-black uppercase tracking-wide block mt-0.5">
               {ownerName}
             </span>
           </div>
@@ -351,7 +351,7 @@ export default function RcCardCanvas({
 
       {/* Rotated Vertical Border Label: Card Issue Date (Hugging right border, zero collision) */}
       <div
-        className="absolute right-0.5 top-1/2 -translate-y-1/2 text-[6px] font-extrabold text-gray-800 tracking-wider pointer-events-none select-none z-10 whitespace-nowrap"
+        className="absolute right-1 top-1/2 -translate-y-1/2 text-[6px] font-bold text-gray-800 tracking-wider pointer-events-none select-none z-10 whitespace-nowrap"
         style={{
           writingMode: 'vertical-rl',
           transform: 'rotate(180deg)',

@@ -102,12 +102,14 @@ body {
     align-items: center !important;
     width: 100% !important;
     min-height: 100vh !important;
-    height: 100% !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
     margin: 0 auto !important;
     padding: 0 !important;
     box-sizing: border-box !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+    overflow: hidden !important;
   }
 
   .cr80-print-tray-row {

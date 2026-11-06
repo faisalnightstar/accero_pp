@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { VoterCardData } from '@/types/cards';
+import CardBarcode from '@/components/cards/CardBarcode';
 import { User } from 'lucide-react';
 
 interface VoterCardCanvasProps {
@@ -30,9 +31,9 @@ export default function VoterCardCanvas({
 
   const epic = (data.epicNumber || 'AXH0801639').toUpperCase();
   const name = (data.electorName || 'ELECTOR NAME').toUpperCase();
-  const nameRegional = data.electorNameRegional || 'मतदाता का नाम';
+  const nameRegionalLabel = data.electorNameRegional || 'मतदाता का नाम';
   const relationName = (data.relationName || "FATHER'S NAME").toUpperCase();
-  const relationNameRegional = data.relationNameRegional || 'पिता का नाम';
+  const relationNameRegionalLabel = data.relationNameRegional || 'पिता का नाम';
   const gender = (data.gender || 'Male').toUpperCase();
   const genderRegional = data.genderRegional || (gender === 'MALE' ? 'पुरुष' : 'महिला');
   const dob = data.dateOfBirth || data.age || '01/01/1990';
@@ -181,9 +182,9 @@ export default function VoterCardCanvas({
         className="absolute inset-0 w-full h-full object-fill pointer-events-none select-none"
       />
 
-      {/* Barcode Simulator / Strip */}
+      {/* Official 1D Barcode (ECI Code 128 format via JsBarcode) */}
       <div
-        className="absolute flex items-center justify-center bg-transparent"
+        className="absolute flex items-center justify-center overflow-hidden bg-transparent"
         style={{
           left: '19.0%',
           top: '16.8%',
@@ -191,18 +192,14 @@ export default function VoterCardCanvas({
           height: '4.8%',
         }}
       >
-        {/* Clean CSS Barcode Pattern */}
-        <div className="w-full h-full flex items-center justify-between overflow-hidden">
-          {Array.from({ length: 32 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-black h-full"
-              style={{
-                width: i % 3 === 0 ? '3px' : i % 2 === 0 ? '2px' : '1px',
-              }}
-            />
-          ))}
-        </div>
+        <CardBarcode
+          value={epic}
+          format="CODE128"
+          width={1.2}
+          height={32}
+          displayValue={false}
+          className="w-full h-full object-contain"
+        />
       </div>
 
       {/* EPIC Number */}
@@ -246,7 +243,7 @@ export default function VoterCardCanvas({
           width: '84.0%',
         }}
       >
-        <span className="truncate">{nameRegional}</span>
+        <span className="truncate">{nameRegionalLabel}</span>
         <span className="truncate mt-1 uppercase">{name}</span>
       </div>
 
@@ -259,7 +256,7 @@ export default function VoterCardCanvas({
           width: '84.0%',
         }}
       >
-        <span className="truncate">{relationNameRegional}</span>
+        <span className="truncate">{relationNameRegionalLabel}</span>
         <span className="truncate mt-1 uppercase">{relationName}</span>
       </div>
     </div>

@@ -337,7 +337,8 @@ function StudioPageContent() {
             type="button"
             onClick={handleSaveDocument}
             disabled={isSaving}
-            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white rounded-lg bg-[#8B1E2D] hover:bg-[#721925] shadow-sm transition-all disabled:opacity-50"
+            style={{ backgroundColor: '#8B1E2D', color: '#ffffff' }}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white rounded-lg bg-burgundy hover:bg-[#721925] shadow-sm transition-all disabled:opacity-50"
             title="Save card record to MongoDB"
           >
             {isSaving ? (
@@ -391,8 +392,13 @@ function StudioPageContent() {
               key={item.id}
               type="button"
               onClick={() => handleTabChange(item.id as DocumentType)}
+              style={
+                isActive
+                  ? { backgroundColor: '#8B1E2D', color: '#ffffff' }
+                  : undefined
+              }
               className={`py-1.5 px-3 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-colors shrink-0 ${isActive
-                  ? 'bg-[#8B1E2D] text-white shadow-xs'
+                  ? 'bg-burgundy text-white shadow-sm'
                   : 'text-gray-600 hover:text-navy hover:bg-gray-100'
                 }`}
             >
