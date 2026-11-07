@@ -17,6 +17,7 @@ import {
   Loader2,
 } from 'lucide-react';
 import { VOTER_LANGUAGES, VoterLanguageCode, translateVoterText } from '@/lib/voterLanguages';
+import { AADHAAR_LANGUAGES, AadhaarLanguageCode, translateAadhaarText } from '@/lib/aadhaarLanguages';
 
 interface CardFormProps {
   docType: DocumentType;
@@ -32,6 +33,49 @@ export default function CardForm({
   missingKeys = [],
 }: CardFormProps) {
   const [isTranslating, setIsTranslating] = useState(false);
+  const [isAadhaarTranslating, setIsAadhaarTranslating] = useState(false);
+
+  // Auto-translate helper for multi-lingual Aadhaar Card
+  const handleAadhaarTranslate = async (targetLang?: string) => {
+    const lang = targetLang || data.language || 'HI';
+    const langConfig = AADHAAR_LANGUAGES[lang as AadhaarLanguageCode] || AADHAAR_LANGUAGES.HI;
+    setIsAadhaarTranslating(true);
+
+    try {
+      // 1. Set regional labels from dictionary
+      onFieldChange('language', lang);
+      onFieldChange('dateOfBirthRegional', langConfig.labels.dob);
+      onFieldChange('labelDobRegional', langConfig.labels.dob);
+      onFieldChange('labelAddressRegional', langConfig.labels.address);
+
+      const isFemale = (data.gender || '').toUpperCase() === 'FEMALE';
+      const isTransgender = (data.gender || '').toUpperCase() === 'TRANSGENDER';
+      onFieldChange(
+        'genderRegional',
+        isTransgender
+          ? langConfig.labels.transgender
+          : isFemale
+          ? langConfig.labels.female
+          : langConfig.labels.male
+      );
+
+      // 2. Translate dynamic resident details via Google Translate GTX API
+      if (data.name) {
+        const transName = await translateAadhaarText(data.name, lang);
+        onFieldChange('nameRegional', transName);
+      }
+      if (data.careOf) {
+        const transCo = await translateAadhaarText(data.careOf, lang);
+        onFieldChange('careOfRegional', transCo);
+      }
+      if (data.address) {
+        const transAddr = await translateAadhaarText(data.address, lang);
+        onFieldChange('addressRegional', transAddr);
+      }
+    } finally {
+      setIsAadhaarTranslating(false);
+    }
+  };
 
   // Auto-translate helper for multi-lingual Voter ID
   const handleVoterTranslate = async (targetLang?: string) => {
@@ -257,10 +301,80 @@ export default function CardForm({
 
       {/* ---------------- AADHAAR CARD FORM ---------------- */}
       {docType === 'aadhaar' && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-            <Shield className="w-5 h-5 text-burgundy" />
-            <h3 className="text-sm font-bold text-navy">Aadhaar Card Details</h3>
+        <div className="space-y-5">
+          {/* Header & Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-100 pb-3">
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-burgundy" />
+              <div>
+                <h3 className="text-sm font-bold text-navy">
+                  Aadhaar Card Multi-Lingual Engine
+                </h3>
+                <p className="text-[11px] text-gray-500">
+                  Select official regional language for instant localized template & translation
+                </p>
+              </div>
+            </div>
+
+            {/* Auto-Translate Trigger */}
+            <button
+              type="button"
+              onClick={() => handleAadhaarTranslate()}
+              disabled={isAadhaarTranslating}
+              className="inline-flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-burgundy hover:bg-burgundy/90 shadow-2xs transition-all disabled:opacity-50"
+            >
+              {isAadhaarTranslating ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Translating...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>Auto-Translate</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Language & Layout Selectors */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-gray-50/80 rounded-xl border border-gray-200">
+            <div>
+              <label className="text-xs font-semibold text-gray-700 flex items-center gap-1.5 mb-1.5">
+                <Languages className="w-3.5 h-3.5 text-burgundy" />
+                <span>Regional Language & Template</span>
+              </label>
+              <select
+                value={data.language || 'HI'}
+                onChange={(e) => {
+                  const newLang = e.target.value as AadhaarLanguageCode;
+                  onFieldChange('language', newLang);
+                  handleAadhaarTranslate(newLang);
+                }}
+                className="w-full text-xs font-semibold rounded-lg border border-gray-300 p-2 bg-white text-navy focus:ring-2 focus:ring-burgundy/20 focus:border-burgundy outline-none transition-all"
+              >
+                {Object.values(AADHAAR_LANGUAGES).map((item) => (
+                  <option key={item.code} value={item.code}>
+                    {item.name} ({item.nativeName})
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-gray-700 flex items-center gap-1.5 mb-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-burgundy" />
+                <span>Format Layout</span>
+              </label>
+              <select
+                value={data.layoutFormat || 'cr80'}
+                onChange={(e) => onFieldChange('layoutFormat', e.target.value)}
+                className="w-full text-xs font-semibold rounded-lg border border-gray-300 p-2 bg-white text-navy focus:ring-2 focus:ring-burgundy/20 focus:border-burgundy outline-none transition-all"
+              >
+                <option value="cr80">CR80 PVC Card (85.60 × 53.98 mm)</option>
+                <option value="sheet">Full A4 e-Aadhaar Sheet (210 × 297 mm)</option>
+              </select>
+            </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -283,8 +397,10 @@ export default function CardForm({
                 value={data.dateOfBirth || ''}
                 onChange={(e) => {
                   onFieldChange('dateOfBirth', e.target.value);
+                  const lang = (data.language || 'HI') as AadhaarLanguageCode;
+                  const langConfig = AADHAAR_LANGUAGES[lang] || AADHAAR_LANGUAGES.HI;
                   if (data.dateOfBirthRegional && /\d/.test(data.dateOfBirthRegional)) {
-                    onFieldChange('dateOfBirthRegional', 'जन्म तिथि');
+                    onFieldChange('dateOfBirthRegional', langConfig.labels.dob);
                   }
                 }}
                 placeholder="23/05/1978"
@@ -301,16 +417,22 @@ export default function CardForm({
                 onChange={(e) => {
                   const val = e.target.value as 'MALE' | 'FEMALE' | 'TRANSGENDER';
                   onFieldChange('gender', val);
+                  const lang = (data.language || 'HI') as AadhaarLanguageCode;
+                  const langConfig = AADHAAR_LANGUAGES[lang] || AADHAAR_LANGUAGES.HI;
                   onFieldChange(
                     'genderRegional',
-                    val === 'FEMALE' ? 'महिला' : val === 'TRANSGENDER' ? 'ट्रांसजेंडर' : 'पुरुष'
+                    val === 'FEMALE'
+                      ? langConfig.labels.female
+                      : val === 'TRANSGENDER'
+                      ? langConfig.labels.transgender
+                      : langConfig.labels.male
                   );
                 }}
                 className="w-full text-xs font-semibold rounded-lg border border-gray-300 p-2 bg-white text-navy focus:ring-2 focus:ring-burgundy/20 focus:border-burgundy outline-none transition-all"
               >
-                <option value="MALE">MALE (पुरुष)</option>
-                <option value="FEMALE">FEMALE (महिला)</option>
-                <option value="TRANSGENDER">TRANSGENDER (ट्रांसजेंडर)</option>
+                <option value="MALE">MALE ({AADHAAR_LANGUAGES[(data.language || 'HI') as AadhaarLanguageCode]?.labels.male || 'पुरुष'})</option>
+                <option value="FEMALE">FEMALE ({AADHAAR_LANGUAGES[(data.language || 'HI') as AadhaarLanguageCode]?.labels.female || 'महिला'})</option>
+                <option value="TRANSGENDER">TRANSGENDER ({AADHAAR_LANGUAGES[(data.language || 'HI') as AadhaarLanguageCode]?.labels.transgender || 'ट्रांसजेंडर'})</option>
               </select>
             </div>
             <div>

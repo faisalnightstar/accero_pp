@@ -550,10 +550,15 @@ function StudioPageContent() {
                 </span>
                 <div
                   className={`shadow-2xl border border-gray-200 bg-white relative transition-all duration-200 select-none overflow-hidden rounded-md max-w-full ${
-                    docType === 'voter' ? 'aspect-[2480/3508]' : 'aspect-[1280/386]'
+                    docType === 'voter' || (docType === 'aadhaar' && cardData.layoutFormat === 'sheet')
+                      ? 'aspect-[2480/3508]'
+                      : 'aspect-[1280/386]'
                   }`}
                   style={{
-                    width: docType === 'voter' ? `${450 * zoom}px` : `${648 * zoom}px`,
+                    width:
+                      docType === 'voter' || (docType === 'aadhaar' && cardData.layoutFormat === 'sheet')
+                        ? `${450 * zoom}px`
+                        : `${648 * zoom}px`,
                   }}
                 >
                   {docType === 'pan' && (
@@ -579,9 +584,13 @@ function StudioPageContent() {
               </div>
               {/* Print Mode for Sheet */}
               <div className="hidden print:block w-full">
-                {docType === 'voter' ? (
+                {docType === 'voter' || (docType === 'aadhaar' && cardData.layoutFormat === 'sheet') ? (
                   <div className="w-[210mm] h-[297mm] relative overflow-hidden bg-white mx-auto">
-                    <VoterCardCanvas data={cardData} side="sheet" />
+                    {docType === 'voter' ? (
+                      <VoterCardCanvas data={cardData} side="sheet" />
+                    ) : (
+                      <AadhaarCardCanvas data={cardData} side="sheet" />
+                    )}
                   </div>
                 ) : (
                   <div className="w-[171.2mm] h-[53.98mm] relative overflow-hidden bg-white mx-auto">

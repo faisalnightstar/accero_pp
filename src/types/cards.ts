@@ -117,6 +117,10 @@ export interface AadhaarCardData {
   vid?: string; // 16-digit Virtual ID
   enrollmentNo?: string;
   mobile?: string;
+  language?: 'HI' | 'PA' | 'GU' | 'MR' | 'TA' | 'KN' | 'BN' | 'TE' | 'OR' | 'SD';
+  labelAddressRegional?: string;
+  labelDobRegional?: string;
+  labelGenderRegional?: string;
   layoutFormat?: 'cr80' | 'sheet';
   templateVariant?: 'pvc' | 'default';
 }

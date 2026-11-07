@@ -93,6 +93,13 @@ const sampleAadhaarData: AadhaarCardData = {
   careOfRegional: 'आत्मज: प्यारेलाल',
   address: 'HOUSE NO 12, NAI BASTI, CHETGANJ, VARANASI, UTTAR PRADESH - 221001',
   addressRegional: 'मकान नं १२, नई बस्ती, चेतगंज, वाराणसी, उत्तर प्रदेश - २२१००१',
+  downloadDate: '06/11/2026',
+  issueDate: '15/01/2018',
+  enrollmentNo: '1429/70044/00201',
+  language: 'HI',
+  labelAddressRegional: 'पता',
+  labelDobRegional: 'जन्म तिथि',
+  layoutFormat: 'cr80',
 };
 
 // Realistic sample Driving License data
