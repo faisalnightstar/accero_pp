@@ -1,110 +1,54 @@
 import { MetadataRoute } from 'next';
 import { getBaseUrl } from '@/lib/seo/canonical';
+import {
+  CANONICAL_PUBLIC_ROUTES,
+  PRIVATE_NOINDEX_ROUTES,
+  STATIC_VERIFICATION_ALLOWANCES,
+} from '@/lib/seo/routes';
 
+/**
+ * Robots.txt Configuration for Next.js 15 App Router
+ * Accero PrintPortal (https://printportal.accero.app)
+ *
+ * GOVERNANCE RULES:
+ * 1. Allow all public canonical and content routes for standard and AI crawlers.
+ * 2. Allow static verification files (GSC verification, llms.txt, sitemap.xml).
+ * 3. Strictly disallow private application workflows (/dashboard, /studio, /wallet, /cards, /admin, /api).
+ * 4. Do NOT block /login or /register here so Googlebot can crawl and discover their meta noindex directive.
+ */
 export default function robots(): MetadataRoute.Robots {
   const baseUrl = getBaseUrl();
 
-  const publicAllowPaths = [
-    '/',
-    '/print-portal',
-    '/best-print-portal-for-csc',
-    '/print-portal-for-cyber-cafe',
-    '/print-portal-for-retailers',
-    '/pvc-card-printing-software',
-    '/csc-operator-software',
-    '/document-processing-platform',
-    '/features',
-    '/features/*',
-    '/services',
-    '/services/*',
-    '/solutions',
-    '/solutions/*',
-    '/pricing',
-    '/about',
-    '/contact',
-    '/faq',
-    '/blog',
-    '/blog/*',
-    '/resources',
-    '/resources/*',
-    '/security',
-    '/privacy-policy',
-    '/terms',
-    '/llms.txt',
-    '/llms-full.txt',
-  ];
+  const publicAllowPaths = Array.from(
+    new Set([
+      ...CANONICAL_PUBLIC_ROUTES.map((r) => r.path),
+      ...STATIC_VERIFICATION_ALLOWANCES,
+      '/services/*',
+      '/features/*',
+      '/solutions/*',
+      '/blog/*',
+    ])
+  );
 
-  const privateDisallowPaths = [
-    '/dashboard',
-    '/dashboard/*',
-    '/studio',
-    '/studio/*',
-    '/wallet',
-    '/wallet/*',
-    '/admin',
-    '/admin/*',
-    '/cards',
-    '/cards/*',
-    '/api/*',
+  const privateDisallowPaths = [...PRIVATE_NOINDEX_ROUTES];
+
+  const botRules = [
+    // Standard search engines (Googlebot, Bingbot, Default)
+    { userAgent: '*', allow: publicAllowPaths, disallow: privateDisallowPaths },
+    { userAgent: 'Googlebot', allow: publicAllowPaths, disallow: privateDisallowPaths },
+    { userAgent: 'bingbot', allow: publicAllowPaths, disallow: privateDisallowPaths },
+
+    // Conversational & Search AI Bots
+    { userAgent: 'OAI-SearchBot', allow: publicAllowPaths, disallow: privateDisallowPaths },
+    { userAgent: 'ChatGPT-User', allow: publicAllowPaths, disallow: privateDisallowPaths },
+    { userAgent: 'PerplexityBot', allow: publicAllowPaths, disallow: privateDisallowPaths },
+    { userAgent: 'ClaudeBot', allow: publicAllowPaths, disallow: privateDisallowPaths },
+    { userAgent: 'Google-Extended', allow: publicAllowPaths, disallow: privateDisallowPaths },
+    { userAgent: 'GPTBot', allow: publicAllowPaths, disallow: privateDisallowPaths },
   ];
 
   return {
-    rules: [
-      // Standard search engine crawlers (Google, Bing, General Web)
-      {
-        userAgent: '*',
-        allow: publicAllowPaths,
-        disallow: privateDisallowPaths,
-      },
-      // Googlebot (Google Search Engine)
-      {
-        userAgent: 'Googlebot',
-        allow: publicAllowPaths,
-        disallow: privateDisallowPaths,
-      },
-      // bingbot (Microsoft Bing & Copilot Search)
-      {
-        userAgent: 'bingbot',
-        allow: publicAllowPaths,
-        disallow: privateDisallowPaths,
-      },
-      // OAI-SearchBot (ChatGPT Search direct web discovery & citations)
-      {
-        userAgent: 'OAI-SearchBot',
-        allow: publicAllowPaths,
-        disallow: privateDisallowPaths,
-      },
-      // ChatGPT-User (Live user-initiated browsing queries in ChatGPT)
-      {
-        userAgent: 'ChatGPT-User',
-        allow: publicAllowPaths,
-        disallow: privateDisallowPaths,
-      },
-      // PerplexityBot (Perplexity AI conversational search engine)
-      {
-        userAgent: 'PerplexityBot',
-        allow: publicAllowPaths,
-        disallow: privateDisallowPaths,
-      },
-      // GPTBot (OpenAI foundation model training & general data collection)
-      {
-        userAgent: 'GPTBot',
-        allow: publicAllowPaths,
-        disallow: privateDisallowPaths,
-      },
-      // ClaudeBot (Anthropic AI retrieval & processing)
-      {
-        userAgent: 'ClaudeBot',
-        allow: publicAllowPaths,
-        disallow: privateDisallowPaths,
-      },
-      // Google-Extended (Google Gemini training & multimodal grounding)
-      {
-        userAgent: 'Google-Extended',
-        allow: publicAllowPaths,
-        disallow: privateDisallowPaths,
-      },
-    ],
+    rules: botRules,
     sitemap: `${baseUrl}/sitemap.xml`,
   };
 }

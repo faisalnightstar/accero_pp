@@ -1,5 +1,5 @@
 import React from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import {
@@ -34,27 +34,9 @@ interface ServicePageProps {
 }
 
 export async function generateStaticParams() {
-  return [
-    { card: 'pan-card-printing' },
-    { card: 'aadhaar-document-management' },
-    { card: 'voter-id-printing' },
-    { card: 'driving-licence-printing' },
-    { card: 'vehicle-rc-printing' },
-    { card: 'ration-card-management' },
-    // Competitor keyword & SEO aliases
-    { card: 'aadhaar-document-processing' },
-    { card: 'ration-card-printing' },
-    { card: 'pan-card-management' },
-    { card: 'voter-id-card-management' },
-    { card: 'driving-licence-management' },
-    { card: 'vehicle-rc-management' },
-    // Backwards compatibility aliases
-    { card: 'pan-card' },
-    { card: 'aadhaar-card' },
-    { card: 'voter-id' },
-    { card: 'driving-license' },
-    { card: 'vehicle-rc' },
-  ];
+  return getAllServices().map((service) => ({
+    card: service.slug,
+  }));
 }
 
 export async function generateMetadata({ params }: ServicePageProps): Promise<Metadata> {
@@ -95,10 +77,23 @@ export async function generateMetadata({ params }: ServicePageProps): Promise<Me
       images: [ogImageUrl],
       creator: '@acceroapp',
     },
-    robots: {
-      index: true,
-      follow: true,
-    },
+    robots:
+      card === config.slug
+        ? {
+            index: true,
+            follow: true,
+            googleBot: {
+              index: true,
+              follow: true,
+              'max-video-preview': -1,
+              'max-image-preview': 'large',
+              'max-snippet': -1,
+            },
+          }
+        : {
+            index: false,
+            follow: true,
+          },
   };
 }
 
@@ -108,6 +103,11 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
 
   if (!config) {
     notFound();
+  }
+
+  // Enforce 308 redirect from aliases to canonical slug
+  if (card !== config.slug) {
+    redirect(`/services/${config.slug}`);
   }
 
   const allServices = getAllServices();

@@ -23,6 +23,7 @@ import DlCardCanvas from '@/components/cards/DlCardCanvas';
 import RcCardCanvas from '@/components/cards/RcCardCanvas';
 import { exportCardAsPdf, exportCardAsPng } from '@/lib/cardExport';
 import { authorizePrintAction } from '@/actions/print';
+import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
 import {
   PanCardData,
   VoterCardData,
@@ -239,6 +240,12 @@ export default function CardsShowcasePage() {
     try {
       setIsExporting(true);
       const printJobId = `pj_${crypto.randomUUID()}`;
+
+      trackEvent(ANALYTICS_EVENTS.PRINT_STARTED, {
+        docType: activeTab.toUpperCase(),
+        printFormat: 'CR80',
+      });
+
       const res = await authorizePrintAction({
         documentType: activeTab,
         cardIdentifier: currentDocTitle,
@@ -249,6 +256,20 @@ export default function CardsShowcasePage() {
       if (!res.success) {
         alert(res.error?.message || 'Print authorization failed. Please check your wallet balance.');
         return;
+      }
+
+      const isReprint = res.fee === 0;
+      trackEvent(ANALYTICS_EVENTS.PRINT_COMPLETED, {
+        docType: activeTab.toUpperCase(),
+        printFormat: 'CR80',
+        isReprint,
+      });
+
+      if (isReprint) {
+        trackEvent(ANALYTICS_EVENTS.REPEAT_PRINT, {
+          docType: activeTab.toUpperCase(),
+          printFormat: 'CR80',
+        });
       }
 
       window.print();
@@ -265,6 +286,12 @@ export default function CardsShowcasePage() {
     try {
       setIsExporting(true);
       const printJobId = `pj_${crypto.randomUUID()}`;
+
+      trackEvent(ANALYTICS_EVENTS.PRINT_STARTED, {
+        docType: activeTab.toUpperCase(),
+        printFormat: 'PDF',
+      });
+
       const res = await authorizePrintAction({
         documentType: activeTab,
         cardIdentifier: currentDocTitle,
@@ -275,6 +302,20 @@ export default function CardsShowcasePage() {
       if (!res.success) {
         alert(res.error?.message || 'PDF export authorization failed. Please check your wallet balance.');
         return;
+      }
+
+      const isReprint = res.fee === 0;
+      trackEvent(ANALYTICS_EVENTS.PRINT_COMPLETED, {
+        docType: activeTab.toUpperCase(),
+        printFormat: 'PDF',
+        isReprint,
+      });
+
+      if (isReprint) {
+        trackEvent(ANALYTICS_EVENTS.REPEAT_PRINT, {
+          docType: activeTab.toUpperCase(),
+          printFormat: 'PDF',
+        });
       }
 
       await exportCardAsPdf(frontCardRef.current, backCardRef.current, currentDocTitle);

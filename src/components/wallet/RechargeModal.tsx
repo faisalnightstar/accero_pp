@@ -115,6 +115,7 @@ export default function RechargeModal({
       try {
         const res = await createPaytmOrderAction(orderAmt, accountIdx);
         if (res.success && res.orderId && res.qrDataUrl && res.upiUrl) {
+          trackEvent(ANALYTICS_EVENTS.RECHARGE_STARTED, { paymentMethod: 'GATEWAY', rechargeAmount: res.amount || orderAmt });
           setCurrentOrder({
             orderId: res.orderId,
             amount: res.amount || orderAmt,
@@ -152,7 +153,10 @@ export default function RechargeModal({
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('wallet-updated', { detail: newBalance }));
       }
-      trackEvent(ANALYTICS_EVENTS.FIRST_RECHARGE_SUCCESS);
+      trackEvent(ANALYTICS_EVENTS.RECHARGE_COMPLETED, {
+        paymentMethod: methodDesc || 'GATEWAY',
+        rechargeAmount: creditAmt,
+      });
       onSuccess?.(newBalance);
     },
     [onSuccess, stopPolling]

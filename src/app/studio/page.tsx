@@ -36,6 +36,7 @@ import { analyzeDocumentCompleteness } from '@/lib/missingFields';
 import { DocumentType } from '@/types/cards';
 import InsufficientBalanceModal from '@/components/wallet/InsufficientBalanceModal';
 import RechargeModal from '@/components/wallet/RechargeModal';
+import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
 
 function StudioPageContent() {
   const router = useRouter();
@@ -270,6 +271,11 @@ function StudioPageContent() {
       const identifier = resolveCurrentIdentifier();
       const printJobId = `pj_${crypto.randomUUID()}`;
 
+      trackEvent(ANALYTICS_EVENTS.PRINT_STARTED, {
+        docType: docType.toUpperCase(),
+        printFormat: 'CR80',
+      });
+
       const res = await authorizePrintAction({
         documentType: docType,
         cardIdentifier: identifier,
@@ -292,6 +298,20 @@ function StudioPageContent() {
           });
         }
         return;
+      }
+
+      const isReprint = res.fee === 0;
+      trackEvent(ANALYTICS_EVENTS.PRINT_COMPLETED, {
+        docType: docType.toUpperCase(),
+        printFormat: 'CR80',
+        isReprint,
+      });
+
+      if (isReprint) {
+        trackEvent(ANALYTICS_EVENTS.REPEAT_PRINT, {
+          docType: docType.toUpperCase(),
+          printFormat: 'CR80',
+        });
       }
 
       setToastAlert({

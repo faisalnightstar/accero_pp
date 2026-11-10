@@ -632,6 +632,7 @@ export function getServiceConfig(slugOrType: string): ServiceConfig | null {
     clean === 'aadhaar' ||
     clean === 'aadhaar-card' ||
     clean === 'uid' ||
+    clean === 'aadhaar-card-printing' ||
     clean === 'aadhaar-document-processing'
   ) {
     return SERVICES_CONFIG['aadhaar-document-management'];
@@ -640,6 +641,7 @@ export function getServiceConfig(slugOrType: string): ServiceConfig | null {
     clean === 'voter' ||
     clean === 'voter-id' ||
     clean === 'epic' ||
+    clean === 'voter-id-card-printing' ||
     clean === 'voter-id-card-management'
   ) {
     return SERVICES_CONFIG['voter-id-printing'];

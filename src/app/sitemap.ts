@@ -1,223 +1,25 @@
 import { MetadataRoute } from 'next';
-import { getBaseUrl } from '@/lib/seo/canonical';
-import { getAllServices } from '@/lib/seo/servicesData';
+import { getCanonicalUrl } from '@/lib/seo/canonical';
+import { CANONICAL_PUBLIC_ROUTES } from '@/lib/seo/routes';
 
+/**
+ * Dynamic Canonical Sitemap Generation for Next.js 15 App Router
+ * Accero PrintPortal (https://printportal.accero.app)
+ *
+ * GUARANTEES:
+ * 1. 100% Public Canonical Coverage: Contains all 41 genuinely public indexable routes.
+ * 2. Zero Private Leakage: Excludes /dashboard, /studio, /wallet, /cards, /admin, and /api.
+ * 3. Zero Auth Pages: Excludes /login, /register, /forgot-password, /reset-password.
+ * 4. Zero Duplicate Aliases: Aliases redirect or canonicalize to their primary service slug.
+ * 5. Deterministic Dates: Uses exact revision dates rather than unstable request timestamps.
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = getBaseUrl();
-  const publishDate = new Date('2026-11-10T00:00:00.000Z');
-
-  // Root & Primary Commercial Routes
-  const coreRoutes: MetadataRoute.Sitemap = [
-    {
-      url: baseUrl,
-      lastModified: publishDate,
-      changeFrequency: 'daily',
-      priority: 1.0,
-    },
-    {
-      url: `${baseUrl}/pricing`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/features`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/services`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/solutions`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-  ];
-
-  // 6 Core Document Services
-  const services = getAllServices();
-  const serviceRoutes: MetadataRoute.Sitemap = services.map((service) => ({
-    url: `${baseUrl}/services/${service.slug}`,
-    lastModified: publishDate,
-    changeFrequency: 'weekly',
-    priority: 0.9,
+  return CANONICAL_PUBLIC_ROUTES.map((route) => ({
+    url: getCanonicalUrl(route.path),
+    lastModified: route.lastModified
+      ? new Date(route.lastModified)
+      : new Date('2026-11-10T00:00:00.000Z'),
+    changeFrequency: route.changeFrequency,
+    priority: route.priority,
   }));
-
-  // Dedicated Feature Pages
-  const featurePages = [
-    'document-lookup',
-    'document-management',
-    'document-editing',
-    'document-printing',
-    'multilingual-printing',
-    'wallet-management',
-  ];
-  const featureRoutes: MetadataRoute.Sitemap = featurePages.map((slug) => ({
-    url: `${baseUrl}/features/${slug}`,
-    lastModified: publishDate,
-    changeFrequency: 'monthly',
-    priority: 0.8,
-  }));
-
-  // Target Solution Pages for Operators
-  const solutionPages = [
-    'cyber-cafes',
-    'csc-operators',
-    'printing-shops',
-    'digital-service-centers',
-  ];
-  const solutionRoutes: MetadataRoute.Sitemap = solutionPages.map((slug) => ({
-    url: `${baseUrl}/solutions/${slug}`,
-    lastModified: publishDate,
-    changeFrequency: 'monthly',
-    priority: 0.8,
-  }));
-
-  // Educational Cornerstone Blog Guides & Resources
-  const contentRoutes: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/blog`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/blog/cr80-card-dimensions-guide`,
-      lastModified: publishDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/blog/pvc-card-printer-tray-guide`,
-      lastModified: publishDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/blog/cyber-cafe-document-printing-guide`,
-      lastModified: publishDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/blog/how-to-fix-missing-card-fields`,
-      lastModified: publishDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/blog/multilingual-document-printing-guide`,
-      lastModified: publishDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/resources`,
-      lastModified: publishDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-  ];
-
-  // High-Intent Competitor & Commercial Pillar Pages
-  const competitorPillarRoutes: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/print-portal`,
-      lastModified: publishDate,
-      changeFrequency: 'daily',
-      priority: 0.95,
-    },
-    {
-      url: `${baseUrl}/best-print-portal-for-csc`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/print-portal-for-cyber-cafe`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/print-portal-for-retailers`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/pvc-card-printing-software`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/csc-operator-software`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.85,
-    },
-    {
-      url: `${baseUrl}/document-processing-platform`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.85,
-    },
-  ];
-
-  // Informational, Legal & Trust Pages
-  const trustRoutes: MetadataRoute.Sitemap = [
-    {
-      url: `${baseUrl}/about`,
-      lastModified: publishDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/contact`,
-      lastModified: publishDate,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${baseUrl}/faq`,
-      lastModified: publishDate,
-      changeFrequency: 'weekly',
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/security`,
-      lastModified: publishDate,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${baseUrl}/privacy-policy`,
-      lastModified: publishDate,
-      changeFrequency: 'yearly',
-      priority: 0.5,
-    },
-    {
-      url: `${baseUrl}/terms`,
-      lastModified: publishDate,
-      changeFrequency: 'yearly',
-      priority: 0.5,
-    },
-  ];
-
-  return [
-    ...coreRoutes,
-    ...competitorPillarRoutes,
-    ...serviceRoutes,
-    ...featureRoutes,
-    ...solutionRoutes,
-    ...contentRoutes,
-    ...trustRoutes,
-  ];
 }

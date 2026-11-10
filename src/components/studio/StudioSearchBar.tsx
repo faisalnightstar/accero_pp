@@ -85,6 +85,7 @@ export function StudioSearchBar({
       const result = await verifyDocument(docType, id);
 
       if (result.errorMessage === 'INSUFFICIENT_BALANCE') {
+        trackEvent(ANALYTICS_EVENTS.LOOKUP_FAILED, { docType: docType.toUpperCase(), errorType: 'INSUFFICIENT_BALANCE', isManual: false });
         setInsufficientBalanceInfo({
           requiredFee: result.requiredFee || feeAmount,
           currentBalance: result.currentBalance || 0,
@@ -125,10 +126,12 @@ export function StudioSearchBar({
         }
       } else {
         const errMsg = result.errorMessage || 'No record found. (₹0 charged)';
+        trackEvent(ANALYTICS_EVENTS.LOOKUP_FAILED, { docType: docType.toUpperCase(), errorType: result.errorMessage || 'NOT_FOUND', isManual: false });
         setStatusMessage({ text: errMsg, type: 'error' });
         if (onToast) onToast(errMsg, 'error');
       }
     } catch (err: any) {
+      trackEvent(ANALYTICS_EVENTS.LOOKUP_FAILED, { docType: docType.toUpperCase(), errorType: 'TIMEOUT_OR_NETWORK_ERROR', isManual: false });
       const errMsg =
         err?.message || 'Verification request timed out. (₹0 charged). Switched to manual Studio entry.';
       setStatusMessage({ text: errMsg, type: 'warning' });

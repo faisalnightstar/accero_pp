@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
+import { Suspense } from 'react';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
+import { GoogleTagManager, GoogleTagManagerNoscript } from '@/components/analytics/GoogleTagManager';
+import { AppRouterPageTracker } from '@/components/analytics/PageTracker';
 import { PRIMARY_CANONICAL_DOMAIN } from '@/lib/seo/canonical';
 import {
   generateOrganizationSchema,
@@ -96,6 +99,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <GoogleTagManager />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
@@ -106,6 +110,10 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-screen flex flex-col font-sans antialiased">
+        <GoogleTagManagerNoscript />
+        <Suspense fallback={null}>
+          <AppRouterPageTracker />
+        </Suspense>
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />
