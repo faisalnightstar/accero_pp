@@ -19,12 +19,16 @@ import {
   CheckCircle2,
   Layers,
   Clock,
+  Tag,
+  Ticket,
+  Gift,
 } from 'lucide-react';
 import {
   rechargeWallet,
   createPaytmOrderAction,
   verifyPaytmOrderAction,
 } from '@/actions/wallet';
+import { validatePromoCodeAction } from '@/actions/promo';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
 
 interface RechargeModalProps {
@@ -34,7 +38,7 @@ interface RechargeModalProps {
   suggestedAmount?: number;
 }
 
-const PRESET_AMOUNTS = [100, 250, 500, 1000];
+const PRESET_AMOUNTS = [10, 99, 249, 499, 999];
 
 export default function RechargeModal({
   isOpen,
@@ -45,7 +49,7 @@ export default function RechargeModal({
   const [amount, setAmount] = useState<number>(suggestedAmount);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'paytm' | 'sandbox' | 'utr'>('paytm');
-  
+
   // Paytm Dynamic Order State
   const [selectedAccountIndex, setSelectedAccountIndex] = useState<number | undefined>(undefined);
   const [currentOrder, setCurrentOrder] = useState<{
@@ -59,7 +63,8 @@ export default function RechargeModal({
   } | null>(null);
   const [isGeneratingOrder, setIsGeneratingOrder] = useState<boolean>(false);
   const [isCheckingStatus, setIsCheckingStatus] = useState<boolean>(false);
-  const [pollCount, setPollCount] = useState<number>(0);
+  const pollCountRef = useRef<number>(0);
+  const isCheckingStatusRef = useRef<boolean>(false);
 
   // Manual UTR Fallback State
   const [utrNumber, setUtrNumber] = useState<string>('');
@@ -81,6 +86,28 @@ export default function RechargeModal({
   const [pendingSubmission, setPendingSubmission] = useState<{
     utr: string;
     amount: number;
+    message: string;
+  } | null>(null);
+
+  // Promo Code State
+  const [promoCodeInput, setPromoCodeInput] = useState<string>('');
+  const [appliedPromo, setAppliedPromo] = useState<{
+    code: string;
+    campaignName: string;
+    description?: string;
+    discountType: string;
+    discountValue: number;
+    minimumRechargeAmount: number;
+    maximumBonus?: number;
+    expiresAt?: string;
+    bonusAmount: number;
+    discountAmount: number;
+    payableAmount: number;
+    totalCredit: number;
+  } | null>(null);
+  const [isValidatingPromo, setIsValidatingPromo] = useState<boolean>(false);
+  const [promoFeedback, setPromoFeedback] = useState<{
+    type: 'success' | 'error';
     message: string;
   } | null>(null);
 
@@ -106,37 +133,98 @@ export default function RechargeModal({
 
   // Generate Paytm Dynamic Order
   const generatePaytmOrder = useCallback(
-    async (orderAmt: number, accountIdx?: number) => {
+    async (orderAmt: number, accountIdx?: number, promoCodeToUse?: string) => {
       if (orderAmt < 10) return;
       stopPolling();
       setIsGeneratingOrder(true);
       setErrorMessage(null);
 
       try {
-        const res = await createPaytmOrderAction(orderAmt, accountIdx);
+        const code = promoCodeToUse !== undefined ? promoCodeToUse : appliedPromo?.code;
+        const res = await createPaytmOrderAction(orderAmt, accountIdx, code);
+        if (!isComponentMounted.current) return;
         if (res.success && res.orderId && res.qrDataUrl && res.upiUrl) {
           trackEvent(ANALYTICS_EVENTS.RECHARGE_STARTED, { paymentMethod: 'GATEWAY', rechargeAmount: res.amount || orderAmt });
           setCurrentOrder({
             orderId: res.orderId,
-            amount: res.amount || orderAmt,
+            amount: res.payableAmount || res.amount || orderAmt,
             upiId: res.upiId || 'paytm@upi',
             mid: res.mid || '',
             accountIndex: res.accountIndex || 1,
             upiUrl: res.upiUrl,
             qrDataUrl: res.qrDataUrl,
           });
-          setPollCount(0);
+          pollCountRef.current = 0;
         } else {
           setErrorMessage(res.error || 'Failed to generate Paytm dynamic payment QR.');
         }
       } catch (err: any) {
+        if (!isComponentMounted.current) return;
         setErrorMessage(err.message || 'Error creating Paytm payment order');
       } finally {
-        setIsGeneratingOrder(false);
+        if (isComponentMounted.current) {
+          setIsGeneratingOrder(false);
+        }
       }
     },
-    [stopPolling]
+    [stopPolling, appliedPromo]
   );
+
+  const handleApplyPromoCode = async () => {
+    if (!promoCodeInput.trim()) {
+      setPromoFeedback({ type: 'error', message: 'Please enter a promo code.' });
+      return;
+    }
+    setIsValidatingPromo(true);
+    setPromoFeedback(null);
+
+    try {
+      const res = await validatePromoCodeAction(promoCodeInput.trim(), effectiveAmount);
+      if (res.valid && res.promoCode && res.calculation) {
+        const applied = {
+          code: res.promoCode.code,
+          campaignName: res.promoCode.campaignName,
+          description: res.promoCode.description,
+          discountType: res.promoCode.discountType,
+          discountValue: res.promoCode.discountValue,
+          minimumRechargeAmount: res.promoCode.minimumRechargeAmount,
+          maximumBonus: res.promoCode.maximumBonus,
+          expiresAt: res.promoCode.expiresAt,
+          bonusAmount: res.calculation.bonusAmount,
+          discountAmount: res.calculation.discountAmount,
+          payableAmount: res.calculation.payableAmount,
+          totalCredit: res.calculation.totalCredit,
+        };
+        setAppliedPromo(applied);
+        setPromoFeedback({
+          type: 'success',
+          message:
+            applied.discountAmount > 0
+              ? `Code applied! ₹${applied.discountAmount} instant discount applied.`
+              : `Code applied! ₹${applied.bonusAmount} promotional bonus will be credited.`,
+        });
+
+        if (activeTab === 'paytm' && effectiveAmount >= 10) {
+          generatePaytmOrder(effectiveAmount, selectedAccountIndex, applied.code);
+        }
+      } else {
+        setPromoFeedback({ type: 'error', message: res.error || 'Invalid promo code.' });
+      }
+    } catch (err: any) {
+      setPromoFeedback({ type: 'error', message: err.message || 'Failed to validate promo code.' });
+    } finally {
+      setIsValidatingPromo(false);
+    }
+  };
+
+  const handleRemovePromoCode = () => {
+    setAppliedPromo(null);
+    setPromoCodeInput('');
+    setPromoFeedback(null);
+    if (activeTab === 'paytm' && effectiveAmount >= 10) {
+      generatePaytmOrder(effectiveAmount, selectedAccountIndex, '');
+    }
+  };
 
   // Handle successful payment completion
   const handlePaymentSuccess = useCallback(
@@ -162,14 +250,28 @@ export default function RechargeModal({
     [onSuccess, stopPolling]
   );
 
+  // Track component mount status
+  useEffect(() => {
+    isComponentMounted.current = true;
+    return () => {
+      isComponentMounted.current = false;
+      stopPolling();
+    };
+  }, [stopPolling]);
+
   // Verify Paytm Order Status
   const checkPaytmStatus = useCallback(
     async (orderId: string, isManualCheck = false) => {
-      if (!orderId) return;
+      if (!orderId || !isComponentMounted.current) return;
+      if (isCheckingStatusRef.current) return;
+
       if (isManualCheck) setIsCheckingStatus(true);
+      isCheckingStatusRef.current = true;
 
       try {
         const res = await verifyPaytmOrderAction(orderId);
+        if (!isComponentMounted.current) return;
+
         if (res.status === 'paid' && res.newBalance !== undefined) {
           handlePaymentSuccess(
             res.newBalance,
@@ -182,11 +284,15 @@ export default function RechargeModal({
           setErrorMessage(res.message);
         }
       } catch (err: any) {
+        if (!isComponentMounted.current) return;
         if (isManualCheck) {
           setErrorMessage(err.message || 'Unable to check status right now.');
         }
       } finally {
-        if (isManualCheck) setIsCheckingStatus(false);
+        isCheckingStatusRef.current = false;
+        if (isComponentMounted.current && isManualCheck) {
+          setIsCheckingStatus(false);
+        }
       }
     },
     [currentOrder?.upiId, effectiveAmount, handlePaymentSuccess]
@@ -194,7 +300,6 @@ export default function RechargeModal({
 
   // Auto-generate order when opening modal or changing amount / tab
   useEffect(() => {
-    isComponentMounted.current = true;
     if (isOpen && activeTab === 'paytm' && !successInfo) {
       if (effectiveAmount >= 10) {
         generatePaytmOrder(effectiveAmount, selectedAccountIndex);
@@ -228,17 +333,16 @@ export default function RechargeModal({
     }
 
     stopPolling();
+    pollCountRef.current = 0;
 
     // Poll every 3 seconds for up to 10 minutes (200 attempts)
     pollingTimerRef.current = setInterval(() => {
-      setPollCount((prev) => {
-        if (prev >= 200) {
-          stopPolling();
-          return prev;
-        }
-        checkPaytmStatus(currentOrder.orderId, false);
-        return prev + 1;
-      });
+      if (pollCountRef.current >= 200) {
+        stopPolling();
+        return;
+      }
+      pollCountRef.current += 1;
+      checkPaytmStatus(currentOrder.orderId, false);
     }, 3000);
 
     return () => {
@@ -346,11 +450,15 @@ export default function RechargeModal({
 
   const resetAndClose = () => {
     stopPolling();
+    pollCountRef.current = 0;
     setSuccessInfo(null);
     setPendingSubmission(null);
     setErrorMessage(null);
     setUtrNumber('');
     setCurrentOrder(null);
+    setAppliedPromo(null);
+    setPromoCodeInput('');
+    setPromoFeedback(null);
     onClose();
   };
 
@@ -503,11 +611,10 @@ export default function RechargeModal({
                         key={val}
                         type="button"
                         onClick={() => handleSelectPreset(val)}
-                        className={`py-2 px-2 sm:px-3 rounded-xl font-bold text-sm border transition-all ${
-                          isSelected
-                            ? 'bg-[#00baF2]/20 border-[#00baF2] text-[#00baF2] shadow-sm'
-                            : 'bg-slate-800/60 border-slate-700/70 text-slate-300 hover:bg-slate-800 hover:text-white'
-                        }`}
+                        className={`py-2 px-2 sm:px-3 rounded-xl font-bold text-sm border transition-all ${isSelected
+                          ? 'bg-[#00baF2]/20 border-[#00baF2] text-[#00baF2] shadow-sm'
+                          : 'bg-slate-800/60 border-slate-700/70 text-slate-300 hover:bg-slate-800 hover:text-white'
+                          }`}
                       >
                         ₹{val}
                       </button>
@@ -530,6 +637,138 @@ export default function RechargeModal({
                 </div>
               </div>
 
+              {/* Promo Code Input & Benefit Visualization */}
+              <div className="p-3.5 sm:p-4 rounded-xl bg-slate-950/60 border border-slate-800 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-[#F4D35E]" />
+                    <span>Promo Code &amp; Coupons</span>
+                  </label>
+                  {appliedPromo && (
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                      Applied
+                    </span>
+                  )}
+                </div>
+
+                {!appliedPromo ? (
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        placeholder="e.g. LAUNCH50"
+                        value={promoCodeInput}
+                        onChange={(e) => {
+                          setPromoCodeInput(e.target.value.toUpperCase());
+                          setPromoFeedback(null);
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            handleApplyPromoCode();
+                          }
+                        }}
+                        className="w-full uppercase font-mono px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-[#00baF2] text-xs font-bold tracking-wider"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleApplyPromoCode}
+                      disabled={isValidatingPromo || !promoCodeInput.trim()}
+                      className="px-4 py-2.5 bg-[#00baF2]/20 hover:bg-[#00baF2]/30 border border-[#00baF2]/40 text-[#00baF2] font-bold text-xs rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5 shrink-0"
+                    >
+                      {isValidatingPromo ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Sparkles className="w-3.5 h-3.5 text-[#F4D35E]" />
+                      )}
+                      <span>Apply Code</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="p-3 rounded-xl bg-gradient-to-r from-emerald-950/40 via-slate-900 to-sky-950/30 border border-emerald-500/40 space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono font-black text-xs tracking-wider border border-emerald-500/30 flex items-center gap-1">
+                          <Check className="w-3 h-3" />
+                          {appliedPromo.code}
+                        </span>
+                        <span className="text-xs font-semibold text-slate-200 truncate max-w-[180px]">
+                          {appliedPromo.campaignName}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleRemovePromoCode}
+                        className="text-xs text-rose-400 hover:text-rose-300 font-semibold px-2 py-1 rounded hover:bg-rose-500/10 transition-colors flex items-center gap-1"
+                      >
+                        <X className="w-3 h-3" />
+                        Remove
+                      </button>
+                    </div>
+
+                    {/* Financial Breakdown */}
+                    <div className="grid grid-cols-3 gap-2 p-2 rounded-lg bg-slate-950/70 border border-slate-800/80 text-center">
+                      <div>
+                        <span className="text-[10px] text-slate-400 uppercase font-semibold block">
+                          Recharge
+                        </span>
+                        <span className="text-xs font-bold text-slate-200">
+                          ₹{effectiveAmount.toFixed(2)}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-emerald-400 uppercase font-semibold block">
+                          {appliedPromo.discountAmount > 0 ? 'Discount' : 'Promo Bonus'}
+                        </span>
+                        <span className="text-xs font-black text-emerald-400">
+                          {appliedPromo.discountAmount > 0
+                            ? `-₹${appliedPromo.discountAmount.toFixed(2)}`
+                            : `+₹${appliedPromo.bonusAmount.toFixed(2)}`}
+                        </span>
+                      </div>
+                      <div>
+                        <span className="text-[10px] text-[#F4D35E] uppercase font-semibold block">
+                          Total Credit
+                        </span>
+                        <span className="text-xs font-black text-[#F4D35E]">
+                          ₹{appliedPromo.totalCredit.toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Restrictions / Expiry display */}
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 px-1 pt-0.5">
+                      <span>
+                        Min Recharge: ₹{appliedPromo.minimumRechargeAmount || 0}
+                      </span>
+                      {appliedPromo.expiresAt && (
+                        <span>
+                          Valid until:{' '}
+                          {new Date(appliedPromo.expiresAt).toLocaleDateString('en-IN')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {promoFeedback && (
+                  <div
+                    className={`text-xs p-2 rounded-lg flex items-center gap-1.5 ${promoFeedback.type === 'success'
+                      ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                      : 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
+                      }`}
+                  >
+                    {promoFeedback.type === 'success' ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                    ) : (
+                      <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                    )}
+                    <span>{promoFeedback.message}</span>
+                  </div>
+                )}
+              </div>
+
               {/* Mode Switch Tabs */}
               <div>
                 <div className="grid grid-cols-3 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs">
@@ -539,11 +778,10 @@ export default function RechargeModal({
                       setActiveTab('paytm');
                       setErrorMessage(null);
                     }}
-                    className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg font-bold transition-all ${
-                      activeTab === 'paytm'
-                        ? 'bg-[#002e6e] text-white shadow border border-sky-400/30'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg font-bold transition-all ${activeTab === 'paytm'
+                      ? 'bg-[#002e6e] text-white shadow border border-sky-400/30'
+                      : 'text-slate-400 hover:text-white'
+                      }`}
                   >
                     <QrCode className="w-3.5 h-3.5 text-[#00baF2]" />
                     <span>Paytm UPI</span>
@@ -555,11 +793,10 @@ export default function RechargeModal({
                       setActiveTab('sandbox');
                       setErrorMessage(null);
                     }}
-                    className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg font-bold transition-all ${
-                      activeTab === 'sandbox'
-                        ? 'bg-[#8B1E2D] text-white shadow'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg font-bold transition-all ${activeTab === 'sandbox'
+                      ? 'bg-[#8B1E2D] text-white shadow'
+                      : 'text-slate-400 hover:text-white'
+                      }`}
                   >
                     <Zap className="w-3.5 h-3.5 text-[#F4D35E]" />
                     <span>Sandbox</span>
@@ -570,11 +807,10 @@ export default function RechargeModal({
                       setActiveTab('utr');
                       setErrorMessage(null);
                     }}
-                    className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg font-bold transition-all ${
-                      activeTab === 'utr'
-                        ? 'bg-slate-800 text-white shadow'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
+                    className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg font-bold transition-all ${activeTab === 'utr'
+                      ? 'bg-slate-800 text-white shadow'
+                      : 'text-slate-400 hover:text-white'
+                      }`}
                   >
                     <Layers className="w-3.5 h-3.5 text-slate-300" />
                     <span>Manual UTR</span>
@@ -595,11 +831,10 @@ export default function RechargeModal({
                       <button
                         type="button"
                         onClick={() => setSelectedAccountIndex(1)}
-                        className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${
-                          currentOrder?.accountIndex === 1
-                            ? 'bg-sky-500/20 text-[#00baF2] border border-sky-500/40'
-                            : 'text-slate-400 hover:text-white'
-                        }`}
+                        className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${currentOrder?.accountIndex === 1
+                          ? 'bg-sky-500/20 text-[#00baF2] border border-sky-500/40'
+                          : 'text-slate-400 hover:text-white'
+                          }`}
                       >
                         MID 1
                       </button>
@@ -607,11 +842,10 @@ export default function RechargeModal({
                       <button
                         type="button"
                         onClick={() => setSelectedAccountIndex(2)}
-                        className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${
-                          currentOrder?.accountIndex === 2
-                            ? 'bg-sky-500/20 text-[#00baF2] border border-sky-500/40'
-                            : 'text-slate-400 hover:text-white'
-                        }`}
+                        className={`px-2 py-0.5 rounded text-[11px] font-bold transition-colors ${currentOrder?.accountIndex === 2
+                          ? 'bg-sky-500/20 text-[#00baF2] border border-sky-500/40'
+                          : 'text-slate-400 hover:text-white'
+                          }`}
                       >
                         MID 2
                       </button>
@@ -635,7 +869,7 @@ export default function RechargeModal({
                           />
                           <div className="absolute inset-x-0 -bottom-1 flex justify-center">
                             <span className="bg-[#002e6e] text-white text-[9px] font-black uppercase px-2 py-0.5 rounded shadow">
-                              Scan &amp; Pay ₹{effectiveAmount.toFixed(2)}
+                              Scan &amp; Pay ₹{currentOrder.amount.toFixed(2)}
                             </span>
                           </div>
                         </div>
@@ -708,9 +942,8 @@ export default function RechargeModal({
                     {/* Pay via UPI App deep link */}
                     <a
                       href={currentOrder?.upiUrl || '#'}
-                      className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-gradient-to-r from-[#002e6e] to-[#00baF2] text-white font-bold text-xs shadow-md transition-all text-center ${
-                        !currentOrder ? 'opacity-50 pointer-events-none' : 'hover:opacity-95'
-                      }`}
+                      className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl bg-gradient-to-r from-[#002e6e] to-[#00baF2] text-white font-bold text-xs shadow-md transition-all text-center ${!currentOrder ? 'opacity-50 pointer-events-none' : 'hover:opacity-95'
+                        }`}
                     >
                       <Smartphone className="w-4 h-4 shrink-0" />
                       <span>Pay via App</span>
