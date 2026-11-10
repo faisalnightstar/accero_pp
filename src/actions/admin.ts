@@ -18,6 +18,7 @@ import ManualRechargeRequest from '@/models/ManualRechargeRequest';
 import SupportTicket from '@/models/SupportTicket';
 import Campaign from '@/models/Campaign';
 import ServiceConfig, { ServiceType } from '@/models/ServiceConfig';
+import PromoCode from '@/models/PromoCode';
 import AuditLog from '@/models/AuditLog';
 import { logAuditEvent } from '@/lib/logger/audit';
 import { SERVICE_FEES } from '@/lib/wallet/constants';
@@ -153,6 +154,12 @@ export async function getAdminOverviewMetrics() {
       pendingManualUtrs,
       failedPayments: totalFailedPayments,
     },
+    revenue: {
+      total: totalRevenue,
+      today: todayRevenue,
+      thisMonth: monthlyRevenue,
+      pending: pendingManualUtrs,
+    },
     operations: {
       totalLookups,
       failedLookups,
@@ -161,13 +168,22 @@ export async function getAdminOverviewMetrics() {
       outstandingTickets,
     },
     trends: {
-      dailyRevenue: dailyRevenueTrend.map((d) => ({ date: d._id, revenue: d.revenue, count: d.count })),
+      dailyRevenue: dailyRevenueTrend.map((d) => ({
+        date: String(d._id),
+        revenue: Number(d.revenue) || 0,
+        count: Number(d.count) || 0,
+      })),
       serviceUsage: serviceDistribution.map((s) => ({
-        service: s._id || 'OTHER',
-        lookups: s.count,
-        prints: s.prints,
+        service: String(s._id || 'OTHER'),
+        lookups: Number(s.count) || 0,
+        prints: Number(s.prints) || 0,
       })),
     },
+    serviceUsage: serviceDistribution.map((s) => ({
+      docType: String(s._id || 'OTHER'),
+      count: Number(s.count) || 0,
+      prints: Number(s.prints) || 0,
+    })),
   };
 }
 
@@ -246,17 +262,17 @@ export async function getAdminOperators(params: {
       id: op._id.toString(),
       name: op.name,
       email: op.email,
-      phone: op.phone,
+      phone: op.phone || '',
       role: op.role,
       status: op.status,
       notes: op.notes || '',
       suspendedReason: op.suspendedReason || '',
-      walletBalance: w ? w.balance : 0,
-      totalRechargeAmount: w ? w.totalCredited : 0,
-      totalDebited: w ? w.totalDebited : 0,
-      totalLookups: p ? p.lookups : 0,
-      totalPrints: p ? p.prints : 0,
-      createdAt: op.createdAt,
+      walletBalance: w ? Number(w.balance) || 0 : 0,
+      totalRechargeAmount: w ? Number(w.totalCredited) || 0 : 0,
+      totalDebited: w ? Number(w.totalDebited) || 0 : 0,
+      totalLookups: p ? Number(p.lookups) || 0 : 0,
+      totalPrints: p ? Number(p.prints) || 0 : 0,
+      createdAt: op.createdAt ? new Date(op.createdAt).toISOString() : new Date().toISOString(),
     };
   });
 
@@ -300,43 +316,53 @@ export async function getAdminOperatorDetail(operatorId: string) {
       id: (user._id as any).toString(),
       name: user.name,
       email: user.email,
-      phone: user.phone,
+      phone: user.phone || '',
       status: user.status,
       role: user.role,
       notes: (user as any).notes || '',
       suspendedReason: (user as any).suspendedReason || '',
-      createdAt: user.createdAt,
-      lastLoginAt: (user as any).lastLoginAt,
+      createdAt: user.createdAt ? new Date(user.createdAt).toISOString() : new Date().toISOString(),
+      lastLoginAt: (user as any).lastLoginAt ? new Date((user as any).lastLoginAt).toISOString() : undefined,
     },
     wallet: wallet
       ? {
-          balance: wallet.balance,
-          totalCredited: wallet.totalCredited,
-          totalDebited: wallet.totalDebited,
-          recentTransactions: (wallet.transactions || []).slice(-15).reverse(),
+          balance: Number(wallet.balance) || 0,
+          totalCredited: Number(wallet.totalCredited) || 0,
+          totalDebited: Number(wallet.totalDebited) || 0,
+          recentTransactions: (wallet.transactions || []).slice(-15).reverse().map((t: any) => ({
+            id: (t._id || t.id)?.toString() || '',
+            amount: Number(t.amount) || 0,
+            type: t.type || 'debit',
+            category: t.category || 'DOCUMENT_PRINT',
+            referenceId: t.referenceId ? String(t.referenceId) : '',
+            description: t.description ? String(t.description) : '',
+            balanceBefore: t.balanceBefore !== undefined ? Number(t.balanceBefore) : undefined,
+            balanceAfter: Number(t.balanceAfter) || 0,
+            createdAt: t.createdAt ? new Date(t.createdAt).toISOString() : new Date().toISOString(),
+          })),
         }
       : { balance: 0, totalCredited: 0, totalDebited: 0, recentTransactions: [] },
-    recentPayments: payments.map((p) => ({
+    recentPayments: payments.map((p: any) => ({
       paymentId: p.paymentId,
       orderId: p.orderId,
-      amount: p.amount,
+      amount: Number(p.amount) || 0,
       status: p.status,
-      upiId: p.upiId,
-      bankTxnId: p.bankTxnId,
-      createdAt: p.createdAt,
+      upiId: p.upiId || '',
+      bankTxnId: p.bankTxnId || '',
+      createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString(),
     })),
-    serviceUsage: documentStats.map((d) => ({
-      docType: d._id,
-      lookups: d.count,
-      prints: d.prints,
+    serviceUsage: documentStats.map((d: any) => ({
+      docType: d._id || 'OTHER',
+      lookups: Number(d.count) || 0,
+      prints: Number(d.prints) || 0,
     })),
-    tickets: tickets.map((t) => ({
+    tickets: tickets.map((t: any) => ({
       ticketId: t.ticketId,
       subject: t.subject,
       category: t.category,
       priority: t.priority,
       status: t.status,
-      createdAt: t.createdAt,
+      createdAt: t.createdAt ? new Date(t.createdAt).toISOString() : new Date().toISOString(),
     })),
   };
 }
@@ -564,10 +590,11 @@ export async function getAdminFinancialLedger(params: {
       { $limit: limit },
       {
         $project: {
-          id: '$transactions._id',
-          operatorId: '$userId',
-          operatorName: '$operator.name',
-          operatorEmail: '$operator.email',
+          _id: 0,
+          id: { $toString: '$transactions._id' },
+          operatorId: { $toString: '$userId' },
+          operatorName: { $ifNull: ['$operator.name', 'Unknown Operator'] },
+          operatorEmail: { $ifNull: ['$operator.email', 'N/A'] },
           amount: '$transactions.amount',
           type: '$transactions.type',
           category: '$transactions.category',
@@ -588,8 +615,23 @@ export async function getAdminFinancialLedger(params: {
 
   const total = totalAgg[0]?.count || 0;
 
+  const plainTransactions = results.map((r: any) => ({
+    id: (r.id || r._id)?.toString() || '',
+    operatorId: r.operatorId ? r.operatorId.toString() : '',
+    operatorName: r.operatorName || 'Unknown Operator',
+    operatorEmail: r.operatorEmail || 'N/A',
+    amount: typeof r.amount === 'number' ? r.amount : Number(r.amount) || 0,
+    type: r.type || 'debit',
+    category: r.category || 'DOCUMENT_PRINT',
+    referenceId: r.referenceId ? String(r.referenceId) : '',
+    description: r.description ? String(r.description) : '',
+    balanceBefore: r.balanceBefore !== undefined ? Number(r.balanceBefore) : undefined,
+    balanceAfter: typeof r.balanceAfter === 'number' ? r.balanceAfter : Number(r.balanceAfter) || 0,
+    createdAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
+  }));
+
   return {
-    transactions: results,
+    transactions: plainTransactions,
     pagination: {
       total,
       page,
@@ -629,6 +671,54 @@ export async function getAdminCampaigns() {
     });
   }
 
+  // Ensure default promo codes exist in PromoCode collection
+  await Promise.all([
+    PromoCode.findOneAndUpdate(
+      { code: 'LAUNCH_BONUS' },
+      {
+        code: 'LAUNCH_BONUS',
+        campaignName: 'Accero Launch Bonus',
+        description: 'Every ₹249 recharge slab receives ₹50 promotional credit.',
+        discountType: 'FIXED_BONUS',
+        discountValue: 50,
+        minimumRechargeAmount: 249,
+        maximumBonus: 1000,
+        totalBudget: 100000,
+        budgetSpent: 0,
+        totalRedeemed: 0,
+        totalRedemptionLimit: 2000,
+        perUserRedemptionLimit: 10,
+        firstRechargeOnly: false,
+        startsAt: new Date(),
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        isActive: true,
+      },
+      { upsert: true }
+    ),
+    PromoCode.findOneAndUpdate(
+      { code: 'LAUNCH50' },
+      {
+        code: 'LAUNCH50',
+        campaignName: 'Accero Launch Welcome Offer',
+        description: 'Recharge ₹249 and receive ₹50 promotional credit.',
+        discountType: 'FIXED_BONUS',
+        discountValue: 50,
+        minimumRechargeAmount: 249,
+        maximumBonus: 50,
+        totalBudget: 100000,
+        budgetSpent: 0,
+        totalRedeemed: 0,
+        totalRedemptionLimit: 2000,
+        perUserRedemptionLimit: 1,
+        firstRechargeOnly: false,
+        startsAt: new Date(),
+        expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
+        isActive: true,
+      },
+      { upsert: true }
+    ),
+  ]);
+
   const campaigns = await Campaign.find({}).sort({ createdAt: -1 }).lean();
   return campaigns.map((c: any) => ({
     id: c._id.toString(),
@@ -636,8 +726,8 @@ export async function getAdminCampaigns() {
     code: c.code,
     description: c.description,
     status: c.status,
-    startDate: c.startDate,
-    endDate: c.endDate,
+    startDate: c.startDate ? new Date(c.startDate).toISOString() : new Date().toISOString(),
+    endDate: c.endDate ? new Date(c.endDate).toISOString() : new Date().toISOString(),
     minRechargeAmount: c.minRechargeAmount,
     slabAmount: c.slabAmount,
     bonusPerSlab: c.bonusPerSlab,
@@ -645,7 +735,7 @@ export async function getAdminCampaigns() {
     totalBudget: c.totalBudget,
     budgetSpent: c.budgetSpent,
     totalRedemptions: c.totalRedemptions,
-    createdAt: c.createdAt,
+    createdAt: c.createdAt ? new Date(c.createdAt).toISOString() : new Date().toISOString(),
   }));
 }
 
@@ -665,19 +755,59 @@ export async function createAdminCampaign(data: {
   assertRole(session, ['super_admin', 'admin'], 'create promotional campaign');
   await connectToDatabase();
 
+  if (!data.name?.trim()) {
+    throw new Error('Campaign name is required.');
+  }
+  if (!data.code?.trim()) {
+    throw new Error('Promo code is required.');
+  }
+  if (!data.description?.trim()) {
+    throw new Error('Description is required.');
+  }
+
+  const cleanCode = data.code.toUpperCase().trim();
+  const existing = await Campaign.findOne({ code: cleanCode });
+  if (existing) {
+    throw new Error(`Campaign with code "${cleanCode}" already exists.`);
+  }
+
   const campaign = await Campaign.create({
     name: data.name.trim(),
-    code: data.code.toUpperCase().trim(),
+    code: cleanCode,
     description: data.description.trim(),
     status: 'ACTIVE',
     startDate: new Date(data.startDate),
     endDate: new Date(data.endDate),
-    minRechargeAmount: data.minRechargeAmount,
-    slabAmount: data.slabAmount,
-    bonusPerSlab: data.bonusPerSlab,
-    maxBonusPerOperator: data.maxBonusPerOperator,
-    totalBudget: data.totalBudget,
+    minRechargeAmount: Number(data.minRechargeAmount) || 249,
+    slabAmount: Number(data.slabAmount) || 249,
+    bonusPerSlab: Number(data.bonusPerSlab) || 50,
+    maxBonusPerOperator: Number(data.maxBonusPerOperator) || 1000,
+    totalBudget: Number(data.totalBudget) || 100000,
   });
+
+  // Synchronize campaign into PromoCode collection for wallet top-up modal
+  await PromoCode.findOneAndUpdate(
+    { code: cleanCode },
+    {
+      code: cleanCode,
+      campaignName: data.name.trim(),
+      description: data.description.trim(),
+      discountType: 'FIXED_BONUS',
+      discountValue: Number(data.bonusPerSlab) || 50,
+      minimumRechargeAmount: Number(data.minRechargeAmount) || 249,
+      maximumBonus: Number(data.maxBonusPerOperator) || 1000,
+      totalBudget: Number(data.totalBudget) || 100000,
+      perUserRedemptionLimit: Math.max(
+        1,
+        Math.floor((Number(data.maxBonusPerOperator) || 1000) / (Number(data.bonusPerSlab) || 50))
+      ),
+      firstRechargeOnly: false,
+      startsAt: new Date(data.startDate),
+      expiresAt: new Date(data.endDate),
+      isActive: true,
+    },
+    { upsert: true }
+  );
 
   await logAuditEvent({
     actorId: session!.userId,
@@ -698,7 +828,13 @@ export async function toggleCampaignStatus(campaignId: string, status: 'ACTIVE' 
   assertRole(session, ['super_admin', 'admin'], 'toggle campaign status');
   await connectToDatabase();
 
-  await Campaign.findByIdAndUpdate(campaignId, { status });
+  const campaign = await Campaign.findByIdAndUpdate(campaignId, { status }, { new: true });
+  if (campaign) {
+    await PromoCode.findOneAndUpdate(
+      { code: campaign.code },
+      { isActive: status === 'ACTIVE' }
+    );
+  }
 
   await logAuditEvent({
     actorId: session!.userId,
@@ -750,7 +886,7 @@ export async function getAdminServices() {
       providerPriority: conf.providerPriority || ['NEO', 'SUREPASS', 'MANUAL'],
       maintenanceMode: conf.maintenanceMode,
       maintenanceNotice: conf.maintenanceNotice || '',
-      updatedAt: conf.updatedAt || new Date(),
+      updatedAt: conf.updatedAt ? new Date(conf.updatedAt).toISOString() : new Date().toISOString(),
     });
   }
 
@@ -840,14 +976,14 @@ export async function getAdminPayments(params: {
       id: p._id.toString(),
       paymentId: p.paymentId,
       orderId: p.orderId,
-      amount: p.amount,
+      amount: Number(p.amount) || 0,
       status: p.status,
-      upiId: p.upiId,
+      upiId: p.upiId || '',
       bankTxnId: p.bankTxnId || 'N/A',
       operatorName: p.userId?.name || 'Unknown',
       operatorEmail: p.userId?.email || 'N/A',
-      createdAt: p.createdAt,
-      verifiedAt: p.verifiedAt,
+      createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString(),
+      verifiedAt: p.verifiedAt ? new Date(p.verifiedAt).toISOString() : undefined,
     })),
     pagination: {
       total,
@@ -878,11 +1014,11 @@ export async function getAdminTeam() {
     id: s._id.toString(),
     name: s.name,
     email: s.email,
-    phone: s.phone,
+    phone: s.phone || '',
     role: s.role,
     status: s.status,
-    createdAt: s.createdAt,
-    lastLoginAt: s.lastLoginAt,
+    createdAt: s.createdAt ? new Date(s.createdAt).toISOString() : new Date().toISOString(),
+    lastLoginAt: s.lastLoginAt ? new Date(s.lastLoginAt).toISOString() : undefined,
   }));
 }
 

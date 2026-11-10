@@ -87,7 +87,17 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Protected Routes Handling (/dashboard, /admin, /support, etc.)
+  const isServerActionOrRsc =
+    request.headers.has('next-action') ||
+    request.headers.get('accept')?.includes('text/x-component');
+
   if (!token) {
+    if (isServerActionOrRsc) {
+      return NextResponse.json(
+        { error: 'Unauthorized: Session expired. Please log in again.' },
+        { status: 401 }
+      );
+    }
     const loginUrl = new URL('/login', request.url);
     const fullPath = pathname + request.nextUrl.search;
     loginUrl.searchParams.set('redirect', fullPath);
@@ -96,6 +106,12 @@ export async function middleware(request: NextRequest) {
 
   if (!secret) {
     console.error('[Middleware] JWT_SECRET is unconfigured or insecure (<32 characters). Denying access.');
+    if (isServerActionOrRsc) {
+      return NextResponse.json(
+        { error: 'Server configuration error.' },
+        { status: 500 }
+      );
+    }
     const loginUrl = new URL('/login', request.url);
     loginUrl.searchParams.set('error', 'server_configuration_error');
     return NextResponse.redirect(loginUrl);
@@ -112,6 +128,12 @@ export async function middleware(request: NextRequest) {
     // Admin role enforcement (/admin requires super_admin or admin)
     if (pathname.startsWith('/admin')) {
       if (role !== 'admin' && role !== 'super_admin') {
+        if (isServerActionOrRsc) {
+          return NextResponse.json(
+            { error: 'Forbidden: Insufficient privileges. Admin access required.' },
+            { status: 403 }
+          );
+        }
         const forbiddenUrl = new URL('/dashboard', request.url);
         forbiddenUrl.searchParams.set('error', 'unauthorized_admin');
         return NextResponse.redirect(forbiddenUrl);
@@ -122,6 +144,12 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/support')) {
       const allowedSupportRoles = ['super_admin', 'admin', 'support_manager', 'support_agent'];
       if (!role || !allowedSupportRoles.includes(role)) {
+        if (isServerActionOrRsc) {
+          return NextResponse.json(
+            { error: 'Forbidden: Insufficient privileges. Support access required.' },
+            { status: 403 }
+          );
+        }
         const forbiddenUrl = new URL('/dashboard', request.url);
         forbiddenUrl.searchParams.set('error', 'unauthorized_support');
         return NextResponse.redirect(forbiddenUrl);
@@ -130,7 +158,15 @@ export async function middleware(request: NextRequest) {
 
     return response;
   } catch {
-    // Expired or invalid token on protected route: delete cookie and redirect to login
+    // Expired or invalid token on protected route: delete cookie and redirect or return 401
+    if (isServerActionOrRsc) {
+      const res = NextResponse.json(
+        { error: 'Session expired. Please log in again.' },
+        { status: 401 }
+      );
+      res.cookies.delete('auth-token');
+      return res;
+    }
     const loginUrl = new URL('/login', request.url);
     const fullPath = pathname + request.nextUrl.search;
     loginUrl.searchParams.set('redirect', fullPath);

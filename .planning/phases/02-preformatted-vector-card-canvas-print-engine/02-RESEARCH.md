@@ -79,7 +79,7 @@
   - Data: EPIC Number (e.g. `ABC0123456`), Elector Name (Regional + English), Father's/Husband's Name (Regional + English), Gender, Age / DOB
   - Visuals: Black and white / color portrait, ECI crest
 - **Back Layout:**
-  - Data: Assembly Constituency No & Name (e.g. `14 - GOVINDGANJ`), Part No & Name (e.g. `257 - PRATHMIK VIDYALAY...`), Full Address (Regional + English)
+  - Data: Assembly Constituency No & Name (e.g. `14 - Varanasi`), Part No & Name (e.g. `257 - PRATHMIK VIDYALAY...`), Full Address (Regional + English)
   - Visuals: ECI Barcode / QR Code, Electoral Registration Officer digital signature & issue date
 
 ### Document 4: Driving License (Parivahan Standard Format)

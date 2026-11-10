@@ -73,3 +73,4 @@ describe('RechargeModal Polling & Render Safety', () => {
     expect(res.newBalance).toBe(250);
   });
 });
+

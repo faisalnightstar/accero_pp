@@ -49,8 +49,24 @@ export default function AdminCampaignsPage() {
   const fetchCampaigns = async () => {
     setLoading(true);
     try {
-      const data = await getAdminCampaigns();
-      setCampaigns(data);
+      let campaignsData: any[] | null = null;
+      try {
+        const res = await fetch('/api/admin/campaigns');
+        if (res.ok) {
+          const json = await res.json().catch(() => null);
+          if (json?.success && Array.isArray(json.campaigns)) {
+            campaignsData = json.campaigns;
+          }
+        }
+      } catch {
+        // Fallback to Server Action if fetch fails
+      }
+
+      if (!campaignsData) {
+        campaignsData = await getAdminCampaigns();
+      }
+
+      setCampaigns(campaignsData || []);
     } catch (err: any) {
       console.error('Failed to load campaigns:', err);
     } finally {
@@ -66,11 +82,38 @@ export default function AdminCampaignsPage() {
     const newStatus = currentStatus === 'ACTIVE' ? 'INACTIVE' : 'ACTIVE';
     setTogglingId(campaignId);
     try {
-      await toggleCampaignStatus(campaignId, newStatus);
+      let success = false;
+      try {
+        const res = await fetch('/api/admin/campaigns', {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ campaignId, status: newStatus }),
+        });
+        const data = await res.json().catch(() => null);
+        if (res.ok && data?.success) {
+          success = true;
+        } else if (data?.error) {
+          throw new Error(data.error);
+        }
+      } catch (patchErr: any) {
+        if (patchErr?.message && patchErr.message !== 'Load failed') {
+          throw patchErr;
+        }
+      }
+
+      if (!success) {
+        await toggleCampaignStatus(campaignId, newStatus);
+      }
+
       setFeedback({ type: 'success', message: `Campaign status updated to ${newStatus}` });
       await fetchCampaigns();
     } catch (err: any) {
-      setFeedback({ type: 'error', message: err.message || 'Failed to update campaign status' });
+      setFeedback({
+        type: 'error',
+        message: err.message === 'Load failed'
+          ? 'Network request failed. Please refresh your browser.'
+          : err.message || 'Failed to update campaign status',
+      });
     } finally {
       setTogglingId(null);
     }
@@ -80,29 +123,67 @@ export default function AdminCampaignsPage() {
     e.preventDefault();
     setSubmitting(true);
     setFeedback(null);
+
+    const payload = {
+      name: name.trim(),
+      code: code.trim().toUpperCase(),
+      description: description.trim(),
+      startDate,
+      endDate,
+      minRechargeAmount: Number(minRechargeAmount) || 249,
+      slabAmount: Number(slabAmount) || 249,
+      bonusPerSlab: Number(bonusPerSlab) || 50,
+      maxBonusPerOperator: Number(maxBonusPerOperator) || 1000,
+      totalBudget: Number(totalBudget) || 100000,
+    };
+
     try {
-      await createAdminCampaign({
-        name,
-        code,
-        description,
-        startDate,
-        endDate,
-        minRechargeAmount: Number(minRechargeAmount),
-        slabAmount: Number(slabAmount),
-        bonusPerSlab: Number(bonusPerSlab),
-        maxBonusPerOperator: Number(maxBonusPerOperator),
-        totalBudget: Number(totalBudget),
-      });
+      let res: Response | null = null;
+      let data: any = null;
+
+      try {
+        res = await fetch('/api/admin/campaigns', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        data = await res.json().catch(() => null);
+      } catch {
+        // Fallback to Server Action if fetch fails
+        try {
+          await createAdminCampaign(payload);
+          data = { success: true };
+        } catch (saErr: any) {
+          throw new Error(saErr.message || 'Network request failed. Please check your connection.');
+        }
+      }
+
+      if (res && (res.status === 401 || res.status === 403)) {
+        setFeedback({
+          type: 'error',
+          message:
+            data?.error || 'Session expired or admin privileges required. Please sign in as an Administrator.',
+        });
+        return;
+      }
+
+      if (data && !data.success) {
+        throw new Error(data.error || 'Failed to create campaign');
+      }
 
       setFeedback({ type: 'success', message: 'Promotional campaign created successfully!' });
       setShowCreateModal(false);
-      // Reset form
       setName('');
       setCode('');
       setDescription('');
       await fetchCampaigns();
     } catch (err: any) {
-      setFeedback({ type: 'error', message: err.message || 'Failed to create campaign' });
+      setFeedback({
+        type: 'error',
+        message: err.message === 'Load failed'
+          ? 'Network request failed. Please refresh your browser or sign in as Admin.'
+          : err.message || 'Failed to create campaign',
+      });
     } finally {
       setSubmitting(false);
     }

@@ -26,6 +26,10 @@ export interface IPayment extends Document {
   upiUrl: string;
   bankTxnId?: string;
   gatewayResponse?: any;
+  promoCode?: string;
+  promoCodeId?: mongoose.Types.ObjectId;
+  bonusAmount?: number;
+  discountAmount?: number;
   processingStartedAt?: Date;
   verifiedAt?: Date;
   createdAt: Date;
@@ -103,6 +107,25 @@ const PaymentSchema = new Schema<IPayment>(
     },
     gatewayResponse: {
       type: Schema.Types.Mixed,
+    },
+    promoCode: {
+      type: String,
+      uppercase: true,
+      trim: true,
+    },
+    promoCodeId: {
+      type: Schema.Types.ObjectId,
+      ref: 'PromoCode',
+    },
+    bonusAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    discountAmount: {
+      type: Number,
+      default: 0,
+      min: 0,
     },
     processingStartedAt: {
       type: Date,

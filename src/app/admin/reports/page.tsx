@@ -138,62 +138,80 @@ export default function AdminReportsPage() {
           <p className="text-sm text-slate-400">Computing financial summaries from MongoDB ledger...</p>
         </div>
       ) : (
-        <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-2">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400">Total Net Revenue</span>
-              <p className="text-2xl font-bold font-mono text-emerald-400">
-                ₹{metrics.revenue.total.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-              </p>
-              <p className="text-xs text-slate-500">Verified payment gateway deposits</p>
-            </div>
+        (() => {
+          const revenueTotal = Number(metrics.revenue?.total ?? metrics.finance?.totalRevenue ?? 0);
+          const revenueToday = Number(metrics.revenue?.today ?? metrics.finance?.todayRevenue ?? 0);
+          const revenueMonth = Number(metrics.revenue?.thisMonth ?? metrics.finance?.monthlyRevenue ?? 0);
+          const revenuePending = Number(metrics.revenue?.pending ?? metrics.finance?.pendingManualUtrs ?? 0);
+          const serviceList = Array.isArray(metrics.serviceUsage)
+            ? metrics.serviceUsage
+            : Array.isArray(metrics.trends?.serviceUsage)
+            ? metrics.trends.serviceUsage.map((s: any) => ({
+                docType: s.service || s.docType || 'OTHER',
+                count: s.lookups ?? s.count ?? 0,
+                prints: s.prints ?? 0,
+              }))
+            : [];
 
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-2">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400">Today's Revenue</span>
-              <p className="text-2xl font-bold font-mono text-white">
-                ₹{metrics.revenue.today.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-              </p>
-              <p className="text-xs text-emerald-400/80 flex items-center gap-1">
-                <ArrowUpRight className="w-3.5 h-3.5" />
-                Live day settlements
-              </p>
-            </div>
-
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-2">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400">Monthly Volume</span>
-              <p className="text-2xl font-bold font-mono text-cyan-400">
-                ₹{metrics.revenue.thisMonth.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-              </p>
-              <p className="text-xs text-slate-500">Current calendar month total</p>
-            </div>
-
-            <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-2">
-              <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400">Pending Settlements</span>
-              <p className="text-2xl font-bold font-mono text-amber-400">
-                ₹{metrics.revenue.pending.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
-              </p>
-              <p className="text-xs text-slate-500">In bank reconciliation queue</p>
-            </div>
-          </div>
-
-          {/* Service Volume Breakdown */}
-          <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
-            <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-cyan-400" />
-              Service Processing Volume & Print Revenue
-            </h2>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
-              {metrics.serviceUsage.map((svc: any) => (
-                <div key={svc.docType} className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
-                  <span className="text-xs font-mono font-bold text-white">{svc.docType}</span>
-                  <div className="text-lg font-bold text-cyan-300 font-mono">{svc.count}</div>
-                  <p className="text-[11px] text-slate-400 font-mono">{svc.prints} PVC prints</p>
+          return (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-2">
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400">Total Net Revenue</span>
+                  <p className="text-2xl font-bold font-mono text-emerald-400">
+                    ₹{revenueTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-xs text-slate-500">Verified payment gateway deposits</p>
                 </div>
-              ))}
+
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-2">
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400">Today's Revenue</span>
+                  <p className="text-2xl font-bold font-mono text-white">
+                    ₹{revenueToday.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-xs text-emerald-400/80 flex items-center gap-1">
+                    <ArrowUpRight className="w-3.5 h-3.5" />
+                    Live day settlements
+                  </p>
+                </div>
+
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-2">
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400">Monthly Volume</span>
+                  <p className="text-2xl font-bold font-mono text-cyan-400">
+                    ₹{revenueMonth.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-xs text-slate-500">Current calendar month total</p>
+                </div>
+
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-2">
+                  <span className="text-[10px] uppercase font-mono tracking-wider text-slate-400">Pending Settlements</span>
+                  <p className="text-2xl font-bold font-mono text-amber-400">
+                    ₹{revenuePending.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                  </p>
+                  <p className="text-xs text-slate-500">In bank reconciliation queue</p>
+                </div>
+              </div>
+
+              {/* Service Volume Breakdown */}
+              <div className="bg-slate-950 border border-slate-800 rounded-2xl p-6 space-y-4">
+                <h2 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 text-cyan-400" />
+                  Service Processing Volume & Print Revenue
+                </h2>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 pt-2">
+                  {serviceList.map((svc: any) => (
+                    <div key={svc.docType} className="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                      <span className="text-xs font-mono font-bold text-white">{svc.docType}</span>
+                      <div className="text-lg font-bold text-cyan-300 font-mono">{svc.count}</div>
+                      <p className="text-[11px] text-slate-400 font-mono">{svc.prints} PVC prints</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
+          );
+        })()
       )}
     </div>
   );

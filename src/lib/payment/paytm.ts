@@ -4,6 +4,12 @@ import QRCode from 'qrcode';
 import connectToDatabase from '@/lib/mongodb';
 import Payment, { IPayment, PaymentStatus } from '@/models/Payment';
 import Wallet from '@/models/Wallet';
+import {
+  validatePromoCode,
+  createAppliedRedemption,
+  finalizePromoRedemption,
+  failPromoRedemption,
+} from '@/lib/promo/service';
 import { logAuditEvent } from '@/lib/logger/audit';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
 
@@ -70,6 +76,10 @@ export interface CreatePaymentOrderResult {
   orderId?: string;
   paymentId?: string;
   amount?: number;
+  payableAmount?: number;
+  bonusAmount?: number;
+  discountAmount?: number;
+  promoCode?: string;
   upiId?: string;
   mid?: string;
   accountIndex?: number;
@@ -84,7 +94,8 @@ export interface CreatePaymentOrderResult {
 export async function createPaytmPaymentOrder(
   userId: string,
   amount: number,
-  preferredAccountIndex?: number
+  preferredAccountIndex?: number,
+  promoCode?: string
 ): Promise<CreatePaymentOrderResult> {
   try {
     if (!userId) {
@@ -110,6 +121,25 @@ export async function createPaytmPaymentOrder(
 
     await connectToDatabase();
 
+    let appliedPromo: any = null;
+    let payableAmount = amount;
+    let bonusAmount = 0;
+    let discountAmount = 0;
+
+    if (promoCode && promoCode.trim()) {
+      const validation = await validatePromoCode(promoCode, userId, amount);
+      if (!validation.valid || !validation.promoCode || !validation.calculation) {
+        return {
+          success: false,
+          error: validation.error || 'Invalid promo code',
+        };
+      }
+      appliedPromo = validation.promoCode;
+      payableAmount = validation.calculation.payableAmount;
+      bonusAmount = validation.calculation.bonusAmount;
+      discountAmount = validation.calculation.discountAmount;
+    }
+
     const account = selectPaytmAccount(preferredAccountIndex);
 
     // Cryptographically secure unique order ID and payment reference
@@ -121,7 +151,9 @@ export async function createPaytmPaymentOrder(
     const merchantName = 'PrintPortal Gateway';
     const upiUrl = `upi://pay?pa=${account.upi}&pn=${encodeURIComponent(
       merchantName
-    )}&am=${amount.toFixed(2)}&cu=INR&tr=${orderId}&tn=${encodeURIComponent('Wallet Recharge')}`;
+    )}&am=${payableAmount.toFixed(2)}&cu=INR&tr=${orderId}&tn=${encodeURIComponent(
+      appliedPromo ? `Wallet Topup + ${appliedPromo.code}` : 'Wallet Recharge'
+    )}`;
 
     // High-resolution dynamic QR code
     const qrDataUrl = await QRCode.toDataURL(upiUrl, {
@@ -138,20 +170,45 @@ export async function createPaytmPaymentOrder(
       paymentId,
       orderId,
       userId: new mongoose.Types.ObjectId(userId),
-      amount,
+      amount: payableAmount,
       upiId: account.upi,
       paytmMid: account.mid,
       accountIndex: account.index,
       status: 'PENDING',
       upiUrl,
+      promoCode: appliedPromo?.code,
+      promoCodeId: appliedPromo?.id ? new mongoose.Types.ObjectId(appliedPromo.id) : undefined,
+      bonusAmount,
+      discountAmount,
     });
+
+    // Create APPLIED redemption linked to this orderId
+    if (appliedPromo) {
+      await createAppliedRedemption(
+        appliedPromo.id,
+        appliedPromo.code,
+        userId,
+        orderId,
+        amount,
+        bonusAmount,
+        discountAmount
+      );
+    }
 
     await logAuditEvent({
       actorId: userId,
       action: 'WALLET_ORDER_CREATED',
       resourceType: 'PAYMENT',
       resourceId: orderId,
-      details: { amount, upiId: account.upi, accountIndex: account.index },
+      details: {
+        amount,
+        payableAmount,
+        bonusAmount,
+        discountAmount,
+        promoCode: appliedPromo?.code,
+        upiId: account.upi,
+        accountIndex: account.index,
+      },
       status: 'SUCCESS',
     });
 
@@ -160,6 +217,10 @@ export async function createPaytmPaymentOrder(
       orderId,
       paymentId,
       amount,
+      payableAmount,
+      bonusAmount,
+      discountAmount,
+      promoCode: appliedPromo?.code,
       upiId: account.upi,
       mid: account.mid,
       accountIndex: account.index,
@@ -289,7 +350,12 @@ export interface VerifyPaymentResult {
   status: 'paid' | 'pending' | 'failed';
   alreadyCredited?: boolean;
   amount?: number;
+  bonusAmount?: number;
+  totalCredit?: number;
+  promoCode?: string;
   newBalance?: number;
+  promotionalBalance?: number;
+  purchasedBalance?: number;
   bankTxnId?: string;
   message?: string;
   error?: string;
@@ -427,37 +493,81 @@ export async function verifyAndCreditPaytmPayment(
         };
       }
 
-      // 5. Atomically credit user's wallet
+      // 5. Finalize promo code redemption if present
+      let bonusAmount = 0;
+      if (payment.promoCode) {
+        const promoRes = await finalizePromoRedemption(payment.orderId);
+        if (promoRes.success && !promoRes.alreadyFinalized) {
+          bonusAmount = promoRes.bonusAmount || payment.bonusAmount || 0;
+        }
+      }
+
+      // Compute ledger amounts
+      const purchasedCredit = creditAmount;
+      const promotionalCredit = bonusAmount;
+      const totalCredit = creditAmount + (payment.discountAmount ? 0 : promotionalCredit);
+
+      const transactionsToPush: any[] = [
+        {
+          amount: creditAmount,
+          type: 'credit',
+          category: 'WALLET_TOPUP',
+          docType: 'TOPUP',
+          referenceId: payment.orderId,
+          description: `Paytm UPI Recharge (${payment.upiId})`,
+          balanceAfter: 0,
+          isPromotional: false,
+          createdAt: new Date(),
+        },
+      ];
+
+      if (promotionalCredit > 0) {
+        transactionsToPush.push({
+          amount: promotionalCredit,
+          type: 'credit',
+          category: 'PROMO_BONUS',
+          docType: 'TOPUP',
+          referenceId: `PROMO-${payment.orderId}`,
+          description: `Promotional Bonus (${payment.promoCode})`,
+          balanceAfter: 0,
+          isPromotional: true,
+          promoCode: payment.promoCode,
+          promoCodeId: payment.promoCodeId,
+          createdAt: new Date(),
+        });
+      }
+
+      // 6. Atomically credit user's wallet with purchased and promotional breakdown
       const updatedWallet = await Wallet.findOneAndUpdate(
         { userId: payment.userId },
         {
           $inc: {
-            balance: creditAmount,
-            totalCredited: creditAmount,
+            balance: totalCredit,
+            totalCredited: totalCredit,
+            purchasedBalance: purchasedCredit,
+            promotionalBalance: promotionalCredit,
           },
           $push: {
-            transactions: {
-              amount: creditAmount,
-              type: 'credit',
-              docType: 'TOPUP',
-              referenceId: payment.orderId,
-              description: `Paytm UPI Recharge (${payment.upiId})`,
-              balanceAfter: 0,
-              createdAt: new Date(),
-            },
+            transactions: { $each: transactionsToPush },
           },
         },
         { new: true, upsert: true }
       );
 
-      // Patch balanceAfter on the newly pushed transaction
+      // Patch balanceAfter on the newly pushed transactions
       if (updatedWallet && updatedWallet.transactions.length > 0) {
-        const lastTx = updatedWallet.transactions[updatedWallet.transactions.length - 1];
-        lastTx.balanceAfter = updatedWallet.balance;
+        const txLen = updatedWallet.transactions.length;
+        if (promotionalCredit > 0 && txLen >= 2) {
+          updatedWallet.transactions[txLen - 2].balanceAfter =
+            updatedWallet.balance - promotionalCredit;
+          updatedWallet.transactions[txLen - 1].balanceAfter = updatedWallet.balance;
+        } else if (txLen >= 1) {
+          updatedWallet.transactions[txLen - 1].balanceAfter = updatedWallet.balance;
+        }
         await updatedWallet.save();
       }
 
-      // 6. Transition payment status to PAID
+      // 7. Transition payment status to PAID
       claimedPayment.status = 'PAID';
       claimedPayment.bankTxnId = paytmResult.bankTxnId || claimedPayment.bankTxnId;
       claimedPayment.gatewayResponse = paytmResult.raw;
@@ -471,23 +581,38 @@ export async function verifyAndCreditPaytmPayment(
         resourceId: payment.orderId,
         details: {
           amount: creditAmount,
+          bonusAmount: promotionalCredit,
+          totalCredit,
+          promoCode: payment.promoCode,
           bankTxnId: claimedPayment.bankTxnId,
           newBalance: updatedWallet?.balance,
         },
         status: 'SUCCESS',
       });
 
+      const successMsg = promotionalCredit > 0
+        ? `Payment successful! ₹${creditAmount.toFixed(2)} + ₹${promotionalCredit.toFixed(2)} promo bonus credited to your wallet.`
+        : `Payment successful! ₹${creditAmount.toFixed(2)} credited to your wallet.`;
+
       return {
         success: true,
         status: 'paid',
         amount: creditAmount,
-        newBalance: updatedWallet ? updatedWallet.balance : creditAmount,
+        bonusAmount: promotionalCredit,
+        totalCredit,
+        promoCode: payment.promoCode,
+        newBalance: updatedWallet ? updatedWallet.balance : totalCredit,
+        promotionalBalance: updatedWallet ? updatedWallet.promotionalBalance : promotionalCredit,
+        purchasedBalance: updatedWallet ? updatedWallet.purchasedBalance : purchasedCredit,
         bankTxnId: claimedPayment.bankTxnId,
-        message: `Payment successful! ₹${creditAmount.toFixed(2)} credited to your wallet.`,
+        message: successMsg,
       };
     }
 
     if (paytmResult.status === 'failed') {
+      if (payment.promoCode) {
+        await failPromoRedemption(payment.orderId, paytmResult.respMsg);
+      }
       payment.status = 'FAILED';
       payment.gatewayResponse = paytmResult.raw;
       await payment.save();

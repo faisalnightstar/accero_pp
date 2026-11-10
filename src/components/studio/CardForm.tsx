@@ -620,10 +620,10 @@ export default function CardForm({
                 {renderInput('epicNumber', 'EPIC Number', 'e.g. ABC0123456', 'text', true)}
               </div>
               <div>
-                {renderInput('electorName', 'Elector Name (English)', 'e.g. RUPLAL SAH', 'text', true)}
+                {renderInput('electorName', 'Elector Name (English)', 'e.g. Ram Kumar', 'text', true)}
               </div>
               <div>
-                {renderInput('electorNameRegional', 'Elector Name (Regional)', 'e.g. रूपलाल साह', 'text', false)}
+                {renderInput('electorNameRegional', 'Elector Name (Regional)', 'e.g. राम कुमार', 'text', false)}
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-700 flex items-center gap-1 mb-1.5">
@@ -649,10 +649,10 @@ export default function CardForm({
                 </select>
               </div>
               <div>
-                {renderInput('relationName', "Relative Name (English)", 'e.g. CHANDRIKA SAH', 'text', true)}
+                {renderInput('relationName', "Relative Name (English)", 'e.g. Dashrat Kumar', 'text', true)}
               </div>
               <div className="sm:col-span-2">
-                {renderInput('relationNameRegional', 'Relative Name (Regional)', 'e.g. चंद्रिका साह', 'text', false)}
+                {renderInput('relationNameRegional', 'Relative Name (Regional)', 'e.g. दशरत कुमार', 'text', false)}
               </div>
               <div>
                 <label className="text-xs font-semibold text-gray-700 flex items-center gap-1 mb-1.5">
@@ -686,10 +686,10 @@ export default function CardForm({
             <h4 className="text-xs font-extrabold uppercase tracking-wider text-gray-500">2. Constituency & Polling Details</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                {renderInput('assemblyConstituency', 'Assembly Constituency (English)', 'e.g. 14 - GOVINDGANJ', 'text', true)}
+                {renderInput('assemblyConstituency', 'Assembly Constituency (English)', 'e.g. 14 - Varanasi', 'text', true)}
               </div>
               <div>
-                {renderInput('assemblyConstituencyRegional', 'Assembly Constituency (Regional)', 'e.g. 14 - गोविन्दगंज', 'text', false)}
+                {renderInput('assemblyConstituencyRegional', 'Assembly Constituency (Regional)', 'e.g. 14 - वाराणसी', 'text', false)}
               </div>
               <div>
                 {renderInput('partNumberAndName', 'Part No & Name (English)', 'e.g. 257 - PRATHMIK VIDYALAY...', 'text', true)}
@@ -698,10 +698,10 @@ export default function CardForm({
                 {renderInput('partNumberAndNameRegional', 'Part No & Name (Regional)', 'e.g. 257 - प्राथमिक विद्यालय...', 'text', false)}
               </div>
               <div>
-                {renderInput('tehsil', 'Tehsil / Taluka', 'e.g. GOVINDGANJ', 'text', false)}
+                {renderInput('tehsil', 'Tehsil / Taluka', 'e.g. Varanasi', 'text', false)}
               </div>
               <div>
-                {renderInput('district', 'District', 'e.g. PURVI CHAMPARAN', 'text', false)}
+                {renderInput('district', 'District', 'e.g. PURVI VARANASI', 'text', false)}
               </div>
             </div>
           </div>

@@ -22,6 +22,8 @@ import { checkRateLimit } from '@/lib/security/rateLimiter';
 export interface WalletBalanceResult {
   success: boolean;
   balance: number;
+  promotionalBalance?: number;
+  purchasedBalance?: number;
   totalCredited: number;
   totalDebited: number;
   isLowBalance: boolean;
@@ -102,6 +104,8 @@ export async function getWalletBalance(): Promise<WalletBalanceResult> {
     return {
       success: true,
       balance: wallet.balance,
+      promotionalBalance: wallet.promotionalBalance || 0,
+      purchasedBalance: wallet.purchasedBalance || 0,
       totalCredited: wallet.totalCredited || 0,
       totalDebited: wallet.totalDebited || 0,
       isLowBalance: wallet.balance < LOW_BALANCE_THRESHOLD,
@@ -520,14 +524,20 @@ export async function getPendingManualRecharges(): Promise<{
     return {
       success: true,
       requests: requests.map((r: any) => ({
+        _id: r._id.toString(),
         id: r._id.toString(),
-        amount: r.amount,
+        amount: Number(r.amount) || 0,
         utrNumber: r.utrNumber,
         status: r.status,
+        user: {
+          name: r.userId?.name || 'Unknown',
+          email: r.userId?.email || '',
+          phone: r.userId?.phone || '',
+        },
         userName: r.userId?.name || 'Unknown',
         userEmail: r.userId?.email || '',
         userPhone: r.userId?.phone || '',
-        createdAt: r.createdAt.toISOString(),
+        createdAt: r.createdAt ? new Date(r.createdAt).toISOString() : new Date().toISOString(),
       })),
     };
   } catch (err: any) {
@@ -764,7 +774,8 @@ export async function getWalletTransactions(
  */
 export async function createPaytmOrderAction(
   amount: number,
-  preferredAccountIndex?: number
+  preferredAccountIndex?: number,
+  promoCode?: string
 ): Promise<CreatePaymentOrderResult> {
   try {
     const session = await getSession();
@@ -772,7 +783,12 @@ export async function createPaytmOrderAction(
       return { success: false, error: 'Unauthorized. Please log in.' };
     }
 
-    return await createPaytmPaymentOrder(session.userId, amount, preferredAccountIndex);
+    return await createPaytmPaymentOrder(
+      session.userId,
+      amount,
+      preferredAccountIndex,
+      promoCode
+    );
   } catch (err: any) {
     console.error('[Wallet] Error in createPaytmOrderAction:', err);
     return { success: false, error: err.message || 'Failed to create payment order' };

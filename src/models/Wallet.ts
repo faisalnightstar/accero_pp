@@ -13,12 +13,17 @@ export interface IWalletTransaction {
   balanceBefore?: number;
   balanceAfter: number;
   status?: 'COMPLETED' | 'PENDING' | 'FAILED';
+  isPromotional?: boolean;
+  promoCode?: string;
+  promoCodeId?: mongoose.Types.ObjectId;
   createdAt: Date;
 }
 
 export interface IWallet extends Document {
   userId: mongoose.Types.ObjectId;
   balance: number;
+  promotionalBalance: number;
+  purchasedBalance: number;
   currency: string;
   totalCredited: number;
   totalDebited: number;
@@ -75,6 +80,19 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
       enum: ['COMPLETED', 'PENDING', 'FAILED'],
       default: 'COMPLETED',
     },
+    isPromotional: {
+      type: Boolean,
+      default: false,
+    },
+    promoCode: {
+      type: String,
+      uppercase: true,
+      trim: true,
+    },
+    promoCodeId: {
+      type: Schema.Types.ObjectId,
+      ref: 'PromoCode',
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -95,6 +113,16 @@ const WalletSchema: Schema<IWallet> = new Schema(
       type: Number,
       default: 0,
       min: [0, 'Wallet balance cannot be negative'],
+    },
+    promotionalBalance: {
+      type: Number,
+      default: 0,
+      min: [0, 'Promotional balance cannot be negative'],
+    },
+    purchasedBalance: {
+      type: Number,
+      default: 0,
+      min: [0, 'Purchased balance cannot be negative'],
     },
     currency: {
       type: String,

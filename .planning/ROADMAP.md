@@ -128,4 +128,28 @@ Plans:
 - [x] 09-03: Studio integration, portrait/landscape container support, and multi-card print verification.
 
 ---
-*Roadmap updated: 2026-11-06 for milestone v1.3*
+
+## Milestone: v1.4 Promo Code & Coupon Management System
+
+### Phase 11: Promo Code & Coupon Management System
+**Goal:** Build a complete promotional code system integrated with the existing wallet, recharge, campaign, and admin infrastructure.
+**Depends on:** Phase 5 (Wallet & Credits Management)
+**Requirements**: PROMO-01, PROMO-02, PROMO-03, PROMO-04, PROMO-05, PROMO-06, PROMO-07, PROMO-08, PROMO-09, PROMO-10, PROMO-11
+**Success Criteria** (what must be TRUE):
+  1. `PromoCode` and `PromoRedemption` models are established with unique indexes preventing duplicate redemptions on any payment order.
+  2. Wallet tracks `promotionalBalance` and `purchasedBalance` with separate ledger entries for standard top-ups and promotional bonuses.
+  3. Supports all 6 promo code types: `FIXED_BONUS`, `PERCENTAGE_BONUS`, `FIXED_DISCOUNT`, `FIRST_RECHARGE`, `USER_SPECIFIC`, `REFERRAL`.
+  4. Real-time promo code entry in `RechargeModal.tsx` validates server-side, shows bonus preview, and allows removing/modifying code before payment.
+  5. Paytm UPI integration atomically credits bonus only upon verified `TXN_SUCCESS` with idempotency protection against concurrent or duplicate webhooks.
+  6. Admin route `/admin/promo-codes` supports full CRUD, status toggling, unused deletion, redemption logs, CSV export, and campaign analytics.
+  7. Automated test suite verifies all 13 financial, validation, and concurrency constraints.
+
+Plans:
+- [x] 11-01: Models (`PromoCode`, `PromoRedemption`), Wallet ledger separation, and validation service (`src/lib/promo/service.ts`, `src/actions/promo.ts`).
+- [x] 11-02: Paytm payment lifecycle integration & concurrency-safe bonus crediting (`src/lib/payment/paytm.ts`, `src/actions/wallet.ts`).
+- [x] 11-03: Customer wallet recharge interface update (`RechargeModal.tsx`, `/api/promo/validate`).
+- [x] 11-04: Admin Promo Code Management (`/admin/promo-codes`, CRUD, redemption history, reports, analytics) & layout navigation.
+- [x] 11-05: Comprehensive test suite in `tests/promo-code-system.test.ts`.
+
+---
+*Roadmap updated: 2026-11-10 for milestone v1.4 Phase 11*

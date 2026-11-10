@@ -8,6 +8,7 @@ import {
   Users,
   Wallet,
   Tag,
+  Ticket,
   Sliders,
   CreditCard,
   BarChart3,
@@ -84,6 +85,14 @@ export default async function AdminLayout({
           >
             <Tag className="w-4 h-4 text-purple-400" />
             <span>Campaigns & Bonuses</span>
+          </Link>
+
+          <Link
+            href="/admin/promo-codes"
+            className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-slate-800/80 text-slate-300 hover:text-white transition-colors"
+          >
+            <Ticket className="w-4 h-4 text-pink-400" />
+            <span>Promo Codes & Coupons</span>
           </Link>
 
           <Link

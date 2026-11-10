@@ -41,6 +41,8 @@ interface TransactionItem {
 
 interface WalletStats {
   balance: number;
+  promotionalBalance?: number;
+  purchasedBalance?: number;
   totalCredited: number;
   totalDebited: number;
   isLowBalance: boolean;
@@ -78,6 +80,8 @@ export default function WalletPage() {
       if (balRes.success) {
         setStats({
           balance: balRes.balance,
+          promotionalBalance: balRes.promotionalBalance || 0,
+          purchasedBalance: balRes.purchasedBalance || 0,
           totalCredited: balRes.totalCredited,
           totalDebited: balRes.totalDebited,
           isLowBalance: balRes.isLowBalance,
@@ -201,6 +205,12 @@ export default function WalletPage() {
                 </span>
                 <span className="text-xs text-slate-400 font-mono">INR</span>
               </div>
+              {stats.promotionalBalance !== undefined && stats.promotionalBalance > 0 && (
+                <div className="mt-1 flex items-center gap-1.5 text-[11px] text-emerald-400 font-semibold">
+                  <Tag className="w-3 h-3" />
+                  <span>Includes ₹{stats.promotionalBalance.toFixed(2)} promotional credits</span>
+                </div>
+              )}
               <p className="text-[11px] text-slate-300 mt-1">
                 Reserved for verification & print tray jobs
               </p>
@@ -313,7 +323,7 @@ export default function WalletPage() {
             <Tag className="w-4 h-4 text-[#F4D35E]" />
             <span className="font-bold text-white">Tiered Service Fee Matrix:</span>
             <span className="text-slate-400 hidden md:inline">
-              PAN: ₹50 • RC: ₹35 • DL: ₹30 • Aadhaar: ₹25 • Voter: ₹20 • Manual Draft: ₹5
+              PAN: ₹25 • RC: ₹25 • DL: ₹25 • Aadhaar: ₹15 • Voter: ₹20 • Manual Draft: ₹5
             </span>
           </div>
           <div className="flex items-center gap-2 text-emerald-400 font-semibold">
@@ -333,11 +343,10 @@ export default function WalletPage() {
                   setFilterType('all');
                   setPage(1);
                 }}
-                className={`py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all ${
-                  filterType === 'all'
+                className={`py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all ${filterType === 'all'
                     ? 'bg-[#8B1E2D] text-white shadow'
                     : 'text-slate-400 hover:text-white'
-                }`}
+                  }`}
               >
                 All Events
               </button>
@@ -346,11 +355,10 @@ export default function WalletPage() {
                   setFilterType('debit');
                   setPage(1);
                 }}
-                className={`py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all ${
-                  filterType === 'debit'
+                className={`py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all ${filterType === 'debit'
                     ? 'bg-[#8B1E2D] text-white shadow'
                     : 'text-slate-400 hover:text-white'
-                }`}
+                  }`}
               >
                 Debits (Usage)
               </button>
@@ -359,11 +367,10 @@ export default function WalletPage() {
                   setFilterType('credit');
                   setPage(1);
                 }}
-                className={`py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all ${
-                  filterType === 'credit'
+                className={`py-1.5 px-3.5 rounded-lg text-xs font-bold transition-all ${filterType === 'credit'
                     ? 'bg-[#8B1E2D] text-white shadow'
                     : 'text-slate-400 hover:text-white'
-                }`}
+                  }`}
               >
                 Credits (Top-ups)
               </button>
@@ -512,9 +519,8 @@ export default function WalletPage() {
 
                         {/* Amount */}
                         <td
-                          className={`px-6 py-4 whitespace-nowrap text-right font-bold text-sm ${
-                            isCredit ? 'text-emerald-400 font-mono' : 'text-rose-400 font-mono'
-                          }`}
+                          className={`px-6 py-4 whitespace-nowrap text-right font-bold text-sm ${isCredit ? 'text-emerald-400 font-mono' : 'text-rose-400 font-mono'
+                            }`}
                         >
                           {isCredit ? `+₹${tx.amount.toFixed(2)}` : `-₹${tx.amount.toFixed(2)}`}
                         </td>

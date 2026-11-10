@@ -64,7 +64,7 @@ export default function VoterCardCanvas({
       : langConfig.labels.male);
 
   const dob = data.dateOfBirth || data.age || '01/01/1990';
-  const ac = data.assemblyConstituency || `${data.acNo || '14'} - ${data.acName || 'GOVINDGANJ'}`;
+  const ac = data.assemblyConstituency || `${data.acNo || '14'} - ${data.acName || 'Varanasi'}`;
   const acRegional =
     data.assemblyConstituencyRegional ||
     (data.acNameRegional ? `${data.acNo || '14'} - ${data.acNameRegional}` : ac);
@@ -73,7 +73,7 @@ export default function VoterCardCanvas({
     data.partNumberAndNameRegional ||
     (data.partNameRegional ? `${data.partNo || '257'} - ${data.partNameRegional}` : part);
 
-  const address = (data.fullAddress || 'HOUSE NO 12, MAIN ROAD, BIHAR - 845401').toUpperCase();
+  const address = (data.fullAddress || 'HOUSE NO 12, MAIN ROAD, UTTAR PRADESH - 543212').toUpperCase();
   const addressRegional = data.fullAddressRegional || address;
   const downloadDate = data.downloadDate || data.issueDate || '06/11/2026';
   const officerSignUrl = data.signatureUrl || '/assets/voter/voter-officer-sign.png';
@@ -632,12 +632,12 @@ function renderLegacyPortrait({
   const gender = (data.gender || 'Male').toUpperCase();
   const genderRegional = data.genderRegional || (gender === 'MALE' ? 'पुरुष' : 'महिला');
   const dob = data.dateOfBirth || data.age || '01/01/1990';
-  const ac = data.assemblyConstituency || '14 - GOVINDGANJ';
-  const acRegional = data.assemblyConstituencyRegional || '14 - गोविन्दगंज';
-  const part = data.partNumberAndName || '257 - PRATHMIK VIDYALAY JHAKHARA';
-  const partRegional = data.partNumberAndNameRegional || '257 - प्राथमिक विद्यालय झखरा';
-  const address = data.fullAddress || 'HOUSE NO 12, MAIN ROAD, BIHAR - 845401';
-  const addressRegional = data.fullAddressRegional || 'मकान नं 12, मुख्य मार्ग, बिहार - 845401';
+  const ac = data.assemblyConstituency || '14 - Varanasi';
+  const acRegional = data.assemblyConstituencyRegional || '14 - वाराणसी';
+  const part = data.partNumberAndName || '257 - PRATHMIK VIDYALAY Rohaniya';
+  const partRegional = data.partNumberAndNameRegional || '257 - प्राथमिक विद्यालय रोहनिया';
+  const address = data.fullAddress || 'HOUSE NO 12, MAIN ROAD, UTTAR PRADESH - 543212';
+  const addressRegional = data.fullAddressRegional || 'मकान नं 12, मुख्य मार्ग, उतार प्रदेश - 543212';
   const issueDate = data.issueDate || '15/01/2021';
 
   if (side === 'back') {

@@ -65,18 +65,18 @@ export function getPanQrXmlString(data: Partial<PanCardData>): string {
 export interface VoterCardData {
   epicNumber: string; // e.g. ABC0123456
   electorName: string; // English
-  electorNameRegional?: string; // Hindi / Regional (e.g. रूपलाल साह)
+  electorNameRegional?: string; // Hindi / Regional (e.g. राम कुमार)
   relationType: 'FATHER' | 'HUSBAND' | 'OTHER';
   relationName: string; // English
-  relationNameRegional?: string; // Hindi / Regional (e.g. चंद्रिका साह)
+  relationNameRegional?: string; // Hindi / Regional (e.g. दशरत कुमार)
   gender: 'Male' | 'Female' | 'Other';
   genderRegional?: string;
   age?: string | number;
   dateOfBirth?: string; // DD/MM/YYYY or YYYY
-  assemblyConstituency: string; // e.g. "14 - GOVINDGANJ"
-  assemblyConstituencyRegional?: string; // e.g. "14 - गोविन्दगंज"
-  partNumberAndName: string; // e.g. "257 - PRATHMIK VIDYALAY JHAKHARA"
-  partNumberAndNameRegional?: string; // e.g. "257 - प्राथमिक विद्यालय झखरा"
+  assemblyConstituency: string; // e.g. "14 - Varanasi"
+  assemblyConstituencyRegional?: string; // e.g. "14 - वाराणसी"
+  partNumberAndName: string; // e.g. "257 - PRATHMIK VIDYALAY Rohaniya"
+  partNumberAndNameRegional?: string; // e.g. "257 - प्राथमिक विद्यालय रोहनिया"
   district?: string;
   districtRegional?: string;
   state?: string;
