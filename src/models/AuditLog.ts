@@ -16,6 +16,25 @@ export type AuditAction =
   | 'WALLET_MANUAL_UTR_SUBMITTED'
   | 'WALLET_MANUAL_UTR_APPROVED'
   | 'WALLET_MANUAL_UTR_REJECTED'
+  | 'WALLET_ADMIN_CREDIT'
+  | 'WALLET_ADMIN_DEBIT'
+  | 'WALLET_ADMIN_REFUND'
+  | 'OPERATOR_STATUS_CHANGED'
+  | 'OPERATOR_NOTE_ADDED'
+  | 'CAMPAIGN_CREATED'
+  | 'CAMPAIGN_UPDATED'
+  | 'CAMPAIGN_STATUS_CHANGED'
+  | 'SERVICE_CONFIG_UPDATED'
+  | 'TEAM_USER_CREATED'
+  | 'TEAM_ROLE_CHANGED'
+  | 'TEAM_STATUS_CHANGED'
+  | 'SUPPORT_TICKET_CREATED'
+  | 'SUPPORT_TICKET_ASSIGNED'
+  | 'SUPPORT_TICKET_REPLIED'
+  | 'SUPPORT_TICKET_INTERNAL_NOTE'
+  | 'SUPPORT_TICKET_ESCALATED'
+  | 'SUPPORT_TICKET_RESOLVED'
+  | 'SUPPORT_TICKET_CLOSED'
   | 'DOCUMENT_CACHE_HIT'
   | 'DOCUMENT_API_FETCH_SUCCESS'
   | 'DOCUMENT_PRINT_AUTHORIZED'
@@ -23,11 +42,26 @@ export type AuditAction =
   | 'SECURITY_UNAUTHORIZED_ACCESS'
   | 'SECURITY_SANDBOX_BLOCKED';
 
+export type AuditResourceType =
+  | 'AUTH'
+  | 'WALLET'
+  | 'PAYMENT'
+  | 'DOCUMENT'
+  | 'SECURITY'
+  | 'PRINT_JOB'
+  | 'OPERATOR'
+  | 'CAMPAIGN'
+  | 'SERVICE'
+  | 'SUPPORT_TICKET'
+  | 'TEAM'
+  | 'REPORT';
+
 export interface IAuditLog extends Document {
   actorId?: mongoose.Types.ObjectId;
   actorEmail?: string;
+  actorRole?: string;
   action: AuditAction;
-  resourceType: 'AUTH' | 'WALLET' | 'PAYMENT' | 'DOCUMENT' | 'SECURITY' | 'PRINT_JOB';
+  resourceType: AuditResourceType;
   resourceId?: string;
   details: Record<string, any>;
   ip?: string;
@@ -48,6 +82,11 @@ const AuditLogSchema: Schema<IAuditLog> = new Schema(
       trim: true,
       lowercase: true,
     },
+    actorRole: {
+      type: String,
+      trim: true,
+      default: 'user',
+    },
     action: {
       type: String,
       required: true,
@@ -55,7 +94,20 @@ const AuditLogSchema: Schema<IAuditLog> = new Schema(
     },
     resourceType: {
       type: String,
-      enum: ['AUTH', 'WALLET', 'PAYMENT', 'DOCUMENT', 'SECURITY'],
+      enum: [
+        'AUTH',
+        'WALLET',
+        'PAYMENT',
+        'DOCUMENT',
+        'SECURITY',
+        'PRINT_JOB',
+        'OPERATOR',
+        'CAMPAIGN',
+        'SERVICE',
+        'SUPPORT_TICKET',
+        'TEAM',
+        'REPORT',
+      ],
       required: true,
       index: true,
     },

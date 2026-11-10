@@ -1,12 +1,13 @@
 import mongoose from 'mongoose';
 import connectToDatabase from '@/lib/mongodb';
-import AuditLog, { AuditAction } from '@/models/AuditLog';
+import AuditLog, { AuditAction, AuditResourceType } from '@/models/AuditLog';
 
 interface AuditEventParams {
   actorId?: string | mongoose.Types.ObjectId;
   actorEmail?: string;
+  actorRole?: string;
   action: AuditAction;
-  resourceType: 'AUTH' | 'WALLET' | 'PAYMENT' | 'DOCUMENT' | 'SECURITY' | 'PRINT_JOB';
+  resourceType: AuditResourceType;
   resourceId?: string;
   details?: Record<string, any>;
   ip?: string;
@@ -75,6 +76,7 @@ export async function logAuditEvent(params: AuditEventParams): Promise<void> {
           ? new mongoose.Types.ObjectId(params.actorId.toString())
           : undefined,
       actorEmail: params.actorEmail?.toLowerCase().trim(),
+      actorRole: params.actorRole,
       action: params.action,
       resourceType: params.resourceType,
       resourceId: params.resourceId,

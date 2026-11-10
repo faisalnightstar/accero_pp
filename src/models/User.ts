@@ -1,6 +1,13 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-export type UserRole = 'super_admin' | 'admin' | 'operator' | 'customer' | 'user';
+export type UserRole =
+  | 'super_admin'
+  | 'admin'
+  | 'support_manager'
+  | 'support_agent'
+  | 'operator'
+  | 'customer'
+  | 'user';
 
 export interface IUser extends Document {
   name: string;
@@ -10,6 +17,9 @@ export interface IUser extends Document {
   role: UserRole;
   walletId?: mongoose.Types.ObjectId;
   status: 'active' | 'suspended';
+  notes?: string;
+  suspendedReason?: string;
+  lastLoginAt?: Date;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
   createdAt: Date;
@@ -48,7 +58,15 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     role: {
       type: String,
-      enum: ['super_admin', 'admin', 'operator', 'customer', 'user'],
+      enum: [
+        'super_admin',
+        'admin',
+        'support_manager',
+        'support_agent',
+        'operator',
+        'customer',
+        'user',
+      ],
       default: 'user',
     },
     walletId: {
@@ -59,6 +77,17 @@ const UserSchema: Schema<IUser> = new Schema(
       type: String,
       enum: ['active', 'suspended'],
       default: 'active',
+    },
+    notes: {
+      type: String,
+      default: '',
+    },
+    suspendedReason: {
+      type: String,
+      default: '',
+    },
+    lastLoginAt: {
+      type: Date,
     },
     resetPasswordToken: {
       type: String,

@@ -41,6 +41,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/studio') ||
     pathname.startsWith('/wallet') ||
     pathname.startsWith('/admin') ||
+    pathname.startsWith('/support') ||
     pathname.startsWith('/cards');
 
   if (!isProtectedPath) {
@@ -67,12 +68,23 @@ export async function middleware(request: NextRequest) {
       audience: JWT_AUDIENCE,
     });
 
-    // Admin role enforcement
+    const role = (payload.role as string | undefined)?.toLowerCase();
+
+    // Admin role enforcement (/admin requires super_admin or admin)
     if (pathname.startsWith('/admin')) {
-      const role = payload.role as string | undefined;
       if (role !== 'admin' && role !== 'super_admin') {
         const forbiddenUrl = new URL('/dashboard', request.url);
-        forbiddenUrl.searchParams.set('error', 'unauthorized');
+        forbiddenUrl.searchParams.set('error', 'unauthorized_admin');
+        return NextResponse.redirect(forbiddenUrl);
+      }
+    }
+
+    // Support role enforcement (/support requires super_admin, admin, support_manager, or support_agent)
+    if (pathname.startsWith('/support')) {
+      const allowedSupportRoles = ['super_admin', 'admin', 'support_manager', 'support_agent'];
+      if (!role || !allowedSupportRoles.includes(role)) {
+        const forbiddenUrl = new URL('/dashboard', request.url);
+        forbiddenUrl.searchParams.set('error', 'unauthorized_support');
         return NextResponse.redirect(forbiddenUrl);
       }
     }

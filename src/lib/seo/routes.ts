@@ -88,6 +88,8 @@ export const PRIVATE_NOINDEX_ROUTES = [
   '/wallet/*',
   '/admin',
   '/admin/*',
+  '/support',
+  '/support/*',
   '/cards',
   '/cards/*',
   '/api/*',

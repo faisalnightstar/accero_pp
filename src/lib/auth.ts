@@ -2,11 +2,20 @@ import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 
+export type SessionRole =
+  | 'super_admin'
+  | 'admin'
+  | 'support_manager'
+  | 'support_agent'
+  | 'operator'
+  | 'customer'
+  | 'user';
+
 export interface UserSession {
   userId: string;
   email: string;
   name: string;
-  role: 'super_admin' | 'admin' | 'operator' | 'customer' | 'user';
+  role: SessionRole;
 }
 
 const JWT_ISSUER = 'accero-printportal';
