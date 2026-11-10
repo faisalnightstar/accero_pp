@@ -38,13 +38,22 @@ export default function HeroLookupForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full space-y-3">
+    <form
+      onSubmit={handleSubmit}
+      className="w-full space-y-3"
+      toolname="hero_document_lookup"
+      tooldescription={`Lookup official ${docType.toUpperCase()} document and open interactive split-screen studio for CR80 PVC formatting`}
+      toolautosubmit="true"
+    >
       <div className="relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2 bg-slate-900/90 p-1.5 rounded-xl border border-slate-700/80 shadow-inner focus-within:border-[#E63946] focus-within:ring-2 focus-within:ring-[#E63946]/20 transition-all">
         <div className="flex items-center pl-3 pr-2 text-slate-400">
           <Search className="w-5 h-5 text-slate-400" />
         </div>
         <input
           type="text"
+          name="documentIdentifier"
+          id={`lookup-${docType}`}
+          toolparamdescription={`Official alphanumeric identification number for ${docType.toUpperCase()} card`}
           value={lookupValue}
           onChange={(e) => setLookupValue(e.target.value)}
           placeholder={placeholder}

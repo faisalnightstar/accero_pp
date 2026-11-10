@@ -112,5 +112,7 @@ export const STATIC_VERIFICATION_ALLOWANCES = [
   '/sitemap.xml',
   '/llms.txt',
   '/llms-full.txt',
+  '/.well-known/ard.json',
+  '/.well-known/ai-catalog.json',
 ] as const;
 

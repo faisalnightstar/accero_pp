@@ -5,6 +5,7 @@ import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
+import WebMcpProvider from '@/components/ai/WebMcpProvider';
 import { GoogleTagManager, GoogleTagManagerNoscript } from '@/components/analytics/GoogleTagManager';
 import { AppRouterPageTracker } from '@/components/analytics/PageTracker';
 import { PRIMARY_CANONICAL_DOMAIN } from '@/lib/seo/canonical';
@@ -101,6 +102,7 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://www.googletagmanager.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="ard" href="/.well-known/ard.json" type="application/json" />
         <GoogleTagManager />
         <script
           type="application/ld+json"
@@ -113,6 +115,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-screen flex flex-col font-sans antialiased">
         <GoogleTagManagerNoscript />
+        <WebMcpProvider />
         <Suspense fallback={null}>
           <AppRouterPageTracker />
         </Suspense>

@@ -29,21 +29,37 @@ export default function ContactForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4"
+      toolname="contact_support_form"
+      tooldescription="Send a direct support, printer setup, or enterprise inquiry to Accero PrintPortal staff"
+      toolautosubmit="true"
+    >
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Your Name</label>
+          <label htmlFor="contact-name" className="block text-xs font-bold text-slate-700 mb-1">
+            Your Name
+          </label>
           <input
+            id="contact-name"
+            name="name"
             type="text"
             required
+            toolparamdescription="Full name of contact person or operator"
             placeholder="e.g. Rahul Sharma"
             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#8B1E2D]"
           />
         </div>
         <div>
-          <label className="block text-xs font-bold text-slate-700 mb-1">Phone / WhatsApp</label>
+          <label htmlFor="contact-phone" className="block text-xs font-bold text-slate-700 mb-1">
+            Phone / WhatsApp
+          </label>
           <input
+            id="contact-phone"
+            name="phone"
             type="tel"
+            toolparamdescription="Mobile or WhatsApp contact number"
             placeholder="e.g. 9876543210"
             className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#8B1E2D]"
           />
@@ -51,18 +67,28 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
+        <label htmlFor="contact-email" className="block text-xs font-bold text-slate-700 mb-1">
+          Email Address
+        </label>
         <input
+          id="contact-email"
+          name="email"
           type="email"
           required
+          toolparamdescription="Valid email address for response and ticketing"
           placeholder="e.g. rahul@cybercafe.com"
           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#8B1E2D]"
         />
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-slate-700 mb-1">Business Type</label>
+        <label htmlFor="contact-business-type" className="block text-xs font-bold text-slate-700 mb-1">
+          Business Type
+        </label>
         <select
+          id="contact-business-type"
+          name="businessType"
+          toolparamdescription="Operator category: Cyber Cafe, CSC VLE, Printing Shop, or Enterprise"
           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#8B1E2D]"
           defaultValue="cyber-cafe"
         >
@@ -76,10 +102,15 @@ export default function ContactForm() {
       </div>
 
       <div>
-        <label className="block text-xs font-bold text-slate-700 mb-1">Message or Query</label>
+        <label htmlFor="contact-message" className="block text-xs font-bold text-slate-700 mb-1">
+          Message or Query
+        </label>
         <textarea
+          id="contact-message"
+          name="message"
           rows={4}
           required
+          toolparamdescription="Detailed description of inquiry, printer model, or volume requirement"
           placeholder="Describe your inquiry, printer model, or high-volume requirements..."
           className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-[#8B1E2D]"
         />

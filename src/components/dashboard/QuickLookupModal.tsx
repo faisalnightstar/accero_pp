@@ -129,10 +129,16 @@ export function QuickLookupModal({
         </div>
 
         {/* Form Query */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4"
+          toolname="dashboard_quick_lookup"
+          tooldescription="Lookup document record by identification number from dashboard"
+          toolautosubmit="true"
+        >
           <div className="space-y-1.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-slate-300">
+              <label htmlFor="quick-lookup-id" className="text-xs font-semibold text-slate-300">
                 {activeMeta.label} Identifier
               </label>
               <span className="text-[11px] text-slate-500 font-mono">
@@ -145,7 +151,10 @@ export function QuickLookupModal({
                 <Search className="w-4 h-4" />
               </div>
               <input
+                id="quick-lookup-id"
+                name="documentIdNumber"
                 type="text"
+                toolparamdescription="Alphanumeric document identification number (e.g. PAN, Aadhaar, Voter EPIC, DL, RC)"
                 value={idNumber}
                 onChange={(e) => {
                   setIdNumber(e.target.value.toUpperCase());

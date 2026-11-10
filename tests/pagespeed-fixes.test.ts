@@ -81,3 +81,4 @@ describe('PageSpeed Insights Fixes Verification', () => {
     expect(content).toContain('rel="dns-prefetch" href="https://www.googletagmanager.com"');
   });
 });
+

@@ -165,23 +165,29 @@ export function StudioSearchBar({
           )}
         </div>
 
-        <div className="flex gap-2">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleFetch();
+          }}
+          toolname="studio_document_lookup"
+          tooldescription="Load official card record by number into interactive editor"
+          toolautosubmit="true"
+          className="flex gap-2"
+        >
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
               <Search className="w-4 h-4" />
             </div>
             <input
               type="text"
+              name="documentQueryNumber"
+              id="studio-document-query"
+              toolparamdescription={`Alphanumeric identification number for ${docType.toUpperCase()} document`}
               value={queryId}
               onChange={(e) => {
                 setQueryId(e.target.value.toUpperCase());
                 setStatusMessage(null);
-              }}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  handleFetch();
-                }
               }}
               placeholder={placeholders[docType] || 'Enter document number...'}
               disabled={isLoading}
@@ -190,10 +196,9 @@ export function StudioSearchBar({
           </div>
 
           <button
-            type="button"
+            type="submit"
             disabled={isLoading || !queryId.trim()}
-            onClick={handleFetch}
-            className="px-4 py-2 bg-gradient-to-r from-[#8B1E2D] to-[#E63946] hover:opacity-90 text-white font-semibold text-sm rounded-lg flex items-center gap-2 shadow transition-all disabled:opacity-50 shrink-0"
+            className="px-4 py-2 bg-gradient-to-r from-[#8B1E2D] to-[#E63946] hover:opacity-90 text-white font-semibold text-sm rounded-lg flex items-center gap-2 shadow transition-all disabled:opacity-50 shrink-0 cursor-pointer"
           >
             {isLoading ? (
               <>
@@ -206,7 +211,7 @@ export function StudioSearchBar({
               </>
             )}
           </button>
-        </div>
+        </form>
 
         {/* Status Message Notification */}
         {statusMessage && (
