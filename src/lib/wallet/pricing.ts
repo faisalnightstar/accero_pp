@@ -25,13 +25,19 @@ export async function isDocumentAlreadyPaid(
     const cleanId = cardIdentifier.trim().toUpperCase();
     const cleanDocType = normalizeDocType(docType);
 
-    const existingRecord = await DocumentRecord.findOne({
+    const query = DocumentRecord.findOne({
       userId: new mongoose.Types.ObjectId(userId),
       docType: cleanDocType as any,
       cardIdentifier: cleanId,
-    }).lean();
+    });
 
-    return Boolean(existingRecord);
+    const existingRecord =
+      typeof (query as any)?.lean === 'function' ? await query.lean() : await query;
+
+    return Boolean(
+      existingRecord &&
+        ((existingRecord as any).printCount > 0 || (existingRecord as any).isPaid === true)
+    );
   } catch (err) {
     console.error('[Pricing] Failed to check document payment status:', err);
     return false;

@@ -5,6 +5,7 @@ import PrintJob, { PrintFormat } from '@/models/PrintJob';
 import DocumentRecord from '@/models/DocumentRecord';
 import User from '@/models/User';
 import { SERVICE_FEES, normalizeDocType } from '@/lib/wallet/constants';
+import { isDocumentAlreadyPaid } from '@/lib/wallet/pricing';
 import { logAuditEvent } from '@/lib/logger/audit';
 
 export interface AuthorizePrintParams {
@@ -114,68 +115,87 @@ export async function authorizePrint({
     }
   }
 
-  // 3. SERVER-SIDE PRICING ENFORCEMENT
+  // 3. SERVER-SIDE PRICING ENFORCEMENT & FREE REPRINT CHECK
   // Never accept fee supplied by the browser
-  const fee = SERVICE_FEES[cleanDocType] ?? 20;
+  let fee = SERVICE_FEES[cleanDocType] ?? 20;
 
-  // 4. ATOMIC BALANCE DEDUCTION & LEDGER CREATION
-  const updatedWallet = await Wallet.findOneAndUpdate(
-    {
-      userId: userObjectId,
-      balance: { $gte: fee }, // Invariant: balance cannot drop below 0
-    },
-    {
-      $inc: {
-        balance: -fee,
-        totalDebited: fee,
-      },
-      $push: {
-        transactions: {
-          amount: fee,
-          type: 'debit',
-          category: 'DOCUMENT_PRINT',
-          docType: cleanDocType as any,
-          documentType: cleanDocType,
-          documentId:
-            documentId && mongoose.Types.ObjectId.isValid(documentId)
-              ? new mongoose.Types.ObjectId(documentId)
-              : undefined,
-          referenceId: cleanPrintJobId,
-          description: `${cleanDocType} Document Printing (${cleanCardId || 'Card Tray'})`,
-          balanceBefore: 0, // updated below
-          balanceAfter: 0,  // updated below
-          status: 'COMPLETED',
-          createdAt: new Date(),
-        },
-      },
-    },
-    { new: true }
-  );
-
-  // If deduction failed due to insufficient funds
-  if (!updatedWallet) {
-    const currentWallet = await Wallet.findOne({ userId: userObjectId }).lean();
-    const currentBal = currentWallet ? currentWallet.balance : 0;
-
-    return {
-      success: false,
-      printJobId: cleanPrintJobId,
-      fee,
-      requiredFee: fee,
-      currentBalance: currentBal,
-      error: {
-        code: 'INSUFFICIENT_BALANCE',
-        message: `Insufficient wallet balance. Printing a ${cleanDocType} card requires ₹${fee}. Your balance is ₹${currentBal}.`,
-      },
-    };
+  // Check if document was already paid & saved for this user (Free Lifetime Reprints)
+  if (cleanCardId) {
+    const isPaid = await isDocumentAlreadyPaid(userId, cleanDocType, cleanCardId);
+    if (isPaid) {
+      fee = 0;
+    }
   }
 
-  // Patch balanceBefore and balanceAfter on the newly pushed transaction
-  if (updatedWallet.transactions && updatedWallet.transactions.length > 0) {
-    const lastTx = updatedWallet.transactions[updatedWallet.transactions.length - 1];
-    lastTx.balanceBefore = updatedWallet.balance + fee;
-    lastTx.balanceAfter = updatedWallet.balance;
-    await updatedWallet.save();
+  // 4. ATOMIC BALANCE DEDUCTION & LEDGER CREATION (Only if fee > 0)
+  let updatedWallet: any = null;
+
+  if (fee > 0) {
+    updatedWallet = await Wallet.findOneAndUpdate(
+      {
+        userId: userObjectId,
+        balance: { $gte: fee }, // Invariant: balance cannot drop below 0
+      },
+      {
+        $inc: {
+          balance: -fee,
+          totalDebited: fee,
+        },
+        $push: {
+          transactions: {
+            amount: fee,
+            type: 'debit',
+            category: 'DOCUMENT_PRINT',
+            docType: cleanDocType as any,
+            documentType: cleanDocType,
+            documentId:
+              documentId && mongoose.Types.ObjectId.isValid(documentId)
+                ? new mongoose.Types.ObjectId(documentId)
+                : undefined,
+            referenceId: cleanPrintJobId,
+            description: `${cleanDocType} Document Printing (${cleanCardId || 'Card Tray'})`,
+            balanceBefore: 0, // updated below
+            balanceAfter: 0,  // updated below
+            status: 'COMPLETED',
+            createdAt: new Date(),
+          },
+        },
+      },
+      { new: true }
+    );
+
+    // If deduction failed due to insufficient funds
+    if (!updatedWallet) {
+      const currentWallet = await Wallet.findOne({ userId: userObjectId }).lean();
+      const currentBal = currentWallet ? currentWallet.balance : 0;
+
+      return {
+        success: false,
+        printJobId: cleanPrintJobId,
+        fee,
+        requiredFee: fee,
+        currentBalance: currentBal,
+        error: {
+          code: 'INSUFFICIENT_BALANCE',
+          message: `Insufficient wallet balance. Printing a ${cleanDocType} card requires ₹${fee}. Your balance is ₹${currentBal}.`,
+        },
+      };
+    }
+
+    // Patch balanceBefore and balanceAfter on the newly pushed transaction
+    if (updatedWallet.transactions && updatedWallet.transactions.length > 0) {
+      const lastTx = updatedWallet.transactions[updatedWallet.transactions.length - 1];
+      lastTx.balanceBefore = updatedWallet.balance + fee;
+      lastTx.balanceAfter = updatedWallet.balance;
+      await updatedWallet.save();
+    }
+  } else {
+    // ₹0 Free Lifetime Reprint: retrieve current wallet without debit
+    const walletQuery = Wallet.findOne({ userId: userObjectId });
+    updatedWallet =
+      typeof (walletQuery as any)?.lean === 'function'
+        ? await walletQuery.lean()
+        : await walletQuery;
   }
 
   // 5. CREATE DURABLE PRINT JOB RECORD

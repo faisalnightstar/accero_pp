@@ -39,6 +39,9 @@ vi.mock('@/models/PrintJob', () => ({
 vi.mock('@/models/DocumentRecord', () => ({
   default: {
     updateOne: vi.fn(),
+    findOne: vi.fn().mockReturnValue({
+      lean: vi.fn().mockResolvedValue(null),
+    }),
   },
 }));
 
@@ -256,6 +259,56 @@ describe('Centralized Print Billing & Print Authorization Engine', () => {
         printJobId: 'pj_pdf_export_1',
         printFormat: 'PDF',
         documentType: 'DL',
+      })
+    );
+  });
+
+  // 6. Free lifetime reprints for already paid & saved cards
+  it('authorizes ₹0 free lifetime reprint when document is already saved, without deducting wallet', async () => {
+    vi.mocked(PrintJob.findOne).mockReturnValue({
+      lean: vi.fn().mockResolvedValue(null),
+    } as any);
+
+    // Mock DocumentRecord.findOne to return existing record
+    vi.mocked(DocumentRecord.findOne).mockReturnValue({
+      lean: vi.fn().mockResolvedValue({
+        _id: new mongoose.Types.ObjectId(),
+        userId: userObjectId,
+        docType: 'PAN',
+        cardIdentifier: 'ABCDE1234F',
+        printCount: 1,
+      }),
+    } as any);
+
+    // User has ₹0 balance
+    vi.mocked(Wallet.findOne).mockReturnValue({
+      lean: vi.fn().mockResolvedValue({ balance: 0 }),
+    } as any);
+
+    vi.mocked(PrintJob.create).mockResolvedValue({} as any);
+    vi.mocked(DocumentRecord.updateOne).mockResolvedValue({} as any);
+
+    const res = await authorizePrint({
+      userId,
+      documentType: 'pan',
+      cardIdentifier: 'ABCDE1234F',
+      printJobId: 'pj_free_reprint_1',
+      printFormat: 'CR80',
+    });
+
+    expect(res.success).toBe(true);
+    expect(res.fee).toBe(0);
+    expect(res.remainingBalance).toBe(0);
+
+    // Crucial: Wallet deduction MUST NOT be executed for ₹0 free reprint
+    expect(Wallet.findOneAndUpdate).not.toHaveBeenCalled();
+
+    // Print job is authorized at ₹0
+    expect(PrintJob.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        printJobId: 'pj_free_reprint_1',
+        fee: 0,
+        status: 'AUTHORIZED',
       })
     );
   });
