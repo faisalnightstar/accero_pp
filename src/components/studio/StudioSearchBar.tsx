@@ -8,6 +8,7 @@ import { OverwriteConfirmModal } from './OverwriteConfirmModal';
 import InsufficientBalanceModal from '@/components/wallet/InsufficientBalanceModal';
 import RechargeModal from '@/components/wallet/RechargeModal';
 import { SERVICE_FEES } from '@/lib/wallet/constants';
+import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
 
 interface StudioSearchBarProps {
   docType: DocumentType;
@@ -18,10 +19,11 @@ interface StudioSearchBarProps {
 
 const placeholders: Record<DocumentType, string> = {
   pan: 'Enter 10-digit PAN (e.g. ABCDE1234F)',
-  voter: 'Enter EPIC Voter ID (e.g. AXH0801639)',
+  voter: 'Enter EPIC Voter ID (e.g. ABC0123456)',
   dl: 'Enter Driving License No (e.g. DL-0420110123456)',
-  rc: 'Enter Vehicle RC Reg No (e.g. UP16DL3137)',
+  rc: 'Enter Vehicle RC Reg No (e.g. UP05LD1234)',
   aadhaar: 'Enter 12-digit Aadhaar Number',
+  ration: 'Enter Ration Card Number (e.g. RC1234567890)',
 };
 
 const serviceNames: Record<DocumentType, string> = {
@@ -30,6 +32,7 @@ const serviceNames: Record<DocumentType, string> = {
   dl: 'Driving License Verification',
   rc: 'Vehicle RC Verification',
   aadhaar: 'Aadhaar Verification',
+  ration: 'Ration Card Verification',
 };
 
 export function StudioSearchBar({
@@ -86,9 +89,8 @@ export function StudioSearchBar({
           requiredFee: result.requiredFee || feeAmount,
           currentBalance: result.currentBalance || 0,
         });
-        const errMsg = `Insufficient wallet balance. This lookup requires ₹${
-          result.requiredFee || feeAmount
-        }.`;
+        const errMsg = `Insufficient wallet balance. This lookup requires ₹${result.requiredFee || feeAmount
+          }.`;
         setStatusMessage({ text: errMsg, type: 'error' });
         if (onToast) onToast(errMsg, 'error');
         return;
@@ -96,6 +98,7 @@ export function StudioSearchBar({
 
       if (result.success && result.data && Object.keys(result.data).length > 0) {
         onDataLoaded(result.data);
+        trackEvent(ANALYTICS_EVENTS.FIRST_LOOKUP_SUCCESS, { docCategory: docType });
         setProviderInfo({ name: result.provider, latency: result.latencyMs });
 
         // Broadcast balance update if a fee was deducted
@@ -115,9 +118,8 @@ export function StudioSearchBar({
           setStatusMessage({ text: msg, type: 'warning' });
           if (onToast) onToast(msg, 'warning');
         } else {
-          const successMsg = `Successfully verified via ${
-            result.provider || 'Gateway'
-          }.${feeNotice}`;
+          const successMsg = `Successfully verified via ${result.provider || 'Gateway'
+            }.${feeNotice}`;
           setStatusMessage({ text: successMsg, type: 'success' });
           if (onToast) onToast(successMsg, 'success');
         }
@@ -206,13 +208,12 @@ export function StudioSearchBar({
         {/* Status Message Notification */}
         {statusMessage && (
           <div
-            className={`flex items-start gap-2 text-xs p-2.5 rounded-lg border ${
-              statusMessage.type === 'success'
-                ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
-                : statusMessage.type === 'warning'
+            className={`flex items-start gap-2 text-xs p-2.5 rounded-lg border ${statusMessage.type === 'success'
+              ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
+              : statusMessage.type === 'warning'
                 ? 'bg-amber-950/40 border-amber-500/40 text-amber-300'
                 : 'bg-rose-950/40 border-rose-500/40 text-rose-300'
-            }`}
+              }`}
           >
             {statusMessage.type === 'success' ? (
               <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-400" />

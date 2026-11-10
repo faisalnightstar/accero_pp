@@ -50,3 +50,4 @@ export default function CardBarcode({
 
   return <svg ref={svgRef} className={className} />;
 }
+

@@ -11,10 +11,10 @@
    - Preserved missing-field indicators and dynamic two-way canvas synchronization.
 2. **Updated Sample Data (`src/lib/seo/servicesData.ts`)**:
    - Updated `SERVICES_CONFIG['vehicle-rc'].sampleData` to match the exact official reference card:
-     - Regn: `UP16DL3137`
+     - Regn: `UP05LD1234`
      - Model: `TVSNTORQ125-SUPER SQUADEDITION`
-     - Owner: `ABU FAISAL`
-     - Father: `OBAIDULLA`
+     - Owner: `ROHIT KHATRI`
+     - Father: `SUBHASH KHATRI`
      - Address: `D-74, BETA 1 , GREATER NOIDA, Gautam Buddha Nagar -201308`
      - Financier: `BANDHAN BANK LTD`
      - Authority: `Noida, Uttar Pradesh`

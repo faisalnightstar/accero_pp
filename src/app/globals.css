@@ -2,6 +2,86 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Helvetica LT Pro Bold';
+  src: local('Helvetica LT Pro Bold'),
+       local('HelveticaLTPro-Bold'),
+       local('Helvetica LT Pro 75 Bold'),
+       local('HelveticaLTPro-Bd'),
+       local('Helvetica Neue Bold'),
+       local('Helvetica-Bold');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Comma Serif Regular';
+  src: local('Comma Serif Regular'),
+       local('CommaSerif-Regular'),
+       local('Comma Serif'),
+       local('CommaSerif');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Comma Serif Regular';
+  src: local('Comma Serif Bold'),
+       local('CommaSerif-Bold'),
+       local('Comma Serif Regular'),
+       local('CommaSerif-Regular'),
+       local('Comma Serif'),
+       local('CommaSerif');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Comma Serif';
+  src: local('Comma Serif Regular'),
+       local('CommaSerif-Regular'),
+       local('Comma Serif'),
+       local('CommaSerif');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Comma Serif';
+  src: local('Comma Serif Bold'),
+       local('CommaSerif-Bold'),
+       local('Comma Serif Regular'),
+       local('CommaSerif-Regular'),
+       local('Comma Serif'),
+       local('CommaSerif');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Rockwell';
+  src: local('Rockwell Bold'),
+       local('Rockwell-Bold'),
+       local('Rockwell'),
+       local('Rockwell Nova Bold'),
+       local('Rockwell Nova'),
+       local('GeoSlab703 Md BT Bold'),
+       local('GeoSlab703-MdBT-Bold');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Rockwell';
+  src: local('Rockwell Regular'),
+       local('Rockwell-Regular'),
+       local('Rockwell'),
+       local('Rockwell Nova'),
+       local('GeoSlab703 Md BT');
+  font-weight: 400;
+  font-style: normal;
+}
+
 :root {
   --color-deep-burgundy: #8B1E2D;
   --color-crimson: #E63946;

@@ -72,12 +72,22 @@ export default function DlCardCanvas({
           className="absolute inset-0 w-full h-full object-fill pointer-events-none select-none"
         />
 
+        {/* Top DL Number */}
+        <div
+          className="absolute font-black font-mono tracking-wider text-black text-[10.5px] leading-none"
+          style={{
+            left: '5.0%',
+            top: '5.0%',
+          }}
+        >
+          DL No.: {dlno}
+        </div>
         {/* Sarathi Parivahan High-Density QR Code */}
         <div
           className="absolute bg-white p-0.5 rounded-[1px] border border-gray-400 shadow-2xs flex items-center justify-center"
           style={{
             left: '5.0%',
-            top: '6.0%',
+            top: '15.0%',
             width: '18.0%',
             height: '28.5%',
           }}
@@ -90,7 +100,7 @@ export default function DlCardCanvas({
           className="absolute flex flex-col text-[6px] font-bold text-black leading-tight"
           style={{
             left: '26.0%',
-            top: '6.0%',
+            top: '16.0%',
             width: '70.0%',
           }}
         >
@@ -117,42 +127,42 @@ export default function DlCardCanvas({
           style={{
             left: '4.0%',
             right: '4.0%',
-            top: '37.0%',
+            top: data.vehicleClasses && data.vehicleClasses.length > 4 ? '45.0%' : '47.0%',
           }}
         >
-          <table className="w-full text-center text-[5.5px] border-collapse bg-white/90 border border-gray-400">
+          <table className={`w-full text-center border-collapse border border-gray-900 leading-tight ${data.vehicleClasses && data.vehicleClasses.length > 4 ? 'text-[5px]' : 'text-[5.5px]'}`}>
             <thead>
-              <tr className="bg-gray-100 font-bold border-b border-gray-400 text-black">
-                <th className="p-0.5 border-r border-gray-400">Class of Vehicle</th>
-                <th className="p-0.5 border-r border-gray-400">Code</th>
-                <th className="p-0.5 border-r border-gray-400">Code Issued By</th>
-                <th className="p-0.5 border-r border-gray-400">Date of Issue</th>
-                <th className="p-0.5">Vehicle Category</th>
+              <tr className="font-bold border-b border-gray-900 text-black">
+                <th className={`${data.vehicleClasses && data.vehicleClasses.length > 4 ? 'p-[1px]' : 'p-0.5'} border-r border-gray-900`}>Class of Vehicle</th>
+                <th className={`${data.vehicleClasses && data.vehicleClasses.length > 4 ? 'p-[1px]' : 'p-0.5'} border-r border-gray-900`}>Code</th>
+                <th className={`${data.vehicleClasses && data.vehicleClasses.length > 4 ? 'p-[1px]' : 'p-0.5'} border-r border-gray-900`}>Code Issued By</th>
+                <th className={`${data.vehicleClasses && data.vehicleClasses.length > 4 ? 'p-[1px]' : 'p-0.5'} border-r border-gray-900`}>Date of Issue</th>
+                <th className={`${data.vehicleClasses && data.vehicleClasses.length > 4 ? 'p-[1px]' : 'p-0.5'}`}>Vehicle Category</th>
               </tr>
             </thead>
             <tbody>
               {Array.isArray(data.vehicleClasses) && data.vehicleClasses.length > 0 ? (
                 data.vehicleClasses.map((cov, idx) => (
-                  <tr key={idx} className="border-b border-gray-300 font-semibold text-black">
-                    <td className="p-0.5 border-r border-gray-300">{cov.desc}</td>
-                    <td className="p-0.5 border-r border-gray-300 font-bold font-mono text-burgundy">{cov.code}</td>
-                    <td className="p-0.5 border-r border-gray-300 font-mono">{stateShort}</td>
-                    <td className="p-0.5 border-r border-gray-300 font-mono">{cov.issueDate}</td>
-                    <td className="p-0.5 font-bold">NT</td>
+                  <tr key={idx} className="border-b border-gray-900 font-semibold text-black">
+                    <td className={`${data.vehicleClasses && data.vehicleClasses.length > 4 ? 'p-[1px]' : 'p-0.5'} border-r border-gray-900`}>{cov.desc}</td>
+                    <td className={`${data.vehicleClasses && data.vehicleClasses.length > 4 ? 'p-[1px]' : 'p-0.5'} border-r border-gray-900 font-bold font-mono text-black`}>{cov.code}</td>
+                    <td className={`${data.vehicleClasses && data.vehicleClasses.length > 4 ? 'p-[1px]' : 'p-0.5'} border-r border-gray-900 font-mono`}>{stateShort}</td>
+                    <td className={`${data.vehicleClasses && data.vehicleClasses.length > 4 ? 'p-[1px]' : 'p-0.5'} border-r border-gray-900 font-mono`}>{cov.issueDate}</td>
+                    <td className={`${data.vehicleClasses && data.vehicleClasses.length > 4 ? 'p-[1px]' : 'p-0.5'} font-bold`}>{cov.category || 'NT'}</td>
                   </tr>
                 ))
               ) : (
                 <>
                   <tr className="border-b border-gray-300 font-semibold text-black">
                     <td className="p-0.5 border-r border-gray-300">Motor Cycle With Gear</td>
-                    <td className="p-0.5 border-r border-gray-300 font-bold font-mono text-burgundy">MCWG</td>
+                    <td className="p-0.5 border-r border-gray-300 font-bold font-mono text-black">MCWG</td>
                     <td className="p-0.5 border-r border-gray-300 font-mono">{stateShort}</td>
                     <td className="p-0.5 border-r border-gray-300 font-mono">{idate}</td>
                     <td className="p-0.5 font-bold">NT</td>
                   </tr>
                   <tr className="border-b border-gray-300 font-semibold text-black">
                     <td className="p-0.5 border-r border-gray-300">Light Motor Vehicle</td>
-                    <td className="p-0.5 border-r border-gray-300 font-bold font-mono text-burgundy">LMV</td>
+                    <td className="p-0.5 border-r border-gray-300 font-bold font-mono text-black">LMV</td>
                     <td className="p-0.5 border-r border-gray-300 font-mono">{stateShort}</td>
                     <td className="p-0.5 border-r border-gray-300 font-mono">{idate}</td>
                     <td className="p-0.5 font-bold">NT</td>
@@ -209,7 +219,7 @@ export default function DlCardCanvas({
       <div
         className="absolute w-full text-center leading-none text-black font-bold"
         style={{
-          top: '3.5%',
+          top: '8%',
         }}
       >
         <div className="text-[9.5px] font-black tracking-tight">INDIAN UNION DRIVING LICENCE</div>
@@ -220,10 +230,10 @@ export default function DlCardCanvas({
 
       {/* State Short Code Badge */}
       <div
-        className="absolute font-black text-[8px] text-black"
+        className="absolute font-black text-[11px] text-black"
         style={{
-          top: '3.5%',
-          right: '5.0%',
+          top: '5.9%',
+          right: '5.2%',
         }}
       >
         {stateShort}
@@ -233,8 +243,8 @@ export default function DlCardCanvas({
       <div
         className="absolute font-black font-mono tracking-wider text-black text-[10.5px] leading-none"
         style={{
-          left: '26.0%',
-          top: '18.0%',
+          left: '22.0%',
+          top: '27.0%',
         }}
       >
         {dlno}
@@ -244,9 +254,9 @@ export default function DlCardCanvas({
       <div
         className="absolute grid grid-cols-3 gap-1 text-[6px] font-bold text-black leading-tight"
         style={{
-          left: '26.0%',
-          top: '26.0%',
-          width: '50.0%',
+          left: '20.0%',
+          top: '35.0%',
+          width: '55.0%',
         }}
       >
         <div>
@@ -265,12 +275,12 @@ export default function DlCardCanvas({
 
       {/* Applicant Photo */}
       <div
-        className="absolute overflow-hidden rounded-[1px] bg-white border border-gray-400 shadow-2xs flex items-center justify-center"
+        className="absolute overflow-hidden bg-white shadow-2xs flex items-center justify-center"
         style={{
-          right: '5.5%',
-          top: '18.5%',
-          width: '18.5%',
-          height: '38.0%',
+          right: '6.5%',
+          top: '25.5%',
+          width: '15.5%',
+          height: '28%',
         }}
       >
         {data.photoUrl ? (
@@ -316,11 +326,11 @@ export default function DlCardCanvas({
         <div className="flex items-center justify-between">
           <div className="truncate">
             <span className="text-[6px] text-gray-700 font-semibold">Name : </span>
-            <span className="text-[8px] uppercase">{name}</span>
+            <span className="text-[6px] uppercase">{name}</span>
           </div>
           <div className="shrink-0 text-[6.5px]">
             <span className="text-[6px] text-gray-700 font-semibold">Gender : </span>
-            <span>{gender}</span>
+            <span className=' text-[6px]'>{gender}</span>
           </div>
         </div>
 
@@ -328,28 +338,28 @@ export default function DlCardCanvas({
         <div className="grid grid-cols-12 gap-1 mt-0.5 text-[6.5px]">
           <div className="col-span-5 truncate">
             <span className="text-[5.5px] text-gray-700 font-semibold">Date Of Birth : </span>
-            <span className="font-mono">{dob}</span>
+            <span className="font-mono  text-[6px]">{dob}</span>
           </div>
           <div className="col-span-4 truncate">
             <span className="text-[5.5px] text-gray-700 font-semibold">Blood Group : </span>
-            <span>{bgroup}</span>
+            <span className=' text-[6px]'>{bgroup}</span>
           </div>
           <div className="col-span-3 text-right truncate">
             <span className="text-[5.5px] text-gray-700 font-semibold">Organ Donor : </span>
-            <span>{organDonor}</span>
+            <span className=' text-[6px]'>{organDonor}</span>
           </div>
         </div>
 
         {/* Father / Husband Name */}
         <div className="mt-0.5 truncate text-[7px]">
-          <span className="text-[6px] text-gray-700 font-semibold">Son/Wife/Daughter of : </span>
-          <span className="uppercase">{fatherName}</span>
+          <span className="text-[6px] text-gray-700 font-semibold">Son/Wife/Daughter of: </span>
+          <span className="uppercase  text-[6px]">{fatherName}</span>
         </div>
 
         {/* Address */}
-        <div className="mt-0.5 text-[6.5px] leading-snug">
-          <span className="text-[5.5px] text-gray-700 font-semibold block leading-none">Address :</span>
-          <span className="font-medium text-gray-900 line-clamp-2 uppercase block mt-0.5">
+        <div className="mt-0.5 text-[6.5px] leading-snug flex flex-row space-x-1">
+          <span className="text-[6px] text-gray-700 font-semibold">Address: </span>
+          <span className="font-medium text-[6px] text-gray-900 uppercase">
             {address}
           </span>
         </div>

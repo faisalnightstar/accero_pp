@@ -29,12 +29,12 @@ const docTypesList: Array<{
   example: string;
   fee: number;
 }> = [
-  { id: 'pan', label: 'PAN Card', hint: '10-character PAN number', icon: CreditCard, example: 'ABCDE1234F', fee: 50 },
-  { id: 'rc', label: 'Vehicle RC', hint: 'Vehicle registration certificate number', icon: Car, example: 'UP16DL3137', fee: 35 },
-  { id: 'dl', label: 'Driving License', hint: 'State transport license number', icon: CreditCard, example: 'DL-0420110123456', fee: 30 },
-  { id: 'aadhaar', label: 'Aadhaar Card', hint: '12-digit UIDAI number', icon: ShieldCheck, example: '5749 0326 7673', fee: 25 },
-  { id: 'voter', label: 'Voter ID', hint: 'Election Commission EPIC number', icon: CheckCircle2, example: 'AXH0801639', fee: 20 },
-];
+    { id: 'pan', label: 'PAN Card', hint: '10-character PAN number', icon: CreditCard, example: 'ABCDE1234F', fee: 50 },
+    { id: 'rc', label: 'Vehicle RC', hint: 'Vehicle registration certificate number', icon: Car, example: 'UP05LD1234', fee: 35 },
+    { id: 'dl', label: 'Driving License', hint: 'State transport license number', icon: CreditCard, example: 'DL-0420110123456', fee: 30 },
+    { id: 'aadhaar', label: 'Aadhaar Card', hint: '12-digit UIDAI number', icon: ShieldCheck, example: '5749 0326 7673', fee: 25 },
+    { id: 'voter', label: 'Voter ID', hint: 'Election Commission EPIC number', icon: CheckCircle2, example: 'ABC0123456', fee: 20 },
+  ];
 
 export function QuickLookupModal({
   isOpen,
@@ -112,11 +112,10 @@ export function QuickLookupModal({
                     setSelectedType(doc.id);
                     setError(null);
                   }}
-                  className={`p-2.5 rounded-xl border text-left flex items-center gap-2 transition-all ${
-                    isSelected
-                      ? 'bg-[#8B1E2D]/20 border-[#E63946] text-white shadow-xs'
-                      : 'bg-slate-800/60 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                  }`}
+                  className={`p-2.5 rounded-xl border text-left flex items-center gap-2 transition-all ${isSelected
+                    ? 'bg-[#8B1E2D]/20 border-[#E63946] text-white shadow-xs'
+                    : 'bg-slate-800/60 border-slate-700/70 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
+                    }`}
                 >
                   <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#E63946]' : 'text-slate-500'}`} />
                   <div className="flex-1 min-w-0">

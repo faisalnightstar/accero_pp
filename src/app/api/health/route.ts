@@ -26,7 +26,7 @@ export async function GET() {
 
     return NextResponse.json({
       status: isHealthy ? 'healthy' : 'degraded',
-      service: 'PrintPortal Next.js API',
+      service: 'Accero PrintPortal API',
       timestamp: new Date().toISOString(),
       latencyMs: Date.now() - startTime,
       database: {

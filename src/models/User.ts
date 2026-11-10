@@ -1,11 +1,13 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
+export type UserRole = 'super_admin' | 'admin' | 'operator' | 'customer' | 'user';
+
 export interface IUser extends Document {
   name: string;
   email: string;
   phone: string;
   passwordHash: string;
-  role: 'user' | 'admin';
+  role: UserRole;
   walletId?: mongoose.Types.ObjectId;
   status: 'active' | 'suspended';
   resetPasswordToken?: string;
@@ -46,7 +48,7 @@ const UserSchema: Schema<IUser> = new Schema(
     },
     role: {
       type: String,
-      enum: ['user', 'admin'],
+      enum: ['super_admin', 'admin', 'operator', 'customer', 'user'],
       default: 'user',
     },
     walletId: {

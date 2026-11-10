@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { DocumentType } from '@/types/cards';
+import { DocumentType, DlVehicleClass } from '@/types/cards';
 import AssetDropzone from '@/components/studio/AssetDropzone';
 import {
   CreditCard,
@@ -15,9 +15,25 @@ import {
   Languages,
   Sparkles,
   Loader2,
+  Plus,
+  Trash2,
 } from 'lucide-react';
 import { VOTER_LANGUAGES, VoterLanguageCode, translateVoterText } from '@/lib/voterLanguages';
 import { AADHAAR_LANGUAGES, AadhaarLanguageCode, translateAadhaarText } from '@/lib/aadhaarLanguages';
+
+const DL_VEHICLE_PRESETS = [
+  { code: 'MCWG', desc: 'Motor Cycle With Gear', category: 'NT' },
+  { code: 'LMV', desc: 'Light Motor Vehicle', category: 'NT' },
+  { code: 'MCWOG', desc: 'Motor Cycle Without Gear', category: 'NT' },
+  { code: 'LMV-NT', desc: 'Light Motor Vehicle (Non-Transport)', category: 'NT' },
+  { code: 'TRANS', desc: 'Transport Vehicle', category: 'TR' },
+  { code: 'LMV-TR', desc: 'Light Motor Vehicle (Transport)', category: 'TR' },
+  { code: 'HMV', desc: 'Heavy Motor Vehicle', category: 'TR' },
+  { code: 'HGMV', desc: 'Heavy Goods Motor Vehicle', category: 'TR' },
+  { code: 'HPMV', desc: 'Heavy Passenger Motor Vehicle', category: 'TR' },
+  { code: 'E-RICK', desc: 'E-Rickshaw / E-Cart', category: 'TR' },
+  { code: 'INVCRG', desc: 'Invalid Carriage', category: 'NT' },
+];
 
 interface CardFormProps {
   docType: DocumentType;
@@ -55,8 +71,8 @@ export default function CardForm({
         isTransgender
           ? langConfig.labels.transgender
           : isFemale
-          ? langConfig.labels.female
-          : langConfig.labels.male
+            ? langConfig.labels.female
+            : langConfig.labels.male
       );
 
       // 2. Translate dynamic resident details via Google Translate GTX API
@@ -139,6 +155,54 @@ export default function CardForm({
     const state = data.state || '';
     const full = [houseNo, part, tehsil, district, state].filter(Boolean).join(', ');
     onFieldChange('fullAddress', full);
+  };
+
+  // Driving License Vehicle Classes Handlers
+  const handleDlVehicleClassChange = (
+    index: number,
+    field: keyof DlVehicleClass,
+    val: string
+  ) => {
+    const currentList: DlVehicleClass[] = Array.isArray(data.vehicleClasses)
+      ? [...data.vehicleClasses]
+      : [];
+    if (!currentList[index]) return;
+    currentList[index] = {
+      ...currentList[index],
+      [field]: val,
+    };
+    onFieldChange('vehicleClasses', currentList);
+  };
+
+  const handleAddDlVehicleClass = (preset?: { code: string; desc: string; category?: string }) => {
+    const currentList: DlVehicleClass[] = Array.isArray(data.vehicleClasses)
+      ? [...data.vehicleClasses]
+      : [];
+    if (currentList.length >= 6) return;
+
+    const newClass: DlVehicleClass = preset
+      ? {
+        code: preset.code,
+        desc: preset.desc,
+        issueDate: data.issueDate || '10-06-2021',
+        category: preset.category || 'NT',
+      }
+      : {
+        code: 'LMV',
+        desc: 'Light Motor Vehicle',
+        issueDate: data.issueDate || '10-06-2021',
+        category: 'NT',
+      };
+
+    onFieldChange('vehicleClasses', [...currentList, newClass]);
+  };
+
+  const handleRemoveDlVehicleClass = (index: number) => {
+    const currentList: DlVehicleClass[] = Array.isArray(data.vehicleClasses)
+      ? [...data.vehicleClasses]
+      : [];
+    const updated = currentList.filter((_, i) => i !== index);
+    onFieldChange('vehicleClasses', updated);
   };
 
   // Helper to render an input field with optional amber missing-field badge
@@ -424,8 +488,8 @@ export default function CardForm({
                     val === 'FEMALE'
                       ? langConfig.labels.female
                       : val === 'TRANSGENDER'
-                      ? langConfig.labels.transgender
-                      : langConfig.labels.male
+                        ? langConfig.labels.transgender
+                        : langConfig.labels.male
                   );
                 }}
                 className="w-full text-xs font-semibold rounded-lg border border-gray-300 p-2 bg-white text-navy focus:ring-2 focus:ring-burgundy/20 focus:border-burgundy outline-none transition-all"
@@ -436,10 +500,10 @@ export default function CardForm({
               </select>
             </div>
             <div>
-              {renderInput('careOf', 'Care of / Son of (English)', 'S/O: Pyarelal', 'text', false)}
+              {renderInput('careOf', 'Care of / Son of (English)', 'S/O Pyarelal', 'text', false)}
             </div>
             <div>
-              {renderInput('careOfRegional', 'Care of (Hindi / Regional)', 'आत्मज: प्यारेलाल', 'text', false)}
+              {renderInput('careOfRegional', 'Care of (Hindi / Regional)', 'आत्मज प्यारेलाल', 'text', false)}
             </div>
             <div className="sm:col-span-2">
               {renderInput('address', 'Full Address (English)', 'House No, Street, City, State - PIN', 'text', true)}
@@ -527,22 +591,20 @@ export default function CardForm({
                 <button
                   type="button"
                   onClick={() => onFieldChange('layoutFormat', 'cr80')}
-                  className={`py-1.5 px-3 rounded-lg text-xs font-bold border transition-colors ${
-                    (data.layoutFormat || 'cr80') === 'cr80'
-                      ? 'bg-burgundy text-white border-burgundy shadow-xs'
-                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
-                  }`}
+                  className={`py-1.5 px-3 rounded-lg text-xs font-bold border transition-colors ${(data.layoutFormat || 'cr80') === 'cr80'
+                    ? 'bg-burgundy text-white border-burgundy shadow-xs'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
+                    }`}
                 >
                   CR80 Card (PVC)
                 </button>
                 <button
                   type="button"
                   onClick={() => onFieldChange('layoutFormat', 'sheet')}
-                  className={`py-1.5 px-3 rounded-lg text-xs font-bold border transition-colors ${
-                    data.layoutFormat === 'sheet'
-                      ? 'bg-burgundy text-white border-burgundy shadow-xs'
-                      : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
-                  }`}
+                  className={`py-1.5 px-3 rounded-lg text-xs font-bold border transition-colors ${data.layoutFormat === 'sheet'
+                    ? 'bg-burgundy text-white border-burgundy shadow-xs'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'
+                    }`}
                 >
                   Full Sheet (A4)
                 </button>
@@ -555,7 +617,7 @@ export default function CardForm({
             <h4 className="text-xs font-extrabold uppercase tracking-wider text-gray-500">1. Elector Identity</h4>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                {renderInput('epicNumber', 'EPIC Number', 'e.g. AXH0801639', 'text', true)}
+                {renderInput('epicNumber', 'EPIC Number', 'e.g. ABC0123456', 'text', true)}
               </div>
               <div>
                 {renderInput('electorName', 'Elector Name (English)', 'e.g. RUPLAL SAH', 'text', true)}
@@ -694,54 +756,233 @@ export default function CardForm({
 
       {/* ---------------- DRIVING LICENSE FORM ---------------- */}
       {docType === 'dl' && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-2 border-b border-gray-100 pb-3">
-            <CreditCard className="w-5 h-5 text-burgundy" />
-            <h3 className="text-sm font-bold text-navy">Driving License Details</h3>
+        <div className="space-y-5">
+          <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <div className="flex items-center gap-2">
+              <CreditCard className="w-5 h-5 text-burgundy" />
+              <h3 className="text-sm font-bold text-navy">Driving License Details</h3>
+            </div>
+            <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              Form 7 Standard
+            </span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
-              {renderInput('dlNumber', 'Driving Licence Number', 'e.g. UP-1620210012345', 'text', true)}
+          {/* Section 1: Core Driver & License Identity */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <User className="w-3.5 h-3.5 text-burgundy" />
+              <span>1. Driver & License Identity</span>
             </div>
-            <div className="sm:col-span-2">
-              {renderInput('holderName', 'Driver Full Name', 'e.g. ROHIT KHATRI', 'text', true)}
-            </div>
-            <div className="sm:col-span-2">
-              {renderInput('fatherOrHusbandName', 'S/W/D of', 'e.g. MOHAMMAD FAISAL', 'text', true)}
-            </div>
-            <div>
-              {renderInput('dateOfBirth', 'Date of Birth (DD-MM-YYYY)', '15-08-1990', 'text', true)}
-            </div>
-            <div>
-              {renderInput('gender', 'Gender', 'MALE', 'text', false)}
-            </div>
-            <div>
-              {renderInput('bloodGroup', 'Blood Group', 'O+', 'text', false)}
-            </div>
-            <div>
-              {renderInput('organDonor', 'Organ Donor', 'N', 'text', false)}
-            </div>
-            <div>
-              {renderInput('state', 'State', 'UTTAR PRADESH', 'text', false)}
-            </div>
-            <div>
-              {renderInput('emergencyContact', 'Emergency Contact', '9876543210', 'text', false)}
-            </div>
-            <div>
-              {renderInput('issueDate', 'Issue Date (DD-MM-YYYY)', '10-06-2021', 'text', true)}
-            </div>
-            <div>
-              {renderInput('validityNonTransport', 'Validity Non-Transport (NT)', '14-08-2040', 'text', true)}
-            </div>
-            <div className="sm:col-span-2">
-              {renderInput('issuingAuthority', 'Issuing RTO Authority', 'RTO NOIDA (UP16)', 'text', true)}
-            </div>
-            <div className="sm:col-span-2">
-              {renderInput('address', 'Permanent Address', 'Full Residential Address', 'text', true)}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="sm:col-span-2">
+                {renderInput('dlNumber', 'Driving Licence Number', 'e.g. UP-1620210012345', 'text', true)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('holderName', 'Driver Full Name', 'e.g. ROHIT KHATRI', 'text', true)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('fatherOrHusbandName', 'S/W/D of (Son/Wife/Daughter of)', 'e.g. MOHAMMAD FAISAL', 'text', true)}
+              </div>
+              <div>
+                {renderInput('dateOfBirth', 'Date of Birth (DD-MM-YYYY)', '15-08-1990', 'text', true)}
+              </div>
+              <div>
+                {renderInput('gender', 'Gender', 'MALE', 'text', false)}
+              </div>
+              <div>
+                {renderInput('bloodGroup', 'Blood Group', 'O+', 'text', false)}
+              </div>
+              <div>
+                {renderInput('organDonor', 'Organ Donor (Y / N)', 'N', 'text', false)}
+              </div>
+              <div>
+                {renderInput('state', 'State', 'UTTAR PRADESH', 'text', false)}
+              </div>
+              <div>
+                {renderInput('emergencyContact', 'Emergency Contact', '9876543210', 'text', false)}
+              </div>
+              <div>
+                {renderInput('issueDate', 'Issue Date (DD-MM-YYYY)', '10-06-2021', 'text', true)}
+              </div>
+              <div>
+                {renderInput('validityNonTransport', 'Validity Non-Transport (NT)', '14-08-2040', 'text', true)}
+              </div>
+              <div>
+                {renderInput('validityTransport', 'Validity Transport (TR)', '09-06-2026', 'text', false)}
+              </div>
+              <div>
+                {renderInput('issuingAuthority', 'Issuing RTO Authority', 'RTO NOIDA (UP16)', 'text', true)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('address', 'Permanent Address', 'Full Residential Address', 'text', true)}
+              </div>
             </div>
           </div>
 
+          {/* ADPVEH No & Validity Rows */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+                <Shield className="w-3.5 h-3.5 text-burgundy" />
+                <span>2. ADPVEH No & Validity Rows</span>
+              </div>
+              <span className="text-[10px] text-gray-500 font-medium">Card Back Endorsement</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="sm:col-span-3">
+                {renderInput('adpvehNo', 'ADPVEH No.(Regn.Numbers)', 'e.g. UP16AB1234 or -', 'text', false)}
+              </div>
+              <div>
+                {renderInput('hazardousValidUpto', 'Hazardous Validity', 'e.g. 15-08-2028 or -', 'text', false)}
+              </div>
+              <div>
+                {renderInput('hillValidUpto', 'Hill Validity', 'e.g. 15-08-2028 or -', 'text', false)}
+              </div>
+            </div>
+          </div>
+
+          {/* Vehicle Classes Endorsement Table (Form 7 match) */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <Car className="w-3.5 h-3.5 text-burgundy" />
+                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                  3. Vehicle Classes Endorsement Table (Form 7 match)
+                </h4>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={`text-[11px] font-bold px-2 py-0.5 rounded border ${(data.vehicleClasses?.length || 0) >= 6 ? 'bg-amber-50 text-amber-700 border-amber-300' : 'bg-blue-50 text-blue-700 border-blue-200'}`}>
+                  {(data.vehicleClasses?.length || 0)} / 6 Classes
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleAddDlVehicleClass()}
+                  disabled={(data.vehicleClasses?.length || 0) >= 6}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-bold rounded-lg bg-burgundy hover:bg-burgundy/90 text-white shadow-2xs transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Class</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Preset Badges */}
+            <div className="flex items-center flex-wrap gap-1.5 pt-1">
+              <span className="text-[10px] font-bold text-gray-500 uppercase mr-1">Quick Add:</span>
+              {DL_VEHICLE_PRESETS.map((p) => {
+                const isAdded = (data.vehicleClasses || []).some(
+                  (c: DlVehicleClass) => c.code?.toUpperCase() === p.code.toUpperCase()
+                );
+                return (
+                  <button
+                    key={p.code}
+                    type="button"
+                    onClick={() => handleAddDlVehicleClass(p)}
+                    disabled={(data.vehicleClasses?.length || 0) >= 6 || isAdded}
+                    title={`${p.desc} (${p.category})`}
+                    className={`text-[10.5px] px-2 py-0.5 rounded-md font-semibold border transition-all ${isAdded
+                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed line-through'
+                      : (data.vehicleClasses?.length || 0) >= 6
+                        ? 'opacity-40 cursor-not-allowed border-gray-200 bg-white text-gray-400'
+                        : 'bg-white text-navy border-gray-300 hover:border-burgundy hover:text-burgundy hover:bg-burgundy/5'
+                      }`}
+                  >
+                    +{p.code}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Vehicle Classes Rows Table */}
+            {Array.isArray(data.vehicleClasses) && data.vehicleClasses.length > 0 ? (
+              <div className="overflow-x-auto border border-gray-200 rounded-lg bg-white shadow-2xs">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-gray-100/80 text-[11px] font-bold text-gray-700 uppercase border-b border-gray-200">
+                    <tr>
+                      <th className="py-2 px-2.5 w-8 text-center">#</th>
+                      <th className="py-2 px-2.5">Class of Vehicle (Description)</th>
+                      <th className="py-2 px-2.5 w-24">Code</th>
+                      <th className="py-2 px-2.5 w-28">Date of Issue</th>
+                      <th className="py-2 px-2.5 w-20">Category</th>
+                      <th className="py-2 px-2 w-10 text-center"></th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {data.vehicleClasses.map((item: DlVehicleClass, idx: number) => (
+                      <tr key={idx} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="py-2 px-2.5 text-center font-bold text-gray-500 text-[11px]">
+                          {idx + 1}
+                        </td>
+                        <td className="py-1.5 px-2.5">
+                          <input
+                            type="text"
+                            value={item.desc || ''}
+                            onChange={(e) => handleDlVehicleClassChange(idx, 'desc', e.target.value)}
+                            placeholder="e.g. Motor Cycle With Gear"
+                            className="w-full px-2 py-1 text-xs rounded border border-gray-200 focus:border-burgundy focus:ring-1 focus:ring-burgundy/20 outline-none font-medium"
+                          />
+                        </td>
+                        <td className="py-1.5 px-2.5">
+                          <input
+                            type="text"
+                            value={item.code || ''}
+                            onChange={(e) => handleDlVehicleClassChange(idx, 'code', e.target.value.toUpperCase())}
+                            placeholder="MCWG"
+                            className="w-full px-2 py-1 text-xs font-mono font-bold uppercase rounded border border-gray-200 focus:border-burgundy focus:ring-1 focus:ring-burgundy/20 outline-none"
+                          />
+                        </td>
+                        <td className="py-1.5 px-2.5">
+                          <input
+                            type="text"
+                            value={item.issueDate || ''}
+                            onChange={(e) => handleDlVehicleClassChange(idx, 'issueDate', e.target.value)}
+                            placeholder="DD-MM-YYYY"
+                            className="w-full px-2 py-1 text-xs font-mono rounded border border-gray-200 focus:border-burgundy focus:ring-1 focus:ring-burgundy/20 outline-none"
+                          />
+                        </td>
+                        <td className="py-1.5 px-2.5">
+                          <select
+                            value={item.category || 'NT'}
+                            onChange={(e) => handleDlVehicleClassChange(idx, 'category', e.target.value)}
+                            className="w-full px-1.5 py-1 text-xs font-semibold rounded border border-gray-200 bg-white focus:border-burgundy focus:ring-1 focus:ring-burgundy/20 outline-none"
+                          >
+                            <option value="NT">NT</option>
+                            <option value="TR">TR</option>
+                          </select>
+                        </td>
+                        <td className="py-1.5 px-2 text-center">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveDlVehicleClass(idx)}
+                            title="Remove Class"
+                            className="p-1 rounded text-gray-400 hover:text-crimson hover:bg-red-50 transition-colors"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="text-center py-6 px-4 bg-white border border-dashed border-gray-300 rounded-lg">
+                <Car className="w-6 h-6 text-gray-400 mx-auto mb-1.5" />
+                <p className="text-xs font-semibold text-gray-700">No Vehicle Classes Added</p>
+                <p className="text-[11px] text-gray-500 mb-3">Add up to 6 vehicle class endorsements for Form 7 layout</p>
+                <button
+                  type="button"
+                  onClick={() => handleAddDlVehicleClass()}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold rounded-lg bg-burgundy text-white hover:bg-burgundy/90 transition-all shadow-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add First Vehicle Class</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Section 4: Photographs & Specimen Signatures */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-gray-100 pt-4">
             <AssetDropzone
               label="Driver Photograph"
@@ -778,6 +1019,65 @@ export default function CardForm({
             <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
               Form 23A Standard
             </span>
+          </div>
+
+          {/* Template & Print Format Selection */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-navy mb-1.5">
+                Official Template Variant
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => onFieldChange('templateVariant', 'authentic')}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${(data.templateVariant || 'authentic') === 'authentic'
+                    ? 'bg-burgundy text-white border-burgundy shadow-xs'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
+                >
+                  Form 23A (Authentic)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onFieldChange('templateVariant', 'vector')}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${data.templateVariant === 'vector'
+                    ? 'bg-burgundy text-white border-burgundy shadow-xs'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
+                >
+                  Vector Standard
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-navy mb-1.5">
+                Print & Display Layout
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => onFieldChange('layoutFormat', 'cr80')}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${(data.layoutFormat || 'cr80') === 'cr80'
+                    ? 'bg-navy text-white border-navy shadow-xs'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
+                >
+                  CR80 Tray (Dual)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onFieldChange('layoutFormat', 'sheet')}
+                  className={`px-2.5 py-1.5 text-xs rounded-lg border font-semibold transition-all ${data.layoutFormat === 'sheet'
+                    ? 'bg-navy text-white border-navy shadow-xs'
+                    : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-50'
+                    }`}
+                >
+                  Side-by-Side Sheet
+                </button>
+              </div>
+            </div>
           </div>
 
           {/* Section 1: Registration Header & Badges */}

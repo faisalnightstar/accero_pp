@@ -9,7 +9,7 @@ export function generateSoftwareApplicationSchema(serviceName?: string) {
   return {
     '@context': 'https://schema.org',
     '@type': 'SoftwareApplication',
-    name: serviceName ? `${serviceName} - PrintPortal Next.js` : 'PrintPortal Next.js',
+    name: serviceName ? `${serviceName} - Accero PrintPortal` : 'Accero PrintPortal  ',
     operatingSystem: 'All Modern Web Browsers (Chrome, Firefox, Safari, Edge)',
     applicationCategory: 'BusinessApplication',
     applicationSubCategory: 'Document Printing Utility',
@@ -32,7 +32,7 @@ export function generateSoftwareApplicationSchema(serviceName?: string) {
     },
     creator: {
       '@type': 'Organization',
-      name: 'PrintPortal Next.js Technologies',
+      name: 'Accero PrintPortal Technologies',
       url: BASE_URL,
     },
   };

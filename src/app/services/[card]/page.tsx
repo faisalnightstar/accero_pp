@@ -6,7 +6,6 @@ import {
   CreditCard,
   ShieldCheck,
   CheckCircle2,
-  Car,
   Printer,
   Sparkles,
   ArrowRight,
@@ -18,12 +17,13 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 import { getServiceConfig, getAllServices } from '@/lib/seo/servicesData';
+import { getBaseUrl, getCanonicalUrl } from '@/lib/seo/canonical';
 import {
   generateSoftwareApplicationSchema,
   generateFaqSchema,
   generateHowToSchema,
   generateBreadcrumbSchema,
-} from '@/lib/seo/schemaGenerator';
+} from '@/lib/seo/structuredData';
 import HeroCardPreview from '@/components/seo/HeroCardPreview';
 import HeroLookupForm from '@/components/seo/HeroLookupForm';
 
@@ -35,6 +35,20 @@ interface ServicePageProps {
 
 export async function generateStaticParams() {
   return [
+    { card: 'pan-card-printing' },
+    { card: 'aadhaar-document-management' },
+    { card: 'voter-id-printing' },
+    { card: 'driving-licence-printing' },
+    { card: 'vehicle-rc-printing' },
+    { card: 'ration-card-management' },
+    // Competitor keyword & SEO aliases
+    { card: 'aadhaar-document-processing' },
+    { card: 'ration-card-printing' },
+    { card: 'pan-card-management' },
+    { card: 'voter-id-card-management' },
+    { card: 'driving-licence-management' },
+    { card: 'vehicle-rc-management' },
+    // Backwards compatibility aliases
     { card: 'pan-card' },
     { card: 'aadhaar-card' },
     { card: 'voter-id' },
@@ -48,27 +62,29 @@ export async function generateMetadata({ params }: ServicePageProps): Promise<Me
   const config = getServiceConfig(card);
   if (!config) return {};
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://printportal.vercel.app';
-  const pageUrl = `${baseUrl}/services/${config.slug}`;
+  const baseUrl = getBaseUrl();
+  const canonicalUrl = getCanonicalUrl(`/services/${config.slug}`);
+  const ogImageUrl = `${baseUrl}/api/og?title=${encodeURIComponent(config.title)}`;
 
   return {
     title: config.metaTitle,
     description: config.metaDescription,
     alternates: {
-      canonical: pageUrl,
+      canonical: canonicalUrl,
     },
     openGraph: {
       title: config.metaTitle,
       description: config.metaDescription,
-      url: pageUrl,
-      siteName: 'PrintPortal Next.js',
+      url: canonicalUrl,
+      siteName: 'Accero PrintPortal',
+      locale: 'en_IN',
       type: 'website',
       images: [
         {
-          url: `${baseUrl}/api/og?title=${encodeURIComponent(config.title)}`,
+          url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: config.title,
+          alt: `${config.title} - Accero PrintPortal`,
         },
       ],
     },
@@ -76,6 +92,12 @@ export async function generateMetadata({ params }: ServicePageProps): Promise<Me
       card: 'summary_large_image',
       title: config.metaTitle,
       description: config.metaDescription,
+      images: [ogImageUrl],
+      creator: '@acceroapp',
+    },
+    robots: {
+      index: true,
+      follow: true,
     },
   };
 }
@@ -89,16 +111,20 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
   }
 
   const allServices = getAllServices();
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://printportal.vercel.app';
+  const canonicalUrl = getCanonicalUrl(`/services/${config.slug}`);
 
-  // Generate Schemas
-  const softwareSchema = generateSoftwareApplicationSchema(config.title);
+  // Generate Schemas (clean, verified, no fake ratings)
+  const softwareSchema = generateSoftwareApplicationSchema(
+    `${config.title} - Accero PrintPortal`,
+    'BusinessApplication',
+    config.features
+  );
   const faqSchema = generateFaqSchema(config.faqs);
   const howToSchema = generateHowToSchema(config.title, config.howToSteps);
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: '/' },
     { name: 'Services', url: '/services' },
-    { name: config.shortTitle, url: `/services/${config.slug}` },
+    { name: config.shortTitle, url: canonicalUrl },
   ]);
 
   return (
@@ -198,7 +224,7 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
                   <span>•</span>
                   <span>Resolution: 300+ DPI Vector</span>
                   <span>•</span>
-                  <span>Portal Fee: ₹{config.fee}</span>
+                  <span>Utility Fee: ₹{config.fee}</span>
                 </div>
               </div>
             </div>
@@ -298,7 +324,7 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
             <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">
               Other Official PVC Card Services
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
               {allServices
                 .filter((s) => s.slug !== config.slug)
                 .map((srv) => (
@@ -315,10 +341,10 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
           </section>
 
           {/* Regulatory & Security Disclaimer */}
-          <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800/80 text-[11px] text-slate-500 leading-relaxed flex items-start gap-3">
+          <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800/80 text-[11px] text-slate-400 leading-relaxed flex items-start gap-3">
             <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
             <p>
-              <strong>Compliance Notice:</strong> PrintPortal Next.js is an independent document layout formatting utility and physical card tray alignment tool. It does not issue official government identity documents, manufacture credentials, or impersonate statutory authorities. Users are solely responsible for verifying the authenticity of data processed.
+              <strong>Compliance Notice:</strong> Accero PrintPortal is an independent document layout formatting utility and physical card tray alignment tool. It is not an official government portal, does not issue official credentials, and does not impersonate statutory authorities. Operators are solely responsible for verifying the authenticity of data processed.
             </p>
           </div>
         </div>

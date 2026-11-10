@@ -7,6 +7,7 @@ export const SERVICE_FEES: Record<string, number> = {
   RC: 35,
   DL: 30,
   AADHAAR: 25,
+  RATION: 25,
   VOTER: 20,
   MANUAL: 5,
 };
@@ -26,6 +27,7 @@ export function normalizeDocType(type: string): string {
   if (upper === 'AADHAAR' || upper === 'UID') return 'AADHAAR';
   if (upper === 'DL' || upper === 'DRIVING_LICENSE') return 'DL';
   if (upper === 'RC' || upper === 'VEHICLE_RC') return 'RC';
+  if (upper === 'RATION' || upper === 'RATION_CARD') return 'RATION';
   if (upper === 'MANUAL') return 'MANUAL';
   return upper;
 }

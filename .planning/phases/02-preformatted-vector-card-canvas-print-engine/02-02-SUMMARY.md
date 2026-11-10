@@ -48,7 +48,7 @@ Delivered production-grade vector card canvas renderers for PAN Card and Voter I
   - Front: Income Tax Department heading, Ashoka Lions emblem, photo frame, signature strip, father name, DOB, Permanent Account Number, dynamic verification QR.
   - Back: Official NSDL return guidelines, Code 128 barcode, Income Tax toll-free helplines.
 - **Voter ID Canvas (`src/components/cards/VoterCardCanvas.tsx`)**:
-  - Front: ECI banner, Ashoka Lions & hologram cues, large EPIC number (`AXH0801639`), bilingual elector name (Devanagari + English), relation name, gender, age/DOB.
+  - Front: ECI banner, Ashoka Lions & hologram cues, large EPIC number (`ABC0123456`), bilingual elector name (Devanagari + English), relation name, gender, age/DOB.
   - Back: Assembly Constituency No & Name, Part No & Name, full address, Electoral Registration Officer signature seal, and dynamic QR code.
 - **Showcase Integration (`src/app/cards/page.tsx`)**: Tabbed interface previewing PAN and Voter ID cards with real sample data, zoom controls, flip view, and print simulation.
 

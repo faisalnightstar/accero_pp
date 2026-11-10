@@ -1,17 +1,19 @@
 'use server';
 
 import { DocumentType } from '@/types/cards';
-import { executeProviderCascade } from '@/lib/verify/orchestrator';
-import { getProvidersForDocType } from '@/lib/verify/providerFactory';
 import { VerificationResult } from '@/lib/verify/types';
 import { getSession } from '@/lib/auth';
-import { getRequiredServiceFee } from '@/lib/wallet/pricing';
-import { getWalletBalance, deductWalletFee } from '@/actions/wallet';
+import { lookupDocument } from '@/lib/documents/documentLookup';
+import { getWalletBalance } from '@/actions/wallet';
 
 /**
- * Server Action for document verification with automatic silent cascading and secret isolation.
- * Strictly executes server-side, protecting third-party vendor credentials.
- * Integrates D-01/D-02: Pre-check wallet balance, atomic deduction only on success, ₹0 on error/re-print.
+ * Server Action for document verification.
+ * 
+ * Architecture:
+ * - Database-first lookup: Checks MongoDB for valid 72-hour cached document.
+ * - NeoAPI/Axen/FastNexora is called ONLY when no valid cached record exists.
+ * - Successfully retrieved documents are automatically cached in MongoDB with 72h expiration.
+ * - Searching/Previewing documents does NOT deduct wallet balance (print authorization bills at print time).
  */
 export async function verifyDocument(
   docType: DocumentType,
@@ -43,66 +45,39 @@ export async function verifyDocument(
     };
   }
 
-  // 2. Check service fee & free re-print status
-  const { fee, isFreeReprint } = await getRequiredServiceFee(
-    session.userId,
+  // 2. Execute centralized, database-first document lookup
+  const lookup = await lookupDocument({
+    userId: session.userId,
     docType,
-    sanitizedId,
-    false
-  );
+    documentNumber: sanitizedId,
+  });
 
-  // 3. Pre-flight wallet balance check (if not free reprint)
-  if (!isFreeReprint && fee > 0) {
-    const balanceResult = await getWalletBalance();
-    if (!balanceResult.success || balanceResult.balance < fee) {
-      return {
-        success: false,
-        documentType: docType,
-        idNumber: sanitizedId,
-        data: {},
-        isPartial: false,
-        errorMessage: 'INSUFFICIENT_BALANCE',
-        requiredFee: fee,
-        currentBalance: balanceResult.balance || 0,
-        isFreeReprint: false,
-      };
-    }
+  const walletRes = await getWalletBalance();
+  const currentBalance = walletRes.success ? walletRes.balance : 0;
+
+  if (!lookup.success) {
+    return {
+      success: false,
+      documentType: docType,
+      idNumber: sanitizedId,
+      data: {},
+      isPartial: false,
+      errorMessage: lookup.errorMessage || 'Document record not found.',
+      feeDeducted: 0,
+      currentBalance,
+    };
   }
 
-  // 4. Execute external provider cascade
-  const providers = getProvidersForDocType(docType);
-  const result = await executeProviderCascade(docType, sanitizedId, providers);
-
-  // 5. If lookup succeeded:
-  if (result.success) {
-    if (isFreeReprint || fee === 0) {
-      // Document was already generated/paid: 100% free re-print!
-      result.feeDeducted = 0;
-      result.isFreeReprint = true;
-    } else {
-      // Atomically deduct the fee
-      const deduction = await deductWalletFee(
-        docType,
-        sanitizedId,
-        `${docType.toUpperCase()} Verification Fee (${sanitizedId})`
-      );
-
-      if (deduction.success) {
-        result.feeDeducted = fee;
-        result.isFreeReprint = false;
-        result.currentBalance = deduction.balanceAfter;
-      } else {
-        // In rare race condition where balance dropped during API call
-        console.warn('[Verify] Post-lookup deduction failed:', deduction.error);
-        result.feeDeducted = 0;
-        result.isFreeReprint = false;
-      }
-    }
-  } else {
-    // 6. Zero deduction on failed or timed-out lookups
-    result.feeDeducted = 0;
-    result.isFreeReprint = isFreeReprint;
-  }
-
-  return result;
+  return {
+    success: true,
+    documentType: docType,
+    idNumber: sanitizedId,
+    data: lookup.data,
+    isPartial: lookup.isPartial || false,
+    provider: lookup.provider || (lookup.cache?.hit ? 'Cache (MongoDB 72h)' : 'Gateway'),
+    feeDeducted: 0, // No deduction on preview/search
+    isFreeReprint: lookup.cache?.hit,
+    currentBalance,
+    latencyMs: lookup.latencyMs,
+  };
 }

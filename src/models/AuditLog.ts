@@ -1,0 +1,105 @@
+import mongoose, { Schema, Document, Model } from 'mongoose';
+
+export type AuditAction =
+  | 'AUTH_LOGIN_SUCCESS'
+  | 'AUTH_LOGIN_FAILED'
+  | 'AUTH_REGISTER'
+  | 'AUTH_LOGOUT'
+  | 'AUTH_PASSWORD_RESET_REQUEST'
+  | 'AUTH_PASSWORD_RESET_SUCCESS'
+  | 'WALLET_ORDER_CREATED'
+  | 'WALLET_PAYMENT_VERIFIED'
+  | 'WALLET_PAYMENT_DUPLICATE_ATTEMPT'
+  | 'WALLET_DEDUCTION_RESERVED'
+  | 'WALLET_DEDUCTION_FINALIZED'
+  | 'WALLET_DEDUCTION_REFUNDED'
+  | 'WALLET_MANUAL_UTR_SUBMITTED'
+  | 'WALLET_MANUAL_UTR_APPROVED'
+  | 'WALLET_MANUAL_UTR_REJECTED'
+  | 'DOCUMENT_CACHE_HIT'
+  | 'DOCUMENT_API_FETCH_SUCCESS'
+  | 'DOCUMENT_PRINT_AUTHORIZED'
+  | 'SECURITY_RATE_LIMITED'
+  | 'SECURITY_UNAUTHORIZED_ACCESS'
+  | 'SECURITY_SANDBOX_BLOCKED';
+
+export interface IAuditLog extends Document {
+  actorId?: mongoose.Types.ObjectId;
+  actorEmail?: string;
+  action: AuditAction;
+  resourceType: 'AUTH' | 'WALLET' | 'PAYMENT' | 'DOCUMENT' | 'SECURITY' | 'PRINT_JOB';
+  resourceId?: string;
+  details: Record<string, any>;
+  ip?: string;
+  userAgent?: string;
+  status: 'SUCCESS' | 'FAILURE' | 'WARNING';
+  createdAt: Date;
+}
+
+const AuditLogSchema: Schema<IAuditLog> = new Schema(
+  {
+    actorId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      index: true,
+    },
+    actorEmail: {
+      type: String,
+      trim: true,
+      lowercase: true,
+    },
+    action: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    resourceType: {
+      type: String,
+      enum: ['AUTH', 'WALLET', 'PAYMENT', 'DOCUMENT', 'SECURITY'],
+      required: true,
+      index: true,
+    },
+    resourceId: {
+      type: String,
+      trim: true,
+      index: true,
+    },
+    details: {
+      type: Schema.Types.Mixed,
+      default: {},
+    },
+    ip: {
+      type: String,
+      trim: true,
+    },
+    userAgent: {
+      type: String,
+      trim: true,
+    },
+    status: {
+      type: String,
+      enum: ['SUCCESS', 'FAILURE', 'WARNING'],
+      default: 'SUCCESS',
+      index: true,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      index: true,
+    },
+  },
+  {
+    timestamps: false,
+  }
+);
+
+// Compound indexes for audit querying and security analysis
+AuditLogSchema.index({ action: 1, createdAt: -1 });
+AuditLogSchema.index({ actorId: 1, createdAt: -1 });
+AuditLogSchema.index({ resourceType: 1, resourceId: 1 });
+
+export const AuditLog: Model<IAuditLog> =
+  mongoose.models.AuditLog || mongoose.model<IAuditLog>('AuditLog', AuditLogSchema);
+
+export default AuditLog;
+

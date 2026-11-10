@@ -4,16 +4,45 @@ import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/models/User';
 import Wallet from '@/models/Wallet';
 import { hashPassword, signJwtToken } from '@/lib/auth';
+import { checkRateLimit } from '@/lib/security/rateLimiter';
+import { logAuditEvent } from '@/lib/logger/audit';
 
 const registerSchema = z.object({
-  name: z.string().min(2, 'Name must be at least 2 characters'),
+  name: z.string().min(2, 'Name must be at least 2 characters').max(100),
   email: z.string().email('Invalid email address'),
   phone: z.string().regex(/^[0-9]{10}$/, 'Must be a 10-digit mobile number'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters long for security'),
 });
 
+function getClientIp(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) return forwarded.split(',')[0].trim();
+  const cfIp = request.headers.get('cf-connecting-ip');
+  if (cfIp) return cfIp.trim();
+  const realIp = request.headers.get('x-real-ip');
+  if (realIp) return realIp.trim();
+  return '127.0.0.1';
+}
+
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const userAgent = request.headers.get('user-agent') || undefined;
+
   try {
+    // Rate limit registration by IP (max 5 per minute)
+    const rateLimit = await checkRateLimit('AUTH_REGISTER', ip);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: `Too many registration attempts. Please wait ${rateLimit.retryAfterSeconds} seconds.`,
+        },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) },
+        }
+      );
+    }
+
     const body = await request.json();
     const validatedData = registerSchema.parse(body);
 
@@ -58,6 +87,18 @@ export async function POST(request: Request) {
     // Link wallet to user
     user.walletId = wallet._id as any;
     await user.save();
+
+    await logAuditEvent({
+      actorId: user._id,
+      actorEmail: user.email,
+      action: 'AUTH_REGISTER',
+      resourceType: 'AUTH',
+      resourceId: user._id.toString(),
+      ip,
+      userAgent,
+      details: { name: user.name, phone: user.phone },
+      status: 'SUCCESS',
+    });
 
     // Issue JWT Token in HTTP-only Cookie
     const token = await signJwtToken({

@@ -15,27 +15,37 @@ import {
   Shield,
   FileCheck,
   ExternalLink,
+  UtensilsCrossed,
 } from 'lucide-react';
 import { getAllServices } from '@/lib/seo/servicesData';
+import { getBaseUrl, getCanonicalUrl } from '@/lib/seo/canonical';
 import {
   generateSoftwareApplicationSchema,
   generateBreadcrumbSchema,
-} from '@/lib/seo/schemaGenerator';
+} from '@/lib/seo/structuredData';
 
 export const metadata: Metadata = {
-  title: 'Official PVC Card Printing Services Directory | PrintPortal Next.js',
+  title: 'PVC Card Printing Services Directory | Accero PrintPortal',
   description:
-    'Browse all official-standard preformatted PVC card printing services: PAN Card, Aadhaar Card, Voter ID (EPIC), Driving License (DL), and Vehicle RC. High-DPI ISO 7810 CR80 print-ready PDF export.',
+    'Browse all official-standard preformatted PVC card printing services: PAN Card, Aadhaar Card, Voter ID (EPIC), Driving Licence (DL), Vehicle RC, and Ration Card. High-DPI ISO 7810 CR80 print-ready PDF export.',
   alternates: {
-    canonical: 'https://printportal.vercel.app/services',
+    canonical: getCanonicalUrl('/services'),
   },
   openGraph: {
-    title: 'Official PVC Card Printing Services Directory | PrintPortal Next.js',
+    title: 'PVC Card Printing Services Directory | Accero PrintPortal',
     description:
-      'Instant number lookup and print-ready CR80 PVC card formatting for PAN, Aadhaar, Voter, Driving License, and Vehicle RC.',
-    url: 'https://printportal.vercel.app/services',
-    siteName: 'PrintPortal Next.js',
+      'Instant number lookup and print-ready CR80 PVC card formatting for PAN, Aadhaar, Voter, Driving Licence, Vehicle RC, and Ration Card.',
+    url: getCanonicalUrl('/services'),
+    siteName: 'Accero PrintPortal',
     type: 'website',
+    images: [
+      {
+        url: `${getBaseUrl()}/api/og?title=${encodeURIComponent('PVC Card Printing Services Directory')}`,
+        width: 1200,
+        height: 630,
+        alt: 'PVC Card Printing Services Directory - Accero PrintPortal',
+      },
+    ],
   },
 };
 
@@ -60,6 +70,8 @@ export default function ServicesDirectoryPage() {
         return <CreditCard className="w-6 h-6 text-indigo-500" />;
       case 'rc':
         return <Car className="w-6 h-6 text-purple-500" />;
+      case 'ration':
+        return <UtensilsCrossed className="w-6 h-6 text-teal-500" />;
       default:
         return <Printer className="w-6 h-6 text-slate-400" />;
     }
@@ -116,7 +128,7 @@ export default function ServicesDirectoryPage() {
                       {getServiceIcon(svc.docType)}
                     </div>
                     <span className="px-3 py-1 rounded-full text-xs font-black bg-[#8B1E2D]/20 text-[#F4D35E] border border-[#8B1E2D]/40">
-                      ₹{svc.fee} per lookup
+                      ₹{svc.fee} / lookup
                     </span>
                   </div>
 
@@ -170,7 +182,7 @@ export default function ServicesDirectoryPage() {
                 <p className="text-xs text-slate-400 leading-relaxed max-w-2xl">
                   Outputs conform strictly to the international ISO/IEC 7810 ID-1 standard (85.60 mm × 53.98 mm).
                   Compatible with all standard PVC card printer trays on Epson, Canon, Zebra, Evolis, and Magicard printers.
-                  PrintPortal is an authorized formatting and layout digital utility with zero government agency impersonation.
+                  Accero PrintPortal is an independent digital formatting utility with zero statutory authority impersonation.
                 </p>
               </div>
             </div>

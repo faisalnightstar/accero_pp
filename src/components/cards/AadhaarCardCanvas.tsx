@@ -12,6 +12,12 @@ interface AadhaarCardCanvasProps {
   className?: string;
 }
 
+const COMMA_SERIF_REGULAR =
+  '"Comma Serif Regular", "Comma Serif", "Noto Serif", "DejaVu Serif", Georgia, serif';
+
+const ROCKWELL_NUMBER_FONT =
+  '"Rockwell", "Rockwell Nova", "GeoSlab703 Md BT", "Roboto Slab", serif';
+
 export default function AadhaarCardCanvas({
   data,
   side = 'front',
@@ -33,9 +39,8 @@ export default function AadhaarCardCanvas({
   const sheetAsset = langConfig.sheetAsset || '/assets/aadhar/HI.jpg';
 
   // Standard UIDAI XML barcode string for high-density QR code
-  const uidaiXml = `<PrintLetterBarcodeData uid="${rawNum}" name="${data.name || ''}" gender="${
-    data.gender === 'FEMALE' ? 'F' : 'M'
-  }" dob="${data.dateOfBirth || ''}" co="${data.careOf || ''}" house="" street="" dist="" state="" pc=""/>`;
+  const uidaiXml = `<PrintLetterBarcodeData uid="${rawNum}" name="${data.name || ''}" gender="${data.gender === 'FEMALE' ? 'F' : 'M'
+    }" dob="${data.dateOfBirth || ''}" co="${data.careOf || ''}" house="" street="" dist="" state="" pc=""/>`;
 
   // Guard against date value erroneously passed into regional DOB label field
   const isDateValue = (val?: string) => Boolean(val && /\d/.test(val));
@@ -51,8 +56,8 @@ export default function AadhaarCardCanvas({
   const defaultGenderRegional = isTransgender
     ? langConfig.labels.transgender
     : isFemale
-    ? langConfig.labels.female
-    : langConfig.labels.male;
+      ? langConfig.labels.female
+      : langConfig.labels.male;
 
   let resolvedGenderRegional = data.genderRegional?.trim() || defaultGenderRegional;
   if (isFemale && resolvedGenderRegional === langConfig.labels.male) {
@@ -64,15 +69,36 @@ export default function AadhaarCardCanvas({
   const addressLabel = data.labelAddressRegional || langConfig.labels.address;
   const isFullSheet = data.layoutFormat === 'sheet';
 
+  // Format continuous address text ensuring Care Of flows inline into the address
+  const formatAddressLine = (careOf?: string, address?: string) => {
+    const co = (careOf || '').trim().replace(/[,;:\-\s]+$/, '');
+    const addr = (address || '').trim().replace(/^[,;:\-\s]+/, '');
+    if (!co && !addr) return '';
+    if (!co) return addr;
+    if (!addr) return co;
+    return `${co}, ${addr}`;
+  };
+
+  const regionalAddressText = formatAddressLine(
+    data.careOfRegional || data.careOf,
+    data.addressRegional || data.address || 'Address Details Pending'
+  );
+
+  const englishAddressText = formatAddressLine(
+    data.careOf,
+    data.address || 'Address Details Pending'
+  );
+
   /* -------------------------------------------------------------
    * 1. FULL OFFICIAL A4 e-AADHAAR SHEET MODE (aadhar.php match)
    * ----------------------------------------------------------- */
   if (side === 'sheet' && isFullSheet) {
     return (
       <div
-        className={`w-full h-full relative overflow-hidden select-none bg-white font-sans ${className}`}
+        className={`w-full h-full relative overflow-hidden select-none bg-white font-aadhaar ${className}`}
         style={{
           aspectRatio: '2480 / 3508',
+          fontFamily: COMMA_SERIF_REGULAR,
           printColorAdjust: 'exact',
           WebkitPrintColorAdjust: 'exact',
         }}
@@ -87,10 +113,11 @@ export default function AadhaarCardCanvas({
 
         {/* Enrollment Number in Upper Letterhead */}
         <div
-          className="absolute font-semibold text-gray-900 text-[9px] tracking-wide"
+          className="absolute font-semibold text-gray-900 text-[11px] tracking-wide"
           style={{
-            left: '30.8%',
-            top: '27.0%',
+            left: '29.0%',
+            top: '30.5%',
+            fontFamily: COMMA_SERIF_REGULAR,
           }}
         >
           {data.enrollmentNo || '1429/70044/00201'}
@@ -98,34 +125,52 @@ export default function AadhaarCardCanvas({
 
         {/* Resident Delivery Address in Upper Letterhead */}
         <div
-          className="absolute flex flex-col justify-start text-[7.5px] leading-tight text-gray-900 font-sans"
+          className="absolute flex flex-col justify-start text-[7.5px] leading-tight text-gray-900 font-aadhaar line-clamp-none whitespace-normal"
           style={{
             left: '10.5%',
-            top: '29.5%',
-            width: '28.0%',
+            top: '34.5%',
+            width: '15.0%',
+            fontFamily: COMMA_SERIF_REGULAR,
           }}
         >
-          <span className="font-bold text-gray-700">To</span>
+          <span className="font-semibold text-gray-900">To</span>
           {data.nameRegional && (
-            <span className="font-bold text-black mt-0.5 truncate">{data.nameRegional}</span>
+            <span className="font-semibold text-black mt-0.5">{data.nameRegional}</span>
           )}
-          <span className="font-bold text-black uppercase mt-0.5 truncate">{data.name || 'RESIDENT NAME'}</span>
+          <span className="font-semibold text-black capitalize mt-0.5">{data.name || 'RESIDENT NAME'}</span>
           {data.careOf && (
             <span className="text-gray-800 mt-0.5 truncate">
-              {data.careOfRegional ? `${data.careOfRegional} / ` : ''}{data.careOf}
+              {data.careOf ? `${data.careOf} ` : `${data.careOfRegional}`}
             </span>
           )}
           <span className="text-gray-800 line-clamp-3 mt-0.5">
-            {data.addressRegional || data.address || 'Address Details Pending'}
+            {data.address || data.addressRegional || 'Address Details Pending'}
           </span>
         </div>
 
+        {/* Digital Signature verification */}
+        <div
+          className="absolute font-normal text-[#000000] leading-none flex flex-col"
+          style={{
+            left: '9%',
+            top: '49.0%',
+            width: '9%',
+            fontFamily: ROCKWELL_NUMBER_FONT,
+          }}>
+          <span className='font-normal font-sans text-[7.5px]'>Signature valid</span>
+          <span className='text-[4.0px] font-sans'>Digitally sign by DS Unique Identification Authority of India</span>
+          <span className='text-[4.0px] font-sans'>06</span>
+          <span className='text-[4.0px] font-sans'>Date: {new Date().getFullYear().toString().padStart(2, '0') + '.' + new Date().getMonth().toString().padStart(2, '0') + '.' + new Date().getDate().toString().padStart(2, '0') + ' ' + new Date().getHours().toString().padStart(2, '0') + ':' + new Date().getMinutes().toString().padStart(2, '0') + ':' + new Date().getSeconds().toString().padStart(2, '0')}</span>
+        </div>
+
+
         {/* Upper Aadhaar Number */}
         <div
-          className="absolute font-black font-mono tracking-widest text-[#1D3557] text-[13px] leading-none"
+          className="absolute font-black tracking-widest text-[#000000] text-[13px] leading-none"
           style={{
-            left: '16.0%',
-            top: '67.4%',
+            left: '17.5%',
+            top: '62%',
+            fontFamily: ROCKWELL_NUMBER_FONT,
           }}
         >
           {formattedAadhaar}
@@ -133,26 +178,26 @@ export default function AadhaarCardCanvas({
 
         {/* Upper Mini QR Code */}
         <div
-          className="absolute bg-white p-0.5 border border-gray-300 rounded-xs shadow-2xs flex items-center justify-center"
+          className="absolute bg-white rounded-xs shadow-2xs flex items-center justify-center"
           style={{
-            left: '27.5%',
-            top: '52.6%',
-            width: '9.0%',
-            height: '6.4%',
+            left: '30.5%',
+            top: '47.6%',
+            width: '15%',
+            height: '10%',
           }}
         >
-          <CardQrCode value={uidaiXml} size={50} level="M" />
+          <CardQrCode value={uidaiXml} size={114} level="M" />
         </div>
 
         {/* ---------------- BOTTOM DETACHABLE CARD (LEFT: FRONT) ---------------- */}
         {/* Main Photo */}
         <div
-          className="absolute overflow-hidden rounded-[2px] bg-white border border-gray-400 shadow-2xs flex items-center justify-center"
+          className="absolute overflow-hidden bg-white shadow-2xs flex items-center justify-center"
           style={{
-            left: '4.8%',
-            top: '73.2%',
-            width: '10.5%',
-            height: '14.0%',
+            left: '7%',
+            top: '72.5%',
+            width: '8.5%',
+            height: '7.0%',
           }}
         >
           {data.photoUrl ? (
@@ -163,46 +208,33 @@ export default function AadhaarCardCanvas({
           )}
         </div>
 
-        {/* Ghost Photo Watermark */}
-        {data.photoUrl && (
-          <div
-            className="absolute overflow-hidden opacity-60 filter grayscale pointer-events-none"
-            style={{
-              left: '42.2%',
-              top: '73.2%',
-              width: '3.6%',
-              height: '4.8%',
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={data.photoUrl} alt="Ghost" className="w-full h-full object-cover" />
-          </div>
-        )}
+
 
         {/* Front Resident Details */}
         <div
-          className="absolute flex flex-col justify-start leading-none text-black"
+          className="absolute flex flex-col justify-start leading-none text-black font-aadhaar"
           style={{
             left: '16.6%',
             top: '73.2%',
             width: '24.0%',
+            fontFamily: COMMA_SERIF_REGULAR,
           }}
         >
           {data.nameRegional && (
-            <span className="text-[7.5px] font-bold block text-black truncate">
+            <span className="text-[7.5px] font-medium block text-black truncate">
               {data.nameRegional}
             </span>
           )}
-          <span className="text-[7.5px] font-bold block text-black uppercase truncate mt-0.5">
+          <span className="text-[7.5px] font-medium block text-black capitalize truncate mt-0.5">
             {data.name || 'NAME PENDING'}
           </span>
 
-          <div className="mt-1 text-[6.5px] text-gray-900 font-bold leading-tight">
+          <div className="text-[7.5px] font-medium block text-black capitalize truncate mt-0.5">
             <span>{dobLabel} / DOB: </span>
-            <span className="font-mono">{data.dateOfBirth || 'DD/MM/YYYY'}</span>
+            <span style={{ fontFamily: ROCKWELL_NUMBER_FONT }}>{data.dateOfBirth || 'DD/MM/YYYY'}</span>
           </div>
 
-          <div className="mt-1 text-[6.5px] text-gray-900 font-bold leading-tight">
+          <div className="text-[7.5px] font-medium block text-black capitalize truncate mt-0.5">
             <span>{resolvedGenderRegional} / </span>
             <span>{data.gender || 'MALE'}</span>
           </div>
@@ -210,11 +242,12 @@ export default function AadhaarCardCanvas({
 
         {/* Front Bottom Aadhaar Number */}
         <div
-          className="absolute text-center font-black font-mono tracking-widest text-[#1D3557] text-[12px] leading-none"
+          className="absolute text-center font-black tracking-widest text-[#000000] text-[12px] leading-none"
           style={{
-            left: '24.0%',
-            bottom: '7.8%',
+            left: '27.0%',
+            bottom: '15%',
             transform: 'translateX(-50%)',
+            fontFamily: ROCKWELL_NUMBER_FONT,
           }}
         >
           {formattedAadhaar}
@@ -223,56 +256,52 @@ export default function AadhaarCardCanvas({
         {/* ---------------- BOTTOM DETACHABLE CARD (RIGHT: BACK) ---------------- */}
         {/* Back Address Block */}
         <div
-          className="absolute flex flex-col justify-start leading-tight text-black text-[6px]"
+          className="absolute flex flex-col justify-start text-black font-aadhaar"
           style={{
-            left: '53.5%',
-            top: '72.8%',
-            width: '26.0%',
+            left: '53.0%',
+            top: '72.0%',
+            width: '23.5%',
+            fontFamily: COMMA_SERIF_REGULAR,
+            fontSize: '7.5px',
+            lineHeight: 1.1,
           }}
         >
-          <span className="font-extrabold text-black block">{addressLabel}:</span>
-          {data.careOf && (
-            <span className="font-bold text-gray-900 block mt-0.5 truncate">
-              {data.careOfRegional ? `${data.careOfRegional}` : ''}
-            </span>
-          )}
-          {data.addressRegional && (
-            <span className="font-medium text-gray-800 line-clamp-2 mt-0.5">
-              {data.addressRegional}
-            </span>
-          )}
+          <div>
+            <span className="font-medium text-black block">{addressLabel}:</span>
+            <p className="font-medium text-gray-900 mt-0.5 break-words">
+              {regionalAddressText}
+            </p>
+          </div>
 
-          <span className="font-extrabold text-black block mt-1">Address:</span>
-          {data.careOf && (
-            <span className="font-bold text-gray-900 block mt-0.5 truncate">
-              {data.careOf}
-            </span>
-          )}
-          <span className="font-medium text-gray-800 line-clamp-2 mt-0.5 uppercase">
-            {data.address || 'Address Details Pending'}
-          </span>
+          <div className="mt-1">
+            <span className="font-medium text-black block">Address:</span>
+            <p className="font-medium text-gray-900 mt-0.5 break-words">
+              {englishAddressText}
+            </p>
+          </div>
         </div>
 
         {/* Back Secure QR Code */}
         <div
-          className="absolute bg-white p-0.5 border border-gray-300 rounded-xs shadow-2xs flex items-center justify-center"
+          className="absolute bg-white rounded-xs shadow-2xs flex items-center justify-center"
           style={{
-            left: '81.5%',
+            left: '78%',
             top: '72.5%',
-            width: '13.5%',
-            height: '13.5%',
+            width: '14.0%',
+            height: '10%',
           }}
         >
-          <CardQrCode value={uidaiXml} size={65} level="M" />
+          <CardQrCode value={uidaiXml} size={180} level="M" />
         </div>
 
         {/* Back Bottom Aadhaar Number */}
         <div
-          className="absolute text-center font-black font-mono tracking-widest text-[#1D3557] text-[12px] leading-none"
+          className="absolute text-center font-black tracking-widest text-[#000000] text-[12px] leading-none"
           style={{
             left: '73.0%',
-            bottom: '7.8%',
+            bottom: '15%',
             transform: 'translateX(-50%)',
+            fontFamily: ROCKWELL_NUMBER_FONT,
           }}
         >
           {formattedAadhaar}
@@ -287,9 +316,10 @@ export default function AadhaarCardCanvas({
   if (side === 'sheet') {
     return (
       <div
-        className={`w-full h-full relative overflow-hidden select-none bg-white font-sans ${className}`}
+        className={`w-full h-full relative overflow-hidden select-none bg-white font-aadhaar ${className}`}
         style={{
           aspectRatio: '988 / 311',
+          fontFamily: COMMA_SERIF_REGULAR,
           printColorAdjust: 'exact',
           WebkitPrintColorAdjust: 'exact',
         }}
@@ -313,8 +343,9 @@ export default function AadhaarCardCanvas({
   if (side === 'back') {
     return (
       <div
-        className={`w-full h-full relative overflow-hidden select-none bg-white font-sans ${className}`}
+        className={`w-full h-full relative overflow-hidden select-none bg-white font-aadhaar ${className}`}
         style={{
+          fontFamily: COMMA_SERIF_REGULAR,
           printColorAdjust: 'exact',
           WebkitPrintColorAdjust: 'exact',
         }}
@@ -329,59 +360,51 @@ export default function AadhaarCardCanvas({
 
         {/* Address Details Block */}
         <div
-          className="absolute flex flex-col justify-start leading-tight text-black text-[7px]"
+          className="absolute flex flex-col justify-start text-black font-aadhaar"
           style={{
-            left: '5.5%',
-            top: '28.0%',
-            width: '50.0%',
+            left: '3.5%',
+            top: '22.0%',
+            width: '53.0%',
+            fontFamily: COMMA_SERIF_REGULAR,
+            fontSize: '6.8px',
+            lineHeight: 1.25,
           }}
         >
           <div>
             <span className="font-extrabold text-black block">{addressLabel}:</span>
-            {data.careOf && (
-              <span className="font-bold text-gray-900 block mt-0.5 truncate">
-                {data.careOfRegional ? `${data.careOfRegional}` : ''}
-              </span>
-            )}
-            {data.addressRegional && (
-              <span className="font-medium text-gray-800 line-clamp-2 mt-0.5">
-                {data.addressRegional}
-              </span>
-            )}
+            <p className="font-bold text-gray-900 mt-0.5 break-words">
+              {regionalAddressText}
+            </p>
           </div>
           <div className="mt-1">
             <span className="font-extrabold text-black block">Address:</span>
-            {data.careOf && (
-              <span className="font-bold text-gray-900 block mt-0.5 truncate">
-                {data.careOf}
-              </span>
-            )}
-            <span className="font-medium text-gray-800 line-clamp-2 mt-0.5 uppercase">
-              {data.address || 'Address Details Pending'}
-            </span>
+            <p className="font-bold text-gray-900 mt-0.5 break-words">
+              {englishAddressText}
+            </p>
           </div>
         </div>
 
         {/* Back Secure QR Code */}
         <div
-          className="absolute bg-white p-0.5 border border-gray-300 rounded-xs shadow-2xs flex items-center justify-center"
+          className="absolute bg-white p-0.5 flex items-center justify-center"
           style={{
-            right: '4%',
-            top: '19%',
-            width: '37.2%',
-            height: '56%',
+            right: '3.1%',
+            top: '21%',
+            width: '38.2%',
+            height: '54.6%',
           }}
         >
-          <CardQrCode value={uidaiXml} size={100} level="M" />
+          <CardQrCode value={uidaiXml} size={109} level="M" />
         </div>
 
         {/* Back Aadhaar Number */}
         <div
-          className="absolute text-center font-black font-mono tracking-widest text-[#1D3557] text-[13px] leading-none"
+          className="absolute text-center font-extrabold text-[#000000] text-[13.5px] leading-none"
           style={{
             left: '50%',
-            bottom: '16.5%',
+            bottom: '16.50%',
             transform: 'translateX(-50%)',
+            fontFamily: ROCKWELL_NUMBER_FONT,
           }}
         >
           {formattedAadhaar}
@@ -395,8 +418,9 @@ export default function AadhaarCardCanvas({
    * ----------------------------------------------------------- */
   return (
     <div
-      className={`w-full h-full relative overflow-hidden select-none bg-white font-sans ${className}`}
+      className={`w-full h-full relative overflow-hidden select-none bg-white font-aadhaar ${className}`}
       style={{
+        fontFamily: COMMA_SERIF_REGULAR,
         printColorAdjust: 'exact',
         WebkitPrintColorAdjust: 'exact',
       }}
@@ -411,12 +435,12 @@ export default function AadhaarCardCanvas({
 
       {/* Main Resident Photo */}
       <div
-        className="absolute overflow-hidden rounded-[2px] bg-white border border-gray-400 shadow-2xs flex items-center justify-center"
+        className="absolute overflow-hidden rounded-[2px] bg-white shadow-2xs flex items-center justify-center"
         style={{
-          left: '4.6%',
-          top: '23.9%',
+          left: '4.35%',
+          top: '23.7%',
           width: '27%',
-          height: '52%',
+          height: '50.1%',
         }}
       >
         {data.photoUrl ? (
@@ -435,10 +459,10 @@ export default function AadhaarCardCanvas({
         <div
           className="absolute overflow-hidden opacity-60 filter grayscale pointer-events-none"
           style={{
-            right: '5.0%',
-            top: '24.5%',
-            width: '8.1%',
-            height: '16.0%',
+            right: '4.0%',
+            top: '23.9%',
+            width: '8.3%',
+            height: '15.1%',
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -448,11 +472,12 @@ export default function AadhaarCardCanvas({
 
       {/* Resident Details */}
       <div
-        className="absolute flex flex-col justify-start leading-none text-black"
+        className="absolute flex flex-col justify-start leading-none text-black font-aadhaar"
         style={{
           left: '35.5%',
           top: '27.0%',
           width: '46.0%',
+          fontFamily: COMMA_SERIF_REGULAR,
         }}
       >
         {data.nameRegional && (
@@ -460,13 +485,13 @@ export default function AadhaarCardCanvas({
             {data.nameRegional}
           </span>
         )}
-        <span className="text-[9px] font-bold block text-black uppercase truncate mt-0.5">
+        <span className="text-[9px] font-bold block text-black capitalize truncate mt-0.5">
           {data.name || 'NAME PENDING'}
         </span>
 
         <div className="mt-1.5 text-[7.5px] text-gray-900 font-bold leading-tight">
           <span>{dobLabel} / DOB: </span>
-          <span className="font-mono">{data.dateOfBirth || 'DD/MM/YYYY'}</span>
+          <span style={{ fontFamily: ROCKWELL_NUMBER_FONT }}>{data.dateOfBirth || 'DD/MM/YYYY'}</span>
         </div>
 
         <div className="mt-1 text-[7.5px] text-gray-900 font-bold leading-tight">
@@ -477,11 +502,12 @@ export default function AadhaarCardCanvas({
 
       {/* Front Aadhaar Number */}
       <div
-        className="absolute text-center font-black font-mono tracking-widest text-[#1D3557] text-[13.5px] leading-none"
+        className="absolute text-center text-[#000000] text-[13.5px] leading-none font-extrabold"
         style={{
           left: '53%',
-          bottom: '16.5%',
+          bottom: '16.50%',
           transform: 'translateX(-50%)',
+          fontFamily: ROCKWELL_NUMBER_FONT,
         }}
       >
         {formattedAadhaar}

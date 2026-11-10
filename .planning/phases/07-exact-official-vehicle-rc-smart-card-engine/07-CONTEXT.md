@@ -23,10 +23,10 @@ The user specifically requested to create a Vehicle Registration Certificate (RC
    - Directional Pointer: Solid royal blue triangle arrow (`◀`) placed to the left of the chip.
 4. **Data Hierarchy (Right of Chip)**:
    - Row 1: `Regn No` | `Date of Regn.` | `Regn. Validity` | `Owner Serial` (Circled number `①`).
-   - Row 2: `Chassis No` (e.g. `MD626AK35N3K13433`).
-   - Row 3: `Engine/Motor No` (e.g. `AK3KN3704338`).
-   - Row 4: `Owner Name` (e.g. `ABU FAISAL`).
-   - Row 5: `Son/Daughter/Wife of (In case of Individual Owner)` (e.g. `OBAIDULLA`).
+   - Row 2: `Chassis No` (e.g. `MR123RK21N5K12345`).
+   - Row 3: `Engine/Motor No` (e.g. `AR1CH1234567`).
+   - Row 4: `Owner Name` (e.g. `ROHIT KHATRI`).
+   - Row 5: `Son/Daughter/Wife of (In case of Individual Owner)` (e.g. `SUBHASH KHATRI`).
    - Row 6: `Address` (e.g. `D-74, BETA 1 , GREATER NOIDA, Gautam Buddha Nagar -201308`).
 5. **Left Margin (Below Chip)**:
    - `Fuel` (`PETROL`).

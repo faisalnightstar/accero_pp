@@ -1,4 +1,31 @@
-export type DocumentType = 'pan' | 'aadhaar' | 'voter' | 'dl' | 'rc';
+export type DocumentType = 'pan' | 'aadhaar' | 'voter' | 'dl' | 'rc' | 'ration';
+
+/**
+ * Standard Ration Card Data Payload (Department of Food & Public Distribution)
+ */
+export interface RationCardData {
+  rationCardNumber: string; // e.g. "RC1234567890"
+  headOfFamily: string;
+  headOfFamilyRegional?: string;
+  fatherOrSpouseName?: string;
+  category: 'AAY' | 'PHH' | 'BPL' | 'APL' | 'WHITE';
+  fpsName?: string;
+  fpsCode?: string;
+  memberCount: number;
+  familyMembers?: Array<{
+    name: string;
+    relation: string;
+    gender: string;
+    age: number;
+    uidLinked: boolean;
+  }>;
+  address: string;
+  district?: string;
+  state?: string;
+  issueDate?: string;
+  status: 'ACTIVE' | 'INACTIVE';
+  layoutFormat?: 'cr80' | 'sheet';
+}
 
 /**
  * Standard PAN Card Data Payload (Income Tax Department / NSDL / UTIITSL)
@@ -36,7 +63,7 @@ export function getPanQrXmlString(data: Partial<PanCardData>): string {
  * Multi-lingual e-EPIC support matching voter_capc-advance.php
  */
 export interface VoterCardData {
-  epicNumber: string; // e.g. AXH0801639
+  epicNumber: string; // e.g. ABC0123456
   electorName: string; // English
   electorNameRegional?: string; // Hindi / Regional (e.g. रूपलाल साह)
   relationType: 'FATHER' | 'HUSBAND' | 'OTHER';
@@ -82,18 +109,18 @@ export interface VoterCardData {
   labelSignRegional?: string;
   layoutFormat?: 'cr80' | 'sheet';
   templateVariant?:
-    | 'hindi'
-    | 'punjabi'
-    | 'gujarat'
-    | 'marathi'
-    | 'tamil'
-    | 'kannada'
-    | 'bangla'
-    | 'telugu'
-    | 'odia'
-    | 'sindhi'
-    | 'assam'
-    | 'legacy';
+  | 'hindi'
+  | 'punjabi'
+  | 'gujarat'
+  | 'marathi'
+  | 'tamil'
+  | 'kannada'
+  | 'bangla'
+  | 'telugu'
+  | 'odia'
+  | 'sindhi'
+  | 'assam'
+  | 'legacy';
 }
 
 /**
@@ -107,7 +134,7 @@ export interface AadhaarCardData {
   dateOfBirthRegional?: string;
   gender: 'MALE' | 'FEMALE' | 'TRANSGENDER';
   genderRegional?: string;
-  careOf: string; // e.g. "S/O: Sunil Sonkar" or "C/O: ..."
+  careOf: string; // e.g. "S/O Sunil Sonkar" or "C/O: ..."
   careOfRegional?: string;
   address: string;
   addressRegional?: string;
@@ -123,6 +150,16 @@ export interface AadhaarCardData {
   labelGenderRegional?: string;
   layoutFormat?: 'cr80' | 'sheet';
   templateVariant?: 'pvc' | 'default';
+}
+
+/**
+ * Standard Driving License Vehicle Class Endorsement (Form 7 match)
+ */
+export interface DlVehicleClass {
+  code: string; // e.g. MCWG, LMV, TRANS
+  desc: string; // e.g. Motor Cycle With Gear, Light Motor Vehicle
+  issueDate: string;
+  category?: string; // e.g. NT, TR
 }
 
 /**
@@ -145,11 +182,7 @@ export interface DlCardData {
   adpvehNo?: string;
   hazardousValidUpto?: string;
   hillValidUpto?: string;
-  vehicleClasses: Array<{
-    code: string; // e.g. MCWG, LMV
-    desc: string; // e.g. Motor Cycle With Gear, Light Motor Vehicle
-    issueDate: string;
-  }>;
+  vehicleClasses: DlVehicleClass[];
   issuingAuthority: string; // e.g. "RTO NEW DELHI"
   photoUrl?: string;
   signatureUrl?: string;
@@ -196,6 +229,8 @@ export interface RcCardData {
   ownerSerial?: number | string; // e.g. 1
   cardIssueDate?: string; // e.g. "30-08-2026"
   qrPayload?: string;
+  layoutFormat?: 'cr80' | 'sheet';
+  templateVariant?: 'authentic' | 'vector';
 }
 
 export const STATE_CODE_TO_NAME: Record<string, string> = {

@@ -103,8 +103,8 @@ export class MockProvider implements ProviderAdapter {
           dateOfBirth: '01/01/1985',
           gender: 'MALE',
           genderRegional: 'पुरुष',
-          careOf: 'S/O: BHUPENDRA PATEL',
-          careOfRegional: 'आत्मज: भूपेन्द्र पटेल',
+          careOf: 'S/O BHUPENDRA PATEL',
+          careOfRegional: 'आत्मज भूपेन्द्र पटेल',
           address: '104, SHIVAM COMPLEX, DRIVE IN ROAD, NAVRANGPURA, AHMEDABAD, GUJARAT - 380009',
           addressRegional: '१०४, शिवम कॉम्प्लेक्स, ड्राइव इन रोड, नवरंगपुरा, अहमदाबाद, गुजरात - ३८०००९',
         } satisfies Partial<AadhaarCardData>;

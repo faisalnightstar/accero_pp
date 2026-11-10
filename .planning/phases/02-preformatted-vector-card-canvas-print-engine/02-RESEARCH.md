@@ -76,7 +76,7 @@
 - **Front Layout:**
   - Header: ELECTION COMMISSION OF INDIA / भारत निर्वाचन आयोग
   - Security Element: Hologram band / emblem
-  - Data: EPIC Number (e.g. `AXH0801639`), Elector Name (Regional + English), Father's/Husband's Name (Regional + English), Gender, Age / DOB
+  - Data: EPIC Number (e.g. `ABC0123456`), Elector Name (Regional + English), Father's/Husband's Name (Regional + English), Gender, Age / DOB
   - Visuals: Black and white / color portrait, ECI crest
 - **Back Layout:**
   - Data: Assembly Constituency No & Name (e.g. `14 - GOVINDGANJ`), Part No & Name (e.g. `257 - PRATHMIK VIDYALAY...`), Full Address (Regional + English)
@@ -95,7 +95,7 @@
 ### Document 5: Vehicle Registration Certificate (Form 23 - RC)
 - **Front Layout:**
   - Header: FORM 23 / CERTIFICATE OF REGISTRATION, INDIAN UNION VEHICLE REGISTRATION
-  - Data: Registration Number (e.g. `UP16DL3137`), Registration Date, Chassis Number, Engine Number, Owner Full Name, S/W/D of, Current Residential Address, Vehicle Class (Motor Car / Scooter), Maker/Model
+  - Data: Registration Number (e.g. `UP05LD1234`), Registration Date, Chassis Number, Engine Number, Owner Full Name, S/W/D of, Current Residential Address, Vehicle Class (Motor Car / Scooter), Maker/Model
 - **Back Layout:**
   - Data: Fuel Type (Petrol/Diesel/CNG/EV), Emission Norm (BS IV/VI), Seating Capacity, Unladen/Laden Weight, Hypothecated To (Financier Bank if any), Fitness Valid Upto, Tax Paid Upto, Issuing Authority seal & QR code
 

@@ -74,12 +74,21 @@ export const rcRules: DocumentFieldRule[] = [
   { key: 'address', label: 'Owner Address', required: true, section: 'address' },
 ];
 
+/** Declarative rules for Ration Card */
+export const rationRules: DocumentFieldRule[] = [
+  { key: 'rationCardNumber', label: 'Ration Card Number', required: true, section: 'identity' },
+  { key: 'headOfFamily', label: 'Head of Family Name', required: true, section: 'identity' },
+  { key: 'category', label: 'Ration Category', required: true, section: 'identity' },
+  { key: 'address', label: 'Full Address', required: true, section: 'address' },
+];
+
 export const documentRulesMap: Record<DocumentType, DocumentFieldRule[]> = {
   pan: panRules,
   aadhaar: aadhaarRules,
   voter: voterRules,
   dl: dlRules,
   rc: rcRules,
+  ration: rationRules,
 };
 
 /**

@@ -34,7 +34,7 @@ function ForgotPasswordForm() {
       setSuccess(true);
       setSuccessMessage(
         data.message ||
-          'If an account exists with this email or mobile number, reset instructions have been sent.'
+        'If an account exists with this email or mobile number, reset instructions have been sent.'
       );
       if (data.devResetUrl) {
         setDevResetUrl(data.devResetUrl);
@@ -183,3 +183,4 @@ export default function ForgotPasswordPage() {
     </div>
   );
 }
+

@@ -20,3 +20,4 @@ Implement an end-to-end Forgot Password & Reset Password workflow for PrintPorta
 5. `src/app/(auth)/login/page.tsx` - Add "Forgot Password?" link.
 6. `src/app/(auth)/forgot-password/page.tsx` - Forgot password request UI.
 7. `src/app/(auth)/reset-password/page.tsx` - Reset password UI with token verification.
+

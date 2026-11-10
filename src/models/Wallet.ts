@@ -4,10 +4,15 @@ export interface IWalletTransaction {
   _id?: mongoose.Types.ObjectId;
   amount: number;
   type: 'credit' | 'debit';
-  docType?: 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'TOPUP' | 'MANUAL';
+  category?: 'DOCUMENT_PRINT' | 'WALLET_TOPUP' | 'VERIFICATION' | 'MANUAL_ENTRY' | string;
+  docType?: 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION' | 'TOPUP' | 'MANUAL' | 'PRINT';
+  documentType?: string;
+  documentId?: mongoose.Types.ObjectId;
   referenceId?: string;
   description: string;
+  balanceBefore?: number;
   balanceAfter: number;
+  status?: 'COMPLETED' | 'PENDING' | 'FAILED';
   createdAt: Date;
 }
 
@@ -34,9 +39,20 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
       enum: ['credit', 'debit'],
       required: true,
     },
+    category: {
+      type: String,
+      default: 'DOCUMENT_PRINT',
+    },
     docType: {
       type: String,
-      enum: ['PAN', 'AADHAAR', 'VOTER', 'DL', 'RC', 'TOPUP', 'MANUAL'],
+      enum: ['PAN', 'AADHAAR', 'VOTER', 'DL', 'RC', 'RATION', 'TOPUP', 'MANUAL', 'PRINT'],
+    },
+    documentType: {
+      type: String,
+    },
+    documentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'DocumentRecord',
     },
     referenceId: {
       type: String,
@@ -47,9 +63,17 @@ const WalletTransactionSchema = new Schema<IWalletTransaction>(
       required: true,
       trim: true,
     },
+    balanceBefore: {
+      type: Number,
+    },
     balanceAfter: {
       type: Number,
       required: true,
+    },
+    status: {
+      type: String,
+      enum: ['COMPLETED', 'PENDING', 'FAILED'],
+      default: 'COMPLETED',
     },
     createdAt: {
       type: Date,

@@ -263,3 +263,4 @@ export async function translateVoterText(text: string, targetLang: string): Prom
     return text;
   }
 }
+

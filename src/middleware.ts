@@ -2,30 +2,97 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const JWT_SECRET_STRING = process.env.JWT_SECRET || 'printportal_jwt_default_secret_key_32chars_min';
-const JWT_SECRET = new TextEncoder().encode(JWT_SECRET_STRING);
+const JWT_ISSUER = 'accero-printportal';
+const JWT_AUDIENCE = 'accero-users';
+
+function getMiddlewareSecret(): Uint8Array | null {
+  const secret = process.env.JWT_SECRET;
+  if (!secret || secret.trim().length < 32) {
+    return null;
+  }
+  return new TextEncoder().encode(secret.trim());
+}
 
 export async function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+
+  // Enforce standard production security headers
+  response.headers.set('X-Content-Type-Options', 'nosniff');
+  response.headers.set('X-Frame-Options', 'SAMEORIGIN');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set(
+    'Permissions-Policy',
+    'camera=(), microphone=(), geolocation=(), browsing-topics=()'
+  );
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains; preload'
+    );
+  }
+
   const token = request.cookies.get('auth-token')?.value;
+  const pathname = request.nextUrl.pathname;
+
+  // Protected paths check
+  const isProtectedPath =
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/studio') ||
+    pathname.startsWith('/wallet') ||
+    pathname.startsWith('/admin') ||
+    pathname.startsWith('/cards');
+
+  if (!isProtectedPath) {
+    return response;
+  }
 
   if (!token) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', request.nextUrl.pathname);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  const secret = getMiddlewareSecret();
+  if (!secret) {
+    console.error('[Middleware] JWT_SECRET is unconfigured or insecure (<32 characters). Denying access.');
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('error', 'server_configuration_error');
     return NextResponse.redirect(loginUrl);
   }
 
   try {
-    await jwtVerify(token, JWT_SECRET);
-    return NextResponse.next();
+    const { payload } = await jwtVerify(token, secret, {
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE,
+    });
+
+    // Admin role enforcement
+    if (pathname.startsWith('/admin')) {
+      const role = payload.role as string | undefined;
+      if (role !== 'admin' && role !== 'super_admin') {
+        const forbiddenUrl = new URL('/dashboard', request.url);
+        forbiddenUrl.searchParams.set('error', 'unauthorized');
+        return NextResponse.redirect(forbiddenUrl);
+      }
+    }
+
+    return response;
   } catch {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', request.nextUrl.pathname);
-    const response = NextResponse.redirect(loginUrl);
-    response.cookies.delete('auth-token');
-    return response;
+    loginUrl.searchParams.set('redirect', pathname);
+    const redirectRes = NextResponse.redirect(loginUrl);
+    redirectRes.cookies.delete('auth-token');
+    return redirectRes;
   }
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/studio/:path*', '/wallet/:path*'],
+  matcher: [
+    '/dashboard/:path*',
+    '/studio/:path*',
+    '/wallet/:path*',
+    '/admin/:path*',
+    '/cards/:path*',
+  ],
 };

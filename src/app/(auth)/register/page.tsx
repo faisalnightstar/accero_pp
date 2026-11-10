@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Printer, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -16,6 +17,10 @@ export default function RegisterPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    trackEvent(ANALYTICS_EVENTS.REGISTRATION_START, { pagePath: '/register' });
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,6 +40,7 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Failed to create account');
       }
 
+      trackEvent(ANALYTICS_EVENTS.REGISTRATION_COMPLETE, { pagePath: '/register' });
       router.push('/dashboard');
       router.refresh();
     } catch (err: any) {

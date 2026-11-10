@@ -6,10 +6,24 @@ import DocumentRecord from '@/models/DocumentRecord';
 import { getSession } from '@/lib/auth';
 import { deductWalletFee } from '@/actions/wallet';
 import { isDocumentAlreadyPaid } from '@/lib/wallet/pricing';
+import { generateDocumentCacheKey, isDocumentCacheValid, CACHE_TTL_MS } from '@/lib/documents/documentCache';
 
 const saveDocumentSchema = z.object({
   id: z.string().optional(),
-  docType: z.enum(['pan', 'aadhaar', 'voter', 'dl', 'rc', 'PAN', 'AADHAAR', 'VOTER', 'DL', 'RC']),
+  docType: z.enum([
+    'pan',
+    'aadhaar',
+    'voter',
+    'dl',
+    'rc',
+    'ration',
+    'PAN',
+    'AADHAAR',
+    'VOTER',
+    'DL',
+    'RC',
+    'RATION',
+  ]),
   cardIdentifier: z.string().optional(),
   inputMode: z.enum(['API', 'MANUAL']).default('MANUAL'),
   data: z.record(z.any()),
@@ -26,6 +40,7 @@ function resolveCardIdentifier(docType: string, data: Record<string, any>): stri
   if (dt === 'voter') return data.epicNumber || 'UNKNOWN-VOTER';
   if (dt === 'dl') return data.dlNumber || 'UNKNOWN-DL';
   if (dt === 'rc') return data.registrationNumber || 'UNKNOWN-RC';
+  if (dt === 'ration') return data.rationCardNumber || 'UNKNOWN-RATION';
   return 'UNKNOWN-DOC';
 }
 
@@ -49,11 +64,17 @@ export async function POST(request: Request) {
       | 'AADHAAR'
       | 'VOTER'
       | 'DL'
-      | 'RC';
+      | 'RC'
+      | 'RATION';
 
     const cardIdentifier =
       validated.cardIdentifier?.trim() ||
       resolveCardIdentifier(validated.docType, validated.data);
+
+    const { hash } = generateDocumentCacheKey(normalizedDocType, cardIdentifier);
+
+    const now = new Date();
+    const expiresAt = new Date(now.getTime() + CACHE_TTL_MS);
 
     let record;
 
@@ -73,12 +94,14 @@ export async function POST(request: Request) {
       if (record) {
         record.docType = normalizedDocType;
         record.cardIdentifier = cardIdentifier;
+        record.documentNumberHash = hash;
         record.inputMode = validated.inputMode;
         record.data = validated.data;
         record.missingFields = validated.missingFields;
         record.isComplete = validated.isComplete;
         if (validated.frontImage) record.frontImage = validated.frontImage;
         if (validated.backImage) record.backImage = validated.backImage;
+        record.updatedAt = now;
         await record.save();
       }
     }
@@ -113,12 +136,17 @@ export async function POST(request: Request) {
         userId: session.userId,
         docType: normalizedDocType,
         cardIdentifier,
+        documentNumberHash: hash,
         inputMode: validated.inputMode,
         data: validated.data,
         missingFields: validated.missingFields,
         isComplete: validated.isComplete,
         frontImage: validated.frontImage,
         backImage: validated.backImage,
+        source: validated.inputMode,
+        status: 'ACTIVE',
+        fetchedAt: now,
+        expiresAt,
       });
     }
 
@@ -126,6 +154,22 @@ export async function POST(request: Request) {
       success: true,
       message: 'Document saved successfully to MongoDB',
       docId: record._id.toString(),
+      data: {
+        document: {
+          id: record._id.toString(),
+          docType: record.docType,
+          cardIdentifier: record.cardIdentifier,
+          inputMode: record.inputMode,
+          isComplete: record.isComplete,
+          missingFields: record.missingFields,
+          updatedAt: record.updatedAt,
+        },
+        cache: {
+          hit: true,
+          expiresAt: record.expiresAt,
+          fetchedAt: record.fetchedAt,
+        },
+      },
       record: {
         id: record._id.toString(),
         docType: record.docType,
@@ -159,7 +203,10 @@ export async function GET(request: Request) {
 
     const { searchParams } = new URL(request.url);
     const docTypeParam = searchParams.get('docType');
-    const limit = Math.min(parseInt(searchParams.get('limit') || '50', 10), 100);
+    const isCompleteParam = searchParams.get('isComplete');
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.min(Math.max(1, parseInt(searchParams.get('limit') || '50', 10)), 100);
+    const skip = (page - 1) * limit;
 
     await connectToDatabase();
 
@@ -167,15 +214,33 @@ export async function GET(request: Request) {
     if (docTypeParam) {
       filter.docType = docTypeParam.toUpperCase();
     }
+    if (isCompleteParam !== null && isCompleteParam !== undefined && isCompleteParam !== '') {
+      filter.isComplete = isCompleteParam === 'true';
+    }
 
+    // Total count for pagination
+    const totalCount = await DocumentRecord.countDocuments(filter);
+
+    // Optimized projection excluding heavy image fields from list view
     const documents = await DocumentRecord.find(filter)
+      .select({
+        frontImage: 0,
+        backImage: 0,
+      })
       .sort({ updatedAt: -1, createdAt: -1 })
+      .skip(skip)
       .limit(limit)
       .lean();
 
     return NextResponse.json({
       success: true,
       count: documents.length,
+      pagination: {
+        page,
+        limit,
+        total: totalCount,
+        totalPages: Math.ceil(totalCount / limit),
+      },
       documents: documents.map((doc: any) => ({
         id: doc._id.toString(),
         docType: doc.docType,
@@ -186,6 +251,9 @@ export async function GET(request: Request) {
         isComplete: doc.isComplete,
         printCount: doc.printCount || 0,
         lastPrintedAt: doc.lastPrintedAt,
+        fetchedAt: doc.fetchedAt,
+        expiresAt: doc.expiresAt,
+        isCacheValid: isDocumentCacheValid(doc),
         createdAt: doc.createdAt,
         updatedAt: doc.updatedAt,
       })),

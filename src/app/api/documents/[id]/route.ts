@@ -39,20 +39,38 @@ export async function GET(
       );
     }
 
+    const isCacheValid = Boolean(
+      (doc as any).expiresAt && new Date((doc as any).expiresAt).getTime() > Date.now()
+    );
+
+    const docPayload = {
+      id: (doc as any)._id.toString(),
+      docType: (doc as any).docType.toLowerCase(),
+      cardIdentifier: (doc as any).cardIdentifier,
+      inputMode: (doc as any).inputMode,
+      data: (doc as any).data,
+      missingFields: (doc as any).missingFields,
+      isComplete: (doc as any).isComplete,
+      printCount: (doc as any).printCount || 0,
+      lastPrintedAt: (doc as any).lastPrintedAt,
+      fetchedAt: (doc as any).fetchedAt,
+      expiresAt: (doc as any).expiresAt,
+      isCacheValid,
+      createdAt: (doc as any).createdAt,
+      updatedAt: (doc as any).updatedAt,
+    };
+
     return NextResponse.json({
       success: true,
-      document: {
-        id: (doc as any)._id.toString(),
-        docType: (doc as any).docType.toLowerCase(),
-        cardIdentifier: (doc as any).cardIdentifier,
-        inputMode: (doc as any).inputMode,
-        data: (doc as any).data,
-        missingFields: (doc as any).missingFields,
-        isComplete: (doc as any).isComplete,
-        printCount: (doc as any).printCount || 0,
-        lastPrintedAt: (doc as any).lastPrintedAt,
-        createdAt: (doc as any).createdAt,
-        updatedAt: (doc as any).updatedAt,
+      document: docPayload,
+      data: {
+        document: docPayload,
+        cache: {
+          hit: true,
+          expiresAt: (doc as any).expiresAt,
+          fetchedAt: (doc as any).fetchedAt,
+          isValid: isCacheValid,
+        },
       },
     });
   } catch (error: any) {

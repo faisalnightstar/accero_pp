@@ -30,6 +30,7 @@ import DlCardCanvas from '@/components/cards/DlCardCanvas';
 import RcCardCanvas from '@/components/cards/RcCardCanvas';
 import { StudioSearchBar } from '@/components/studio/StudioSearchBar';
 import { verifyDocument } from '@/actions/verify';
+import { authorizePrintAction } from '@/actions/print';
 import { useCardStudio } from '@/hooks/useCardStudio';
 import { analyzeDocumentCompleteness } from '@/lib/missingFields';
 import { DocumentType } from '@/types/cards';
@@ -249,6 +250,67 @@ function StudioPageContent() {
     }
   };
 
+  const [isAuthorizingPrint, setIsAuthorizingPrint] = useState(false);
+
+  const resolveCurrentIdentifier = (): string => {
+    if (!cardData) return 'CARD';
+    if (docType === 'pan') return (cardData.panNumber || '').trim().toUpperCase() || 'PAN';
+    if (docType === 'aadhaar') return (cardData.aadhaarNumber || '').trim().replace(/[\s-]+/g, '') || 'AADHAAR';
+    if (docType === 'voter') return (cardData.epicNumber || '').trim().toUpperCase() || 'VOTER';
+    if (docType === 'dl') return (cardData.dlNumber || '').trim().toUpperCase() || 'DL';
+    if (docType === 'rc') return (cardData.registrationNumber || '').trim().toUpperCase() || 'RC';
+    if (docType === 'ration') return (cardData.rationCardNumber || '').trim().toUpperCase() || 'RATION';
+    return 'CARD';
+  };
+
+  // Centralized Print Authorization & Wallet Deduction
+  const handleTriggerPrint = async () => {
+    try {
+      setIsAuthorizingPrint(true);
+      const identifier = resolveCurrentIdentifier();
+      const printJobId = `pj_${crypto.randomUUID()}`;
+
+      const res = await authorizePrintAction({
+        documentType: docType,
+        cardIdentifier: identifier,
+        documentId: currentDocId || undefined,
+        printJobId,
+        printFormat: 'CR80',
+      });
+
+      if (!res.success) {
+        if (res.error?.code === 'INSUFFICIENT_BALANCE') {
+          setInsufficientBalanceInfo({
+            requiredFee: res.requiredFee || 20,
+            currentBalance: res.currentBalance || 0,
+            serviceName: `${docType.toUpperCase()} Card Printing`,
+          });
+        } else {
+          setToastAlert({
+            message: res.error?.message || 'Print authorization failed.',
+            type: 'error',
+          });
+        }
+        return;
+      }
+
+      setToastAlert({
+        message: `Print authorized! ₹${res.fee} deducted. Remaining balance: ₹${res.remainingBalance}.`,
+        type: 'success',
+      });
+
+      // Execute browser print
+      window.print();
+    } catch (err: any) {
+      setToastAlert({
+        message: err.message || 'Error executing print.',
+        type: 'error',
+      });
+    } finally {
+      setIsAuthorizingPrint(false);
+    }
+  };
+
   // Render front and back for the selected card tab
   let cardFront: React.ReactNode;
   let cardBack: React.ReactNode;
@@ -278,8 +340,20 @@ function StudioPageContent() {
     cardFront = <DlCardCanvas data={cardData} side="front" />;
     cardBack = <DlCardCanvas data={cardData} side="back" />;
   } else if (docType === 'rc') {
-    cardFront = <RcCardCanvas data={cardData} side="front" />;
-    cardBack = <RcCardCanvas data={cardData} side="back" />;
+    cardFront = (
+      <RcCardCanvas
+        data={cardData}
+        side="front"
+        variant={cardData.templateVariant}
+      />
+    );
+    cardBack = (
+      <RcCardCanvas
+        data={cardData}
+        side="back"
+        variant={cardData.templateVariant}
+      />
+    );
   }
 
   // Studio Header Component
@@ -455,12 +529,17 @@ function StudioPageContent() {
                 type="button"
                 onClick={() => {
                   setSaveSuccess(null);
-                  window.print();
+                  handleTriggerPrint();
                 }}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-steel-blue hover:bg-steel-blue/90 rounded-xl transition-colors"
+                disabled={isAuthorizingPrint}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 text-xs font-semibold text-white bg-steel-blue hover:bg-steel-blue/90 rounded-xl transition-colors disabled:opacity-50"
               >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Print Card</span>
+                {isAuthorizingPrint ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Printer className="w-3.5 h-3.5" />
+                )}
+                <span>{isAuthorizingPrint ? 'Authorizing...' : 'Print Card'}</span>
               </button>
 
               <button
@@ -486,6 +565,8 @@ function StudioPageContent() {
             onToggleGuides={() => setShowGuides(!showGuides)}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
+            onPrint={handleTriggerPrint}
+            isPrinting={isAuthorizingPrint}
           />
         }
         form={
@@ -538,7 +619,7 @@ function StudioPageContent() {
           </div>
         }
         preview={
-          cardData.layoutFormat === 'sheet' && (docType === 'pan' || docType === 'voter' || docType === 'aadhaar') ? (
+          cardData.layoutFormat === 'sheet' && (docType === 'pan' || docType === 'voter' || docType === 'aadhaar' || docType === 'rc') ? (
             <div className="flex flex-col items-center gap-4">
               <div className="no-print w-full flex flex-col items-center">
                 <span className="text-xs font-semibold tracking-wider uppercase text-gray-500 mb-2">
@@ -546,12 +627,16 @@ function StudioPageContent() {
                     ? 'Side-by-Side Foldable Sheet (Legacy pan.php Layout)'
                     : docType === 'voter'
                     ? 'Full Official e-EPIC A4 Document Sheet'
+                    : docType === 'rc'
+                    ? 'Side-by-Side Vehicle RC Print Sheet'
                     : 'Aadhaar PVC Print Sheet'}
                 </span>
                 <div
                   className={`shadow-2xl border border-gray-200 bg-white relative transition-all duration-200 select-none overflow-hidden rounded-md max-w-full ${
                     docType === 'voter' || (docType === 'aadhaar' && cardData.layoutFormat === 'sheet')
                       ? 'aspect-[2480/3508]'
+                      : docType === 'rc'
+                      ? 'aspect-[2060/670]'
                       : 'aspect-[1280/386]'
                   }`}
                   style={{
@@ -580,6 +665,13 @@ function StudioPageContent() {
                       side="sheet"
                     />
                   )}
+                  {docType === 'rc' && (
+                    <RcCardCanvas
+                      data={cardData}
+                      side="sheet"
+                      variant={cardData.templateVariant}
+                    />
+                  )}
                 </div>
               </div>
               {/* Print Mode for Sheet */}
@@ -605,6 +697,13 @@ function StudioPageContent() {
                       <AadhaarCardCanvas
                         data={cardData}
                         side="sheet"
+                      />
+                    )}
+                    {docType === 'rc' && (
+                      <RcCardCanvas
+                        data={cardData}
+                        side="sheet"
+                        variant={cardData.templateVariant}
                       />
                     )}
                   </div>

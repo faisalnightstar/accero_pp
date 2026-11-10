@@ -50,7 +50,7 @@ Delivered the remaining vector card canvases for Aadhaar Card, Driving License (
   - Front: Union of India / State Transport Department, gold smart chip graphic, DL number, issue/validity dates, photo, signature, address, and authorized vehicle class pills (MCWG, LMV).
   - Back: Vehicle category endorsement grid, issuing authority seal, and Parivahan QR code.
 - **Vehicle RC Canvas (`src/components/cards/RcCardCanvas.tsx`)**:
-  - Front: Form 23 Certificate of Registration, prominent Registration Number pill (`UP16DL3137`), chassis number, engine number, owner details, maker/model, address.
+  - Front: Form 23 Certificate of Registration, prominent Registration Number pill (`UP05LD1234`), chassis number, engine number, owner details, maker/model, address.
   - Back: Fuel type, emission norms (BS VI), seating, weight, financier hypothecation, fitness validity, and Parivahan QR code.
 - **1-Click High-DPI Export Engine (`src/lib/cardExport.ts`)**:
   - Client-side 300+ DPI rasterization using `html2canvas` and `jsPDF`.

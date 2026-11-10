@@ -1,0 +1,45 @@
+# Accero PrintPortal
+
+> Accero PrintPortal is an independent commercial document processing and printing SaaS platform engineered for cyber cafes, Common Service Centre (CSC) operators, printing shops, and digital service centers across India.
+
+Website: https://printportal.accero.app
+Category: Document Processing & Printing Software
+Physical Card Standard: ISO/IEC 7810 ID-1 (CR80: 85.60 mm × 53.98 mm)
+
+## Core Capabilities
+- Alphanumeric Document Lookup with silent multi-provider fallback.
+- Manual Data Entry Mode for offline drafting and custom uploads.
+- Split-Screen Live Studio with amber missing-field detection.
+- Bilingual Regional Typography (Devanagari / Hindi conjuncts via Google Fonts Hind).
+- Zero-Margin CSS @page Print Engine for Epson L805/L850, Canon G-series, Zebra, and Evolis PVC trays.
+- Transparent pay-as-you-go utility ledger with 100% free lifetime re-printing (₹0).
+
+## Supported Document Workflows
+- PAN Card: https://printportal.accero.app/services/pan-card-printing
+- Aadhaar Document Management: https://printportal.accero.app/services/aadhaar-document-management
+- Voter ID (EPIC): https://printportal.accero.app/services/voter-id-printing
+- Driving Licence (DL): https://printportal.accero.app/services/driving-licence-printing
+- Vehicle RC: https://printportal.accero.app/services/vehicle-rc-printing
+- Ration Card: https://printportal.accero.app/services/ration-card-management
+
+## Target Operator Audiences & Pillar Pages
+- Print Portal Hub: https://printportal.accero.app/print-portal
+- Best Print Portal for CSC: https://printportal.accero.app/best-print-portal-for-csc
+- Print Portal for Cyber Cafes: https://printportal.accero.app/print-portal-for-cyber-cafe
+- Print Portal for Retailers: https://printportal.accero.app/print-portal-for-retailers
+- PVC Card Printing Software: https://printportal.accero.app/pvc-card-printing-software
+- CSC Operator Software: https://printportal.accero.app/csc-operator-software
+- Document Processing Platform: https://printportal.accero.app/document-processing-platform
+- Cyber Cafes Solution: https://printportal.accero.app/solutions/cyber-cafes
+- CSC Operators Solution: https://printportal.accero.app/solutions/csc-operators
+- Printing Shops Solution: https://printportal.accero.app/solutions/printing-shops
+- Digital Service Centers Solution: https://printportal.accero.app/solutions/digital-service-centers
+
+## Educational Guides & Resources
+- CR80 Card Size & Dimensions Guide: https://printportal.accero.app/blog/cr80-card-dimensions-guide
+- PVC Card Printer Tray Setup: https://printportal.accero.app/blog/pvc-card-printer-tray-guide
+- Cyber Cafe Document Printing Guide: https://printportal.accero.app/blog/cyber-cafe-document-printing-guide
+
+## Legal & Compliance Disambiguation
+Accero PrintPortal is an independent commercial software platform. It is NOT an official government portal, nor is it an NSDL, UTIITSL, UIDAI, Election Commission of India, or RTO partner. The software does not issue statutory credentials or impersonate government agencies. Users must operate in compliance with applicable identity and data privacy regulations.
+

@@ -1,7 +1,8 @@
 'use client';
 
 import React from 'react';
-import { Printer, ZoomIn, ZoomOut, Maximize2, LayoutGrid, Compass } from 'lucide-react';
+import { Printer, ZoomIn, ZoomOut, Maximize2, LayoutGrid, Compass, Loader2 } from 'lucide-react';
+import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
 
 interface PrintControlsProps {
   zoom: number;
@@ -11,6 +12,7 @@ interface PrintControlsProps {
   viewMode: 'both' | 'flip';
   onViewModeChange: (mode: 'both' | 'flip') => void;
   onPrint?: () => void;
+  isPrinting?: boolean;
   extraActions?: React.ReactNode;
 }
 
@@ -22,9 +24,11 @@ export default function PrintControls({
   viewMode,
   onViewModeChange,
   onPrint,
+  isPrinting = false,
   extraActions,
 }: PrintControlsProps) {
   const handlePrint = () => {
+    trackEvent(ANALYTICS_EVENTS.FIRST_PRINT_SUCCESS);
     if (onPrint) {
       onPrint();
     } else {
@@ -113,10 +117,15 @@ export default function PrintControls({
         <button
           type="button"
           onClick={handlePrint}
-          className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-black bg-white hover:bg-crimson rounded-lg shadow transition-colors"
+          disabled={isPrinting}
+          className="flex items-center gap-2 px-4 py-2 text-xs font-bold text-black bg-white hover:bg-crimson rounded-lg shadow transition-colors disabled:opacity-50"
         >
-          <Printer className="w-4 h-4" />
-          <span>Print PVC Tray</span>
+          {isPrinting ? (
+            <Loader2 className="w-4 h-4 animate-spin text-burgundy" />
+          ) : (
+            <Printer className="w-4 h-4" />
+          )}
+          <span>{isPrinting ? 'Authorizing...' : 'Print PVC Tray'}</span>
         </button>
       </div>
     </div>

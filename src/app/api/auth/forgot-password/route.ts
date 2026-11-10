@@ -4,13 +4,41 @@ import { z } from 'zod';
 import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/models/User';
 import { sendPasswordResetEmail } from '@/lib/mail';
+import { checkRateLimit } from '@/lib/security/rateLimiter';
+import { logAuditEvent } from '@/lib/logger/audit';
 
 const forgotPasswordSchema = z.object({
   identifier: z.string().min(3, 'Please enter your registered email or phone number'),
 });
 
+function getClientIp(request: Request): string {
+  const forwarded = request.headers.get('x-forwarded-for');
+  if (forwarded) return forwarded.split(',')[0].trim();
+  const cfIp = request.headers.get('cf-connecting-ip');
+  if (cfIp) return cfIp.trim();
+  const realIp = request.headers.get('x-real-ip');
+  if (realIp) return realIp.trim();
+  return '127.0.0.1';
+}
+
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const userAgent = request.headers.get('user-agent') || undefined;
+
   try {
+    const rateLimit = await checkRateLimit('AUTH_FORGOT_PASSWORD', ip);
+    if (!rateLimit.allowed) {
+      return NextResponse.json(
+        {
+          error: `Too many password reset requests. Please wait ${rateLimit.retryAfterSeconds} seconds.`,
+        },
+        {
+          status: 429,
+          headers: { 'Retry-After': String(rateLimit.retryAfterSeconds) },
+        }
+      );
+    }
+
     const body = await request.json();
     const { identifier } = forgotPasswordSchema.parse(body);
 
@@ -28,6 +56,16 @@ export async function POST(request: Request) {
 
     // To prevent account enumeration, return success even if user doesn't exist
     if (!user) {
+      await logAuditEvent({
+        action: 'AUTH_PASSWORD_RESET_REQUEST',
+        resourceType: 'AUTH',
+        resourceId: normalizedIdentifier,
+        ip,
+        userAgent,
+        details: { status: 'account_not_found' },
+        status: 'WARNING',
+      });
+
       return NextResponse.json({
         message: 'If an account exists with this email or phone number, reset instructions have been sent.',
       });
@@ -49,11 +87,23 @@ export async function POST(request: Request) {
     user.resetPasswordExpires = expires;
     await user.save();
 
+    await logAuditEvent({
+      actorId: user._id,
+      actorEmail: user.email,
+      action: 'AUTH_PASSWORD_RESET_REQUEST',
+      resourceType: 'AUTH',
+      resourceId: user._id.toString(),
+      ip,
+      userAgent,
+      details: { email: user.email },
+      status: 'SUCCESS',
+    });
+
     // Determine base URL
     const origin =
       request.headers.get('origin') ||
       process.env.CLIENT_URL ||
-      'http://localhost:3000';
+      'https://printportal.accero.app';
     const resetUrl = `${origin}/reset-password?token=${rawToken}`;
 
     // Dispatch email

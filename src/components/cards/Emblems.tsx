@@ -195,12 +195,12 @@ export function RcCircleBadge({
 }) {
   const bgClass =
     variant === 'cyan'
-      ? 'bg-[#38BDF8] border-[#0ea5e9]'
-      : 'bg-[#F59E0B] border-[#d97706]';
+      ? 'bg-[#408EE0]'
+      : 'bg-[#E68310]';
 
   return (
     <div
-      className={`w-[18px] h-[18px] rounded-full flex items-center justify-center border font-extrabold text-[8px] text-white shadow-2xs leading-none shrink-0 ${bgClass} ${className}`}
+      className={`w-[18px] h-[18px] rounded-full flex items-center justify-center font-bold text-[8px] text-black shadow-2xs leading-none shrink-0 ${bgClass} ${className}`}
     >
       <span>{text}</span>
     </div>

@@ -16,3 +16,4 @@
 ## Verification
 - All coordinates and typography align with official reference cards and legacy templates.
 - TypeScript definitions in `src/types/cards.ts` verified and updated.
+

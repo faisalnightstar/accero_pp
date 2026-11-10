@@ -15,3 +15,4 @@
    - `src/app/(auth)/reset-password/page.tsx`: Reset form featuring password confirmation, accessible toggle visibility buttons (`Eye`/`EyeOff`), and invalid/expired token fallback view.
 5. **Verification**:
    - Executed `next build` — compiled all 226 routes cleanly without TypeScript errors or warnings.
+

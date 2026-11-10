@@ -349,11 +349,44 @@ export const AADHAAR_LANGUAGES: Record<AadhaarLanguageCode, AadhaarLanguageConfi
   },
 };
 
+const RELATIONSHIP_PREFIX_MAP: Record<string, { so: string; do: string; wo: string; co: string }> = {
+  HI: { so: 'आत्मज', do: 'आत्मजा', wo: 'पत्नी', co: 'केयर ऑफ' },
+  BN: { so: 'পুত্র', do: 'কন্যা', wo: 'স্ত্রী', co: 'যত্নে' },
+  GU: { so: 'પુત્ર', do: 'પુત્રી', wo: 'પત્ની', co: 'સંભાળ' },
+  MR: { so: 'पुत्र', do: 'कन्या', wo: 'पत्नी', co: 'काळजी' },
+  TA: { so: 'மகன்', do: 'மகள்', wo: 'மனைவி', co: 'பராமரிப்பு' },
+  TE: { so: 'కుమారుడు', do: 'కుమార్తె', wo: 'భార్య', co: 'సంరక్షణ' },
+  KN: { so: 'ಮಗ', do: 'ಮಗಳು', wo: 'ಹೆಂಡತಿ', co: 'ಆರೈಕೆ' },
+  PA: { so: 'ਸਪੁੱਤਰ', do: 'ਧੀ', wo: 'ਪਤਨੀ', co: 'ਦੇਖਭਾਲ' },
+  OR: { so: 'ପୁତ୍ର', do: 'ଝିଅ', wo: 'ସ୍ତ୍ରୀ', co: 'ଯତ୍ନ' },
+};
+
 /**
- * Translate text via Google Translate GTX API
+ * Translate text via Google Translate GTX API with smart Indian relationship prefix mapping
  */
 export async function translateAadhaarText(text: string, targetLang: string): Promise<string> {
   if (!text || !text.trim() || !targetLang) return text;
+
+  // Check for common care of / relationship prefixes like D/O, S/O, W/O, C/O
+  const relMatch = text.match(/^(S\/O|D\/O|W\/O|C\/O|SO|DO|WO|CO)[:\s-]+(.*)$/i);
+  if (relMatch) {
+    const pRaw = relMatch[1].toUpperCase().replace('/', '');
+    const remainder = relMatch[2].trim();
+    const langKey = targetLang.toUpperCase();
+    const map = RELATIONSHIP_PREFIX_MAP[langKey];
+    if (map && remainder) {
+      let prefix = '';
+      if (pRaw === 'SO') prefix = map.so;
+      else if (pRaw === 'DO') prefix = map.do;
+      else if (pRaw === 'WO') prefix = map.wo;
+      else if (pRaw === 'CO') prefix = map.co;
+
+      if (prefix) {
+        const translatedRemainder = await translateAadhaarText(remainder, targetLang);
+        return `${prefix} ${translatedRemainder}`;
+      }
+    }
+  }
 
   try {
     const res = await fetch(
@@ -373,3 +406,4 @@ export async function translateAadhaarText(text: string, targetLang: string): Pr
     return text;
   }
 }
+

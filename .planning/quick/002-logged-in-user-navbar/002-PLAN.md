@@ -19,3 +19,4 @@ Create a dedicated, feature-rich Navigation Bar component for authenticated user
 2. `src/components/layout/PublicNavbar.tsx` - Public marketing navbar component.
 3. `src/components/layout/Navbar.tsx` - Controller switching between `UserNavbar` and `PublicNavbar`.
 4. Verification and build confirmation.
+

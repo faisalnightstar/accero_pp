@@ -12,6 +12,9 @@ export interface PanCardCanvasProps {
   className?: string;
 }
 
+const HELVETICA_LT_PRO_BOLD =
+  "'Helvetica LT Pro Bold', 'Helvetica LT Pro', 'Helvetica Neue', Helvetica, Arial, sans-serif";
+
 export default function PanCardCanvas({
   data,
   side = 'front',
@@ -19,6 +22,7 @@ export default function PanCardCanvas({
   className = '',
 }: PanCardCanvasProps) {
   const activeVariant = variant || data.templateVariant || 'nsdl';
+  const isUti = activeVariant === 'utiitsl';
   const qrString = getPanQrXmlString(data);
 
   // Asset URLs matching the extracted high-resolution templates
@@ -46,8 +50,10 @@ export default function PanCardCanvas({
   if (side === 'sheet') {
     return (
       <div
-        className={`w-full h-full relative overflow-hidden select-none bg-white font-sans ${className}`}
+        className={`w-full h-full relative overflow-hidden select-none bg-white font-pan ${className}`}
         style={{
+          fontFamily: HELVETICA_LT_PRO_BOLD,
+          fontWeight: 700,
           printColorAdjust: 'exact',
           WebkitPrintColorAdjust: 'exact',
         }}
@@ -66,10 +72,10 @@ export default function PanCardCanvas({
         <div
           className="absolute overflow-hidden rounded-[1px] border border-[#718096]/80 bg-white shadow-2xs flex items-center justify-center"
           style={{
-            left: '3.375%',
-            top: '35.23%',
-            width: '7.5%',
-            height: '24.87%',
+            left: isUti ? '3.9%' : '3.875%',
+            top: isUti ? '38.5%' : '38.5%',
+            width: '7.75%',
+            height: '22.0%',
           }}
         >
           {data.photoUrl ? (
@@ -89,10 +95,12 @@ export default function PanCardCanvas({
 
         {/* Permanent Account Number */}
         <div
-          className="absolute font-mono font-bold text-[#1A202C] tracking-wider leading-none"
+          className="absolute font-bold text-[#1A202C] tracking-wider leading-none"
           style={{
+            fontFamily: HELVETICA_LT_PRO_BOLD,
+            fontWeight: 700,
             left: '17.75%',
-            top: '42.28%',
+            top: isUti ? '42.5%' : '42.28%',
             fontSize: 'calc(100% * 0.046)',
           }}
         >
@@ -101,10 +109,12 @@ export default function PanCardCanvas({
 
         {/* Applicant Full Name */}
         <div
-          className="absolute font-sans font-bold uppercase text-[#1A202C] truncate leading-none"
+          className="absolute font-bold uppercase text-[#1A202C] truncate leading-none"
           style={{
-            left: '4.125%',
-            top: '62.59%',
+            fontFamily: HELVETICA_LT_PRO_BOLD,
+            fontWeight: 700,
+            left: isUti ? '4.2%' : '4.125%',
+            top: isUti ? '63.5%' : '62.59%',
             width: '24%',
             fontSize: 'calc(100% * 0.034)',
           }}
@@ -115,10 +125,12 @@ export default function PanCardCanvas({
 
         {/* Father's Full Name */}
         <div
-          className="absolute font-sans font-bold uppercase text-[#1A202C] truncate leading-none"
+          className="absolute font-bold uppercase text-[#1A202C] truncate leading-none"
           style={{
+            fontFamily: HELVETICA_LT_PRO_BOLD,
+            fontWeight: 700,
             left: '4.25%',
-            top: '75.03%',
+            top: isUti ? '76.0%' : '75.03%',
             width: '24%',
             fontSize: 'calc(100% * 0.045)',
           }}
@@ -129,10 +141,12 @@ export default function PanCardCanvas({
 
         {/* Date of Birth */}
         <div
-          className="absolute font-mono font-bold text-[#1A202C] leading-none"
+          className="absolute font-bold text-[#1A202C] leading-none"
           style={{
-            left: '4.125%',
-            top: '90.36%',
+            fontFamily: HELVETICA_LT_PRO_BOLD,
+            fontWeight: 700,
+            left: isUti ? '4.2%' : '4.125%',
+            top: isUti ? '91.2%' : '90.36%',
             fontSize: 'calc(100% * 0.034)',
           }}
         >
@@ -141,12 +155,12 @@ export default function PanCardCanvas({
 
         {/* Applicant Signature */}
         <div
-          className="absolute overflow-hidden flex items-center justify-center"
+          className="absolute overflow-hidden flex items-center justify-center pointer-events-none"
           style={{
-            left: '18.5%',
-            top: '60.97%',
-            width: '80.125%',
-            height: '10.36%',
+            left: isUti ? '17.0%' : '16.5%',
+            top: isUti ? '74.0%' : '73.0%',
+            width: '10.0%',
+            height: '15.0%',
           }}
         >
           {data.signatureUrl ? (
@@ -154,10 +168,10 @@ export default function PanCardCanvas({
             <img
               src={data.signatureUrl}
               alt="Signature"
-              className="max-w-full max-h-full object-contain"
+              className="max-w-full max-h-full object-contain mix-blend-multiply"
             />
           ) : (
-            <span className="text-[6px] text-white italic">Signature</span>
+            <span className="text-[6px] text-gray-400 italic">Signature</span>
           )}
         </div>
 
@@ -165,13 +179,13 @@ export default function PanCardCanvas({
         <div
           className="absolute flex items-center justify-center"
           style={{
-            left: '35.875%',
-            top: '30.46%',
-            width: '13.75%',
-            height: '45.6%',
+            left: isUti ? '33.3%' : '33.4%',
+            top: '28.5%',
+            width: '13.8%',
+            height: '43.0%',
           }}
         >
-          <div className="w-full h-full p-0.5 bg-white/95 rounded-[1px] shadow-2xs flex items-center justify-center">
+          <div className="w-full h-full p-0.5 bg-white rounded-[1px] shadow-2xs flex items-center justify-center">
             <CardQrCode value={qrString} size={110} level="M" />
           </div>
         </div>
@@ -207,8 +221,10 @@ export default function PanCardCanvas({
    * ----------------------------------------------------------- */
   return (
     <div
-      className={`w-full h-full relative overflow-hidden select-none bg-white font-sans ${className}`}
+      className={`w-full h-full relative overflow-hidden select-none bg-white font-pan ${className}`}
       style={{
+        fontFamily: HELVETICA_LT_PRO_BOLD,
+        fontWeight: 700,
         printColorAdjust: 'exact',
         WebkitPrintColorAdjust: 'exact',
       }}
@@ -223,12 +239,12 @@ export default function PanCardCanvas({
 
       {/* Applicant Photo */}
       <div
-        className="absolute overflow-hidden rounded-[1px] border border-[#718096]/80 bg-white shadow-2xs flex items-center justify-center"
+        className="absolute overflow-hidden rounded-[1px] bg-white shadow-2xs flex items-center justify-center"
         style={{
-          left: '6.75%',
-          top: '35.23%',
-          width: '15.0%',
-          height: '24.87%',
+          left: isUti ? '5.2%' : '5.9%',
+          top: isUti ? '26.5%' : '27%',
+          width: '16.0%',
+          height: '25.73%',
         }}
       >
         {data.photoUrl ? (
@@ -248,11 +264,12 @@ export default function PanCardCanvas({
 
       {/* Permanent Account Number */}
       <div
-        className="absolute font-mono font-bold text-[#1A202C] tracking-wider leading-none"
+        className="absolute font-bold text-[#1A202C] tracking-wider leading-none text-[10.5px]"
         style={{
-          left: '35.5%',
-          top: '42.28%',
-          fontSize: 'calc(100% * 0.052)',
+          fontFamily: HELVETICA_LT_PRO_BOLD,
+          fontWeight: 700,
+          left: '32.5%',
+          top: isUti ? '42.5%' : '42.28%',
         }}
       >
         {panno}
@@ -260,12 +277,13 @@ export default function PanCardCanvas({
 
       {/* Applicant Full Name */}
       <div
-        className="absolute font-sans font-bold uppercase text-[#1A202C] truncate leading-none"
+        className="absolute font-bold uppercase text-[#1A202C] truncate leading-none text-[8.5px]"
         style={{
-          left: '8.25%',
-          top: '62.59%',
+          fontFamily: HELVETICA_LT_PRO_BOLD,
+          fontWeight: 700,
+          left: '6%',
+          top: isUti ? '61.5%' : '60.59%',
           width: '48%',
-          fontSize: 'calc(100% * 0.038)',
         }}
         title={name}
       >
@@ -274,12 +292,13 @@ export default function PanCardCanvas({
 
       {/* Father's Full Name */}
       <div
-        className="absolute font-sans font-bold uppercase text-[#1A202C] truncate leading-none"
+        className="absolute font-bold uppercase text-[#1A202C] truncate leading-none text-[8.5px]"
         style={{
-          left: '8.50%',
-          top: '75.03%',
+          fontFamily: HELVETICA_LT_PRO_BOLD,
+          fontWeight: 700,
+          left: '6%',
+          top: isUti ? '74.0%' : '73.03%',
           width: '48%',
-          fontSize: 'calc(100% * 0.038)',
         }}
         title={fatherName}
       >
@@ -288,11 +307,12 @@ export default function PanCardCanvas({
 
       {/* Date of Birth */}
       <div
-        className="absolute font-mono font-bold text-[#1A202C] leading-none"
+        className="absolute font-bold text-[#1A202C] leading-none text-[8.5px]"
         style={{
-          left: '8.25%',
-          top: '90.36%',
-          fontSize: 'calc(100% * 0.038)',
+          fontFamily: HELVETICA_LT_PRO_BOLD,
+          fontWeight: 700,
+          left: '6%',
+          top: isUti ? '89.5%' : '88.36%',
         }}
       >
         {dob}
@@ -300,12 +320,12 @@ export default function PanCardCanvas({
 
       {/* Applicant Signature */}
       <div
-        className="absolute overflow-hidden flex items-center justify-center"
+        className="absolute overflow-hidden flex items-center justify-center pointer-events-none"
         style={{
-          left: '37.0%',
-          top: '84.97%',
-          width: '16.25%',
-          height: '10.36%',
+          left: isUti ? '33.5%' : '33.0%',
+          top: isUti ? '75.0%' : '75.0%',
+          width: '20.0%',
+          height: '15.0%',
         }}
       >
         {data.signatureUrl ? (
@@ -313,7 +333,7 @@ export default function PanCardCanvas({
           <img
             src={data.signatureUrl}
             alt="Signature"
-            className="max-w-full max-h-full object-contain"
+            className="max-w-full max-h-full object-contain mix-blend-multiply"
           />
         ) : (
           <span className="text-[7px] text-gray-400 italic">Signature</span>
@@ -324,13 +344,13 @@ export default function PanCardCanvas({
       <div
         className="absolute flex items-center justify-center"
         style={{
-          left: '61.75%',
-          top: '24.46%',
-          width: '27.5%',
-          height: '45.6%',
+          left: isUti ? '66.5%' : '66.6%',
+          top: '28.5%',
+          width: '27.8%',
+          height: '43.0%',
         }}
       >
-        <div className="w-full h-full p-0.5 bg-white/95 rounded-[1px] shadow-2xs flex items-center justify-center">
+        <div className="w-full h-full p-1 bg-white rounded-[1px] shadow-2xs flex items-center justify-center">
           <CardQrCode value={qrString} size={110} level="M" />
         </div>
       </div>

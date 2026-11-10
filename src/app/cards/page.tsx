@@ -22,6 +22,7 @@ import AadhaarCardCanvas from '@/components/cards/AadhaarCardCanvas';
 import DlCardCanvas from '@/components/cards/DlCardCanvas';
 import RcCardCanvas from '@/components/cards/RcCardCanvas';
 import { exportCardAsPdf, exportCardAsPng } from '@/lib/cardExport';
+import { authorizePrintAction } from '@/actions/print';
 import {
   PanCardData,
   VoterCardData,
@@ -46,7 +47,7 @@ const samplePanData: PanCardData = {
 
 // Realistic sample Voter ID data (matching real sample from pdf.html)
 const sampleVoterData: VoterCardData = {
-  epicNumber: 'AXH0801639',
+  epicNumber: 'ABC0123456',
   electorName: 'RUPLAL SAH',
   electorNameRegional: 'रूपलाल साह',
   relationType: 'FATHER',
@@ -89,8 +90,8 @@ const sampleAadhaarData: AadhaarCardData = {
   dateOfBirthRegional: 'जन्म तिथि',
   gender: 'MALE',
   genderRegional: 'पुरुष',
-  careOf: 'S/O: Pyarelal',
-  careOfRegional: 'आत्मज: प्यारेलाल',
+  careOf: 'S/O Pyarelal',
+  careOfRegional: 'आत्मज प्यारेलाल',
   address: 'HOUSE NO 12, NAI BASTI, CHETGANJ, VARANASI, UTTAR PRADESH - 221001',
   addressRegional: 'मकान नं १२, नई बस्ती, चेतगंज, वाराणसी, उत्तर प्रदेश - २२१००१',
   downloadDate: '06/11/2026',
@@ -113,27 +114,30 @@ const sampleDlData: DlCardData = {
   issueDate: '10-06-2021',
   validityNonTransport: '14-08-2040',
   validityTransport: '09-06-2026',
+  adpvehNo: '-',
+  hazardousValidUpto: '-',
+  hillValidUpto: '-',
   vehicleClasses: [
-    { code: 'MCWG', desc: 'Motor Cycle With Gear', issueDate: '10-06-2021' },
-    { code: 'LMV', desc: 'Light Motor Vehicle', issueDate: '10-06-2021' },
+    { code: 'MCWG', desc: 'Motor Cycle With Gear', issueDate: '10-06-2021', category: 'NT' },
+    { code: 'LMV', desc: 'Light Motor Vehicle', issueDate: '10-06-2021', category: 'NT' },
   ],
   issuingAuthority: 'RTO NOIDA (UP16)',
 };
 
 // Realistic sample Vehicle RC data (matching official Form 23A reference card)
 const sampleRcData: RcCardData = {
-  registrationNumber: 'UP05LD1234',
+  registrationNumber: 'DL05RR1234',
   registrationDate: '22-Oct-2022',
   regnValidity: '22-Oct-2037',
   ownerSerial: 1,
   stateCode: 'UP',
   stateIssued: 'Issued by Government of Uttar Pradesh',
   transportType: 'NT',
-  chassisNumber: 'MR123RK21N5K12345',
-  engineNumber: 'AR1CH1234567',
-  ownerName: 'ROHIT KHATRI',
-  sonWifeDaughterOf: 'SUBHASH KHATRI',
-  address: 'E-04, BETA 2 , GREATER NOIDA, Gautam Buddha Nagar -201308',
+  chassisNumber: 'AB123CD12E1F12345',
+  engineNumber: 'AB1CD1234567',
+  ownerName: 'RAHUL KUMAR',
+  sonWifeDaughterOf: 'SUBHAM KUMAR',
+  address: 'Gautam Buddha Nagar, 201308',
   vehicleClass: 'M-CYCLE/SCOOTER',
   maker: 'TVS MOTOR COMPANY LTD',
   model: 'TVSNTORQ125-SUPER SQUADEDITION',
@@ -141,17 +145,19 @@ const sampleRcData: RcCardData = {
   bodyType: '2 WHEELER',
   fuelType: 'PETROL',
   emissionNorm: 'BHARAT STAGE VI',
-  seatingCapacity: '0',
+  seatingCapacity: '2',
   unladenWeight: '0',
-  cubicCapacity: '124.8',
+  cubicCapacity: '124',
   horsePower: '0',
   wheelBase: '0',
   monthYearOfMfg: '9/2022',
   noOfCylinders: 0,
   financier: 'BANDHAN BANK LTD',
   registeringAuthority: 'Noida, Uttar Pradesh',
-  cardIssueDate: '30-08-2026',
-  qrPayload: 'https://vahan.parivahan.gov.in/rc?reg=UP05LD1234',
+  cardIssueDate: '01-11-2026',
+  qrPayload: 'https://vahan.parivahan.gov.in/rc?reg=DL05RR1234',
+  layoutFormat: 'cr80',
+  templateVariant: 'authentic',
 };
 
 export default function CardsShowcasePage() {
@@ -187,8 +193,8 @@ export default function CardsShowcasePage() {
     cardBack = <DlCardCanvas data={sampleDlData} side="back" />;
     currentDocTitle = `dl_${sampleDlData.dlNumber}`;
   } else if (activeTab === 'rc') {
-    cardFront = <RcCardCanvas data={sampleRcData} side="front" />;
-    cardBack = <RcCardCanvas data={sampleRcData} side="back" />;
+    cardFront = <RcCardCanvas data={sampleRcData} side="front" variant={sampleRcData.templateVariant} />;
+    cardBack = <RcCardCanvas data={sampleRcData} side="back" variant={sampleRcData.templateVariant} />;
     currentDocTitle = `rc_${sampleRcData.registrationNumber}`;
   } else {
     // Base Demo Container
@@ -228,14 +234,52 @@ export default function CardsShowcasePage() {
     currentDocTitle = 'cr80_container_demo';
   }
 
-  // Handle PDF Export
+  // Handle Print with Server Authorization & Wallet Billing
+  const handlePrint = async () => {
+    try {
+      setIsExporting(true);
+      const printJobId = `pj_${crypto.randomUUID()}`;
+      const res = await authorizePrintAction({
+        documentType: activeTab,
+        cardIdentifier: currentDocTitle,
+        printJobId,
+        printFormat: 'CR80',
+      });
+
+      if (!res.success) {
+        alert(res.error?.message || 'Print authorization failed. Please check your wallet balance.');
+        return;
+      }
+
+      window.print();
+    } catch (err: any) {
+      alert(err.message || 'Error authorizing print.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Handle PDF Export with Server Authorization & Wallet Billing
   const handleExportPdf = async () => {
     if (!frontCardRef.current || !backCardRef.current) return;
     try {
       setIsExporting(true);
+      const printJobId = `pj_${crypto.randomUUID()}`;
+      const res = await authorizePrintAction({
+        documentType: activeTab,
+        cardIdentifier: currentDocTitle,
+        printJobId,
+        printFormat: 'PDF',
+      });
+
+      if (!res.success) {
+        alert(res.error?.message || 'PDF export authorization failed. Please check your wallet balance.');
+        return;
+      }
+
       await exportCardAsPdf(frontCardRef.current, backCardRef.current, currentDocTitle);
-    } catch (err) {
-      alert('Failed to generate PDF. Please try again.');
+    } catch (err: any) {
+      alert(err.message || 'Failed to generate PDF. Please try again.');
     } finally {
       setIsExporting(false);
     }
@@ -376,6 +420,8 @@ export default function CardsShowcasePage() {
           onToggleGuides={() => setShowGuides(!showGuides)}
           viewMode={viewMode}
           onViewModeChange={setViewMode}
+          onPrint={handlePrint}
+          isPrinting={isExporting}
           extraActions={
             <div className="flex items-center gap-1.5">
               <button

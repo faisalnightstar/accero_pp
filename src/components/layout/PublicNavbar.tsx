@@ -22,10 +22,12 @@ export default function PublicNavbar({ className = '' }: PublicNavbarProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const publicLinks = [
-    { name: 'Services', href: '/#services' },
-    { name: 'How It Works', href: '/#how-it-works' },
-    { name: 'Pricing', href: '/#pricing' },
-    { name: 'Card Formats', href: '/cards' },
+    { name: 'Print Portal', href: '/print-portal' },
+    { name: 'Features', href: '/features' },
+    { name: 'Services', href: '/services' },
+    { name: 'Solutions', href: '/solutions' },
+    { name: 'Pricing', href: '/pricing' },
+    { name: 'FAQ', href: '/faq' },
   ];
 
   return (
@@ -42,14 +44,14 @@ export default function PublicNavbar({ className = '' }: PublicNavbarProps) {
             <div>
               <div className="flex items-center gap-1.5">
                 <span className="font-bold text-xl tracking-tight text-[#1D3557]">
-                  Print<span className="text-[#E63946]">Portal</span>
+                  Accero <span className="text-[#E63946]">PrintPortal</span>
                 </span>
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-md bg-amber-100 text-amber-900 border border-amber-300">
-                  PVC Next
+                  SaaS
                 </span>
               </div>
               <span className="hidden sm:block text-[10px] font-semibold text-slate-500 tracking-wide uppercase">
-                Official PVC Gateway
+                Document Processing & Printing
               </span>
             </div>
           </Link>
@@ -60,7 +62,11 @@ export default function PublicNavbar({ className = '' }: PublicNavbarProps) {
               <Link
                 key={link.name}
                 href={link.href}
-                className="text-sm font-semibold text-slate-600 hover:text-burgundy transition-colors"
+                className={`text-sm font-semibold transition-colors ${
+                  pathname === link.href
+                    ? 'text-[#8B1E2D]'
+                    : 'text-slate-600 hover:text-[#8B1E2D]'
+                }`}
               >
                 {link.name}
               </Link>
@@ -71,15 +77,15 @@ export default function PublicNavbar({ className = '' }: PublicNavbarProps) {
           <div className="hidden sm:flex items-center gap-3">
             <Link
               href="/login"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-navy hover:text-burgundy hover:bg-slate-50 rounded-lg transition-colors border border-transparent hover:border-slate-200"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-[#1D3557] hover:text-[#8B1E2D] hover:bg-slate-50 rounded-lg transition-colors border border-transparent hover:border-slate-200"
             >
               <User className="w-3.5 h-3.5" />
-              <span>Sign In</span>
+              <span>Operator Sign In</span>
             </Link>
 
             <Link
               href="/register"
-              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-burgundy to-crimson hover:shadow-btn-hover rounded-lg transition-all shadow-xs"
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-[#8B1E2D] to-[#E63946] hover:shadow-btn-hover rounded-lg transition-all shadow-xs"
             >
               <span>Get Started</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -90,18 +96,18 @@ export default function PublicNavbar({ className = '' }: PublicNavbarProps) {
           <div className="flex md:hidden items-center gap-2">
             <Link
               href="/login"
-              className="text-xs font-bold text-navy px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50"
+              className="text-xs font-bold text-[#1D3557] px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50"
             >
               Sign In
             </Link>
             <button
               type="button"
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-              className="p-2 rounded-lg text-slate-600 hover:text-navy hover:bg-slate-100"
+              className="p-2 rounded-lg text-slate-600 hover:text-[#1D3557] hover:bg-slate-100"
               aria-label="Toggle navigation menu"
             >
               {isMobileMenuOpen ? (
-                <X className="w-5 h-5 text-navy" />
+                <X className="w-5 h-5 text-[#1D3557]" />
               ) : (
                 <Menu className="w-5 h-5 text-slate-700" />
               )}
@@ -130,7 +136,7 @@ export default function PublicNavbar({ className = '' }: PublicNavbarProps) {
             <Link
               href="/login"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-navy bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100"
+              className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-[#1D3557] bg-slate-50 border border-slate-200 rounded-lg hover:bg-slate-100"
             >
               <User className="w-3.5 h-3.5" />
               <span>Sign In</span>
@@ -138,7 +144,7 @@ export default function PublicNavbar({ className = '' }: PublicNavbarProps) {
             <Link
               href="/register"
               onClick={() => setIsMobileMenuOpen(false)}
-              className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-white bg-gradient-to-r from-burgundy to-crimson rounded-lg shadow-xs"
+              className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-white bg-gradient-to-r from-[#8B1E2D] to-[#E63946] rounded-lg shadow-xs"
             >
               <span>Get Started</span>
             </Link>

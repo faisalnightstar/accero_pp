@@ -1,0 +1,104 @@
+# Accero PrintPortal - Full Context Reference
+
+**Brand:** Accero PrintPortal  
+**Platform:** Next.js 15 (App Router), React 19, TypeScript, MongoDB, Vercel  
+**Primary Domain:** https://printportal.accero.app  
+**Audience:** Cyber cafe owners, Common Service Center (CSC) Village Level Entrepreneurs (VLEs), retail printing shops, Jan Seva Kendras, and digital service centers in India.
+
+---
+
+## 1. Executive Summary & Value Proposition
+
+Accero PrintPortal solves the industry-wide problem of "failed PVC card prints caused by missing API data or incorrect card tray margins." Traditional document printing workflows often fail when government or third-party query responses omit essential fields (e.g. father's name, candidate photograph, or regional language address strings). 
+
+Accero PrintPortal provides:
+1. **Instant Alphanumeric Lookup:** Fast retrieval across supported document registries with automated provider failover.
+2. **Split-Screen Studio:** A side-by-side editing canvas where missing fields are flagged with amber alert badges, allowing operators to complete details or upload replacement photos before triggering physical card printing.
+3. **ISO/IEC 7810 ID-1 Standard Alignment:** Exact 85.60 mm × 53.98 mm physical coordinates with 3.18 mm corner radii and CSS `@page { size: 85.6mm 53.98mm; margin: 0; }` styling, eliminating margin drift on Epson, Canon, Zebra, and Evolis PVC card trays.
+4. **Transparent Pay-As-You-Print Accounting:** Operators pay a small flat fee (₹5 for manual drafting, ₹20-₹35 for verified lookups). All subsequent re-prints, PDF re-downloads, and card edits are 100% free of charge (₹0).
+
+---
+
+## 2. Core Commercial & Competitor Pillar Pages
+
+- **Print Portal Hub:** https://printportal.accero.app/print-portal (The comprehensive modern print portal overview comparing legacy script portals to Accero's crash-proof architecture).
+- **Best Print Portal for CSC Operators:** https://printportal.accero.app/best-print-portal-for-csc (Tailored specifically for Village Level Entrepreneurs and Jan Seva Kendras, featuring unit economics and zero-card-spoilage guarantees).
+- **Print Portal for Cyber Cafes:** https://printportal.accero.app/print-portal-for-cyber-cafe (Designed for cyber cafe owners seeking high-margin PVC card printing with instant photo cropping).
+- **Print Portal for Retailers:** https://printportal.accero.app/print-portal-for-retailers (Engineered for retail counters with atomic prepaid wallet management, automated refunds, and itemized customer receipts).
+- **PVC Card Printing Software:** https://printportal.accero.app/pvc-card-printing-software (Complete hardware calibration guide and zero-margin CSS specifications for Epson Tray J and Canon ID trays).
+- **CSC Operator Software:** https://printportal.accero.app/csc-operator-software (The PC browser assistant for high-footfall digital seva kiosks).
+- **Document Processing Platform:** https://printportal.accero.app/document-processing-platform (Enterprise architecture breakdown of the verification cascade and split-screen studio).
+
+---
+
+## 3. Supported Document Workflows
+
+### 1. PAN Card Printing
+- **URL:** https://printportal.accero.app/services/pan-card-printing
+- **Standard:** NSDL and UTIITSL preformatted layouts
+- **Features:** Alphanumeric 10-character PAN query, front portrait & signature placement, father name verification, dynamic demographic QR code generator.
+- **Dimensions:** 85.60 mm × 53.98 mm, 300+ DPI vector reproduction.
+- **Fee:** ₹20 per verified lookup, ₹5 manual, ₹0 re-prints.
+
+### 2. Aadhaar Document Management
+- **URL:** https://printportal.accero.app/services/aadhaar-document-management
+- **Standard:** Modern smart card layout with bilingual regional support
+- **Features:** Bilingual Devanagari typography using Google Fonts Hind, Level-M high-density demographic QR code, ghost portrait alignment, front & back smart card tray layout.
+- **Dimensions:** ISO 7810 ID-1 standard.
+- **Fee:** ₹25 per verified lookup, ₹5 manual, ₹0 re-prints.
+
+### 3. Voter ID (EPIC) Card Printing
+- **URL:** https://printportal.accero.app/services/voter-id-printing
+- **Standard:** National Electoral Search EPIC format
+- **Features:** 10-character EPIC number query, assembly constituency string formatting, polling station part number, bilingual voter and relative typography.
+- **Dimensions:** ISO 7810 CR80 standard.
+- **Fee:** ₹20 per verified lookup, ₹5 manual, ₹0 re-prints.
+
+### 4. Driving Licence (DL) Smart Card Printing
+- **URL:** https://printportal.accero.app/services/driving-licence-printing
+- **Standard:** Transport department smart card specification
+- **Features:** Gold smart chip graphical overlay, vehicle class authorization badges (MCWG, LMV, TRANS, HGMV), issue date, validity tracking, RTO authority text.
+- **Dimensions:** ISO/IEC 7810 ID-1 smart card format.
+- **Fee:** ₹30 per verified lookup, ₹5 manual, ₹0 re-prints.
+
+### 5. Vehicle Registration Certificate (RC) Smart Card
+- **URL:** https://printportal.accero.app/services/vehicle-rc-printing
+- **Standard:** Vahan transport registry format
+- **Features:** Registration number query, chassis number, engine number, fuel type, owner serial, emission norm, and fitness validity mapping.
+- **Dimensions:** ISO 7810 CR80 standard.
+- **Fee:** ₹35 per verified lookup, ₹5 manual, ₹0 re-prints.
+
+### 6. Ration Card Management
+- **URL:** https://printportal.accero.app/services/ration-card-management
+- **Standard:** NFSA national food security standard layout
+- **Features:** 12-digit Ration card query, family member roster table, FPS dealer code, category indicator (AAY, PHH, BPL), bilingual residential address.
+- **Dimensions:** ISO 7810 CR80 standard.
+- **Fee:** ₹25 per verified lookup, ₹5 manual, ₹0 re-prints.
+
+---
+
+## 4. Hardware & PVC Card Printer Compatibility
+
+Accero PrintPortal outputs print-ready high-DPI vector PDF and PNG files that map 1:1 to physical card trays:
+- **Epson Inkjet Card Trays:** Epson L805, L850, L8050, L1800 (Tray J / 2-card tray).
+- **Canon Inkjet Card Trays:** Canon Pixma G-series (G1010, G2010, G3010, TS707) with standard ID card trays.
+- **Direct-to-Card Thermal Printers:** Zebra ZC300, Evolis Zenius, Evolis Primacy, Magicard 300, Fargo HDP5000.
+- **Lamination & PVC Pre-Cut Sheets:** Standard 5-in-1 and 10-in-1 PVC dragon sheets with thermal heat press.
+
+---
+
+## 5. Entity Disambiguation & Regulatory Compliance
+
+- **Independent Software:** Accero PrintPortal is an independent commercial software utility developed by Accero Technologies.
+- **No Government Impersonation:** Accero PrintPortal does NOT issue official identity documents, does not manufacture statutory government credentials, and is not an agent or partner of UIDAI, NSDL, UTIITSL, Election Commission of India, Ministry of Road Transport and Highways (MoRTH), or State Food Departments.
+- **Operator Responsibility:** Operators using the software are solely responsible for ensuring that all identity card formatting and printing is performed with the lawful consent of the genuine document holder and strictly adheres to Indian IT Act and data protection guidelines.
+
+---
+
+## 6. Security Architecture
+
+- **No Credential Storage:** External government or provider API credentials are never logged or exposed to the client.
+- **Transport Security:** Strict HTTPS / TLS 1.3 encryption across all public and authenticated endpoints.
+- **Rate Limiting:** Distributed token-bucket rate limiting backed by Upstash Redis and MongoDB TTL safeguards.
+- **Protected User Vault:** User document records, wallet transaction history, and draft snapshots are strictly protected behind JWT authentication with httpOnly cookie storage.
+

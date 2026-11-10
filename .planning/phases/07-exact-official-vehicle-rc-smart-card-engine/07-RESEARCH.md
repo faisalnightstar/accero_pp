@@ -20,15 +20,15 @@
 |   (on blue)    Issued by Government of Uttar Pradesh                              |
 |                                                                                   |
 |           Regn No       Date of Regn.   Regn. Validity    Owner                   |
-| ◀ [CHIP]  UP16DL3137    22-Oct-2022     22-Oct-2037       Serial (1)              |
+| ◀ [CHIP]  UP05LD1234    22-Oct-2022     22-Oct-2037       Serial (1)              |
 |           Chassis No                                                            C |
-|           MD626AK35N3K13433                                                     a |
+|           MR123RK21N5K12345                                                     a |
 |           Engine/Motor No                                                       r |
-|           AK3KN3704338                                                          d |
+|           AR1CH1234567                                                          d |
 |           Owner Name                                                              |
-| Fuel      ABU FAISAL                                                            I |
+| Fuel      ROHIT KHATRI                                                            I |
 | PETROL    Son/Daughter/Wife of (In case of Individual Owner)                    s |
-| Emission  OBAIDULLA                                                             s |
+| Emission  SUBHASH KHATRI                                                             s |
 | Norms     Address                                                               u |
 | BHARAT    D-74, BETA 1 , GREATER NOIDA, Gautam Buddha                           e |
 | STAGE VI  Nagar -201308                                                         ...
@@ -41,7 +41,7 @@
 | (NT) (UP)   Vehicle Class: M-CYCLE/SCOOTER                                        |
 |                                                                                   |
 | Regn. Number          Maker: TVS MOTOR COMPANY LTD                                |
-| UP16DL3137            Model: TVSNTORQ125-SUPER SQUADEDITION                       |
+| UP05LD1234            Model: TVSNTORQ125-SUPER SQUADEDITION                       |
 |                       Color: BLACK         /Body Type: 2 WHEELER                  |
 | +------------------+  Seating(in all) Capacity: 0                               F |
 | |                  |  Unladen Weight (Kg): 0                                    o |
@@ -69,7 +69,7 @@
   - CSS: `writing-mode: vertical-rl; transform: rotate(180deg);` or `absolute right-1 text-[7px] text-gray-700 tracking-wider`.
 
 ### 5. Smart Derivation Utilities
-- When `registrationNumber` is entered (e.g. `UP16DL3137`):
+- When `registrationNumber` is entered (e.g. `UP05LD1234`):
   - State code: first 2 characters (`UP`).
   - State name: mapped from `INDIAN_REGIONS` (e.g. `UP` -> `Uttar Pradesh`).
   - State Issued Text: `Issued by Government of Uttar Pradesh`.

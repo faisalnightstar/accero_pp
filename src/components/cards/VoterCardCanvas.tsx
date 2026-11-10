@@ -37,7 +37,7 @@ export default function VoterCardCanvas({
   const backAsset = langConfig.cardBackAsset;
   const sheetAsset = langConfig.sheetAsset;
 
-  const epic = (data.epicNumber || 'AXH0801639').toUpperCase();
+  const epic = (data.epicNumber || 'ABC0123456').toUpperCase();
   const name = (data.electorName || 'ELECTOR NAME').toUpperCase();
   const electorNameRegional = data.electorNameRegional || name;
   const relationName = (data.relationName || "RELATION NAME").toUpperCase();
@@ -102,7 +102,7 @@ export default function VoterCardCanvas({
         {/* ---------------- FRONT CARD OVERLAY (Upper Left) ---------------- */}
         {/* EPIC Number */}
         <div
-          className="absolute font-black font-mono tracking-wider text-black text-[10px] leading-none"
+          className="absolute font-black font-mono tracking-wider text-black text-[6px] leading-none"
           style={{
             left: '6.2%',
             top: '17.4%',
@@ -113,12 +113,12 @@ export default function VoterCardCanvas({
 
         {/* Main Photo */}
         <div
-          className="absolute overflow-hidden rounded-[1px] bg-white border border-[#BFC1C6] shadow-2xs flex items-center justify-center"
+          className="absolute overflow-hidden rounded-[1px] bg-white border shadow-2xs flex items-center justify-center"
           style={{
             left: '6.1%',
-            top: '19.1%',
-            width: '10.1%',
-            height: '9.9%',
+            top: '19%',
+            width: '10.3%',
+            height: '10.09%',
           }}
         >
           {data.photoUrl ? (
@@ -133,10 +133,10 @@ export default function VoterCardCanvas({
         <div
           className="absolute overflow-hidden rounded-[1px] border border-[#BFC1C6]/60 flex items-center justify-center pointer-events-none"
           style={{
-            left: '40.0%',
-            top: '17.1%',
-            width: '3.6%',
-            height: '2.9%',
+            left: '39.7%',
+            top: '17%',
+            width: '3.9%',
+            height: '3.1%',
             opacity: 0.75,
             filter: 'grayscale(100%)',
           }}
@@ -154,35 +154,35 @@ export default function VoterCardCanvas({
           className="absolute flex flex-col justify-between text-[8px] leading-tight text-black font-sans"
           style={{
             left: '16.9%',
-            top: '18.3%',
+            top: '19.3%',
             width: '22.5%',
-            height: '10.7%',
+            height: '8%',
           }}
         >
           <div className="flex items-baseline gap-1 truncate">
             <span className="font-bold shrink-0">{labelName}</span>
             <span className="font-bold">:</span>
-            <span className="font-extrabold truncate">{electorNameRegional}</span>
+            <span className="font-bold truncate">{electorNameRegional}</span>
           </div>
           <div className="flex items-baseline gap-1 truncate">
             <span className="font-bold shrink-0">Name</span>
             <span className="font-bold">:</span>
-            <span className="font-extrabold uppercase truncate">{name}</span>
+            <span className="font-bold uppercase truncate">{name}</span>
           </div>
           <div className="flex items-baseline gap-1 truncate">
             <span className="font-bold shrink-0">{labelRelation}</span>
             <span className="font-bold">:</span>
-            <span className="font-extrabold truncate">{relationNameRegional}</span>
+            <span className="font-bold truncate">{relationNameRegional}</span>
           </div>
           <div className="flex items-baseline gap-1 truncate">
             <span className="font-bold shrink-0">{relationTypeEnglish} Name</span>
             <span className="font-bold">:</span>
-            <span className="font-extrabold uppercase truncate">{relationName}</span>
+            <span className="font-bold uppercase truncate">{relationName}</span>
           </div>
           <div className="flex items-baseline gap-1 truncate">
             <span className="font-bold shrink-0">{labelGender}/Gender</span>
             <span className="font-bold">:</span>
-            <span className="font-extrabold">{genderRegional} / {gender}</span>
+            <span className="font-bold">{genderRegional} / {gender}</span>
           </div>
           <div className="flex items-baseline gap-1">
             <div className="flex flex-col leading-none shrink-0">
@@ -190,7 +190,7 @@ export default function VoterCardCanvas({
               <span className="font-bold text-[6px]">Date Of Birth/Age</span>
             </div>
             <span className="font-bold">:</span>
-            <span className="font-extrabold font-mono">{dob}</span>
+            <span className="font-bold font-mono">{dob}</span>
           </div>
         </div>
 
@@ -222,6 +222,16 @@ export default function VoterCardCanvas({
             level="M"
           />
         </div>
+        <div
+          className="absolute font-black font-mono tracking-wider text-black text-[7px] leading-none flex flex-col items-center"
+          style={{
+            left: '56.1%',
+            top: '25.9%',
+          }}
+        >
+          <span className='font-medium text-[5.5px]'>Scan By VHA/BLO App</span>
+          <span className='font-bold mt-[0.5px]'>{epic}</span>
+        </div>
 
         {/* Address */}
         <div
@@ -232,11 +242,11 @@ export default function VoterCardCanvas({
             width: '25.2%',
           }}
         >
-          <div className="line-clamp-2">
+          <div className="line-clamp-4">
             <span className="font-bold">{labelAddress} : </span>
             <span className="font-semibold">{addressRegional}</span>
           </div>
-          <div className="line-clamp-2 mt-0.5 uppercase">
+          <div className="line-clamp-4 mt-0.5">
             <span className="font-bold">Address : </span>
             <span className="font-semibold">{address}</span>
           </div>
@@ -257,6 +267,7 @@ export default function VoterCardCanvas({
           </div>
           <div className="flex flex-col items-center shrink-0 -mb-1">
             {/* eslint-disable-next-line @next/next/no-img-element */}
+
             <img
               src={officerSignUrl}
               alt="ERO Signature"
@@ -269,8 +280,8 @@ export default function VoterCardCanvas({
         <div
           className="absolute text-[7px] font-bold text-gray-800 leading-none"
           style={{
-            left: '56.1%',
-            top: '25.6%',
+            left: '68.6%',
+            top: '27.6%',
           }}
         >
           Download Date: {downloadDate}
@@ -278,18 +289,45 @@ export default function VoterCardCanvas({
 
         {/* ---------------- LOWER SECTION (Voter Slip & Polling Details) ---------------- */}
         <div
-          className="absolute flex flex-col gap-1.5 text-[9px] font-bold text-black"
+          className="absolute flex flex-col gap-10 text-[9px] font-bold text-black"
           style={{
-            left: '38.0%',
-            top: '47.5%',
+            left: '62.0%',
+            top: '37.2%',
             width: '56.0%',
           }}
         >
-          <div className="text-[12px] font-black font-mono tracking-wider">{epic}</div>
-          <div className="truncate">{acRegional}</div>
-          <div className="truncate">{ac}</div>
-          <div className="truncate">{partRegional}</div>
-          <div className="truncate">{part}</div>
+          <div className="text-[12px] font-black font-mono tracking-wider"
+            style={{
+              left: '62.0%',
+              top: '37.2%',
+              width: '56.0%',
+            }}>{epic}</div>
+          <div className="text-[12px] font-black font-mono tracking-wider"
+            style={{
+              left: '62.0%',
+              top: '37.2%',
+              width: '56.0%',
+            }}>N/A</div>
+          <div className="text-[12px] font-black font-mono tracking-wider" style={{
+            left: '62.0%',
+            top: '37.2%',
+            width: '56.0%',
+          }}>{acRegional}</div>
+          <div className="text-[12px] font-black font-mono tracking-wider" style={{
+            left: '62.0%',
+            top: '37.2%',
+            width: '56.0%',
+          }}>{ac}</div>
+          <div className="text-[12px] font-black font-mono tracking-wider " style={{
+            left: '62.0%',
+            top: '37.2%',
+            width: '56.0%',
+          }}>{partRegional}</div>
+          <div className="text-[12px] font-black font-mono tracking-wider " style={{
+            left: '62.0%',
+            top: '37.2%',
+            width: '56.0%',
+          }}>{part}</div>
         </div>
       </div>
     );
@@ -452,10 +490,10 @@ export default function VoterCardCanvas({
       <div
         className="absolute overflow-hidden rounded-[1px] bg-white border border-[#BFC1C6] shadow-2xs flex items-center justify-center"
         style={{
-          left: '3.4%',
-          top: '38.5%',
-          width: '24.4%',
-          height: '53.4%',
+          left: '3.5%',
+          top: '38%',
+          width: '25%',
+          height: '54.1%',
         }}
       >
         {data.photoUrl ? (
@@ -473,10 +511,10 @@ export default function VoterCardCanvas({
       <div
         className="absolute overflow-hidden rounded-[1px] border border-[#BFC1C6]/60 flex items-center justify-center pointer-events-none select-none"
         style={{
-          left: '85.5%',
+          left: '85%',
           top: '27.4%',
           width: '8.7%',
-          height: '15.8%',
+          height: '16%',
           opacity: 0.75,
           filter: 'grayscale(100%)',
         }}
@@ -508,9 +546,10 @@ export default function VoterCardCanvas({
         className="absolute flex flex-col justify-between text-[7.5px] leading-tight text-black font-sans"
         style={{
           left: '29.5%',
-          top: '34.0%',
+          top: '38.0%',
           width: '54.5%',
-          height: '58.0%',
+          height: '34.0%',
+          // border: '1px solid red',
         }}
       >
         {/* Row 1: Regional Name */}
@@ -524,7 +563,7 @@ export default function VoterCardCanvas({
         <div className="flex items-baseline gap-1 truncate">
           <span className="font-bold shrink-0">Name</span>
           <span className="font-bold">:</span>
-          <span className="font-extrabold uppercase truncate">{name}</span>
+          <span className="font-extrabold capitalize truncate">{name}</span>
         </div>
 
         {/* Row 3: Relation Regional */}
@@ -538,7 +577,7 @@ export default function VoterCardCanvas({
         <div className="flex items-baseline gap-1 truncate">
           <span className="font-bold shrink-0">{relationTypeEnglish} Name</span>
           <span className="font-bold">:</span>
-          <span className="font-extrabold uppercase truncate">{relationName}</span>
+          <span className="font-extrabold capitalize truncate">{relationName}</span>
         </div>
 
         {/* Row 5: Gender */}
@@ -585,7 +624,7 @@ function renderLegacyPortrait({
       ? '/assets/voter/voter-assam-back.png'
       : '/assets/voter/voter-hindi-back.jpg';
 
-  const epic = (data.epicNumber || 'AXH0801639').toUpperCase();
+  const epic = (data.epicNumber || 'ABC0123456').toUpperCase();
   const name = (data.electorName || 'ELECTOR NAME').toUpperCase();
   const nameRegionalLabel = data.electorNameRegional || 'मतदाता का नाम';
   const relationName = (data.relationName || "FATHER'S NAME").toUpperCase();
@@ -658,7 +697,7 @@ function renderLegacyPortrait({
             ) : (
               <span className="text-[7px] italic text-gray-700">ERO Sign</span>
             )}
-            <span className="text-[6.5px] font-bold text-center mt-0.5">
+            <span className="text-[6.5px] font-black text-center mt-0.5">
               निर्वाचक रजिस्ट्रीकरण अधिकारी<br />Electoral Registration Officer
             </span>
           </div>

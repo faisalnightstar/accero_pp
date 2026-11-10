@@ -165,16 +165,14 @@ export default function UserNavbar({
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${
-                      item.active
+                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${item.active
                         ? 'text-burgundy bg-burgundy/10 shadow-xs'
                         : 'text-slate-600 hover:text-navy hover:bg-slate-100'
-                    }`}
+                      }`}
                   >
                     <Icon
-                      className={`w-4 h-4 ${
-                        item.active ? 'text-burgundy' : 'text-slate-400 group-hover:text-navy'
-                      }`}
+                      className={`w-4 h-4 ${item.active ? 'text-burgundy' : 'text-slate-400 group-hover:text-navy'
+                        }`}
                     />
                     <span>{item.name}</span>
                   </Link>
@@ -199,18 +197,16 @@ export default function UserNavbar({
                 type="button"
                 onClick={() => setIsRechargeModalOpen(true)}
                 title="Click to recharge wallet balance"
-                className={`group flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all shadow-2xs shrink-0 cursor-pointer ${
-                  isLowBalance
+                className={`group flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all shadow-2xs shrink-0 cursor-pointer ${isLowBalance
                     ? 'bg-amber-500/10 border-amber-400 text-amber-950 hover:bg-amber-500/20'
                     : 'bg-slate-50 border-slate-200 text-slate-800 hover:border-burgundy/40 hover:bg-slate-100'
-                }`}
+                  }`}
               >
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
-                    isLowBalance
+                  className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${isLowBalance
                       ? 'bg-amber-400 text-amber-950 animate-pulse'
                       : 'bg-burgundy/10 text-burgundy'
-                  }`}
+                    }`}
                 >
                   {isLowBalance ? (
                     <AlertTriangle className="w-3.5 h-3.5" />
@@ -239,11 +235,10 @@ export default function UserNavbar({
                 <button
                   type="button"
                   onClick={() => setIsProfileOpen((prev) => !prev)}
-                  className={`flex items-center gap-1.5 p-1 rounded-full border transition-all ${
-                    isProfileOpen
+                  className={`flex items-center gap-1.5 p-1 rounded-full border transition-all ${isProfileOpen
                       ? 'border-burgundy ring-2 ring-burgundy/20 bg-slate-50'
                       : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
+                    }`}
                   aria-expanded={isProfileOpen}
                   aria-haspopup="true"
                   title="User Account Menu"
@@ -258,9 +253,8 @@ export default function UserNavbar({
                     />
                   </div>
                   <ChevronDown
-                    className={`w-3.5 h-3.5 text-slate-400 mr-0.5 transition-transform duration-200 ${
-                      isProfileOpen ? 'rotate-180 text-navy' : ''
-                    }`}
+                    className={`w-3.5 h-3.5 text-slate-400 mr-0.5 transition-transform duration-200 ${isProfileOpen ? 'rotate-180 text-navy' : ''
+                      }`}
                   />
                 </button>
 
@@ -421,11 +415,10 @@ export default function UserNavbar({
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${
-                      item.active
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${item.active
                         ? 'text-burgundy bg-burgundy/10 shadow-2xs'
                         : 'text-slate-700 hover:bg-slate-100'
-                    }`}
+                      }`}
                   >
                     <Icon className="w-4 h-4 text-slate-500" />
                     <span>{item.name}</span>
@@ -463,3 +456,4 @@ export default function UserNavbar({
     </>
   );
 }
+
