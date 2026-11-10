@@ -176,7 +176,7 @@ export default function FaqPage() {
                       className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-2"
                     >
                       <h3 className="text-base font-bold text-[#1D3557] flex items-start gap-2">
-                        <span className="text-[#E63946] font-mono">Q:</span>
+                        <span className="text-[#8B1E2D] font-mono">Q:</span>
                         <span>{faq.question}</span>
                       </h3>
                       <p className="text-sm text-slate-600 leading-relaxed pl-6">

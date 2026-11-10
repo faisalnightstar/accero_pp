@@ -296,9 +296,10 @@ export default function HomePage() {
                 </p>
                 <Link
                   href="/features/document-lookup"
+                  aria-label="Learn more about document lookup and manual entry"
                   className="text-xs font-bold text-[#F4D35E] hover:underline inline-flex items-center gap-1 pt-2"
                 >
-                  <span>Learn more</span>
+                  <span>Explore document lookup</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -311,9 +312,10 @@ export default function HomePage() {
                 </p>
                 <Link
                   href="/features/document-editing"
+                  aria-label="Learn more about split-screen live editing"
                   className="text-xs font-bold text-emerald-400 hover:underline inline-flex items-center gap-1 pt-2"
                 >
-                  <span>Learn more</span>
+                  <span>Explore live editing</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -326,9 +328,10 @@ export default function HomePage() {
                 </p>
                 <Link
                   href="/features/multilingual-printing"
+                  aria-label="Learn more about multilingual typography"
                   className="text-xs font-bold text-blue-400 hover:underline inline-flex items-center gap-1 pt-2"
                 >
-                  <span>Learn more</span>
+                  <span>Explore multilingual printing</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
               </div>
@@ -528,7 +531,7 @@ export default function HomePage() {
                 className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-2"
               >
                 <h3 className="text-base font-bold text-[#1D3557] flex items-start gap-2">
-                  <span className="text-[#E63946] font-mono">Q:</span>
+                  <span className="text-[#8B1E2D] font-mono">Q:</span>
                   <span>{faq.question}</span>
                 </h3>
                 <p className="text-sm text-slate-600 leading-relaxed pl-6">{faq.answer}</p>

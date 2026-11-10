@@ -115,6 +115,10 @@ export default function DashboardPage() {
           return;
         }
         const data = await res.json();
+        if (!data.authenticated || !data.user) {
+          router.push('/login');
+          return;
+        }
         setUser(data.user);
 
         // Fetch user's saved documents from MongoDB

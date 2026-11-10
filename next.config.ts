@@ -3,7 +3,12 @@ import path from 'path';
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  poweredByHeader: false,
+  compress: true,
   outputFileTracingRoot: path.join(__dirname, './'),
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
   images: {
     remotePatterns: [
       {

@@ -128,3 +128,4 @@ The configuration in `src/app/robots.ts` has been optimized:
 * [x] **Canonical URLs Match HTTPS Domain:** Verified `https://printportal.accero.app/...` on all pages.
 * [x] **Zero Citizen PII or Wallet Data in URLs:** Confirmed.
 * [x] **Automated Tests:** 15 dedicated technical SEO tests passing in `tests/seo-indexing-policy.test.ts`.
+

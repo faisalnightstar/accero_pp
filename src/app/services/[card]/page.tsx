@@ -308,7 +308,7 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
                   className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors space-y-2"
                 >
                   <h3 className="text-sm sm:text-base font-bold text-white flex items-start gap-2">
-                    <span className="text-[#E63946] font-mono">Q:</span>
+                    <span className="text-[#F4D35E] font-mono">Q:</span>
                     <span>{faq.question}</span>
                   </h3>
                   <p className="text-xs sm:text-sm text-slate-400 leading-relaxed pl-6">

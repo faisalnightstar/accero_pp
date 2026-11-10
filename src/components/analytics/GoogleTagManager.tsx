@@ -8,7 +8,7 @@ export { getGtmId, DEFAULT_GTM_ID };
 
 /**
  * Centrally loads Google Tag Manager container script once via next/script.
- * Strategy: afterInteractive ensures early availability without blocking LCP or hydration.
+ * Strategy: lazyOnload loads during browser idle time, preventing TBT and LCP delays.
  */
 export function GoogleTagManager() {
   const gtmId = getGtmId();
@@ -23,7 +23,7 @@ export function GoogleTagManager() {
   return (
     <Script
       id="google-tag-manager"
-      strategy="afterInteractive"
+      strategy="lazyOnload"
       dangerouslySetInnerHTML={{
         __html: `
           (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
