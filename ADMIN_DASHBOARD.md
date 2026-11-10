@@ -1,88 +1,95 @@
-# Accero PrintPortal — Admin Dashboard Specification & Operations Guide
+# Accero PrintPortal — Administrative Operations Architecture (ADMIN_DASHBOARD.md)
 
-## 1. Overview & Architecture
-The **Accero PrintPortal Admin Dashboard** (`/admin`) is an enterprise-grade administration and operations console engineered for platform administrators and super administrators. It centralizes real-time business health monitoring, operator management, financial ledger oversight, promotional campaign controls, service pricing configurations, payment gateway auditing, and compliance reporting.
+## 1. Executive Summary & Purpose
 
-### Core Architectural Principles
-- **Strict Role-Based Access Control (RBAC):** Accessible exclusively by users with `SUPER_ADMIN` or `ADMIN` roles. Access is guarded at both the edge middleware layer (`src/middleware.ts`) and within each Server Action / API Route handler.
-- **Zero Direct Balance Modification:** All wallet balance adjustments are strictly atomic (`$inc`), immutable, and paired with structured ledger records with `balanceBefore` and `balanceAfter`.
-- **Financial Maker-Checker Guard:** Financial adjustments exceeding ₹10,000 strictly require `SUPER_ADMIN` authorization. Support agents and support managers are blocked from making wallet modifications.
-- **Auditing by Default:** Every administrative action (status changes, wallet credits/debits, pricing updates, team changes) produces an immutable record in `AuditLog`.
+The **Admin Dashboard** (`/admin`) serves as the central business, operational, and financial command center for **Accero PrintPortal** (`https://printportal.accero.app`). Engineered under strict security, data minimization, and financial integrity principles, it provides authorized platform administrators with high-fidelity control over operator onboarding, revenue accounting, promotional incentives, pricing, and gateway auditing.
+
+```
+                              ┌───────────────────────────────────┐
+                              │     /admin  (Admin Dashboard)      │
+                              │   SUPER_ADMIN & ADMIN Access Only │
+                              └─────────────────┬─────────────────┘
+                                                │
+         ┌──────────────┬───────────────┬───────┴───────┬───────────────┬──────────────┐
+         ▼              ▼               ▼               ▼               ▼              ▼
+   /admin/operators /admin/finance /admin/campaigns /admin/services /admin/payments /admin/team
+   - Status & Notes - Ledger Audit  - ₹249 + ₹50     - Dynamic Fees  - Paytm Gateway - RBAC Control
+   - Zero Cit. PII  - UTR Approval  - Budget Caps   - Maint. Mode   - Bank UTR Audit - Super Admin
+```
 
 ---
 
-## 2. Dashboard Sections & Routes
+## 2. Role-Based Access Control (RBAC) & Route Protection
 
-### 2.1 Overview & Metrics (`/admin`)
-- **Key Metrics:**
-  - Net Reconciled Revenue (Today, This Month, All Time)
-  - Active Operator Accounts & Suspended Operators
-  - Total Document Processings & PVC Prints
-  - Wallet Liability (Aggregate unsettled operator wallet balances)
-- **Real-Time Data Feeds:**
-  - Dynamic aggregation across `Payment`, `Wallet`, `DocumentRecord`, and `User` MongoDB collections.
-  - Service usage breakdown (PAN, Aadhaar, Voter ID, Driving License, Vehicle RC, Ration Card).
+Administrative routes and server actions are strictly gated by server-side verification:
 
-### 2.2 Operator Management (`/admin/operators`)
-- **Search & Filters:** Search by operator name, email address, phone number, or MongoDB User ID. Filter by status (`active`, `suspended`).
-- **Operator Inspector Drawer:**
-  - Account identity & registration metadata.
-  - Wallet balance and recent transaction stream.
-  - Document lookup & PVC print statistics.
-  - Linked support tickets history.
-- **Administrative Actions:**
-  - Status toggle (`active` ↔ `suspended`) with mandatory suspension justification.
-  - Operator internal notes.
-  - Direct wallet balance adjustment modal.
+| Role | Route Access (`/admin/*`) | Financial Adjustments | Team Management | High-Value Limit |
+| :--- | :--- | :--- | :--- | :--- |
+| **`SUPER_ADMIN`** | Full Unrestricted | Unlimited with Audit Log | Full (Can assign/revoke Super Admins) | No Cap (Bypasses ₹10k limit) |
+| **`ADMIN`** | Full Business & Ops | Capped up to ₹10,000 | Can view team; cannot grant Super Admin | ≤ ₹10,000 (Maker-Checker) |
+| **`SUPPORT_MANAGER`** | Denied (403 Redirect) | Blocked (Hard Rejection) | Denied | Blocked |
+| **`SUPPORT_AGENT`** | Denied (403 Redirect) | Blocked (Hard Rejection) | Denied | Blocked |
+| **`OPERATOR / USER`** | Denied (403 Redirect) | Blocked (Hard Rejection) | Denied | Blocked |
 
-### 2.3 Wallet & Finance Management (`/admin/finance`)
-- **System-Wide Transaction Ledger:**
-  - Live queryable transaction ledger across all operator wallets.
-  - Filter by transaction type (`credit`, `debit`) and category (`RECHARGE`, `PRINT_FEE`, `REFUND`, `MANUAL_ADJUSTMENT`, `PROMOTIONAL_BONUS`).
-  - Search by transaction reference ID or description.
-- **Manual UTR Approvals:**
-  - Review operator-submitted bank UTR reference numbers.
-  - Approve or reject manual UPI deposits with instant, atomic wallet credit.
-- **Administrative Wallet Adjustments:**
-  - Action types: `credit`, `debit`, `refund`.
-  - Requires explicit reference ID, reason, and actor identification.
-  - Enforces the ₹10,000 threshold maker-checker policy.
+*Enforcement Mechanism:* Middleware (`src/middleware.ts`) provides Edge-level perimeter blocking, while Server Actions (`src/actions/admin.ts`) and API routes independently execute `assertRole(session, ['super_admin', 'admin'])`.
 
-### 2.4 Promotional Campaigns & Recharge Bonuses (`/admin/campaigns`)
-- **Promotional Engine:**
-  - Manages automated recharge slab bonuses (e.g. Accero Launch Offer: ₹249 slab → ₹50 bonus).
-  - Multi-slab computation: Multiples of the slab amount scale proportionally (₹498 → ₹100 bonus).
-  - Operator bonus cap (e.g. ₹1,000 maximum per operator).
-  - Budget caps: Campaigns automatically deactivate or deplete when total allocated budget is exhausted.
-- **Campaign Controls:**
-  - Toggle campaign status (`ACTIVE` ↔ `INACTIVE`).
-  - Create new campaigns with customizable slab amounts, bonus values, dates, and budgets.
+---
 
-### 2.5 Service Pricing & Maintenance (`/admin/services`)
-- **Dynamic Service Pricing:**
-  - Manage per-card first-time verification fees for all 6 document types (PAN, Aadhaar, Voter, DL, RC, Ration).
-  - Free Lifetime Reprint Guarantee: Subsequent reprints of already verified documents remain ₹0 (free).
-- **Maintenance Mode:**
-  - Toggle individual services into maintenance mode without taking down the entire portal.
-  - Set custom operator-facing maintenance banners and notices.
-  - Review fallback provider chain priority (NEO → SUREPASS → MANUAL).
+## 3. Core Modules & Operational Workflows
 
-### 2.6 Payment Gateway Auditing (`/admin/payments`)
-- **Paytm UPI & Gateway Audit Table:**
-  - View all inbound payments with order ID, payment ID, bank transaction ID / UTR, and status (`SUCCESS`, `PENDING`, `FAILED`, `REFUNDED`).
-  - Search by order ID, payment ID, or bank reference.
-  - Inspect payment details without exposing API keys, merchant secrets, or user passwords.
+### 3.1 Overview & Real-Time Metrics (`/admin`)
+- **Total Registered Operators & Active Count:** Computed directly from `User.countDocuments({ role: 'operator' })`.
+- **Wallet Balance Liability:** Live sum of operator balances (`Wallet.aggregate([ { $group: { _id: null, total: { $sum: '$balance' } } } ])`).
+- **Revenue Accounting:** Real-time breakdown of Paytm UPI and approved manual recharge transactions (`today`, `thisMonth`, `total`).
+- **Live Service Volume:** Aggregation of processed identity documents across PAN, Aadhaar, Voter, Driving License, RC, and Ration cards.
+- **Zero Dummy Data:** All metrics originate from verified MongoDB collection documents; mock counters are strictly disallowed.
 
-### 2.7 Financial Reports & CSV Exports (`/admin/reports`)
-- **Revenue Summaries:**
-  - Reconciled payment volume, live settlement rates, and print volume breakdowns.
-- **CSV Data Export:**
-  - Export filtered date-range transaction records as an audit-ready CSV file.
-  - Sanitized output format suitable for accounting and tax compliance.
+### 3.2 Operator Management (`/admin/operators`)
+- **Search & Filtering:** Real-time lookup by Name, Email, Phone, or Operator ID.
+- **Status Lifecycle:** Administrative activation and suspension with mandatory recorded rationale (`suspendedReason`).
+- **Internal Administrative Notes:** Threaded operational notes logged with actor timestamps.
+- **Profile Inspector Drawer:** Displays registration history, recharge total, wallet balance, and support ticket history.
+- **Data Minimization:** Strictly hides citizen identity documents (Aadhaar numbers, PAN numbers, photos) from operator administrative profiles.
 
-### 2.8 Team Access Control (`/admin/team`)
-- **Super Administrator Console:**
-  - Accessible strictly to `SUPER_ADMIN`.
-  - List internal staff accounts with their assigned roles.
-  - Create new staff accounts with roles: `support_agent`, `support_manager`, `admin`, `super_admin`.
-  - Modify staff roles with privilege escalation prevention.
+### 3.3 Wallet & Financial Management (`/admin/finance`)
+- **Transaction Ledger Query:** Search and filter by reference ID, transaction type (`credit`, `debit`), and category (`RECHARGE`, `SERVICE_FEE`, `REFUND`, `PROMOTIONAL_BONUS`, `MANUAL_ADJUSTMENT`).
+- **Manual UTR Reconciliation:** Interactive approval and rejection workflow for direct UPI bank transfer requests (`approveManualRecharge` / `rejectManualRecharge`).
+- **Administrative Adjustments:**
+  - Standard Admin: May execute adjustments up to ₹10,000 with mandatory justification.
+  - Maker-Checker Rule: Adjustments exceeding ₹10,000 require Super Administrator credentials.
+  - Immutable Atomic Persistence: Every balance change uses MongoDB `$inc` paired with an immutable `$push` to the wallet transaction ledger and generates a corresponding `AuditLog` entry.
+
+### 3.4 Promotional Campaigns & Recharge Bonuses (`/admin/campaigns`)
+- **Engine Rules:** Multi-slab calculation (e.g. ₹249 recharge slab receives ₹50 bonus).
+  - ₹249 recharge = ₹249 purchased + ₹50 promotional credit (Total ₹299).
+  - ₹498 recharge = ₹498 purchased + ₹100 promotional credit (Total ₹598).
+- **Separate Accounting:** Promotional bonuses are tagged with category `PROMOTIONAL_BONUS` and stored separately from cash deposits.
+- **Guardrails:** Per-operator bonus cap (default ₹1,000) and campaign-level total budget caps.
+- **Idempotency:** Unique reference `BONUS-<orderId>` prevents duplicate bonus issuance.
+
+### 3.5 Service Pricing & Maintenance (`/admin/services`)
+- **Dynamic Fee Overrides:** Live configuration of first-time verification fees for PAN, Aadhaar, Voter, DL, Vehicle RC, and Ration Card.
+- **Provider Fallback Routing:** Priority chain (`NEO` -> `SUREPASS` -> `MANUAL`) ensuring zero downtime during upstream government portal latency.
+- **Maintenance Banner:** Toggles maintenance mode and provides real-time alerts to operators without taking the application offline.
+- **Free Lifetime Reprints (₹0):** Service fees apply exclusively to the initial verification; all subsequent print jobs are permanently free.
+
+### 3.6 Payment Auditing (`/admin/payments`)
+- **Auditing Grid:** Direct inspection of payment order IDs, Paytm transaction IDs, bank UTR references, amounts, and settlement statuses.
+- **Credential Protection:** Secrets, merchant keys, and gateway passwords are never returned or rendered in client components.
+
+### 3.7 Reports & Data Exports (`/admin/reports`)
+- **Date Range Querying:** Reconciled revenue, recharge totals, and service processing volume.
+- **Sanitized CSV Download:** Server-side CSV generation with field escaping and customer data minimization.
+
+### 3.8 Team & Access Control (`/admin/team`)
+- **Super Admin Exclusive:** Only existing Super Administrators can invite, modify, or promote users to `super_admin`.
+- **Role Assignment:** Provisioning of `admin`, `support_manager`, and `support_agent` accounts with secure bcrypt hashing (salt rounds: 12).
+
+---
+
+## 4. Financial Integrity Controls
+
+1. **Zero Direct Mutations:** Direct balance updates via `User` or bypassing `Wallet` transactions are forbidden.
+2. **Atomic Writes:** All financial operations execute atomically using `$inc` and `$push` on the `Wallet` model.
+3. **Idempotent Webhooks:** Paytm callbacks verify `orderId` status before crediting wallet balances.
+4. **Audit Trail:** Every administrative action is logged to `AuditLog` with actor ID, IP address, before/after balances, and justification.

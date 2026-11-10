@@ -1,76 +1,104 @@
-# Accero PrintPortal — Support Dashboard & Customer Operations Guide
+# Accero PrintPortal — Customer Support Operations Architecture (SUPPORT_DASHBOARD.md)
 
-## 1. Overview & Architecture
-The **Accero PrintPortal Support Dashboard** (`/support`) provides a high-efficiency customer support and technical troubleshooting workspace for support agents, support managers, and administrators. It enables operators to receive rapid assistance regarding wallet deductions, bank UTR verifications, card printing alignment, and missing field adjustments, while upholding strict privacy and security boundaries.
+## 1. Executive Summary & Purpose
 
-### Core Architectural Principles
-- **Role-Based Access Control (RBAC):** Accessible to `SUPPORT_AGENT`, `SUPPORT_MANAGER`, `ADMIN`, and `SUPER_ADMIN`.
-- **Strict Customer Privacy & Data Minimization:** Support personnel are granted operational support context while strictly redacting sensitive personal information:
-  - Phone numbers are masked (`98*****210`).
-  - Email addresses are masked (`r***@example.com`).
-  - Citizen identity numbers (Aadhaar, PAN, Voter ID, DL, RC) and portrait photographs are completely excluded from support queries.
-- **Financial Barrier:** Support staff cannot modify operator wallet balances or execute manual ledger deductions. Financial adjustments require escalation to an administrator.
+The **Support Dashboard** (`/support`) provides customer support agents and support managers with a task-oriented workspace to triage, investigate, and resolve operator issues rapidly while strictly upholding customer privacy and data minimization standards.
+
+```
+                              ┌───────────────────────────────────┐
+                              │    /support  (Support Dashboard)  │
+                              │    SUPPORT_MANAGER & AGENT Access │
+                              └─────────────────┬─────────────────┘
+                                                │
+         ┌──────────────────────┬───────────────┴───────────────┬──────────────────────┐
+         ▼                      ▼                               ▼                      ▼
+  /support/tickets     /support/operators           /support/troubleshooting   /support/knowledge-base
+  - Triage & Queue     - Masked Contact Details     - E001-E010 Error Catalog  - Standard Procedures
+  - Public Replies     - Sanitized Wallet Ledger    - CR80 Tray Alignment      - Free Reprint Policy
+  - Internal Notes     - ZERO Citizen Document PII  - Copyable Scripts         - UPI Reconciliation
+```
 
 ---
 
-## 2. Support Dashboard Sections & Routes
+## 2. Support Permissions & Access Boundary
 
-### 2.1 Support Overview (`/support`)
-- **Queue Metrics:**
-  - Active open tickets in pipeline.
-  - New / unassigned tickets awaiting triage.
-  - In-progress tickets under agent investigation.
-  - Overdue tickets exceeding the 24-hour SLA window.
-  - Escalated cases requiring supervisor or admin intervention.
-- **Operational Analytics:**
-  - Support staff workload distribution (assigned tickets per agent).
-  - Ticket volume broken down by functional category.
+| Capability | Support Agent | Support Manager | Platform Admin | Super Admin |
+| :--- | :--- | :--- | :--- | :--- |
+| **View Ticket Queue** | Yes | Yes | Yes | Yes |
+| **Reply to Tickets** | Yes | Yes | Yes | Yes |
+| **Add Internal Confidential Notes** | Yes | Yes | Yes | Yes |
+| **Assign / Reassign Tickets** | Self Only | Yes (Any Agent) | Yes | Yes |
+| **Escalate Ticket to Manager** | Yes | Yes | Yes | Yes |
+| **Resolve / Close Tickets** | Yes | Yes | Yes | Yes |
+| **Lookup Operator (Masked PII)** | Yes | Yes | Yes | Yes |
+| **Access Citizen Documents / Photos** | **DENIED** | **DENIED** | **DENIED** | **DENIED** |
+| **Direct Wallet Credit / Debit** | **DENIED** | **DENIED** | Yes (≤ ₹10k) | Yes (Unlimited) |
+| **Approve Manual UTR Recharges** | **DENIED** | **DENIED** | Yes | Yes |
 
-### 2.2 Ticket Queue (`/support/tickets`)
-- **Ticket Lifecycle & States:**
-  - `OPEN`: Newly submitted ticket awaiting assignment.
-  - `ASSIGNED`: Allocated to a specific support agent.
-  - `IN_PROGRESS`: Actively undergoing troubleshooting.
-  - `WAITING_FOR_OPERATOR`: Pending operator response or bank proof.
-  - `ESCALATED`: Routed to support managers or admins.
-  - `RESOLVED`: Satisfactorily addressed with documented resolution notes.
-  - `CLOSED`: Finalized ticket archived.
-- **Interactive Drawer Features:**
-  - Real-time conversation thread with operators.
-  - Private internal team notes (highlighted with amber badges, invisible to operators).
-  - Ticket escalation with reason capture.
-  - Ticket resolution modal requiring root cause and outcome summary.
+---
 
-### 2.3 Operator Support Lookup (`/support/operators`)
-- **Search Capability:** Find operators by name, email, or phone number.
-- **Operator Support Profile:**
-  - Account operational health (active vs suspended).
-  - High-level wallet overview (current balance, total lifetime recharges, total card spend).
-  - Recent sanitized ledger transactions (amounts and references; zero citizen data).
-  - Inbound payment history (status, bank UTR).
-  - Historical support tickets.
+## 3. Core Modules & Workflows
 
-### 2.4 Technical Troubleshooting & Error Catalog (`/support/troubleshooting`)
-- **PVC Tray Printer Alignment Cheatsheet:**
-  - Guidance for Epson L805/L850 and Canon G-Series tray printers.
-  - Scale configuration: Must be set to **100% / Actual Size** (never "Fit to Page").
-  - Margins: Must be set to **None** (zero margins).
-  - Paper source: Must be set to **CD/DVD Tray** or **PVC Card Tray**.
-- **Standardized Error Code Reference:**
-  - `E001`: Third-party API timeout (advice: wait 2 mins or use Manual Entry mode).
-  - `E002`: Invalid document format / regex check failure.
-  - `E003`: Insufficient wallet balance (direct to recharge; promote ₹249 + ₹50 bonus).
-  - `E004`: Payment gateway handshake failure (request bank UTR for manual reconciliation).
-  - `E005`: Concurrency lock contention (prevent duplicate wallet charging).
-  - `E006`: Financial maker-checker limit exceeded (> ₹10,000 requires Super Admin).
-  - `E007`: Corrupt or oversized portrait photo (recommend < 2MB JPEG).
-  - `E008`: Regional language transliteration font rendering issue.
-  - `E009`: Expired 72-hour document temporary cache.
-  - `E010`: Unauthorized RBAC route access rejection.
+### 3.1 Support Command Center (`/support`)
+- **Queue Overview:** Live count of Open, Assigned, In Progress, Waiting for Operator, Escalated, and Resolved tickets.
+- **SLA Breach Monitoring:** Identifies tickets exceeding the 24-hour initial SLA.
+- **Agent Workload Distribution:** Live visualization of active ticket assignments per support specialist.
+- **Category Volume:** Real-time metrics across billing, printing, hardware, and technical categories.
 
-### 2.5 Support Knowledge Base (`/support/knowledge-base`)
-- **Interactive SOP Articles:**
-  - Standard operating procedures for pending UPI reconciliations.
-  - Free Lifetime Reprint Policy (₹0 for previously formatted cards).
-  - Live editor split-screen missing field handling (amber warning alerts).
-  - Accero Launch Offer bonus slab rules.
+### 3.2 Ticket Management (`/support/tickets`)
+- **Categorization:**
+  - `Account/Login Issue`
+  - `Wallet Recharge Issue`
+  - `Payment Pending`
+  - `Wallet Balance Discrepancy`
+  - `Document Lookup Failure`
+  - `Printing Issue`
+  - `Reprint Issue`
+  - `Pricing Query`
+  - `Promotional Bonus Issue`
+  - `Technical Issue`
+  - `Other`
+- **Priorities:** `LOW`, `NORMAL`, `HIGH`, `URGENT`
+- **Statuses:** `OPEN`, `ASSIGNED`, `IN_PROGRESS`, `WAITING_FOR_OPERATOR`, `ESCALATED`, `RESOLVED`, `CLOSED`
+- **Threaded Interaction:**
+  - *Public Operator Replies:* Emitted to the operator and automatically transitions ticket to `WAITING_FOR_OPERATOR`.
+  - *Internal Staff Notes:* Rendered with distinct amber security borders; permanently hidden from operator view.
+  - *Escalation Flow:* Prompts agent for mandatory reasoning, sets priority to `URGENT`, and flags for management review.
+  - *Resolution Flow:* Captures structured resolution note, marks ticket as `RESOLVED`, and logs resolution timestamp.
+
+### 3.3 Operator Support Profile (`/support/operators`)
+- **Masked Contact Lookup:** Search by Operator Name, Email, or Phone.
+  - Email: Masked (`r***@example.com`).
+  - Phone: Masked (`98*****210` or `+91*****210`).
+- **Permitted Operational Data:**
+  - Current wallet balance and summary totals.
+  - Sanitized ledger entries (amounts, categories, reference IDs, timestamps).
+  - Recent payment order IDs, bank UTR references, and verification statuses.
+  - Existing ticket history.
+- **Strictly Redacted Citizen Data:**
+  - Zero access to Aadhaar numbers (UID), PAN numbers, EPIC numbers, Driving License numbers, RC numbers, Ration card numbers.
+  - Zero access to citizen portrait photographs, signature files, or SVG/canvas layout definitions.
+  - Zero access to user password hashes, JWT secrets, or payment gateway API credentials.
+
+### 3.4 Technical Troubleshooting (`/support/troubleshooting`)
+- **Standardized Error Catalog (E001–E010):**
+  - `E001`: Upstream government portal API latency / timeout.
+  - `E002`: Invalid document format or checksum mismatch.
+  - `E003`: Insufficient wallet balance for document first-time verification.
+  - `E004`: Payment gateway webhook delay / bank settlement pending.
+  - `E005`: 72-hour document temporary cache expired.
+  - `E006`: Physical card tray margin offset error.
+  - `E007`: Image decoding / portrait asset render failure.
+  - `E008`: Duplicate bank UTR submission detected.
+  - `E009`: Session token expired / re-login required.
+  - `E010`: Database concurrency lock retry exhausted.
+- **Hardware Print Tray Cheatsheet:** Calibration specs for Epson L805 and Canon G-Series (Scale: 100% Actual Size, Margins: None, Media: PVC Tray).
+- **Copyable Response Scripts:** Verified, customer-friendly explanations ready for one-click clipboard copying.
+
+### 3.5 Internal Knowledge Base (`/support/knowledge-base`)
+- **Searchable Index:** Instant keyword searching across standard operating procedures.
+- **Standard Policies:**
+  - *Free Lifetime Reprint Policy (₹0):* Clarifies that charges apply only to initial verification.
+  - *UPI Payment Pending Workflow:* Reconciling 12-digit UTR bank references.
+  - *Devanagari Font Rendering:* Troubleshooting Google Fonts (`Hind`, `Roboto`) in regional card canvases.
+  - *Promotional Recharge Slabs:* Rules governing the ₹249 + ₹50 launch offer.
