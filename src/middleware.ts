@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
+import { getSafeRedirectUrl } from '@/lib/rbac';
 
 const JWT_ISSUER = 'accero-printportal';
 const JWT_AUDIENCE = 'accero-users';
@@ -35,7 +36,7 @@ export async function middleware(request: NextRequest) {
   const token = request.cookies.get('auth-token')?.value;
   const pathname = request.nextUrl.pathname;
 
-  // Protected paths check
+  const isAuthPage = pathname === '/login' || pathname === '/register';
   const isProtectedPath =
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/studio') ||
@@ -44,17 +45,55 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith('/support') ||
     pathname.startsWith('/cards');
 
-  if (!isProtectedPath) {
+  // If path is neither auth nor protected, proceed normally with security headers
+  if (!isAuthPage && !isProtectedPath) {
     return response;
   }
 
+  const secret = getMiddlewareSecret();
+
+  // 1. Authenticated User Handling on Auth Pages (/login, /register)
+  if (isAuthPage) {
+    if (!token) {
+      // Unauthenticated visitor is permitted to view login/register
+      return response;
+    }
+
+    if (!secret) {
+      // Misconfigured secret: permit login view
+      return response;
+    }
+
+    try {
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: JWT_ISSUER,
+        audience: JWT_AUDIENCE,
+      });
+
+      // Token is valid & unexpired: Redirect authenticated user away from login/register
+      const role = (payload.role as string | undefined)?.toLowerCase();
+      const rawReturnTo =
+        request.nextUrl.searchParams.get('returnTo') ||
+        request.nextUrl.searchParams.get('redirect');
+      const safeDestination = getSafeRedirectUrl(rawReturnTo, role);
+
+      return NextResponse.redirect(new URL(safeDestination, request.url));
+    } catch {
+      // Corrupt or expired token: Clear cookie and allow access to login/register
+      const res = NextResponse.next();
+      res.cookies.delete('auth-token');
+      return res;
+    }
+  }
+
+  // 2. Protected Routes Handling (/dashboard, /admin, /support, etc.)
   if (!token) {
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+    const fullPath = pathname + request.nextUrl.search;
+    loginUrl.searchParams.set('redirect', fullPath);
     return NextResponse.redirect(loginUrl);
   }
 
-  const secret = getMiddlewareSecret();
   if (!secret) {
     console.error('[Middleware] JWT_SECRET is unconfigured or insecure (<32 characters). Denying access.');
     const loginUrl = new URL('/login', request.url);
@@ -91,8 +130,10 @@ export async function middleware(request: NextRequest) {
 
     return response;
   } catch {
+    // Expired or invalid token on protected route: delete cookie and redirect to login
     const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('redirect', pathname);
+    const fullPath = pathname + request.nextUrl.search;
+    loginUrl.searchParams.set('redirect', fullPath);
     const redirectRes = NextResponse.redirect(loginUrl);
     redirectRes.cookies.delete('auth-token');
     return redirectRes;
@@ -101,10 +142,13 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
+    '/login',
+    '/register',
     '/dashboard/:path*',
     '/studio/:path*',
     '/wallet/:path*',
     '/admin/:path*',
+    '/support/:path*',
     '/cards/:path*',
   ],
 };

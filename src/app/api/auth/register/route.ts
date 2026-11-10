@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/models/User';
 import Wallet from '@/models/Wallet';
-import { hashPassword, signJwtToken } from '@/lib/auth';
+import { hashPassword, signJwtToken, getRoleDashboardUrl } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
 import { logAuditEvent } from '@/lib/logger/audit';
 
@@ -119,6 +119,7 @@ export async function POST(request: Request) {
           role: user.role,
           walletBalance: 0,
         },
+        redirectTo: getRoleDashboardUrl(user.role),
       },
       { status: 201 }
     );

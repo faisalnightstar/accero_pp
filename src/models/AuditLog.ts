@@ -40,7 +40,12 @@ export type AuditAction =
   | 'DOCUMENT_PRINT_AUTHORIZED'
   | 'SECURITY_RATE_LIMITED'
   | 'SECURITY_UNAUTHORIZED_ACCESS'
-  | 'SECURITY_SANDBOX_BLOCKED';
+  | 'SECURITY_SANDBOX_BLOCKED'
+  | 'PROMO_CODE_CREATED'
+  | 'PROMO_CODE_UPDATED'
+  | 'PROMO_CODE_STATUS_TOGGLED'
+  | 'PROMO_CODE_DELETED'
+  | 'PROMO_CODE_REDEEMED';
 
 export type AuditResourceType =
   | 'AUTH'
@@ -54,7 +59,8 @@ export type AuditResourceType =
   | 'SERVICE'
   | 'SUPPORT_TICKET'
   | 'TEAM'
-  | 'REPORT';
+  | 'REPORT'
+  | 'PROMO';
 
 export interface IAuditLog extends Document {
   actorId?: mongoose.Types.ObjectId;
@@ -107,6 +113,7 @@ const AuditLogSchema: Schema<IAuditLog> = new Schema(
         'SUPPORT_TICKET',
         'TEAM',
         'REPORT',
+        'PROMO',
       ],
       required: true,
       index: true,

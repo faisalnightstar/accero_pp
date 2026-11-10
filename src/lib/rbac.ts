@@ -39,6 +39,89 @@ export function normalizeRole(role?: string | null): UserRole {
 }
 
 /**
+ * Resolves the primary dashboard destination URL based on user role
+ */
+export function getRoleDashboardUrl(role?: string | null): string {
+  const norm = normalizeRole(role);
+  switch (norm) {
+    case 'super_admin':
+    case 'admin':
+      return '/admin';
+    case 'support_manager':
+    case 'support_agent':
+      return '/support';
+    case 'operator':
+    case 'customer':
+    case 'user':
+    default:
+      return '/dashboard';
+  }
+}
+
+/**
+ * Validates and resolves a safe internal redirect URL, preventing open redirects
+ * and redirect loops back to auth endpoints.
+ */
+export function getSafeRedirectUrl(
+  returnTo: string | null | undefined,
+  role?: string | null
+): string {
+  const fallback = getRoleDashboardUrl(role);
+  if (!returnTo || typeof returnTo !== 'string') {
+    return fallback;
+  }
+
+  const trimmed = returnTo.trim();
+
+  // Must begin with a single slash, not double slash or backslash
+  if (!trimmed.startsWith('/') || trimmed.startsWith('//') || trimmed.includes('\\')) {
+    return fallback;
+  }
+
+  // Prevent redirect loops to login/register or auth API endpoints
+  if (
+    trimmed === '/login' ||
+    trimmed.startsWith('/login?') ||
+    trimmed === '/register' ||
+    trimmed.startsWith('/register?') ||
+    trimmed.startsWith('/api/auth')
+  ) {
+    return fallback;
+  }
+
+  try {
+    const dummyOrigin = 'http://localhost';
+    const parsed = new URL(trimmed, dummyOrigin);
+
+    // Prevent open redirect domain spoofing
+    if (parsed.origin !== dummyOrigin) {
+      return fallback;
+    }
+
+    const path = parsed.pathname;
+
+    // Enforce role authorization boundaries on internal return URLs
+    const normRole = normalizeRole(role);
+    if (path.startsWith('/admin') && normRole !== 'super_admin' && normRole !== 'admin') {
+      return fallback;
+    }
+    if (
+      path.startsWith('/support') &&
+      normRole !== 'super_admin' &&
+      normRole !== 'admin' &&
+      normRole !== 'support_manager' &&
+      normRole !== 'support_agent'
+    ) {
+      return fallback;
+    }
+
+    return parsed.pathname + parsed.search + parsed.hash;
+  } catch {
+    return fallback;
+  }
+}
+
+/**
  * Role Checkers
  */
 export function isSuperAdmin(role?: string | null): boolean {

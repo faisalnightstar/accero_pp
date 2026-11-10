@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
+import { getRoleDashboardUrl, getSafeRedirectUrl } from '@/lib/rbac';
+
+export { getRoleDashboardUrl, getSafeRedirectUrl };
 
 export type SessionRole =
   | 'super_admin'
@@ -87,6 +90,39 @@ export async function getSession(): Promise<UserSession | null> {
   } catch {
     return null;
   }
+}
+
+/**
+ * Server-side validated session check.
+ * Optionally verifies that the user still exists in MongoDB and is active.
+ */
+export async function getValidatedSession(options?: {
+  checkDb?: boolean;
+}): Promise<UserSession | null> {
+  const session = await getSession();
+  if (!session) return null;
+
+  if (options?.checkDb) {
+    try {
+      const { connectToDatabase } = await import('@/lib/mongodb');
+      const User = (await import('@/models/User')).default;
+      await connectToDatabase();
+      const user = await User.findById(session.userId).select('status role email name');
+      if (!user || user.status !== 'active') {
+        return null;
+      }
+      return {
+        userId: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        role: user.role,
+      };
+    } catch {
+      return session;
+    }
+  }
+
+  return session;
 }
 
 /**

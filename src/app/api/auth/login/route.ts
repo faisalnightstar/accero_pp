@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/models/User';
 import Wallet from '@/models/Wallet';
-import { verifyPassword, signJwtToken } from '@/lib/auth';
+import { verifyPassword, signJwtToken, getRoleDashboardUrl } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
 import { logAuditEvent } from '@/lib/logger/audit';
 
@@ -145,6 +145,7 @@ export async function POST(request: Request) {
         role: user.role,
         walletBalance: balance,
       },
+      redirectTo: getRoleDashboardUrl(user.role),
     });
 
     response.cookies.set({
