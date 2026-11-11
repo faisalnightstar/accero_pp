@@ -14,6 +14,8 @@
   "dependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/nodemailer": "^8.0.2",
+    "@upstash/ratelimit": "^2.2.0",
+    "@upstash/redis": "^1.41.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "bcryptjs": "^3.0.3",

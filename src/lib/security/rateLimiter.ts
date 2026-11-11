@@ -1,6 +1,7 @@
 import connectToDatabase from '@/lib/mongodb';
 import RateLimit from '@/models/RateLimit';
 import { logAuditEvent } from '@/lib/logger/audit';
+import { getRateLimiter } from '@/lib/redis';
 
 export interface RateLimitResult {
   allowed: boolean;
@@ -60,55 +61,42 @@ export async function checkRateLimit(
     }
   }
 
-  // 2. Upstash Redis REST API check (if configured)
-  const upstashUrl = process.env.UPSTASH_REDIS_REST_URL;
-  const upstashToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+  // 2. Upstash Redis Rate Limit check via @upstash/ratelimit (if configured)
+  const ratelimit = getRateLimiter(String(profileKey), config.maxRequests, config.windowSeconds);
 
-  if (upstashUrl && upstashToken) {
+  if (ratelimit) {
     try {
-      const resp = await fetch(`${upstashUrl}/pipeline`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${upstashToken}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify([
-          ['INCR', bucketKey],
-          ['EXPIRE', bucketKey, config.windowSeconds, 'NX'],
-          ['TTL', bucketKey],
-        ]),
-        cache: 'no-store',
-      });
+      const { success, remaining, reset, reason, pending } = await ratelimit.limit(cleanId);
+      pending.catch(() => {});
 
-      if (resp.ok) {
-        const json = await resp.json();
-        const currentCount = Number(json[0]?.result || 1);
-        const ttl = Number(json[2]?.result || config.windowSeconds);
-        const allowed = currentCount <= config.maxRequests;
-        const remaining = Math.max(0, config.maxRequests - currentCount);
+      if (reason !== 'timeout') {
+        const resetSeconds = Math.max(1, Math.ceil((reset - now) / 1000)) || config.windowSeconds;
+        const usedCount = Math.max(0, config.maxRequests - remaining);
 
         memoryCache.set(bucketKey, {
-          count: currentCount,
-          resetAt: now + (ttl > 0 ? ttl * 1000 : windowMs),
+          count: usedCount,
+          resetAt: reset > now ? reset : now + windowMs,
         });
 
-        if (!allowed) {
+        if (!success) {
           logAuditEvent({
             action: 'SECURITY_RATE_LIMITED',
             resourceType: 'SECURITY',
             resourceId: cleanId,
-            details: { profileKey, currentCount, maxRequests: config.maxRequests },
+            details: { profileKey, usedCount, maxRequests: config.maxRequests, reason },
             status: 'WARNING',
           }).catch(() => {});
         }
 
         return {
-          allowed,
-          remaining,
-          resetSeconds: ttl > 0 ? ttl : config.windowSeconds,
-          retryAfterSeconds: allowed ? 0 : ttl > 0 ? ttl : config.windowSeconds,
+          allowed: success,
+          remaining: Math.max(0, remaining),
+          resetSeconds,
+          retryAfterSeconds: success ? 0 : resetSeconds,
         };
       }
+
+      console.warn('[RateLimiter] Upstash Ratelimit timed out, falling back to MongoDB');
     } catch (redisErr) {
       console.warn('[RateLimiter] Upstash Redis request failed, falling back to MongoDB:', redisErr);
     }
@@ -126,7 +114,7 @@ export async function checkRateLimit(
         $inc: { count: 1 },
         $setOnInsert: { expiresAt },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     const count = doc.count;
