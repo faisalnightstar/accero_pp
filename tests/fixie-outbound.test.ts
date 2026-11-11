@@ -141,32 +141,38 @@ describe('Fixie Outbound Fixed IP Proxy Client', () => {
     });
   });
 
-  describe('fixedFetch Fallback & Routing', () => {
-    it('falls back to globalThis.fetch when FIXIE_URL is not configured', async () => {
+  describe('fixedFetch Routing & Security Enforcement', () => {
+    it('routes registered direct providers through globalThis.fetch when FIXIE_URL is not configured', async () => {
       const mockGlobalFetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 }));
       vi.stubGlobal('fetch', mockGlobalFetch);
 
-      const res = await fixedFetch('https://api.example.com/status', {
-        method: 'GET',
+      const res = await fixedFetch('https://securegw.paytm.in/order/status', {
+        method: 'POST',
         headers: { Accept: 'application/json' },
       });
 
       expect(mockGlobalFetch).toHaveBeenCalledTimes(1);
       const call = mockGlobalFetch.mock.calls[0];
-      expect(call[0]).toBe('https://api.example.com/status');
-      expect(call[1].method).toBe('GET');
+      expect(call[0]).toBe('https://securegw.paytm.in/order/status');
+      expect(call[1].method).toBe('POST');
       expect(call[1].headers).toEqual({ Accept: 'application/json' });
       expect(res.status).toBe(200);
     });
 
-    it('applies timeoutMs properly via AbortSignal', async () => {
+    it('rejects unregistered hostnames by default', async () => {
+      await expect(
+        fixedFetch('https://api.example.com/status', { method: 'GET' })
+      ).rejects.toThrow('Unregistered destination hostname');
+    });
+
+    it('applies timeoutMs properly via AbortSignal for registered providers', async () => {
       const mockGlobalFetch = vi.fn().mockImplementation((url, init) => {
         expect(init.signal).toBeDefined();
         return Promise.resolve(new Response('{}', { status: 200 }));
       });
       vi.stubGlobal('fetch', mockGlobalFetch);
 
-      await fixedFetch('https://api.example.com/test', {
+      await fixedFetch('https://securegw.paytm.in/order/status', {
         timeoutMs: 5000,
       });
 

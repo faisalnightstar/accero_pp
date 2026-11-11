@@ -23,8 +23,8 @@ export interface FixieProxyConfig {
 }
 
 /**
- * Known Fixie Outbound Static IP Addresses for PrintPortal
- * Whitelist both addresses with NeoAPI and external providers.
+ * Known Fixie Outbound Static IP Addresses for PrintPortal.
+ * Both addresses must be whitelisted with upstream providers.
  */
 export const FIXIE_STATIC_IPS = ['54.195.3.54', '54.217.142.99'] as const;
 
@@ -33,15 +33,28 @@ export const FIXIE_STATIC_IPS = ['54.195.3.54', '54.217.142.99'] as const;
  */
 export function maskUrlCredentials(rawUrl: string): string {
   if (!rawUrl || typeof rawUrl !== 'string') return '';
-  return rawUrl.replace(/:([^:@]+)@/, ':*****@');
+  return rawUrl.replace(/\/\/([^:]+):([^@]+)@/g, '//$1:*****@').replace(/:([^:@]+)@/, ':*****@');
+}
+
+/**
+ * Strips query parameters and credentials from error messages so secrets and PII
+ * (API keys, FIXIE_URL, PAN, Aadhaar, EPIC) never appear in logs or responses.
+ */
+export function sanitizeNetworkErrorMessage(rawMessage: string): string {
+  if (!rawMessage || typeof rawMessage !== 'string') return 'Unknown network error';
+  return maskUrlCredentials(rawMessage).replace(/\?[^\s"']+/g, '?[REDACTED]');
 }
 
 /**
  * Validates and parses a FIXIE_URL string.
- * Returns null if the URL is missing, invalid, or lacks necessary authentication.
+ * Returns null if the URL is missing, invalid, or lacks valid protocol/host/port.
  */
 export function parseFixieProxyUrl(rawUrl?: string): FixieProxyConfig | null {
-  const urlString = (rawUrl || process.env.FIXIE_URL || '').trim();
+  if (typeof window !== 'undefined') {
+    return null;
+  }
+
+  const urlString = (rawUrl ?? process.env.FIXIE_URL ?? '').trim();
   if (!urlString) {
     return null;
   }
@@ -82,9 +95,20 @@ export function parseFixieProxyUrl(rawUrl?: string): FixieProxyConfig | null {
 }
 
 /**
- * Returns the active Fixie proxy configuration from environment variables, or null if not configured.
+ * Checks whether FIXIE_URL env var is present (non-empty string), even if malformed.
+ */
+export function hasRawFixieUrlSet(): boolean {
+  if (typeof window !== 'undefined') return false;
+  return Boolean(process.env.FIXIE_URL && process.env.FIXIE_URL.trim().length > 0);
+}
+
+/**
+ * Returns the active Fixie proxy configuration from environment variables, or null if not configured/invalid.
  */
 export function getFixieConfig(): FixieProxyConfig | null {
+  if (typeof window !== 'undefined') {
+    throw new Error('getFixieConfig must only be called on the server.');
+  }
   return parseFixieProxyUrl(process.env.FIXIE_URL);
 }
 
@@ -92,6 +116,7 @@ export function getFixieConfig(): FixieProxyConfig | null {
  * Checks whether FIXIE_URL is configured and valid.
  */
 export function isFixieConfigured(): boolean {
+  if (typeof window !== 'undefined') return false;
   return getFixieConfig() !== null;
 }
 
@@ -99,6 +124,7 @@ export function isFixieConfigured(): boolean {
  * Returns safe-for-logging masked proxy URL, or null if unconfigured.
  */
 export function getMaskedFixieUrl(): string | null {
+  if (typeof window !== 'undefined') return null;
   return getFixieConfig()?.maskedUrl || null;
 }
 
@@ -106,19 +132,31 @@ export function getMaskedFixieUrl(): string | null {
  * Determines whether Fixie proxy routing is strictly enforced for a provider.
  *
  * Rules:
- * - In Production (NODE_ENV === 'production'):
- *   Providers requiring static IPs MUST route via Fixie. Missing FIXIE_URL fails closed.
- * - In Development / Test:
- *   If ALLOW_FIXIE_BYPASS_DEV=true is explicitly set, direct connections are permitted.
- *   Otherwise, missing FIXIE_URL fails closed to maintain parity with production.
+ * - In Vercel Production, Vercel Preview, or NODE_ENV=production:
+ *   Providers requiring static IPs MUST route via Fixie.
+ *   ALLOW_FIXIE_BYPASS_DEV CANNOT disable enforcement in Preview or Production.
+ * - In local Development / Test (when neither Preview nor Production):
+ *   If ALLOW_FIXIE_BYPASS_DEV=true is explicitly set AND FIXIE_URL is omitted,
+ *   direct connections are permitted.
+ * - Note: If FIXIE_URL is explicitly set to a malformed value, it is ALWAYS rejected.
  */
 export function isFixieEnforcedForEnvironment(): boolean {
-  const isProd = process.env.NODE_ENV === 'production';
-  if (isProd) {
+  const isProdOrPreview =
+    process.env.NODE_ENV === 'production' ||
+    process.env.VERCEL_ENV === 'production' ||
+    process.env.VERCEL_ENV === 'preview';
+
+  if (isProdOrPreview) {
     return true;
   }
 
-  // In non-production, bypass is allowed only if explicitly enabled
-  const devBypassAllowed = process.env.ALLOW_FIXIE_BYPASS_DEV === 'true' || process.env.ALLOW_FIXIE_BYPASS === 'true';
+  // If FIXIE_URL was explicitly provided (even if invalid), never silently bypass
+  if (hasRawFixieUrlSet() && !isFixieConfigured()) {
+    return true;
+  }
+
+  const devBypassAllowed =
+    process.env.ALLOW_FIXIE_BYPASS_DEV === 'true' || process.env.ALLOW_FIXIE_BYPASS === 'true';
+
   return !devBypassAllowed;
 }

@@ -6,6 +6,7 @@ import {
   getProviderForUrl,
   shouldRouteViaFixie,
   validateProxyEligibility,
+  validateOutboundTarget,
 } from '@/lib/network/provider-registry';
 import {
   parseFixieProxyUrl,
@@ -22,8 +23,11 @@ import {
   resetFixieCache,
   setTestingFetch,
   FixieProxyConfigurationError,
+  FixieSecurityError,
+  FixieProxyConnectionError,
 } from '@/lib/network/fixie';
 import { providerFetch } from '@/lib/network/provider-client';
+import { NeoApiProvider } from '@/lib/verify/providers/neoapi';
 
 describe('Centralized Outbound Network & Fixie Routing Policy', () => {
   const originalEnv = process.env;
@@ -33,6 +37,8 @@ describe('Centralized Outbound Network & Fixie Routing Policy', () => {
     delete process.env.FIXIE_URL;
     delete process.env.ALLOW_FIXIE_BYPASS_DEV;
     delete process.env.ALLOW_FIXIE_BYPASS;
+    delete process.env.VERCEL_ENV;
+    delete process.env.VERCEL;
     resetFixieCache();
   });
 
@@ -93,7 +99,7 @@ describe('Centralized Outbound Network & Fixie Routing Policy', () => {
     it('rejects spoofed provider IDs with mismatched hostnames', () => {
       const validation = validateProxyEligibility('https://attacker.com/v1/pan', 'neoapi');
       expect(validation.authorized).toBe(false);
-      expect(validation.rejectionReason).toContain('not authorized for provider');
+      expect(validation.rejectionReason).toContain('is not in allowlist for provider');
     });
   });
 
@@ -275,4 +281,172 @@ describe('Centralized Outbound Network & Fixie Routing Policy', () => {
       expect(allLogs).not.toContain('ABCDE1234F');
     });
   });
+
+  describe('6. Security Audit: Preview/Production Bypass Guards & SSRF Prevention', () => {
+    it('blocks ALLOW_FIXIE_BYPASS_DEV in Production', async () => {
+      process.env.NODE_ENV = 'production';
+      process.env.ALLOW_FIXIE_BYPASS_DEV = 'true';
+      delete process.env.FIXIE_URL;
+
+      await expect(
+        providerFetch('https://core.neoapi.io/v1/pan/detail', { providerId: 'neoapi' })
+      ).rejects.toThrow(FixieProxyConfigurationError);
+    });
+
+    it('blocks ALLOW_FIXIE_BYPASS_DEV in Vercel Preview (VERCEL_ENV=preview)', async () => {
+      process.env.NODE_ENV = 'development'; // Even if NODE_ENV were manipulated
+      process.env.VERCEL_ENV = 'preview';
+      process.env.ALLOW_FIXIE_BYPASS_DEV = 'true';
+      delete process.env.FIXIE_URL;
+
+      await expect(
+        providerFetch('https://core.neoapi.io/v1/pan/detail', { providerId: 'neoapi' })
+      ).rejects.toThrow(FixieProxyConfigurationError);
+    });
+
+    it('rejects malformed FIXIE_URL even when ALLOW_FIXIE_BYPASS_DEV=true in dev', async () => {
+      process.env.NODE_ENV = 'development';
+      process.env.ALLOW_FIXIE_BYPASS_DEV = 'true';
+      process.env.FIXIE_URL = 'malformed://bad-proxy';
+
+      await expect(
+        providerFetch('https://core.neoapi.io/v1/pan/detail', { providerId: 'neoapi' })
+      ).rejects.toThrow(FixieProxyConfigurationError);
+    });
+
+    it('rejects unregistered hostnames, suffix tricks, trailing dots, SSRF IPs, and HTTP downgrades', async () => {
+      process.env.FIXIE_URL = 'http://fixie:token@ventoux.usefixie.com:80';
+
+      // Unregistered domain
+      await expect(providerFetch('https://unregistered.example.com/api')).rejects.toThrow(FixieSecurityError);
+      // Suffix attack
+      await expect(providerFetch('https://core.neoapi.io.attacker.com/v1/pan')).rejects.toThrow(FixieSecurityError);
+      // Prefix attack
+      await expect(providerFetch('https://evilcore.neoapi.io/v1/pan')).rejects.toThrow(FixieSecurityError);
+      // Trailing dot
+      await expect(providerFetch('https://core.neoapi.io./v1/pan')).rejects.toThrow(FixieSecurityError);
+      // Embedded credentials confusion
+      await expect(providerFetch('https://core.neoapi.io@evil.com/v1/pan')).rejects.toThrow(FixieSecurityError);
+      // SSRF Metadata IP
+      await expect(providerFetch('http://169.254.169.254/latest/meta-data/')).rejects.toThrow(FixieSecurityError);
+      // Non-standard port
+      await expect(providerFetch('https://core.neoapi.io:8443/v1/pan')).rejects.toThrow(FixieSecurityError);
+      // HTTP downgrade for HTTPS-only NeoAPI
+      await expect(providerFetch('http://core.neoapi.io/v1/pan', { providerId: 'neoapi' })).rejects.toThrow(
+        FixieSecurityError
+      );
+    });
+  });
+
+  describe('7. Security Audit: Redirect Interception & Proxy Outage Handling', () => {
+    it('blocks HTTP 302 redirects to unregistered hostnames', async () => {
+      process.env.FIXIE_URL = 'http://fixie:token@ventoux.usefixie.com:80';
+
+      const redirectResponse = new Response(null, {
+        status: 302,
+        headers: { location: 'https://evil-attacker.com/steal-keys' },
+      });
+
+      const mockUndiciFetch = vi.fn().mockResolvedValue(redirectResponse);
+      setTestingFetch(mockUndiciFetch as any);
+
+      await expect(
+        providerFetch('https://core.neoapi.io/v1/pan/detail', { providerId: 'neoapi' })
+      ).rejects.toThrow(FixieSecurityError);
+
+      expect(mockUndiciFetch).toHaveBeenCalledTimes(1);
+    });
+
+    it('blocks HTTP redirects from Fixie provider to a different registered provider or internal IP', async () => {
+      process.env.FIXIE_URL = 'http://fixie:token@ventoux.usefixie.com:80';
+
+      const redirectResponse = new Response(null, {
+        status: 307,
+        headers: { location: 'https://securegw.paytm.in/steal' },
+      });
+
+      const mockUndiciFetch = vi.fn().mockResolvedValue(redirectResponse);
+      setTestingFetch(mockUndiciFetch as any);
+
+      await expect(
+        providerFetch('https://core.neoapi.io/v1/pan/detail', { providerId: 'neoapi' })
+      ).rejects.toThrow(FixieSecurityError);
+    });
+
+    it('handles Fixie proxy authentication failures (407 / cancelled) cleanly without falling back to direct', async () => {
+      process.env.FIXIE_URL = 'http://fixie:wrong_password@ventoux.usefixie.com:80';
+
+      const mockGlobalFetch = vi.fn();
+      vi.stubGlobal('fetch', mockGlobalFetch);
+
+      const authErr: any = new TypeError('fetch failed');
+      authErr.cause = new Error('Request was cancelled.');
+      const mockUndiciFetch = vi.fn().mockRejectedValue(authErr);
+      setTestingFetch(mockUndiciFetch as any);
+
+      await expect(
+        providerFetch('https://core.neoapi.io/v1/pan/detail', { providerId: 'neoapi' })
+      ).rejects.toThrow(FixieProxyConnectionError);
+
+      // Must NEVER fall back to global direct fetch
+      expect(mockGlobalFetch).not.toHaveBeenCalled();
+    });
+
+    it('handles Fixie proxy outage (ECONNREFUSED / ENOTFOUND) with controlled errors', async () => {
+      process.env.FIXIE_URL = 'http://fixie:token@ventoux.usefixie.com:80';
+
+      const outageErr: any = new TypeError('fetch failed');
+      outageErr.cause = Object.assign(new Error('connect ECONNREFUSED 127.0.0.1:80'), { code: 'ECONNREFUSED' });
+
+      const mockUndiciFetch = vi.fn().mockRejectedValue(outageErr);
+      setTestingFetch(mockUndiciFetch as any);
+
+      await expect(
+        providerFetch('https://core.neoapi.io/v1/pan/detail', { providerId: 'neoapi' })
+      ).rejects.toThrow(FixieProxyConnectionError);
+    });
+  });
+
+  describe('8. Security Audit: Provider Integrity & Wallet Safety on Proxy Failure', () => {
+    it('NeoApiProvider handles Fixie outage gracefully and returns structured failure without throwing', async () => {
+      process.env.NODE_ENV = 'production';
+      process.env.NEO_API_KEY = 'dummy_neo_key';
+      delete process.env.FIXIE_URL; // Missing FIXIE_URL in prod -> fails closed
+
+      const provider = new NeoApiProvider();
+      const result = await provider.lookup('pan', 'ABCDE1234F');
+
+      expect(result.success).toBe(false);
+      expect(result.provider).toBe('NeoAPI');
+      expect(result.data).toEqual({});
+      expect(result.errorMessage).toContain('FIXIE_URL');
+      // Ensures no credentials leaked into provider error message
+      expect(result.errorMessage).not.toContain('dummy_neo_key');
+    });
+
+    it('NeoApiProvider preserves expected response parsing when Fixie transport succeeds', async () => {
+      process.env.FIXIE_URL = 'http://fixie:token@ventoux.usefixie.com:80';
+      process.env.NEO_API_KEY = 'dummy_neo_key';
+
+      const mockUndiciFetch = vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            fullname: 'RAJESH KUMAR',
+            fathername: 'SURESH KUMAR',
+            dob: '15/08/1990',
+          }),
+          { status: 200, headers: { 'content-type': 'application/json' } }
+        )
+      );
+      setTestingFetch(mockUndiciFetch as any);
+
+      const provider = new NeoApiProvider();
+      const result = await provider.lookup('pan', 'ABCDE1234F');
+
+      expect(result.success).toBe(true);
+      expect(result.data.fullName).toBe('RAJESH KUMAR');
+      expect(mockUndiciFetch).toHaveBeenCalledTimes(1);
+    });
+  });
 });
+

@@ -12,9 +12,8 @@ import { ProxyAgent, fetch as undiciFetch, Dispatcher } from 'undici';
 import { HttpsProxyAgent } from 'https-proxy-agent';
 import {
   getFixieConfig,
-  isFixieConfigured,
-  isFixieEnforcedForEnvironment,
-  FixieProxyConfig,
+  hasRawFixieUrlSet,
+  sanitizeNetworkErrorMessage,
 } from './proxy-config';
 
 /**
@@ -25,25 +24,42 @@ export class FixieProxyConfigurationError extends Error {
   public readonly code = 'FIXIE_CONFIG_ERROR';
   public readonly isOperational = true;
 
-  constructor(message: string = 'Static IP proxy is required for this external provider, but FIXIE_URL is not configured.') {
-    super(message);
+  constructor(
+    message: string = 'Static IP proxy is required for this external provider, but FIXIE_URL is not configured.'
+  ) {
+    super(sanitizeNetworkErrorMessage(message));
     this.name = 'FixieProxyConfigurationError';
     Object.setPrototypeOf(this, FixieProxyConfigurationError.prototype);
   }
 }
 
 /**
- * Custom error thrown when an outbound request attempts to tunnel to an
- * unauthorized or unregistered destination hostname.
+ * Custom error thrown when an outbound request attempts to target or redirect to
+ * an unauthorized or unregistered destination hostname.
  */
 export class FixieSecurityError extends Error {
   public readonly code = 'FIXIE_SECURITY_REJECTED';
   public readonly isOperational = true;
 
   constructor(message: string) {
-    super(message);
+    super(sanitizeNetworkErrorMessage(message));
     this.name = 'FixieSecurityError';
     Object.setPrototypeOf(this, FixieSecurityError.prototype);
+  }
+}
+
+/**
+ * Controlled operational error thrown when the Fixie proxy fails
+ * (e.g. proxy auth 407, DNS resolution failure, or proxy outage).
+ */
+export class FixieProxyConnectionError extends Error {
+  public readonly code = 'FIXIE_PROXY_CONNECTION_ERROR';
+  public readonly isOperational = true;
+
+  constructor(message: string) {
+    super(sanitizeNetworkErrorMessage(message));
+    this.name = 'FixieProxyConnectionError';
+    Object.setPrototypeOf(this, FixieProxyConnectionError.prototype);
   }
 }
 
@@ -92,19 +108,24 @@ export function resetFixieCache(): void {
 
 /**
  * Returns a cached Undici ProxyAgent dispatcher for use with `fetch({ dispatcher })`.
- *
- * Fail-Safe Behavior:
- * If FIXIE_URL is missing or invalid:
- * - When strictly enforced (Production or dev without bypass), throws `FixieProxyConfigurationError`.
- * - When dev bypass is permitted, returns undefined.
+ * Throws `FixieProxyConfigurationError` if FIXIE_URL is explicitly set to a malformed URL.
  */
 export function getFixieDispatcher(): Dispatcher | undefined {
+  if (typeof window !== 'undefined') {
+    throw new Error('getFixieDispatcher must only be executed on the server.');
+  }
+
   if (testingDispatcher) {
     return testingDispatcher;
   }
 
   const config = getFixieConfig();
   if (!config) {
+    if (hasRawFixieUrlSet()) {
+      throw new FixieProxyConfigurationError(
+        'Invalid FIXIE_URL format configured in server environment.'
+      );
+    }
     return undefined;
   }
 
@@ -122,7 +143,7 @@ export function getFixieDispatcher(): Dispatcher | undefined {
     return cachedDispatcher;
   } catch (err: any) {
     throw new FixieProxyConfigurationError(
-      `Failed to initialize Fixie ProxyAgent dispatcher: ${err?.message || err}`
+      `Failed to initialize Fixie ProxyAgent dispatcher: ${sanitizeNetworkErrorMessage(err?.message || String(err))}`
     );
   }
 }
@@ -131,8 +152,17 @@ export function getFixieDispatcher(): Dispatcher | undefined {
  * Returns a cached HttpsProxyAgent instance for Axios or Node http/https agents.
  */
 export function getFixieHttpsAgent(): HttpsProxyAgent<string> | undefined {
+  if (typeof window !== 'undefined') {
+    throw new Error('getFixieHttpsAgent must only be executed on the server.');
+  }
+
   const config = getFixieConfig();
   if (!config) {
+    if (hasRawFixieUrlSet()) {
+      throw new FixieProxyConfigurationError(
+        'Invalid FIXIE_URL format configured in server environment.'
+      );
+    }
     return undefined;
   }
 
@@ -146,7 +176,7 @@ export function getFixieHttpsAgent(): HttpsProxyAgent<string> | undefined {
     return cachedHttpsAgent;
   } catch (err: any) {
     throw new FixieProxyConfigurationError(
-      `Failed to initialize HttpsProxyAgent: ${err?.message || err}`
+      `Failed to initialize HttpsProxyAgent: ${sanitizeNetworkErrorMessage(err?.message || String(err))}`
     );
   }
 }
@@ -164,8 +194,17 @@ export function getFixieAxiosProxyConfig(): {
     password?: string;
   };
 } | false {
+  if (typeof window !== 'undefined') {
+    throw new Error('getFixieAxiosProxyConfig must only be executed on the server.');
+  }
+
   const config = getFixieConfig();
   if (!config) {
+    if (hasRawFixieUrlSet()) {
+      throw new FixieProxyConfigurationError(
+        'Invalid FIXIE_URL format configured in server environment.'
+      );
+    }
     return false;
   }
 
