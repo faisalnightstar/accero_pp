@@ -1,25 +1,21 @@
-# Quick Task 003: Fixed IP Outbound Proxy via Fixie
+# Quick Task 003: Fixed IP Outbound Proxy via Fixie & Centralized Network Layer
 
 ## Objective
-Implement fixed IP outbound HTTP/HTTPS request capabilities using Fixie (`FIXIE_URL`) as documented in `docs/fixie` and `https://usefixie.com/documentation/http-and-https-requests`:
-- Create a dedicated outbound proxy library in `src/lib/outbound/fixie.ts` providing:
-  - Configuration parsing and detection (`isFixieConfigured()`, `getFixieConfig()`, `getFixieUrl()`).
-  - Native `undici` ProxyAgent dispatcher (`getFixieDispatcher()`) and `https-proxy-agent` (`getFixieAgent()`) support.
-  - Drop-in `fixedFetch(url, init)` that routes requests through Fixie static IPs when `FIXIE_URL` is set, and transparently falls back to native `fetch` when unconfigured.
-  - Secure credential masking so proxy tokens never leak into server logs.
-  - Diagnostic IP lookup utility (`checkOutboundIp()`) querying public IP reflection endpoints through the proxy.
-- Provide a secure admin diagnostic endpoint `GET /api/admin/diagnostics/outbound-ip` to inspect outbound connectivity and verify the active static IP.
-- Integrate `fixedFetch` into external verification providers (`neoapi.ts`, `axenapi.ts`, `fastnexora.ts`) and payment verification (`paytm.ts`) to ensure government portal lookups originate from whitelisted static IPs.
-- Add `FIXIE_URL` configuration and documentation to `.env.example`.
-- Add comprehensive Vitest test coverage for Fixie outbound configuration, agent initialization, fallback behaviors, and header preservation.
+Implement a centralized, provider-specific outbound networking layer (`src/lib/network/`) that routes external requests requiring IP whitelisting (NeoAPI, FastNexora, AxenAPI) through Fixie's static IP proxy while strictly keeping unrelated services (MongoDB Atlas, payment gateways like Paytm, WhatsApp, and analytics) direct.
 
 ## Deliverables
-1. `src/lib/outbound/fixie.ts` - Core Fixie outbound proxy service with `fixedFetch`, proxy agents, URL parsers, and IP checker.
-2. `src/app/api/admin/diagnostics/outbound-ip/route.ts` - Admin route to verify outbound IP and Fixie proxy status.
-3. Provider updates:
-   - `src/lib/verify/providers/neoapi.ts` - Use `fixedFetch` for PAN and Voter lookups.
-   - `src/lib/verify/providers/axenapi.ts` - Use `fixedFetch` for DL and RC lookups.
-   - `src/lib/verify/providers/fastnexora.ts` - Use `fixedFetch` for Voter verification.
-   - `src/lib/payment/paytm.ts` - Use `fixedFetch` for order status inquiries.
-4. `.env.example` - Document `FIXIE_URL` environment variable for Vercel/Heroku static IP integration.
-5. `tests/outbound/fixie.test.ts` - Unit and integration tests covering Fixie outbound proxy functionality.
+1. `src/lib/network/proxy-config.ts` - Server-side FIXIE_URL parsing, environment enforcement, and credential masking.
+2. `src/lib/network/provider-registry.ts` - Explicit provider registry, destination hostname allowlist, and routing policies.
+3. `src/lib/network/fixie.ts` - Fixie transport layer, Undici ProxyAgent dispatcher, Axios proxy config, and fail-safe closed error handling.
+4. `src/lib/network/provider-client.ts` - Centralized `providerFetch()` with audit logging, timeout management, and security guards.
+5. `src/lib/network/diagnostics.ts` - Internal diagnostic utility verifying egress IP against Fixie's static IP pool.
+6. `src/app/api/admin/diagnostics/outbound-ip/route.ts` - Protected admin diagnostic route.
+7. Provider migration:
+   - `src/lib/verify/providers/neoapi.ts` -> Routed via `providerFetch('...', { providerId: 'neoapi' })`.
+   - `src/lib/verify/providers/fastnexora.ts` -> Routed via `providerFetch('...', { providerId: 'fastnexora' })`.
+   - `src/lib/verify/providers/axenapi.ts` -> Routed via `providerFetch('...', { providerId: 'axenapi' })`.
+   - `src/lib/payment/paytm.ts` -> Maintained strictly DIRECT via native `fetch`.
+8. Tests:
+   - `tests/network-routing.test.ts` - Comprehensive routing policy, fail-safe closed, undici tunneling, and audit logging tests.
+   - `tests/fixie-outbound.test.ts` - Core Fixie configuration and agent cache tests.
+   - `tests/fixie-admin-api.test.ts` - RBAC access control tests.

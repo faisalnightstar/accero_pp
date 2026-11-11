@@ -1,7 +1,7 @@
 import { DocumentType } from '@/types/cards';
 import { ProviderAdapter, VerificationResult } from '../types';
 import { normalizeFastNexoraVoter } from '../normalizers/voterNormalizer';
-import { fixedFetch } from '@/lib/outbound/fixie';
+import { providerFetch } from '@/lib/network/provider-client';
 
 export class FastNexoraProvider implements ProviderAdapter {
   name = 'FastNexora';
@@ -29,11 +29,12 @@ export class FastNexoraProvider implements ProviderAdapter {
 
     try {
       const url = `https://auth.fastnexora.xyz/api/v1/voterVerification.php?apiKey=${encodeURIComponent(apiKey)}&epicNumber=${encodeURIComponent(idNumber)}`;
-      const response = await fixedFetch(url, {
+      const response = await providerFetch(url, {
         method: 'GET',
         headers: { Accept: 'application/json' },
-        signal: AbortSignal.timeout(8000),
+        timeoutMs: 8000,
         cache: 'no-store',
+        providerId: 'fastnexora',
       });
 
       const latencyMs = Date.now() - startTime;

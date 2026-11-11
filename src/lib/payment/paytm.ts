@@ -2,7 +2,6 @@ import crypto from 'crypto';
 import mongoose from 'mongoose';
 import QRCode from 'qrcode';
 import connectToDatabase from '@/lib/mongodb';
-import { fixedFetch } from '@/lib/outbound/fixie';
 import Payment, { IPayment, PaymentStatus } from '@/models/Payment';
 import Wallet from '@/models/Wallet';
 import {
@@ -276,7 +275,7 @@ export async function queryPaytmOrderStatus(
       ORDERID: orderId,
     });
 
-    const response = await fixedFetch('https://securegw.paytm.in/order/status', {
+    const response = await fetch('https://securegw.paytm.in/order/status', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
