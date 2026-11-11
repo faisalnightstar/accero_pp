@@ -2,6 +2,7 @@ import { DocumentType } from '@/types/cards';
 import { ProviderAdapter, VerificationResult } from '../types';
 import { normalizeAxenDl } from '../normalizers/dlNormalizer';
 import { normalizeAxenRc } from '../normalizers/rcNormalizer';
+import { fixedFetch } from '@/lib/outbound/fixie';
 
 export class AxenApiProvider implements ProviderAdapter {
   name = 'AxenAPI';
@@ -46,7 +47,7 @@ export class AxenApiProvider implements ProviderAdapter {
         };
       }
 
-      const response = await fetch(endpoint, {
+      const response = await fixedFetch(endpoint, {
         method: 'GET',
         headers: { Accept: 'application/json' },
         signal: AbortSignal.timeout(8000),

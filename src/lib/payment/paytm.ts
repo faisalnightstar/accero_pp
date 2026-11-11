@@ -2,6 +2,7 @@ import crypto from 'crypto';
 import mongoose from 'mongoose';
 import QRCode from 'qrcode';
 import connectToDatabase from '@/lib/mongodb';
+import { fixedFetch } from '@/lib/outbound/fixie';
 import Payment, { IPayment, PaymentStatus } from '@/models/Payment';
 import Wallet from '@/models/Wallet';
 import {
@@ -10,6 +11,7 @@ import {
   finalizePromoRedemption,
   failPromoRedemption,
 } from '@/lib/promo/service';
+import { qualifyAndRewardReferral } from '@/lib/referral/service';
 import { logAuditEvent } from '@/lib/logger/audit';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
 
@@ -274,7 +276,7 @@ export async function queryPaytmOrderStatus(
       ORDERID: orderId,
     });
 
-    const response = await fetch('https://securegw.paytm.in/order/status', {
+    const response = await fixedFetch('https://securegw.paytm.in/order/status', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -573,6 +575,17 @@ export async function verifyAndCreditPaytmPayment(
       claimedPayment.gatewayResponse = paytmResult.raw;
       claimedPayment.verifiedAt = new Date();
       await claimedPayment.save();
+
+      // 8. Qualify and reward referral program if eligible
+      try {
+        await qualifyAndRewardReferral(
+          payment.userId.toString(),
+          payment.orderId,
+          creditAmount
+        );
+      } catch (refErr) {
+        console.error('[Payment] Error during referral qualification:', refErr);
+      }
 
       await logAuditEvent({
         actorId: payment.userId,

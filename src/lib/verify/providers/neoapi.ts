@@ -2,6 +2,7 @@ import { DocumentType } from '@/types/cards';
 import { ProviderAdapter, VerificationResult } from '../types';
 import { normalizeNeoApiPan } from '../normalizers/panNormalizer';
 import { normalizeNeoApiVoter } from '../normalizers/voterNormalizer';
+import { fixedFetch } from '@/lib/outbound/fixie';
 
 export class NeoApiProvider implements ProviderAdapter {
   name = 'NeoAPI';
@@ -46,7 +47,7 @@ export class NeoApiProvider implements ProviderAdapter {
         };
       }
 
-      const response = await fetch(endpoint, {
+      const response = await fixedFetch(endpoint, {
         method: 'GET',
         headers: { Accept: 'application/json' },
         signal: AbortSignal.timeout(8000),
