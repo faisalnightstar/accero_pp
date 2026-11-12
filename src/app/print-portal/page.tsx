@@ -332,17 +332,44 @@ export default function PrintPortalPillarPage() {
               </div>
             </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-500">
+            <div className="pt-4 border-t border-slate-200 flex flex-col gap-3 text-xs text-slate-500">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <span className="font-semibold text-slate-700">Detailed Alternative Reviews:</span>
+                <Link href="/compare/digitalportal-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                  Digital Portal
+                </Link>
+                <span>&bull;</span>
+                <Link href="/compare/fastprintportal-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                  Fast Print Portal
+                </Link>
+                <span>&bull;</span>
+                <Link href="/compare/kamboj-print-portal-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                  Kamboj PAN
+                </Link>
+                <span>&bull;</span>
+                <Link href="/compare/skprintportal-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                  SK Print Portal
+                </Link>
+                <span>&bull;</span>
+                <Link href="/compare/rajprint-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                  RajPrint
+                </Link>
+                <span>&bull;</span>
+                <Link href="/compare/eforms99-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                  eForms99
+                </Link>
+                <span>&bull;</span>
+                <Link href="/compare/apna-print-portal-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                  Apna Print Portal
+                </Link>
+                <span>&bull;</span>
+                <Link href="/compare/docprint-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                  DocPrint Shop
+                </Link>
+              </div>
               <p className="italic">
                 Note: Brand names and portal references are used strictly for comparative and informative purposes to assist operators in choosing suitable business software.
               </p>
-              <Link
-                href="/compare/skprintportal-alternative"
-                className="font-semibold text-blue-600 hover:text-blue-800 transition-colors inline-flex items-center gap-1 shrink-0"
-              >
-                <span>Evaluating SK Print Portal? Compare Features</span>
-                <ArrowRight className="w-3 h-3" />
-              </Link>
             </div>
           </section>
 

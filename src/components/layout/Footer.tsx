@@ -305,6 +305,22 @@ export default function Footer() {
               <Link href="/compare/skprintportal-alternative" className="hover:text-white transition-colors">
                 SK Print Portal Alternative
               </Link>
+              <span className="text-slate-700">&bull;</span>
+              <Link href="/compare/rajprint-alternative" className="hover:text-white transition-colors">
+                RajPrint Alternative
+              </Link>
+              <span className="text-slate-700">&bull;</span>
+              <Link href="/compare/eforms99-alternative" className="hover:text-white transition-colors">
+                eForms99 Alternative
+              </Link>
+              <span className="text-slate-700">&bull;</span>
+              <Link href="/compare/apna-print-portal-alternative" className="hover:text-white transition-colors">
+                Apna Print Portal Alternative
+              </Link>
+              <span className="text-slate-700">&bull;</span>
+              <Link href="/compare/docprint-alternative" className="hover:text-white transition-colors">
+                DocPrint Alternative
+              </Link>
             </div>
           </div>
         </div>

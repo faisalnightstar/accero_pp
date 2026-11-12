@@ -80,6 +80,10 @@ export const CANONICAL_PUBLIC_ROUTES: CanonicalRouteConfig[] = [
   { path: '/compare/fastprintportal-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
   { path: '/compare/kamboj-print-portal-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
   { path: '/compare/skprintportal-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
+  { path: '/compare/rajprint-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
+  { path: '/compare/eforms99-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
+  { path: '/compare/apna-print-portal-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
+  { path: '/compare/docprint-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
 ];
 
 /**

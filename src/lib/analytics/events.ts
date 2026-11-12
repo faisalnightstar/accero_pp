@@ -41,6 +41,12 @@ export const ANALYTICS_EVENTS = {
   SK_FIRST_RECHARGE_SUCCESS: 'sk_first_recharge_success',
   SK_REPEAT_PAID_USAGE: 'sk_repeat_paid_usage',
 
+  // Additional Competitor Campaign Funnel Events
+  RAJPRINT_LANDING_VIEW: 'rajprint_landing_view',
+  EFORMS99_LANDING_VIEW: 'eforms99_landing_view',
+  APNAPRINT_LANDING_VIEW: 'apnaprint_landing_view',
+  DOCPRINT_LANDING_VIEW: 'docprint_landing_view',
+
   // Backward-Compatible Aliases
   HOMEPAGE_VISIT: 'homepage_visit',
   PRICING_VISIT: 'pricing_visit',
