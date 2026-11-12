@@ -148,7 +148,7 @@ describe('Centralized Outbound Network & Fixie Routing Policy', () => {
 
   describe('3. Fail-Safe Closed Behavior (Production & Dev)', () => {
     it('FAILS CLOSED in production if FIXIE_URL is missing for a proxy-required provider', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       delete process.env.FIXIE_URL;
 
       await expect(
@@ -157,7 +157,7 @@ describe('Centralized Outbound Network & Fixie Routing Policy', () => {
     });
 
     it('FAILS CLOSED if FIXIE_URL is invalid/malformed in production', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       process.env.FIXIE_URL = 'invalid-proxy-url';
 
       await expect(
@@ -166,7 +166,7 @@ describe('Centralized Outbound Network & Fixie Routing Policy', () => {
     });
 
     it('allows direct connection in development ONLY when ALLOW_FIXIE_BYPASS_DEV is explicitly set', async () => {
-      process.env.NODE_ENV = 'development';
+      (process.env as any).NODE_ENV = 'development';
       process.env.ALLOW_FIXIE_BYPASS_DEV = 'true';
       delete process.env.FIXIE_URL;
 
@@ -181,7 +181,7 @@ describe('Centralized Outbound Network & Fixie Routing Policy', () => {
     });
 
     it('never fails direct providers (Paytm) even if FIXIE_URL is missing in production', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       delete process.env.FIXIE_URL;
 
       const mockFetch = vi.fn().mockResolvedValue(
@@ -284,7 +284,7 @@ describe('Centralized Outbound Network & Fixie Routing Policy', () => {
 
   describe('6. Security Audit: Preview/Production Bypass Guards & SSRF Prevention', () => {
     it('blocks ALLOW_FIXIE_BYPASS_DEV in Production', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       process.env.ALLOW_FIXIE_BYPASS_DEV = 'true';
       delete process.env.FIXIE_URL;
 
@@ -294,7 +294,7 @@ describe('Centralized Outbound Network & Fixie Routing Policy', () => {
     });
 
     it('blocks ALLOW_FIXIE_BYPASS_DEV in Vercel Preview (VERCEL_ENV=preview)', async () => {
-      process.env.NODE_ENV = 'development'; // Even if NODE_ENV were manipulated
+      (process.env as any).NODE_ENV = 'development'; // Even if NODE_ENV were manipulated
       process.env.VERCEL_ENV = 'preview';
       process.env.ALLOW_FIXIE_BYPASS_DEV = 'true';
       delete process.env.FIXIE_URL;
@@ -305,7 +305,7 @@ describe('Centralized Outbound Network & Fixie Routing Policy', () => {
     });
 
     it('rejects malformed FIXIE_URL even when ALLOW_FIXIE_BYPASS_DEV=true in dev', async () => {
-      process.env.NODE_ENV = 'development';
+      (process.env as any).NODE_ENV = 'development';
       process.env.ALLOW_FIXIE_BYPASS_DEV = 'true';
       process.env.FIXIE_URL = 'malformed://bad-proxy';
 
@@ -409,7 +409,7 @@ describe('Centralized Outbound Network & Fixie Routing Policy', () => {
 
   describe('8. Security Audit: Provider Integrity & Wallet Safety on Proxy Failure', () => {
     it('NeoApiProvider handles Fixie outage gracefully and returns structured failure without throwing', async () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       process.env.NEO_API_KEY = 'dummy_neo_key';
       delete process.env.FIXIE_URL; // Missing FIXIE_URL in prod -> fails closed
 

@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import WhatsAppSupportWidget from '@/components/layout/WhatsAppSupportWidget';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
 import WebMcpProvider from '@/components/ai/WebMcpProvider';
@@ -121,6 +122,7 @@ export default function RootLayout({
         </Suspense>
         <Navbar />
         <main className="flex-1">{children}</main>
+        <WhatsAppSupportWidget />
         <Footer />
         <Analytics />
         <SpeedInsights />

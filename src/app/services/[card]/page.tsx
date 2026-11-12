@@ -26,6 +26,7 @@ import {
 } from '@/lib/seo/structuredData';
 import HeroCardPreview from '@/components/seo/HeroCardPreview';
 import HeroLookupForm from '@/components/seo/HeroLookupForm';
+import Breadcrumbs from '@/components/seo/Breadcrumbs';
 
 interface ServicePageProps {
   params: Promise<{
@@ -150,17 +151,13 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
       <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto space-y-16">
           {/* Breadcrumb Navigation */}
-          <nav className="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            <Link href="/" className="hover:text-white transition-colors">
-              Home
-            </Link>
-            <span>/</span>
-            <Link href="/services" className="hover:text-white transition-colors">
-              Services
-            </Link>
-            <span>/</span>
-            <span className="text-[#F4D35E]">{config.shortTitle}</span>
-          </nav>
+          <Breadcrumbs
+            items={[
+              { name: 'Services', url: '/services' },
+              { name: config.shortTitle, url: `/services/${config.slug}` },
+            ]}
+            className="text-slate-400"
+          />
 
           {/* Above-The-Fold Split Hero */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">

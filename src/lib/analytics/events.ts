@@ -23,13 +23,29 @@ export const ANALYTICS_EVENTS = {
   PRINT_COMPLETED: 'print_completed',
   REPEAT_PRINT: 'repeat_print',
 
+  // Competitor Acquisition & Comparison Funnel Events
+  COMPETITOR_LANDING_VIEW: 'competitor_landing_view',
+  COMPARISON_TABLE_VIEW: 'comparison_table_view',
+  SWITCHING_GUIDE_VIEW: 'switching_guide_view',
+  REGISTRATION_CTA_CLICK: 'registration_cta_click',
+  FIRST_LOOKUP_SUCCESS: 'first_lookup_success',
+  FIRST_RECHARGE_SUCCESS: 'first_recharge_success',
+  REPEAT_PAID_USAGE: 'repeat_paid_usage',
+
+  // SK Print Portal Campaign Specific Funnel Events
+  SK_ALTERNATIVE_LANDING_VIEW: 'sk_alternative_landing_view',
+  SK_MIGRATION_CTA_CLICK: 'sk_migration_cta_click',
+  SK_REGISTRATION_CTA_CLICK: 'sk_registration_cta_click',
+  SK_REGISTRATION_COMPLETED: 'sk_registration_completed',
+  SK_FIRST_LOOKUP_SUCCESS: 'sk_first_lookup_success',
+  SK_FIRST_RECHARGE_SUCCESS: 'sk_first_recharge_success',
+  SK_REPEAT_PAID_USAGE: 'sk_repeat_paid_usage',
+
   // Backward-Compatible Aliases
   HOMEPAGE_VISIT: 'homepage_visit',
   PRICING_VISIT: 'pricing_visit',
   REGISTRATION_START: 'registration_started',
   REGISTRATION_COMPLETE: 'registration_completed',
-  FIRST_LOOKUP_SUCCESS: 'first_lookup',
-  FIRST_RECHARGE_SUCCESS: 'recharge_completed',
   FIRST_PRINT_SUCCESS: 'print_completed',
   RETURNING_CUSTOMER: 'repeat_print',
   PILLAR_PAGE_VIEW: 'pillar_page_view',

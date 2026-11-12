@@ -7,7 +7,7 @@ import { CANONICAL_PUBLIC_ROUTES } from '@/lib/seo/routes';
  * Accero PrintPortal (https://printportal.accero.app)
  *
  * GUARANTEES:
- * 1. 100% Public Canonical Coverage: Contains all 41 genuinely public indexable routes.
+ * 1. 100% Public Canonical Coverage: Contains all 45 genuinely public indexable routes.
  * 2. Zero Private Leakage: Excludes /dashboard, /studio, /wallet, /cards, /admin, and /api.
  * 3. Zero Auth Pages: Excludes /login, /register, /forgot-password, /reset-password.
  * 4. Zero Duplicate Aliases: Aliases redirect or canonicalize to their primary service slug.

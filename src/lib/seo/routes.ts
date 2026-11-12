@@ -13,11 +13,11 @@ export interface CanonicalRouteConfig {
   changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
   priority: number;
   lastModified?: string;
-  category: 'core' | 'pillar' | 'service' | 'feature' | 'solution' | 'blog' | 'trust';
+  category: 'core' | 'pillar' | 'service' | 'feature' | 'solution' | 'blog' | 'trust' | 'comparison';
 }
 
 /**
- * 41 Genuinely Public Canonical Routes Eligible for Google Search Indexing
+ * 45 Genuinely Public Canonical Routes Eligible for Google Search Indexing
  */
 export const CANONICAL_PUBLIC_ROUTES: CanonicalRouteConfig[] = [
   // 1. Core Commercial & Platform Hubs
@@ -74,6 +74,12 @@ export const CANONICAL_PUBLIC_ROUTES: CanonicalRouteConfig[] = [
   { path: '/security', priority: 0.6, changeFrequency: 'monthly', category: 'trust', lastModified: '2026-11-10' },
   { path: '/privacy-policy', priority: 0.5, changeFrequency: 'yearly', category: 'trust', lastModified: '2026-11-10' },
   { path: '/terms', priority: 0.5, changeFrequency: 'yearly', category: 'trust', lastModified: '2026-11-10' },
+
+  // 8. Competitor Comparison & Migration Pages
+  { path: '/compare/digitalportal-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
+  { path: '/compare/fastprintportal-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
+  { path: '/compare/kamboj-print-portal-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
+  { path: '/compare/skprintportal-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
 ];
 
 /**

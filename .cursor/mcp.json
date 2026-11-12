@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "windsor": {
+      "serverUrl": "https://mcp.windsor.ai/",
+      "headers": {
+        "Authorization": "Bearer e5c898f8c15a57de9fdeccecb918a7939899",
+        "Content-Type": "application/json"
+      }
+    }
+  }
+}
