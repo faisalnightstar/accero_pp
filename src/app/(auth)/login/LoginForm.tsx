@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Printer, AlertCircle, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { getSafeRedirectUrl } from '@/lib/rbac';
@@ -51,8 +52,15 @@ export default function LoginForm() {
     <div className="max-w-md w-full space-y-8 bg-white p-8 sm:p-10 rounded-2xl border border-slate-200 shadow-card">
       {/* Header */}
       <div className="text-center space-y-2">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#8B1E2D] to-[#E63946] flex items-center justify-center text-white mx-auto shadow-md">
-          <Printer className="w-6 h-6" />
+        <div className="w-14 h-14 rounded-2xl bg-white border border-slate-200 p-1.5 flex items-center justify-center mx-auto shadow-md relative overflow-hidden">
+          <Image
+            src="/assets/logo.png"
+            alt="Accero PrintPortal Logo"
+            width={48}
+            height={48}
+            className="w-full h-full object-contain"
+            priority
+          />
         </div>
         <h2 className="text-2xl font-bold text-[#1D3557]">Operator Login</h2>
         <p className="text-sm text-slate-500">

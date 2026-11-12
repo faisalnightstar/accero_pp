@@ -1,5 +1,6 @@
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ShieldCheck, AlertTriangle } from 'lucide-react';
 
 export default function Footer() {
@@ -10,7 +11,16 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {/* Brand Info */}
           <div className="lg:col-span-1 space-y-4">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2.5 group">
+              <div className="w-8 h-8 rounded-lg bg-white p-1 flex items-center justify-center shrink-0 border border-slate-700">
+                <Image
+                  src="/assets/logo.png"
+                  alt="Accero Logo"
+                  width={28}
+                  height={28}
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <span className="font-bold text-xl tracking-tight text-white">
                 Accero <span className="text-[#E63946]">PrintPortal</span>
               </span>

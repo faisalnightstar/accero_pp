@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Printer,
@@ -159,8 +160,15 @@ export default function UserNavbar({
               className="flex items-center gap-2.5 group shrink-0 focus:outline-none"
               title="PrintPortal App Workspace"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#8B1E2D] to-[#E63946] flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform">
-                <Printer className="w-5 h-5 text-white" />
+              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform overflow-hidden relative">
+                <Image
+                  src="/assets/logo.png"
+                  alt="Accero PrintPortal Logo"
+                  width={36}
+                  height={36}
+                  className="w-full h-full object-contain"
+                  priority
+                />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
