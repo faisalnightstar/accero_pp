@@ -32,10 +32,13 @@ interface TransactionItem {
   id: string;
   amount: number;
   type: 'credit' | 'debit';
+  category?: string;
   docType?: string;
   referenceId?: string;
   description: string;
   balanceAfter: number;
+  isPromotional?: boolean;
+  promoCode?: string;
   createdAt: string;
 }
 
@@ -493,10 +496,32 @@ export default function WalletPage() {
 
                         {/* Description & Reference */}
                         <td className="px-6 py-4">
-                          <div className="space-y-0.5">
-                            <span className="text-white block font-medium">
-                              {tx.description}
-                            </span>
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-white font-medium">
+                                {tx.description}
+                              </span>
+                              {tx.category === 'REFERRAL_REWARD' && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                  🎁 Referral Reward
+                                </span>
+                              )}
+                              {(tx.category === 'PROMO_BONUS' || tx.isPromotional) && tx.category !== 'REFERRAL_REWARD' && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">
+                                  🏷️ Promo Bonus {tx.promoCode ? `(${tx.promoCode})` : ''}
+                                </span>
+                              )}
+                              {tx.category === 'RECHARGE_BONUS' && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                  ⚡ Recharge Bonus
+                                </span>
+                              )}
+                              {tx.category === 'PROMO_REVERSAL' && (
+                                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 border border-rose-500/30">
+                                  ⚠️ Reversal
+                                </span>
+                              )}
+                            </div>
                             {tx.referenceId && (
                               <div className="flex items-center gap-1.5 text-slate-500 font-mono text-[11px]">
                                 <span>Ref: {tx.referenceId}</span>

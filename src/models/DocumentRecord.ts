@@ -20,6 +20,9 @@ export interface IDocumentRecord extends Document {
   status?: string;
   fetchedAt?: Date;
   expiresAt?: Date;
+  isPaid?: boolean;
+  paidAt?: Date;
+  paymentReferenceId?: string;
   printCount: number;
   lastPrintedAt?: Date;
   createdAt: Date;
@@ -95,6 +98,18 @@ const DocumentRecordSchema: Schema<IDocumentRecord> = new Schema(
     expiresAt: {
       type: Date,
       index: true,
+    },
+    isPaid: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    paidAt: {
+      type: Date,
+    },
+    paymentReferenceId: {
+      type: String,
+      trim: true,
     },
     printCount: {
       type: Number,

@@ -18,6 +18,8 @@ import {
   User as UserIcon,
   ShieldCheck,
   Sparkles,
+  Gift,
+  Ticket,
 } from 'lucide-react';
 import RechargeModal from '@/components/wallet/RechargeModal';
 
@@ -123,6 +125,24 @@ export default function UserNavbar({
       href: '/wallet',
       icon: Wallet,
       active: pathname === '/wallet',
+    },
+    {
+      name: 'Refer & Earn',
+      href: '/dashboard/refer-earn',
+      icon: Gift,
+      active: pathname === '/dashboard/refer-earn',
+    },
+    {
+      name: 'Offers & Rewards',
+      href: '/dashboard/offers',
+      icon: Sparkles,
+      active: pathname === '/dashboard/offers',
+    },
+    {
+      name: 'Promo Codes',
+      href: '/dashboard/promo-codes',
+      icon: Ticket,
+      active: pathname === '/dashboard/promo-codes',
     },
   ];
 
@@ -319,6 +339,33 @@ export default function UserNavbar({
                       >
                         <Wallet className="w-4 h-4 text-slate-400" />
                         <span>Wallet Ledger & Top-Up</span>
+                      </Link>
+
+                      <Link
+                        href="/dashboard/refer-earn"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-burgundy hover:bg-slate-50 transition-colors"
+                      >
+                        <Gift className="w-4 h-4 text-emerald-600" />
+                        <span>Refer & Earn Rewards</span>
+                      </Link>
+
+                      <Link
+                        href="/dashboard/offers"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-burgundy hover:bg-slate-50 transition-colors"
+                      >
+                        <Sparkles className="w-4 h-4 text-purple-600" />
+                        <span>Offers & Bonuses</span>
+                      </Link>
+
+                      <Link
+                        href="/dashboard/promo-codes"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-burgundy hover:bg-slate-50 transition-colors"
+                      >
+                        <Ticket className="w-4 h-4 text-pink-600" />
+                        <span>Promo Codes & Coupons</span>
                       </Link>
                     </div>
 

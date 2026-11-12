@@ -54,10 +54,13 @@ export interface PaginatedTransactionsResult {
     id: string;
     amount: number;
     type: 'credit' | 'debit';
+    category?: string;
     docType?: string;
     referenceId?: string;
     description: string;
     balanceAfter: number;
+    isPromotional?: boolean;
+    promoCode?: string;
     createdAt: string;
   }>;
   total: number;
@@ -740,10 +743,13 @@ export async function getWalletTransactions(
       id: t._id?.toString() || `${t.createdAt.getTime()}-${Math.random()}`,
       amount: t.amount,
       type: t.type,
+      category: t.category,
       docType: t.docType,
       referenceId: t.referenceId,
       description: t.description,
       balanceAfter: t.balanceAfter,
+      isPromotional: t.isPromotional,
+      promoCode: t.promoCode,
       createdAt: t.createdAt.toISOString(),
     }));
 

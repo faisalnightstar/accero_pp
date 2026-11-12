@@ -82,6 +82,10 @@ vi.mock('@/models/Wallet', () => ({
   },
 }));
 
+vi.mock('@/lib/referral/service', () => ({
+  qualifyAndRewardReferral: vi.fn().mockResolvedValue({ success: true, rewarded: false }),
+}));
+
 describe('11.8 Promo Code & Coupon Management System Test Suite', () => {
   const dummyUserId = new mongoose.Types.ObjectId().toString();
   const dummyPromoId = new mongoose.Types.ObjectId();

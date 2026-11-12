@@ -6,12 +6,17 @@ import Wallet from '@/models/Wallet';
 import { hashPassword, signJwtToken, getRoleDashboardUrl } from '@/lib/auth';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
 import { logAuditEvent } from '@/lib/logger/audit';
+import {
+  generateUniqueReferralCode,
+  processReferralRegistration,
+} from '@/lib/referral/service';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters').max(100),
   email: z.string().email('Invalid email address'),
   phone: z.string().regex(/^[0-9]{10}$/, 'Must be a 10-digit mobile number'),
   password: z.string().min(8, 'Password must be at least 8 characters long for security'),
+  referralCode: z.string().optional(),
 });
 
 function getClientIp(request: Request): string {
@@ -63,6 +68,9 @@ export async function POST(request: Request) {
     // Hash password
     const passwordHash = await hashPassword(validatedData.password);
 
+    // Generate unique referral code for the new operator
+    const userReferralCode = await generateUniqueReferralCode(validatedData.name);
+
     // Create User record
     const user = new User({
       name: validatedData.name,
@@ -70,6 +78,7 @@ export async function POST(request: Request) {
       phone: validatedData.phone,
       passwordHash,
       role: 'user',
+      referralCode: userReferralCode,
     });
 
     await user.save();
@@ -87,6 +96,15 @@ export async function POST(request: Request) {
     // Link wallet to user
     user.walletId = wallet._id as any;
     await user.save();
+
+    // Process referral code if provided by new operator
+    if (validatedData.referralCode?.trim()) {
+      await processReferralRegistration(
+        user._id.toString(),
+        validatedData.referralCode.trim(),
+        ip
+      );
+    }
 
     await logAuditEvent({
       actorId: user._id,

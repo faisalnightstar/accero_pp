@@ -163,7 +163,7 @@ export async function validatePromoCode(
             expiresAt: campaign.endDate || new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
             isActive: campaign.status === 'ACTIVE',
           },
-          { upsert: true, new: true }
+          { upsert: true, returnDocument: 'after' }
         );
       }
     }
@@ -193,7 +193,7 @@ export async function validatePromoCode(
           expiresAt: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
           isActive: true,
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: 'after' }
       );
     }
 
@@ -386,7 +386,7 @@ export async function finalizePromoRedemption(
   const updatedRedemption = await PromoRedemption.findOneAndUpdate(
     { _id: redemption._id, status: 'APPLIED' },
     { $set: { status: 'COMPLETED', redeemedAt: new Date() } },
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   if (!updatedRedemption) {

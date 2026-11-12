@@ -16,6 +16,8 @@ export interface IUser extends Document {
   passwordHash: string;
   role: UserRole;
   walletId?: mongoose.Types.ObjectId;
+  referralCode?: string;
+  referredBy?: string;
   status: 'active' | 'suspended';
   notes?: string;
   suspendedReason?: string;
@@ -72,6 +74,18 @@ const UserSchema: Schema<IUser> = new Schema(
     walletId: {
       type: Schema.Types.ObjectId,
       ref: 'Wallet',
+    },
+    referralCode: {
+      type: String,
+      uppercase: true,
+      trim: true,
+      sparse: true,
+      index: true,
+    },
+    referredBy: {
+      type: String,
+      uppercase: true,
+      trim: true,
     },
     status: {
       type: String,

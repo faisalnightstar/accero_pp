@@ -36,6 +36,8 @@ interface RechargeModalProps {
   onClose: () => void;
   onSuccess?: (newBalance: number) => void;
   suggestedAmount?: number;
+  initialAmount?: number;
+  initialPromoCode?: string;
 }
 
 const PRESET_AMOUNTS = [10, 99, 249, 499, 999];
@@ -45,8 +47,10 @@ export default function RechargeModal({
   onClose,
   onSuccess,
   suggestedAmount = 100,
+  initialAmount,
+  initialPromoCode,
 }: RechargeModalProps) {
-  const [amount, setAmount] = useState<number>(suggestedAmount);
+  const [amount, setAmount] = useState<number>(initialAmount || suggestedAmount);
   const [customAmount, setCustomAmount] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'paytm' | 'sandbox' | 'utr'>('paytm');
 
@@ -114,12 +118,20 @@ export default function RechargeModal({
   const pollingTimerRef = useRef<NodeJS.Timeout | null>(null);
   const isComponentMounted = useRef<boolean>(true);
 
-  // Keep suggested amount synced
+  // Keep suggested or initial amount and promo code synced
   useEffect(() => {
-    if (suggestedAmount && suggestedAmount >= 10) {
-      setAmount(suggestedAmount);
+    if (isOpen) {
+      if (initialAmount && initialAmount >= 10) {
+        setAmount(initialAmount);
+        setCustomAmount('');
+      } else if (suggestedAmount && suggestedAmount >= 10) {
+        setAmount(suggestedAmount);
+      }
+      if (initialPromoCode) {
+        setPromoCodeInput(initialPromoCode);
+      }
     }
-  }, [suggestedAmount]);
+  }, [isOpen, initialAmount, initialPromoCode, suggestedAmount]);
 
   const effectiveAmount = customAmount ? parseFloat(customAmount) || 0 : amount;
 

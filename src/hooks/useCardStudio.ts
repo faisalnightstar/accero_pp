@@ -92,7 +92,7 @@ export const defaultMockData: Record<DocumentType, any> = {
   dl: {
     dlNumber: 'UP-1620210012345',
     holderName: 'ROHIT KHATRI',
-    fatherOrHusbandName: 'MOHAMMAD FAISAL',
+    fatherOrHusbandName: 'SUBHAS KHATR',
     dateOfBirth: '15-08-1990',
     gender: 'MALE',
     organDonor: 'N',

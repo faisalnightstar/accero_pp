@@ -112,6 +112,7 @@ function StudioPageContent() {
   }, [urlDocId, loadData]);
 
   const lastUrlTypeRef = React.useRef<string | null>(urlDocType);
+  const autoLookupKeyRef = React.useRef<string | null>(null);
 
   // Switch type if urlDocType query param changes externally (e.g. browser back/forward or navigation)
   useEffect(() => {
@@ -127,6 +128,7 @@ function StudioPageContent() {
   const handleTabChange = useCallback(
     (newType: DocumentType) => {
       lastUrlTypeRef.current = newType;
+      autoLookupKeyRef.current = null;
       switchDocType(newType);
       setCurrentDocId(null);
       setSaveSuccess(null);
@@ -143,18 +145,59 @@ function StudioPageContent() {
   // Handle auto-lookup from query params (e.g. redirected from Dashboard modal)
   useEffect(() => {
     if (!urlLookup || urlDocId) return;
+    const lookupKey = `${resolvedType}:${urlLookup}`;
+    if (autoLookupKeyRef.current === lookupKey) return;
+    autoLookupKeyRef.current = lookupKey;
 
     let isMounted = true;
     setIsLoadingDoc(true);
 
-    verifyDocument(resolvedType, urlLookup)
+    verifyDocument(resolvedType, urlLookup, `auto_${crypto.randomUUID()}`)
       .then((res) => {
-        if (isMounted && res.success && res.data) {
+        if (!isMounted) return;
+
+        if (res.errorCode === 'INSUFFICIENT_BALANCE' || res.errorMessage === 'INSUFFICIENT_BALANCE') {
+          setInsufficientBalanceInfo({
+            requiredFee: res.requiredFee || 20,
+            currentBalance: res.currentBalance || 0,
+            serviceName: `${resolvedType.toUpperCase()} Verification`,
+          });
+          setToastAlert({
+            message: `Insufficient wallet balance. This lookup requires ₹${res.requiredFee || 20}.`,
+            type: 'error',
+          });
+          return;
+        }
+
+        if (res.success && res.data && Object.keys(res.data).length > 0) {
           loadData(resolvedType, res.data);
+          setCurrentDocId(res.docId || null);
+
+          if (typeof res.currentBalance === 'number' && typeof window !== 'undefined') {
+            window.dispatchEvent(
+              new CustomEvent('wallet-updated', { detail: res.currentBalance })
+            );
+          }
+
           if (res.isPartial) {
             setToastAlert({
               message: 'Partial record retrieved — please complete the missing fields highlighted in amber.',
               type: 'warning',
+            });
+          } else if (resolvedType === 'voter') {
+            const feeNote =
+              res.isFreeReprint || res.feeDeducted === 0
+                ? ' (₹0 — Already paid / Saved record)'
+                : ` (₹${res.feeDeducted ?? 20} debited)`;
+            const sourceText =
+              res.fallbackUsed && res.providerVersion === 'v2'
+                ? 'Verified via NeoAPI V2 fallback'
+                : res.providerVersion === 'v1'
+                  ? 'Verified via NeoAPI V1'
+                  : 'Loaded saved Voter record';
+            setToastAlert({
+              message: `${sourceText}.${feeNote}`,
+              type: 'success',
             });
           } else {
             setToastAlert({
@@ -162,10 +205,21 @@ function StudioPageContent() {
               type: 'success',
             });
           }
+        } else {
+          setToastAlert({
+            message: res.errorMessage || 'Lookup failed. No wallet amount was charged.',
+            type: 'error',
+          });
         }
       })
       .catch((err) => {
         console.error('Auto lookup error:', err);
+        if (isMounted) {
+          setToastAlert({
+            message: 'Unable to complete verification request. No wallet amount was charged.',
+            type: 'error',
+          });
+        }
       })
       .finally(() => {
         if (isMounted) setIsLoadingDoc(false);
@@ -314,8 +368,17 @@ function StudioPageContent() {
         });
       }
 
+      if (typeof res.remainingBalance === 'number' && typeof window !== 'undefined') {
+        window.dispatchEvent(
+          new CustomEvent('wallet-updated', { detail: res.remainingBalance })
+        );
+      }
+
       setToastAlert({
-        message: `Print authorized! ₹${res.fee} deducted. Remaining balance: ₹${res.remainingBalance}.`,
+        message:
+          res.fee === 0
+            ? `Print authorized! ₹0 charged (Already paid). Remaining balance: ₹${res.remainingBalance}.`
+            : `Print authorized! ₹${res.fee} deducted. Remaining balance: ₹${res.remainingBalance}.`,
         type: 'success',
       });
 
@@ -594,9 +657,9 @@ function StudioPageContent() {
             <StudioSearchBar
               docType={docType}
               isDirty={isDirty}
-              onDataLoaded={(data) => {
+              onDataLoaded={(data, meta) => {
                 loadData(docType, data);
-                setCurrentDocId(null);
+                setCurrentDocId(meta?.docId || null);
                 setSaveSuccess(null);
               }}
               onToast={(msg, type) => {
@@ -608,10 +671,10 @@ function StudioPageContent() {
             {toastAlert && (
               <div
                 className={`p-3 rounded-xl text-xs font-medium flex items-center justify-between border shadow-xs animate-in fade-in duration-150 ${toastAlert.type === 'warning'
-                    ? 'bg-amber-500/10 border-amber-500/30 text-amber-300'
+                    ? 'bg-amber-50 border-amber-200 text-amber-800'
                     : toastAlert.type === 'error'
-                      ? 'bg-red-500/10 border-red-500/30 text-red-300'
-                      : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                      ? 'bg-red-50 border-red-200 text-red-700'
+                      : 'bg-emerald-50 border-emerald-200 text-emerald-800'
                   }`}
               >
                 <span>{toastAlert.message}</span>

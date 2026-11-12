@@ -20,6 +20,8 @@ import {
   Loader2,
   FolderOpen,
   Sparkles,
+  Gift,
+  Ticket,
   Search,
 } from 'lucide-react';
 import { QuickLookupModal } from '@/components/dashboard/QuickLookupModal';
@@ -244,6 +246,20 @@ export default function DashboardPage() {
               <span>View Ledger</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </Link>
+            <Link
+              href="/dashboard/refer-earn"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-semibold transition-colors border border-emerald-500/30"
+            >
+              <Gift className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Refer & Earn (₹50)</span>
+            </Link>
+            <Link
+              href="/dashboard/offers"
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 text-xs font-semibold transition-colors border border-purple-500/30"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              <span>Offers & Bonuses</span>
+            </Link>
             <div className="flex items-center gap-2 text-xs text-emerald-400 sm:ml-auto">
               <ShieldCheck className="w-4 h-4" />
               <span>Auto-Debit Protected</span>
@@ -281,6 +297,78 @@ export default function DashboardPage() {
             </span>
           </div>
         </div>
+      </div>
+
+      {/* Rewards, Offers & Promo Code Discovery Banners */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Link
+          href="/dashboard/refer-earn"
+          className="rounded-2xl p-5 bg-gradient-to-br from-emerald-950/40 via-slate-900 to-slate-900 border border-emerald-800/40 hover:border-emerald-700 transition-all group flex flex-col justify-between shadow-sm"
+        >
+          <div className="flex items-start justify-between">
+            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <Gift className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+              Earn ₹50 Each
+            </span>
+          </div>
+          <div className="mt-4 space-y-1">
+            <h4 className="font-bold text-sm text-white group-hover:text-emerald-300 transition-colors flex items-center gap-1.5">
+              <span>Refer & Earn Program</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </h4>
+            <p className="text-xs text-slate-400">
+              Invite cyber cafe operators. Get ₹50 free wallet credits on their qualifying recharge.
+            </p>
+          </div>
+        </Link>
+
+        <Link
+          href="/dashboard/offers"
+          className="rounded-2xl p-5 bg-gradient-to-br from-purple-950/40 via-slate-900 to-slate-900 border border-purple-800/40 hover:border-purple-700 transition-all group flex flex-col justify-between shadow-sm"
+        >
+          <div className="flex items-start justify-between">
+            <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              <Sparkles className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30">
+              Auto Slab Bonus
+            </span>
+          </div>
+          <div className="mt-4 space-y-1">
+            <h4 className="font-bold text-sm text-white group-hover:text-purple-300 transition-colors flex items-center gap-1.5">
+              <span>Offers & Recharge Bonuses</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </h4>
+            <p className="text-xs text-slate-400">
+              Top up ₹249+ and receive instant +₹50 bonus credits on every qualifying recharge slab.
+            </p>
+          </div>
+        </Link>
+
+        <Link
+          href="/dashboard/promo-codes"
+          className="rounded-2xl p-5 bg-gradient-to-br from-pink-950/40 via-slate-900 to-slate-900 border border-pink-800/40 hover:border-pink-700 transition-all group flex flex-col justify-between shadow-sm"
+        >
+          <div className="flex items-start justify-between">
+            <div className="p-2.5 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
+              <Ticket className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">
+              Coupons Available
+            </span>
+          </div>
+          <div className="mt-4 space-y-1">
+            <h4 className="font-bold text-sm text-white group-hover:text-pink-300 transition-colors flex items-center gap-1.5">
+              <span>Promo Codes & Coupons</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </h4>
+            <p className="text-xs text-slate-400">
+              Discover active promo codes, redeem instant discounts, and view redemption history.
+            </p>
+          </div>
+        </Link>
       </div>
 
       {/* Saved Documents Section */}

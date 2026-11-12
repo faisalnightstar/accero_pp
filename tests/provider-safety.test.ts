@@ -47,9 +47,8 @@ describe('MockProvider Production Isolation & Safety', () => {
     expect(pan[0].name).toBe('NeoAPI');
 
     const voter = getProvidersForDocType('voter');
-    expect(voter.length).toBe(2);
-    expect(voter[0].name).toBe('FastNexora');
-    expect(voter[1].name).toBe('NeoAPI');
+    expect(voter.length).toBe(1);
+    expect(voter[0].name).toBe('NeoAPI');
 
     const dl = getProvidersForDocType('dl');
     expect(dl.length).toBe(1);

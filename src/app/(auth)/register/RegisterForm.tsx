@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { Printer, AlertCircle, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Printer, AlertCircle, ArrowRight, ShieldCheck, Gift } from 'lucide-react';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
 import { getSafeRedirectUrl } from '@/lib/rbac';
 
@@ -11,11 +11,14 @@ export default function RegisterForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const refCodeParam = searchParams.get('ref') || searchParams.get('referral') || '';
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     phone: '',
     password: '',
+    referralCode: refCodeParam.toUpperCase(),
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -137,6 +140,35 @@ export default function RegisterForm() {
               placeholder="••••••••"
               className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#457B9D] focus:border-transparent transition-all"
             />
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+              <span>Referral Code (Optional)</span>
+              {formData.referralCode && (
+                <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 flex items-center gap-1">
+                  <Gift className="w-3 h-3" />
+                  ₹50 Bonus Applied
+                </span>
+              )}
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={formData.referralCode}
+                onChange={(e) => setFormData({ ...formData, referralCode: e.target.value.toUpperCase() })}
+                placeholder="e.g. XYZ123"
+                className="w-full px-3.5 py-2.5 rounded-lg border border-slate-300 text-sm font-mono uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-[#457B9D] focus:border-transparent transition-all"
+              />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400">
+                <Gift className="w-4 h-4" />
+              </div>
+            </div>
+            {formData.referralCode && (
+              <p className="text-[11px] text-emerald-700 mt-1">
+                You will receive a ₹50 welcome bonus on your first recharge of ₹249+!
+              </p>
+            )}
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-500 py-1">

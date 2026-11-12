@@ -32,13 +32,13 @@ export function getProvidersForDocType(docType: DocumentType): ProviderAdapter[]
     }
 
     case 'voter': {
-      if (process.env.FASTNEXORA_API_KEY) {
-        list.push(new FastNexoraProvider());
-      }
+      // NeoAPI V1 (primary) -> NeoAPI V2 (automatic fallback) inside NeoApiProvider
       if (process.env.NEO_API_KEY) {
         list.push(new NeoApiProvider());
+      } else if (process.env.FASTNEXORA_API_KEY) {
+        list.push(new FastNexoraProvider());
       }
-      if (allowMock) {
+      if (list.length === 0 && !isProduction && process.env.ALLOW_MOCK_PROVIDERS === 'true') {
         list.push(new MockProvider());
       }
       return list;

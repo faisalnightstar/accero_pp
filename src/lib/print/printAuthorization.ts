@@ -5,7 +5,7 @@ import PrintJob, { PrintFormat } from '@/models/PrintJob';
 import DocumentRecord from '@/models/DocumentRecord';
 import User from '@/models/User';
 import { SERVICE_FEES, normalizeDocType } from '@/lib/wallet/constants';
-import { isDocumentAlreadyPaid } from '@/lib/wallet/pricing';
+import { getConfiguredServicePricing, isDocumentAlreadyPaid } from '@/lib/wallet/pricing';
 import { logAuditEvent } from '@/lib/logger/audit';
 
 export interface AuthorizePrintParams {
@@ -117,7 +117,8 @@ export async function authorizePrint({
 
   // 3. SERVER-SIDE PRICING ENFORCEMENT & FREE REPRINT CHECK
   // Never accept fee supplied by the browser
-  let fee = SERVICE_FEES[cleanDocType] ?? 20;
+  const pricing = await getConfiguredServicePricing(cleanDocType);
+  let fee = pricing.fee ?? SERVICE_FEES[cleanDocType] ?? 20;
 
   // Check if document was already paid & saved for this user (Free Lifetime Reprints)
   if (cleanCardId) {

@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Search, Loader2, Sparkles, AlertCircle, CheckCircle2, Wallet, Tag } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Search, Loader2, Sparkles, AlertCircle, CheckCircle2, Tag } from 'lucide-react';
 import { DocumentType } from '@/types/cards';
-import { verifyDocument } from '@/actions/verify';
+import { verifyDocument, getServicePricingAction } from '@/actions/verify';
+import { validateEpicNumber } from '@/lib/verify/validators';
 import { OverwriteConfirmModal } from './OverwriteConfirmModal';
 import InsufficientBalanceModal from '@/components/wallet/InsufficientBalanceModal';
 import RechargeModal from '@/components/wallet/RechargeModal';
@@ -13,13 +14,13 @@ import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
 interface StudioSearchBarProps {
   docType: DocumentType;
   isDirty?: boolean;
-  onDataLoaded: (data: any) => void;
+  onDataLoaded: (data: any, meta?: { docId?: string }) => void;
   onToast?: (message: string, type: 'info' | 'warning' | 'error' | 'success') => void;
 }
 
 const placeholders: Record<DocumentType, string> = {
   pan: 'Enter 10-digit PAN (e.g. ABCDE1234F)',
-  voter: 'Enter EPIC Voter ID (e.g. ABC0123456)',
+  voter: 'Enter EPIC Voter ID (e.g. IFV1949684)',
   dl: 'Enter Driving License No (e.g. DL-0420110123456)',
   rc: 'Enter Vehicle RC Reg No (e.g. UP05LD1234)',
   aadhaar: 'Enter 12-digit Aadhaar Number',
@@ -43,6 +44,9 @@ export function StudioSearchBar({
 }: StudioSearchBarProps) {
   const [queryId, setQueryId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [configuredFee, setConfiguredFee] = useState<number>(
+    SERVICE_FEES[docType.toUpperCase()] || 20
+  );
   const [statusMessage, setStatusMessage] = useState<{
     text: string;
     type: 'error' | 'warning' | 'success';
@@ -51,6 +55,7 @@ export function StudioSearchBar({
     null
   );
   const [showOverwriteModal, setShowOverwriteModal] = useState(false);
+  const activeRequestIdRef = useRef<string | null>(null);
 
   // Insufficient Balance & Recharge Modals
   const [insufficientBalanceInfo, setInsufficientBalanceInfo] = useState<{
@@ -59,14 +64,49 @@ export function StudioSearchBar({
   } | null>(null);
   const [showRechargeModal, setShowRechargeModal] = useState(false);
 
-  const feeAmount = SERVICE_FEES[docType.toUpperCase()] || 20;
+  useEffect(() => {
+    const fallbackFee = SERVICE_FEES[docType.toUpperCase()] || 20;
+    setConfiguredFee(fallbackFee);
+
+    let active = true;
+    getServicePricingAction(docType)
+      .then((pricing) => {
+        if (active && typeof pricing?.fee === 'number') {
+          setConfiguredFee(pricing.fee);
+        }
+      })
+      .catch(() => {
+        // Keep static fallback fee if pricing fetch fails
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [docType]);
+
+  const feeAmount = configuredFee;
 
   const handleFetch = async () => {
+    if (isLoading) return;
+
     const trimmed = queryId.trim().toUpperCase();
     if (!trimmed) {
       setStatusMessage({ text: 'Please enter a document number.', type: 'error' });
       return;
     }
+
+    if (docType === 'voter') {
+      const epicCheck = validateEpicNumber(trimmed);
+      if (!epicCheck.valid) {
+        setStatusMessage({
+          text: epicCheck.errorMessage || 'Please enter a valid Voter EPIC number.',
+          type: 'error',
+        });
+        return;
+      }
+    }
+
+    activeRequestIdRef.current = `vr_${crypto.randomUUID()}`;
 
     if (isDirty) {
       setShowOverwriteModal(true);
@@ -81,57 +121,111 @@ export function StudioSearchBar({
     setStatusMessage(null);
     setProviderInfo(null);
 
-    try {
-      const result = await verifyDocument(docType, id);
+    const requestId = activeRequestIdRef.current || `vr_${crypto.randomUUID()}`;
 
-      if (result.errorMessage === 'INSUFFICIENT_BALANCE') {
-        trackEvent(ANALYTICS_EVENTS.LOOKUP_FAILED, { docType: docType.toUpperCase(), errorType: 'INSUFFICIENT_BALANCE', isManual: false });
-        setInsufficientBalanceInfo({
-          requiredFee: result.requiredFee || feeAmount,
-          currentBalance: result.currentBalance || 0,
+    try {
+      const result = await verifyDocument(docType, id, requestId);
+
+      if (
+        result.errorMessage === 'INSUFFICIENT_BALANCE' ||
+        result.errorCode === 'INSUFFICIENT_BALANCE'
+      ) {
+        trackEvent(ANALYTICS_EVENTS.LOOKUP_FAILED, {
+          docType: docType.toUpperCase(),
+          errorType: 'INSUFFICIENT_BALANCE',
+          isManual: false,
         });
-        const errMsg = `Insufficient wallet balance. This lookup requires ₹${result.requiredFee || feeAmount
-          }.`;
+        const required = result.requiredFee ?? feeAmount;
+        const balance = result.currentBalance ?? 0;
+        setInsufficientBalanceInfo({
+          requiredFee: required,
+          currentBalance: balance,
+        });
+        const errMsg = `Insufficient wallet balance. This lookup requires ₹${required}.`;
         setStatusMessage({ text: errMsg, type: 'error' });
         if (onToast) onToast(errMsg, 'error');
         return;
       }
 
       if (result.success && result.data && Object.keys(result.data).length > 0) {
-        onDataLoaded(result.data);
+        onDataLoaded(result.data, { docId: result.docId });
         trackEvent(ANALYTICS_EVENTS.FIRST_LOOKUP_SUCCESS, { docCategory: docType });
-        setProviderInfo({ name: result.provider, latency: result.latencyMs });
 
-        // Broadcast balance update if a fee was deducted
+        const providerLabel =
+          docType === 'voter'
+            ? result.isFreeReprint && !result.providerVersion
+              ? 'Saved Record'
+              : result.providerVersion === 'v2'
+                ? 'NeoAPI V2 (Fallback)'
+                : result.providerVersion === 'v1'
+                  ? 'NeoAPI V1'
+                  : result.provider || 'NeoAPI'
+            : result.provider;
+
+        setProviderInfo({ name: providerLabel, latency: result.latencyMs });
+
         if (typeof result.currentBalance === 'number' && typeof window !== 'undefined') {
           window.dispatchEvent(
             new CustomEvent('wallet-updated', { detail: result.currentBalance })
           );
         }
 
-        const feeNotice =
-          result.isFreeReprint || result.feeDeducted === 0
-            ? ' (Free re-print)'
-            : ` (₹${result.feeDeducted || feeAmount} debited)`;
+        if (docType === 'voter') {
+          const isCachedOrPaid = result.isFreeReprint || result.feeDeducted === 0;
+          const feeNotice = isCachedOrPaid
+            ? ' (₹0 — Already paid / Free reprint)'
+            : ` (₹${result.feeDeducted ?? feeAmount} debited)`;
 
-        if (result.isPartial) {
-          const msg = `Partial record found — missing fields highlighted for manual completion.${feeNotice}`;
-          setStatusMessage({ text: msg, type: 'warning' });
-          if (onToast) onToast(msg, 'warning');
+          let sourceLabel = `Voter record verified via ${result.provider || 'NeoAPI'}`;
+          if (isCachedOrPaid && !result.providerVersion) {
+            sourceLabel = 'Saved Voter record loaded from your account';
+          } else if (result.fallbackUsed && result.providerVersion === 'v2') {
+            sourceLabel = 'Voter record verified via API';
+          } else if (result.providerVersion === 'v1') {
+            sourceLabel = 'Voter record verified via API';
+          }
+
+          if (result.isPartial) {
+            const msg = `${sourceLabel} — missing fields highlighted for completion.${feeNotice}`;
+            setStatusMessage({ text: msg, type: 'warning' });
+            if (onToast) onToast(msg, 'warning');
+          } else {
+            const successMsg = `${sourceLabel}.${feeNotice}`;
+            setStatusMessage({ text: successMsg, type: 'success' });
+            if (onToast) onToast(successMsg, 'success');
+          }
         } else {
-          const successMsg = `Successfully verified via ${result.provider || 'Gateway'
-            }.${feeNotice}`;
-          setStatusMessage({ text: successMsg, type: 'success' });
-          if (onToast) onToast(successMsg, 'success');
+          const feeNotice =
+            result.isFreeReprint || result.feeDeducted === 0
+              ? ' (Free re-print)'
+              : ` (₹${result.feeDeducted || feeAmount} debited)`;
+
+          if (result.isPartial) {
+            const msg = `Partial record found — missing fields highlighted for manual completion.${feeNotice}`;
+            setStatusMessage({ text: msg, type: 'warning' });
+            if (onToast) onToast(msg, 'warning');
+          } else {
+            const successMsg = `Successfully verified via ${result.provider || 'Gateway'}.${feeNotice}`;
+            setStatusMessage({ text: successMsg, type: 'success' });
+            if (onToast) onToast(successMsg, 'success');
+          }
         }
       } else {
         const errMsg = result.errorMessage || 'No record found. (₹0 charged)';
-        trackEvent(ANALYTICS_EVENTS.LOOKUP_FAILED, { docType: docType.toUpperCase(), errorType: result.errorMessage || 'NOT_FOUND', isManual: false });
+        trackEvent(ANALYTICS_EVENTS.LOOKUP_FAILED, {
+          docType: docType.toUpperCase(),
+          errorType: result.errorCode || result.errorMessage || 'NOT_FOUND',
+          isManual: false,
+        });
         setStatusMessage({ text: errMsg, type: 'error' });
         if (onToast) onToast(errMsg, 'error');
       }
     } catch (err: any) {
-      trackEvent(ANALYTICS_EVENTS.LOOKUP_FAILED, { docType: docType.toUpperCase(), errorType: 'TIMEOUT_OR_NETWORK_ERROR', isManual: false });
+      trackEvent(ANALYTICS_EVENTS.LOOKUP_FAILED, {
+        docType: docType.toUpperCase(),
+        errorType: 'TIMEOUT_OR_NETWORK_ERROR',
+        isManual: false,
+      });
       const errMsg =
         err?.message || 'Verification request timed out. (₹0 charged). Switched to manual Studio entry.';
       setStatusMessage({ text: errMsg, type: 'warning' });
@@ -139,6 +233,7 @@ export function StudioSearchBar({
     } finally {
       setIsLoading(false);
       setShowOverwriteModal(false);
+      activeRequestIdRef.current = null;
     }
   };
 
@@ -203,7 +298,7 @@ export function StudioSearchBar({
             {isLoading ? (
               <>
                 <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Searching...</span>
+                <span>{docType === 'voter' ? 'Verifying V1/V2...' : 'Searching...'}</span>
               </>
             ) : (
               <>
@@ -249,8 +344,14 @@ export function StudioSearchBar({
       {/* Dirty Form Overwrite Confirmation Modal */}
       <OverwriteConfirmModal
         isOpen={showOverwriteModal}
-        onConfirm={() => performLookup(queryId.trim().toUpperCase())}
-        onCancel={() => setShowOverwriteModal(false)}
+        onConfirm={() => {
+          setShowOverwriteModal(false);
+          performLookup(queryId.trim().toUpperCase());
+        }}
+        onCancel={() => {
+          activeRequestIdRef.current = null;
+          setShowOverwriteModal(false);
+        }}
       />
 
       {/* Insufficient Balance Dialog */}

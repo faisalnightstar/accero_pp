@@ -42,6 +42,7 @@ Progress: [██████████] 100%
 | 002 | Dedicated Navigation Bar for Logged-In Users | 2026-11-06 | Completed |
 | 003 | Fixed IP Outbound Proxy via Fixie | 2026-11-11 | Completed |
 | 004 | Upstash Redis Client & Ratelimit Integration | 2026-11-12 | Completed |
+| 005 | NeoAPI V1/V2 Voter Lookup & Billing Integrity | 2026-11-12 | Completed |
 
 ## Performance Metrics
 

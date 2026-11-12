@@ -189,6 +189,76 @@ export async function findExistingDocumentRecord({
   }
 }
 
+const PRESERVED_USER_KEYS = new Set([
+  'photoUrl',
+  'signatureUrl',
+  'layoutFormat',
+  'templateVariant',
+  'language',
+  'houseNo',
+  'tehsil',
+  'issueDate',
+  'downloadDate',
+  'pollDate',
+  'timings',
+  'serialNo',
+  'pollingStation',
+  'labelNameRegional',
+  'labelRelationRegional',
+  'labelGenderRegional',
+  'labelDobRegional',
+  'labelAddressRegional',
+  'labelSignRegional',
+]);
+
+function isEmptyFieldValue(val: unknown): boolean {
+  if (val === undefined || val === null) return true;
+  if (typeof val === 'string' && val.trim() === '') return true;
+  if (Array.isArray(val) && val.length === 0) return true;
+  return false;
+}
+
+/**
+ * Merges incoming API data onto an existing record without overwriting existing
+ * user-edited values, media, template settings, or non-empty fields with missing API values.
+ */
+export function mergeDocumentDataPreservingEdits(
+  existingData: Record<string, any> | null | undefined,
+  incomingData: Record<string, any>,
+  existingInputMode?: string
+): Record<string, any> {
+  if (!existingData || typeof existingData !== 'object') {
+    return { ...incomingData };
+  }
+
+  const merged: Record<string, any> = { ...existingData };
+
+  for (const [key, newVal] of Object.entries(incomingData)) {
+    const existingVal = existingData[key];
+    const hasExisting = !isEmptyFieldValue(existingVal);
+    const hasIncoming = !isEmptyFieldValue(newVal);
+
+    // Never replace non-empty existing data with empty/null API values
+    if (!hasIncoming && hasExisting) {
+      continue;
+    }
+
+    // Always preserve user media, layout, template, language, houseNo, and labels if already set
+    if (PRESERVED_USER_KEYS.has(key) && hasExisting) {
+      continue;
+    }
+
+    // If the operator previously edited & saved the record manually, preserve their edited fields
+    if (existingInputMode === 'MANUAL' && hasExisting) {
+      continue;
+    }
+
+    merged[key] = newVal;
+  }
+
+  return merged;
+}
+
 /**
  * Persists a newly fetched document in MongoDB with a 72-hour cache expiration.
  * Never caches empty responses, mock data in production, or failed requests.
@@ -201,6 +271,9 @@ export async function saveDocumentToCache({
   provider = 'NeoAPI',
   inputMode = 'API',
   source = 'API',
+  isPaid,
+  paidAt,
+  paymentReferenceId,
 }: {
   userId: string;
   docType: string;
@@ -209,6 +282,9 @@ export async function saveDocumentToCache({
   provider?: string;
   inputMode?: 'API' | 'MANUAL';
   source?: string;
+  isPaid?: boolean;
+  paidAt?: Date;
+  paymentReferenceId?: string;
 }): Promise<IDocumentRecord | null> {
   if (!userId || !documentNumber || !data || Object.keys(data).length === 0) {
     return null;
@@ -223,38 +299,70 @@ export async function saveDocumentToCache({
   await connectToDatabase();
   const { normalizedType, normalizedId, hash } = generateDocumentCacheKey(docType, documentNumber);
 
+  const existing = await findExistingDocumentRecord({
+    userId,
+    docType: normalizedType,
+    documentNumber: normalizedId,
+  });
+
+  const mergedData = mergeDocumentDataPreservingEdits(
+    existing?.data,
+    data,
+    existing?.inputMode
+  );
+
   const fetchedAt = new Date();
   const expiresAt = new Date(fetchedAt.getTime() + CACHE_TTL_MS); // Exactly 72 hours
 
   const lowerType = normalizedType.toLowerCase() as DocumentType;
-  const completeness = analyzeDocumentCompleteness(lowerType, data);
+  const completeness = analyzeDocumentCompleteness(lowerType, mergedData);
+
+  const effectiveIsPaid = Boolean(isPaid || (existing as any)?.isPaid);
+  const effectivePaidAt = paidAt || (existing as any)?.paidAt || (effectiveIsPaid ? fetchedAt : undefined);
+  const effectivePaymentRef = paymentReferenceId || (existing as any)?.paymentReferenceId;
+  const effectiveInputMode = existing?.inputMode === 'MANUAL' ? 'MANUAL' : inputMode;
 
   try {
     const userObjectId = new mongoose.Types.ObjectId(userId);
+    const filter = existing?._id
+      ? { _id: existing._id, userId: userObjectId }
+      : {
+          userId: userObjectId,
+          docType: normalizedType,
+          cardIdentifier: normalizedId,
+        };
+
+    const setPayload: Record<string, any> = {
+      cardIdentifier: normalizedId,
+      data: mergedData,
+      missingFields: completeness.missingKeys,
+      isComplete: completeness.isPrintReady,
+      inputMode: effectiveInputMode,
+      source,
+      provider,
+      status: 'ACTIVE',
+      documentNumberHash: hash,
+      fetchedAt,
+      expiresAt,
+      updatedAt: new Date(),
+    };
+
+    if (effectiveIsPaid) {
+      setPayload.isPaid = true;
+      if (effectivePaidAt) setPayload.paidAt = effectivePaidAt;
+      if (effectivePaymentRef) setPayload.paymentReferenceId = effectivePaymentRef;
+    }
 
     const updated = await DocumentRecord.findOneAndUpdate(
+      filter,
       {
-        userId: userObjectId,
-        docType: normalizedType,
-        cardIdentifier: normalizedId,
-      },
-      {
-        $set: {
-          data,
-          missingFields: completeness.missingKeys,
-          isComplete: completeness.isPrintReady,
-          inputMode,
-          source,
-          provider,
-          status: 'ACTIVE',
-          documentNumberHash: hash,
-          fetchedAt,
-          expiresAt,
-          updatedAt: new Date(),
-        },
+        $set: setPayload,
         $setOnInsert: {
+          userId: userObjectId,
+          docType: normalizedType,
           createdAt: new Date(),
           printCount: 0,
+          ...(!effectiveIsPaid ? { isPaid: false } : {}),
         },
       },
       { upsert: true, new: true }

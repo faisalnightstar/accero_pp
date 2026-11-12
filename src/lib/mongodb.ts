@@ -1,4 +1,10 @@
 import mongoose from 'mongoose';
+import dns from 'node:dns';
+
+// Ensure IPv4 resolution is prioritized for Node.js / macOS environments to avoid ENOTFOUND on Atlas SRV shard lookups
+if (typeof dns.setDefaultResultOrder === 'function') {
+  dns.setDefaultResultOrder('ipv4first');
+}
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -31,7 +37,8 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
     const opts = {
       bufferCommands: false,
       maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 8000,
+      family: 4,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {

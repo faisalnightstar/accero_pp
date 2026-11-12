@@ -6,7 +6,12 @@ import DocumentRecord from '@/models/DocumentRecord';
 import { getSession } from '@/lib/auth';
 import { deductWalletFee } from '@/actions/wallet';
 import { isDocumentAlreadyPaid } from '@/lib/wallet/pricing';
-import { generateDocumentCacheKey, isDocumentCacheValid, CACHE_TTL_MS } from '@/lib/documents/documentCache';
+import {
+  generateDocumentCacheKey,
+  isDocumentCacheValid,
+  normalizeDocumentIdentifier,
+  CACHE_TTL_MS,
+} from '@/lib/documents/documentCache';
 
 const saveDocumentSchema = z.object({
   id: z.string().optional(),
@@ -67,9 +72,10 @@ export async function POST(request: Request) {
       | 'RC'
       | 'RATION';
 
-    const cardIdentifier =
+    const rawIdentifier =
       validated.cardIdentifier?.trim() ||
       resolveCardIdentifier(validated.docType, validated.data);
+    const cardIdentifier = normalizeDocumentIdentifier(normalizedDocType, rawIdentifier);
 
     const { hash } = generateDocumentCacheKey(normalizedDocType, cardIdentifier);
 
@@ -103,6 +109,29 @@ export async function POST(request: Request) {
         if (validated.backImage) record.backImage = validated.backImage;
         record.updatedAt = now;
         await record.save();
+      }
+    }
+
+    // Reuse existing record by tenant + docType + identifier/hash to prevent duplicate records
+    if (!record && cardIdentifier && !cardIdentifier.startsWith('UNKNOWN-')) {
+      const existingByIdentity = await DocumentRecord.findOne({
+        userId: session.userId,
+        docType: normalizedDocType,
+        $or: [{ documentNumberHash: hash }, { cardIdentifier }],
+      });
+
+      if (existingByIdentity) {
+        existingByIdentity.cardIdentifier = cardIdentifier;
+        existingByIdentity.documentNumberHash = hash;
+        existingByIdentity.inputMode = validated.inputMode;
+        existingByIdentity.data = validated.data;
+        existingByIdentity.missingFields = validated.missingFields;
+        existingByIdentity.isComplete = validated.isComplete;
+        if (validated.frontImage) existingByIdentity.frontImage = validated.frontImage;
+        if (validated.backImage) existingByIdentity.backImage = validated.backImage;
+        existingByIdentity.updatedAt = now;
+        await existingByIdentity.save();
+        record = existingByIdentity;
       }
     }
 

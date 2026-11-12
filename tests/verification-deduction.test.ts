@@ -239,8 +239,8 @@ describe('End-to-End Document Lifecycle & Integration Scenarios', () => {
   });
 
   // Scenario C: Expired cache
-  // User searches document -> Expired record found -> Provider called -> Expiration reset to 72 hours
-  it('Scenario C: Expired Cache -> Treats as Miss -> Fresh Provider Fetch -> Expiration Reset to 72h', async () => {
+  // User searches document -> Expired record found -> Provider called -> Wallet debited once -> Expiration reset to 72 hours
+  it('Scenario C: Expired Cache -> Treats as Miss -> Fresh Provider Fetch -> Voter Lookup Billed & Expiration Reset to 72h', async () => {
     // findOne returns null for unexpired record
     vi.mocked(DocumentRecord.findOne).mockResolvedValue(null);
 
@@ -250,7 +250,7 @@ describe('End-to-End Document Lifecycle & Integration Scenarios', () => {
     };
 
     vi.mocked(providerFactory.getProvidersForDocType).mockReturnValue([
-      { name: 'Axen', isAvailable: true, verify: vi.fn() } as any,
+      { name: 'NeoAPI', supports: () => true, lookup: vi.fn() } as any,
     ]);
 
     vi.mocked(orchestrator.executeProviderCascade).mockResolvedValue({
@@ -259,13 +259,33 @@ describe('End-to-End Document Lifecycle & Integration Scenarios', () => {
       idNumber: 'XYZ9876543',
       data: refreshedData,
       isPartial: false,
-      provider: 'Axen',
+      provider: 'NeoAPI',
+      providerVersion: 'v1',
+      fallbackUsed: false,
       latencyMs: 280,
     });
+
+    vi.mocked(Wallet.findOne).mockResolvedValue({
+      _id: new mongoose.Types.ObjectId(),
+      userId: userObjectId,
+      balance: 200,
+      transactions: [],
+    } as any);
+
+    vi.mocked(Wallet.findOneAndUpdate).mockResolvedValue({
+      _id: new mongoose.Types.ObjectId(),
+      userId: userObjectId,
+      balance: 180,
+      totalDebited: 20,
+      transactions: [{ amount: 20, type: 'debit', balanceBefore: 200, balanceAfter: 180 }],
+      save: vi.fn().mockResolvedValue(true),
+    } as any);
 
     vi.mocked(DocumentRecord.findOneAndUpdate).mockResolvedValue({
       _id: new mongoose.Types.ObjectId(),
       data: refreshedData,
+      isPaid: true,
+      isComplete: true,
       expiresAt: new Date(Date.now() + CACHE_TTL_MS),
       fetchedAt: new Date(),
     } as any);
@@ -273,7 +293,9 @@ describe('End-to-End Document Lifecycle & Integration Scenarios', () => {
     const searchRes = await verifyActions.verifyDocument('voter', 'XYZ9876543');
     expect(searchRes.success).toBe(true);
     expect(searchRes.data.electorName).toBe('SUNIL KUMAR');
+    expect(searchRes.feeDeducted).toBe(20);
     expect(orchestrator.executeProviderCascade).toHaveBeenCalled();
+    expect(Wallet.findOneAndUpdate).toHaveBeenCalledTimes(1);
   });
 
   // Scenario D: Insufficient wallet balance blocks printing but allows preview

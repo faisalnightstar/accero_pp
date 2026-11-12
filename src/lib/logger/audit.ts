@@ -48,6 +48,11 @@ function sanitizeDetails(details: Record<string, any>): Record<string, any> {
         sanitized[key] = `${value.slice(0, 3)}XXXXX${value.slice(-2)}`;
         continue;
       }
+
+      if (lowerKey.includes('epic') && value.length >= 6) {
+        sanitized[key] = `${value.slice(0, 3)}XXXX${value.slice(-2)}`;
+        continue;
+      }
     }
 
     // Pass through safe primitives

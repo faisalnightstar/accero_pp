@@ -10,6 +10,10 @@ export interface IVerificationRequest extends Document {
   fee: number;
   status: VerificationRequestStatus;
   provider?: string;
+  providerVersion?: string;
+  fallbackUsed?: boolean;
+  transactionReferenceId?: string;
+  documentId?: mongoose.Types.ObjectId;
   refundReason?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -59,6 +63,22 @@ const VerificationRequestSchema: Schema<IVerificationRequest> = new Schema(
       type: String,
       trim: true,
     },
+    providerVersion: {
+      type: String,
+      trim: true,
+    },
+    fallbackUsed: {
+      type: Boolean,
+      default: false,
+    },
+    transactionReferenceId: {
+      type: String,
+      trim: true,
+    },
+    documentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'DocumentRecord',
+    },
     refundReason: {
       type: String,
       trim: true,
@@ -70,6 +90,7 @@ const VerificationRequestSchema: Schema<IVerificationRequest> = new Schema(
 );
 
 VerificationRequestSchema.index({ userId: 1, createdAt: -1 });
+VerificationRequestSchema.index({ userId: 1, docType: 1, idNumber: 1, status: 1 });
 
 export const VerificationRequest: Model<IVerificationRequest> =
   mongoose.models.VerificationRequest ||

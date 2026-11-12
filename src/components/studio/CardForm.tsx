@@ -327,7 +327,7 @@ export default function CardForm({
               {renderInput('fullName', 'Cardholder Full Name', 'e.g. ROHIT KHATRI', 'text', true)}
             </div>
             <div className="sm:col-span-2">
-              {renderInput('fatherName', "Father's Full Name", 'e.g. MOHAMMAD FAISAL', 'text', true)}
+              {renderInput('fatherName', "Father's Full Name", 'e.g. SUBHAS KHATR', 'text', true)}
             </div>
             <div>
               {renderInput('dateOfBirth', 'Date of Birth (DD/MM/YYYY)', '15/08/1990', 'text', true)}
@@ -676,7 +676,10 @@ export default function CardForm({
                 </select>
               </div>
               <div>
-                {renderInput('dateOfBirth', 'Date of Birth / Age', 'e.g. 01/01/1990 or 42', 'text', false)}
+                {renderInput('dateOfBirth', 'Date of Birth (DD/MM/YYYY)', 'e.g. 01/01/1990', 'text', false)}
+              </div>
+              <div>
+                {renderInput('age', 'Age (Years)', 'e.g. 32', 'text', false)}
               </div>
             </div>
           </div>
@@ -701,7 +704,16 @@ export default function CardForm({
                 {renderInput('tehsil', 'Tehsil / Taluka', 'e.g. Varanasi', 'text', false)}
               </div>
               <div>
-                {renderInput('district', 'District', 'e.g. PURVI VARANASI', 'text', false)}
+                {renderInput('district', 'District (English)', 'e.g. PURVI VARANASI', 'text', false)}
+              </div>
+              <div>
+                {renderInput('districtRegional', 'District (Regional)', 'e.g. पूर्वी वाराणसी', 'text', false)}
+              </div>
+              <div>
+                {renderInput('state', 'State (English)', 'e.g. UTTAR PRADESH', 'text', false)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('stateRegional', 'State (Regional)', 'e.g. उत्तर प्रदेश', 'text', false)}
               </div>
             </div>
           </div>
@@ -781,7 +793,7 @@ export default function CardForm({
                 {renderInput('holderName', 'Driver Full Name', 'e.g. ROHIT KHATRI', 'text', true)}
               </div>
               <div className="sm:col-span-2">
-                {renderInput('fatherOrHusbandName', 'S/W/D of (Son/Wife/Daughter of)', 'e.g. MOHAMMAD FAISAL', 'text', true)}
+                {renderInput('fatherOrHusbandName', 'S/W/D of (Son/Wife/Daughter of)', 'e.g. SUBHAS KHATR', 'text', true)}
               </div>
               <div>
                 {renderInput('dateOfBirth', 'Date of Birth (DD-MM-YYYY)', '15-08-1990', 'text', true)}

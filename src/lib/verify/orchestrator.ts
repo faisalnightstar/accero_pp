@@ -8,6 +8,9 @@ export async function executeProviderCascade(
 ): Promise<VerificationResult> {
   const sanitizedId = queryId.trim().toUpperCase();
   let lastError = 'No verification provider succeeded';
+  let lastErrorCode: string | undefined;
+  let lastStatusCode: number | undefined;
+  let lastAttempts: VerificationResult['attempts'];
 
   for (const provider of providers) {
     if (!provider.supports(docType)) {
@@ -24,6 +27,9 @@ export async function executeProviderCascade(
 
       // If lookup was unsuccessful, record error message and cascade
       lastError = result.errorMessage || `${provider.name} returned empty record`;
+      lastErrorCode = result.errorCode;
+      lastStatusCode = result.statusCode;
+      lastAttempts = result.attempts;
       console.warn(`[Verify Orchestrator] Provider ${provider.name} did not return data: ${lastError}. Cascading...`);
     } catch (err: any) {
       lastError = err?.message || 'Unexpected provider exception';
@@ -39,5 +45,8 @@ export async function executeProviderCascade(
     data: {},
     isPartial: false,
     errorMessage: lastError,
+    errorCode: lastErrorCode,
+    statusCode: lastStatusCode,
+    attempts: lastAttempts,
   };
 }

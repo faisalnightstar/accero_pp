@@ -46,6 +46,16 @@ export function sanitizeNetworkErrorMessage(rawMessage: string): string {
 }
 
 /**
+ * Masks document/card identifiers (EPIC, PAN, etc.) for safe diagnostic logging.
+ */
+export function maskIdentifier(value: string): string {
+  const clean = (value || '').trim().toUpperCase();
+  if (!clean) return '***';
+  if (clean.length <= 5) return `${clean.slice(0, 1)}***${clean.slice(-1)}`;
+  return `${clean.slice(0, 3)}${'*'.repeat(clean.length - 5)}${clean.slice(-2)}`;
+}
+
+/**
  * Validates and parses a FIXIE_URL string.
  * Returns null if the URL is missing, invalid, or lacks valid protocol/host/port.
  */

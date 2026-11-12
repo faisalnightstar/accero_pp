@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import connectToDatabase from '@/lib/mongodb';
 import PromoCode, { IPromoCode, PromoDiscountType } from '@/models/PromoCode';
 import PromoRedemption from '@/models/PromoRedemption';
+import Campaign from '@/models/Campaign';
 import User from '@/models/User';
 import Payment from '@/models/Payment';
 import { getSession } from '@/lib/auth';
@@ -492,4 +493,162 @@ export async function getPromoAnalyticsAction() {
     },
   };
 }
+
+/**
+ * Customer Action: Get all active promotional campaigns and recharge offers
+ */
+export async function getCustomerOffersAction() {
+  const session = await getSession();
+  if (!session?.userId) {
+    return { success: false, offers: [], error: 'Unauthorized' };
+  }
+
+  await connectToDatabase();
+  const now = new Date();
+
+  const campaigns = await Campaign.find({
+    status: 'ACTIVE',
+    startDate: { $lte: now },
+    endDate: { $gte: now },
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  const offers = campaigns.map((c: any) => ({
+    id: c._id.toString(),
+    name: c.name,
+    code: c.code,
+    description: c.description,
+    minRechargeAmount: c.minRechargeAmount || 249,
+    slabAmount: c.slabAmount || 249,
+    bonusPerSlab: c.bonusPerSlab || 50,
+    maxBonusPerOperator: c.maxBonusPerOperator || 1000,
+    startDate: c.startDate ? new Date(c.startDate).toISOString() : '',
+    endDate: c.endDate ? new Date(c.endDate).toISOString() : '',
+    status: c.status,
+  }));
+
+  return { success: true, offers };
+}
+
+/**
+ * Customer Action: Get eligible active promo codes for the current operator
+ */
+export async function getCustomerPromoCodesAction() {
+  const session = await getSession();
+  if (!session?.userId) {
+    return { success: false, promoCodes: [], error: 'Unauthorized' };
+  }
+
+  await connectToDatabase();
+  const now = new Date();
+  const userIdObj = new mongoose.Types.ObjectId(session.userId);
+
+  // Check if user has prior completed recharges
+  const completedRechargeCount = await Payment.countDocuments({
+    userId: userIdObj,
+    status: { $in: ['PAID', 'paid'] },
+  });
+  const isFirstRecharge = completedRechargeCount === 0;
+
+  // Find active promo codes
+  const allActiveCodes = await PromoCode.find({
+    isActive: true,
+    startsAt: { $lte: now },
+    expiresAt: { $gte: now },
+    discountType: { $ne: 'USER_SPECIFIC' },
+  })
+    .sort({ createdAt: -1 })
+    .lean();
+
+  // Filter based on user eligibility & limits
+  const userRedemptions = await PromoRedemption.find({
+    operatorId: userIdObj,
+    status: { $in: ['APPLIED', 'COMPLETED'] },
+  }).lean();
+
+  const redemptionsByCode: Record<string, number> = {};
+  userRedemptions.forEach((r) => {
+    const cid = r.promoCodeId.toString();
+    redemptionsByCode[cid] = (redemptionsByCode[cid] || 0) + 1;
+  });
+
+  const eligibleCodes = allActiveCodes.filter((code: any) => {
+    // If first recharge only, user must be on first recharge
+    if (code.firstRechargeOnly && !isFirstRecharge) {
+      return false;
+    }
+
+    // Check user redemption limit
+    const codeId = code._id.toString();
+    const userUsedCount = redemptionsByCode[codeId] || 0;
+    if (code.perUserRedemptionLimit && userUsedCount >= code.perUserRedemptionLimit) {
+      return false;
+    }
+
+    // Check total budget limit
+    if (code.totalBudget && code.totalBudget > 0 && code.budgetSpent >= code.totalBudget) {
+      return false;
+    }
+
+    // Check total redemption limit
+    if (code.totalRedemptionLimit && code.totalRedemptionLimit > 0 && code.totalRedeemed >= code.totalRedemptionLimit) {
+      return false;
+    }
+
+    return true;
+  });
+
+  return {
+    success: true,
+    promoCodes: eligibleCodes.map((c: any) => ({
+      id: c._id.toString(),
+      code: c.code,
+      campaignName: c.campaignName,
+      description: c.description || '',
+      discountType: c.discountType,
+      discountValue: c.discountValue,
+      minimumRechargeAmount: c.minimumRechargeAmount || 0,
+      maximumBonus: c.maximumBonus || 0,
+      firstRechargeOnly: c.firstRechargeOnly || false,
+      expiresAt: c.expiresAt ? new Date(c.expiresAt).toISOString() : '',
+    })),
+  };
+}
+
+/**
+ * Customer Action: Get current operator's promo redemption history
+ */
+export async function getCustomerRedeemedPromoCodesAction() {
+  const session = await getSession();
+  if (!session?.userId) {
+    return { success: false, redemptions: [], error: 'Unauthorized' };
+  }
+
+  await connectToDatabase();
+  const userIdObj = new mongoose.Types.ObjectId(session.userId);
+
+  const redemptions = await PromoRedemption.find({ operatorId: userIdObj })
+    .populate('promoCodeId', 'code campaignName discountType description')
+    .sort({ redeemedAt: -1 })
+    .lean();
+
+  return {
+    success: true,
+    redemptions: redemptions.map((r: any) => ({
+      id: r._id.toString(),
+      code: r.code,
+      campaignName: r.promoCodeId?.campaignName || 'Campaign',
+      description: r.promoCodeId?.description || '',
+      discountType: r.promoCodeId?.discountType || 'FIXED_BONUS',
+      paymentId: r.paymentId,
+      rechargeAmount: r.rechargeAmount,
+      bonusAmount: r.bonusAmount,
+      discountAmount: r.discountAmount || 0,
+      status: r.status,
+      redeemedAt: r.redeemedAt ? new Date(r.redeemedAt).toISOString() : '',
+    })),
+  };
+}
+
 

@@ -45,7 +45,12 @@ export type AuditAction =
   | 'PROMO_CODE_UPDATED'
   | 'PROMO_CODE_STATUS_TOGGLED'
   | 'PROMO_CODE_DELETED'
-  | 'PROMO_CODE_REDEEMED';
+  | 'PROMO_CODE_REDEEMED'
+  | 'REFERRAL_REGISTERED'
+  | 'REFERRAL_REWARD_CREDITED'
+  | 'REFERRAL_WELCOME_CREDITED'
+  | 'REFERRAL_STATUS_UPDATED'
+  | 'REFERRAL_CONFIG_UPDATED';
 
 export type AuditResourceType =
   | 'AUTH'
@@ -60,7 +65,9 @@ export type AuditResourceType =
   | 'SUPPORT_TICKET'
   | 'TEAM'
   | 'REPORT'
-  | 'PROMO';
+  | 'PROMO'
+  | 'REFERRAL'
+  | 'SETTINGS';
 
 export interface IAuditLog extends Document {
   actorId?: mongoose.Types.ObjectId;

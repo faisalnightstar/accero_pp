@@ -14,6 +14,7 @@ import {
   FilePlus,
 } from 'lucide-react';
 import { DocumentType } from '@/types/cards';
+import { validateEpicNumber } from '@/lib/verify/validators';
 
 interface QuickLookupModalProps {
   isOpen: boolean;
@@ -57,6 +58,14 @@ export function QuickLookupModal({
     if (!sanitized) {
       setError('Please enter a valid document number.');
       return;
+    }
+
+    if (selectedType === 'voter') {
+      const epicCheck = validateEpicNumber(sanitized);
+      if (!epicCheck.valid) {
+        setError(epicCheck.errorMessage || 'Please enter a valid Voter EPIC number.');
+        return;
+      }
     }
 
     onClose();
