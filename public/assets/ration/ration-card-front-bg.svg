@@ -1,0 +1,30 @@
+<svg width="1011" height="638" viewBox="0 0 1011 638" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FCFDFD"/>
+      <stop offset="50%" stop-color="#F4F8F5"/>
+      <stop offset="100%" stop-color="#EAF2ED"/>
+    </linearGradient>
+    <linearGradient id="top-ribbon" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="50%" stop-color="#047857"/>
+      <stop offset="100%" stop-color="#1E3A8A"/>
+    </linearGradient>
+    <pattern id="guilloche" width="60" height="30" patternUnits="userSpaceOnUse">
+      <path d="M 0 15 Q 15 0 30 15 T 60 15 M 0 20 Q 15 5 30 20 T 60 20 M 0 10 Q 15 -5 30 10 T 60 10" fill="none" stroke="#047857" stroke-width="0.5" opacity="0.12"/>
+    </pattern>
+  </defs>
+
+  <!-- Base Card Rectangle with 3.18mm standard radius -->
+  <rect x="0" y="0" width="1011" height="638" rx="38" fill="url(#bg-gradient)"/>
+  <rect x="0" y="0" width="1011" height="638" rx="38" fill="url(#guilloche)"/>
+
+  <!-- Top Tricolor Ribbon -->
+  <rect x="0" y="0" width="1011" height="12" fill="url(#top-ribbon)"/>
+
+  <!-- Subtle Microtext Border Line -->
+  <rect x="18" y="18" width="975" height="602" rx="28" fill="none" stroke="#D1D5DB" stroke-width="1.5" stroke-dasharray="8 4"/>
+
+  <!-- Watermark Crest Silhouette -->
+  <circle cx="505" cy="340" r="140" fill="#047857" opacity="0.03"/>
+</svg>

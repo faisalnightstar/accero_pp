@@ -22,12 +22,14 @@ const saveDocumentSchema = z.object({
     'dl',
     'rc',
     'ration',
+    'farmer',
     'PAN',
     'AADHAAR',
     'VOTER',
     'DL',
     'RC',
     'RATION',
+    'FARMER',
   ]),
   cardIdentifier: z.string().optional(),
   inputMode: z.enum(['API', 'MANUAL']).default('MANUAL'),
@@ -46,6 +48,7 @@ function resolveCardIdentifier(docType: string, data: Record<string, any>): stri
   if (dt === 'dl') return data.dlNumber || 'UNKNOWN-DL';
   if (dt === 'rc') return data.registrationNumber || 'UNKNOWN-RC';
   if (dt === 'ration') return data.rationCardNumber || 'UNKNOWN-RATION';
+  if (dt === 'farmer') return data.farmerId || data.aadhaarNumber || 'UNKNOWN-FARMER';
   return 'UNKNOWN-DOC';
 }
 
@@ -70,7 +73,8 @@ export async function POST(request: Request) {
       | 'VOTER'
       | 'DL'
       | 'RC'
-      | 'RATION';
+      | 'RATION'
+      | 'FARMER';
 
     const rawIdentifier =
       validated.cardIdentifier?.trim() ||
@@ -148,11 +152,12 @@ export async function POST(request: Request) {
           );
 
           if (!deduction.success && deduction.error === 'INSUFFICIENT_BALANCE') {
+            const reqFee = (deduction as any).requiredFee ?? 5;
             return NextResponse.json(
               {
                 error: 'INSUFFICIENT_BALANCE',
-                message: 'Insufficient wallet balance. Creating a manual document requires ₹5.',
-                requiredFee: 5,
+                message: `Insufficient wallet balance. Creating a manual document requires ₹${reqFee}.`,
+                requiredFee: reqFee,
                 currentBalance: deduction.currentBalance || 0,
               },
               { status: 402 }

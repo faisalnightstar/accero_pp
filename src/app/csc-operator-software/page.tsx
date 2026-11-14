@@ -135,8 +135,11 @@ export default function CscOperatorSoftwarePage() {
               </h1>
 
               {/* AEO / GEO Definition Snippet Box */}
-              <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-teal-600 text-slate-700 text-base sm:text-lg leading-relaxed shadow-sm font-medium">
-                <strong>Accero PrintPortal for CSC Operators</strong> is a specialized cloud utility that streamlines identity card formatting, missing data verification, and physical PVC card printing for Village Level Entrepreneurs. By providing split-screen live previews, 1:1 ISO/IEC 7810 ID-1 card layouts, and 100% free lifetime re-prints, VLEs speed up citizen document issuance while completely eliminating spoiled card stock.
+              <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-sm">
+                <div className="w-1.5 self-stretch bg-teal-600 rounded-full shrink-0" />
+                <p className="text-slate-700 text-base sm:text-lg leading-relaxed font-medium">
+                  <strong className="text-slate-900">Accero PrintPortal for CSC Operators</strong> is a specialized cloud utility that streamlines identity card formatting, missing data verification, and physical PVC card printing for Village Level Entrepreneurs. By providing split-screen live previews, 1:1 ISO/IEC 7810 ID-1 card layouts, and 100% free lifetime re-prints, VLEs speed up citizen document issuance while completely eliminating spoiled card stock.
+                </p>
               </div>
 
               <p className="text-slate-600 text-base sm:text-lg leading-relaxed">

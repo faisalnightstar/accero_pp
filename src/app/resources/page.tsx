@@ -13,6 +13,10 @@ import {
 } from 'lucide-react';
 import { buildPageMetadata } from '@/lib/seo/metadata';
 import { generateBreadcrumbSchema } from '@/lib/seo/structuredData';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
+import { Button } from '@/components/ui/Button';
+import { CTASection } from '@/components/public/CTASection';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Operator Resources & Technical Guides | Accero PrintPortal',
@@ -71,8 +75,8 @@ export default function ResourcesPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <div className="bg-slate-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-12">
+      <div className="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8 space-y-12">
+        <div className="max-w-7xl mx-auto space-y-10">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
             <Link href="/" className="hover:text-[#1D3557] transition-colors">
@@ -83,38 +87,39 @@ export default function ResourcesPage() {
           </nav>
 
           {/* Hero */}
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-[#8B1E2D] border border-red-200">
-              <BookOpen className="w-3.5 h-3.5 text-[#E63946]" />
-              <span>Operator Knowledge & Technical Center</span>
+          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/90 shadow-sm space-y-4 text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-[#1D3557] border border-slate-200">
+              <BookOpen className="w-3.5 h-3.5 text-[#8B1E2D]" />
+              <span>Operator Knowledge &amp; Technical Center</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black text-[#1D3557] tracking-tight">
-              Educational Guides & Printing Standards
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D3557] tracking-tight">
+              Educational Guides &amp; Printing Standards
             </h1>
-            <p className="text-base text-slate-600 leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl">
               In-depth technical references and operational playbooks designed to help cyber cafes, CSC operators, and print businesses master PVC card production.
             </p>
           </div>
 
           {/* Resources Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {resources.map((item, idx) => (
-              <div
+              <Card
                 key={idx}
-                className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                hoverEffect
+                className="p-8 border border-slate-200/90 flex flex-col justify-between"
               >
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                    <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
                       {item.category}
                     </span>
-                    <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                    <Badge variant="default" size="sm">
                       {item.readTime}
-                    </span>
+                    </Badge>
                   </div>
 
                   <div>
-                    <h2 className="text-lg font-bold text-[#1D3557] leading-snug mb-2 hover:text-[#8B1E2D] transition-colors">
+                    <h2 className="text-base font-bold text-[#1D3557] leading-snug mb-2 hover:text-[#8B1E2D] transition-colors">
                       <Link href={item.slug}>{item.title}</Link>
                     </h2>
                     <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">
@@ -126,25 +131,25 @@ export default function ResourcesPage() {
                 <div className="pt-6 mt-6 border-t border-slate-100">
                   <Link
                     href={item.slug}
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8B1E2D] hover:text-[#E63946] transition-colors"
+                    className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8B1E2D] hover:text-[#721925] transition-colors"
                   >
                     <span>Read Full Guide</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
-              </div>
+              </Card>
             ))}
           </div>
 
           {/* Quick Cheat-Sheet Table */}
-          <section className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-6">
+          <Card className="p-8 border border-slate-200/90 shadow-sm space-y-6">
             <h2 className="text-xl font-bold text-[#1D3557]">
               CR80 Card Dimensions Quick Reference Table
             </h2>
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+                  <tr className="border-b border-slate-200 text-slate-400 font-semibold uppercase tracking-wider">
                     <th className="py-3 px-4">Standard / Unit</th>
                     <th className="py-3 px-4">Width</th>
                     <th className="py-3 px-4">Height</th>
@@ -152,35 +157,37 @@ export default function ResourcesPage() {
                     <th className="py-3 px-4">Standard Thickness</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr className="border-b border-slate-100">
-                    <td className="py-3 px-4 font-bold text-[#1D3557]">Millimeters (Metric)</td>
-                    <td className="py-3 px-4 font-mono font-bold text-emerald-600">85.60 mm</td>
-                    <td className="py-3 px-4 font-mono font-bold text-emerald-600">53.98 mm</td>
-                    <td className="py-3 px-4 font-mono">3.18 mm</td>
-                    <td className="py-3 px-4 font-mono">0.76 mm (30 mil)</td>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  <tr className="hover:bg-slate-50/60 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-[#1D3557]">Millimeters (Metric)</td>
+                    <td className="py-3.5 px-4 font-mono font-bold text-emerald-700">85.60 mm</td>
+                    <td className="py-3.5 px-4 font-mono font-bold text-emerald-700">53.98 mm</td>
+                    <td className="py-3.5 px-4 font-mono">3.18 mm</td>
+                    <td className="py-3.5 px-4 font-mono">0.76 mm (30 mil)</td>
                   </tr>
-                  <tr className="border-b border-slate-100">
-                    <td className="py-3 px-4 font-bold text-[#1D3557]">Inches (Imperial)</td>
-                    <td className="py-3 px-4 font-mono">3.370 in</td>
-                    <td className="py-3 px-4 font-mono">2.125 in</td>
-                    <td className="py-3 px-4 font-mono">0.125 in (1/8")</td>
-                    <td className="py-3 px-4 font-mono">0.030 in</td>
+                  <tr className="hover:bg-slate-50/60 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-[#1D3557]">Inches (Imperial)</td>
+                    <td className="py-3.5 px-4 font-mono">3.370 in</td>
+                    <td className="py-3.5 px-4 font-mono">2.125 in</td>
+                    <td className="py-3.5 px-4 font-mono">0.125 in (1/8")</td>
+                    <td className="py-3.5 px-4 font-mono">0.030 in</td>
                   </tr>
-                  <tr>
-                    <td className="py-3 px-4 font-bold text-[#1D3557]">Pixels @ 300 DPI</td>
-                    <td className="py-3 px-4 font-mono text-purple-600">1011 px</td>
-                    <td className="py-3 px-4 font-mono text-purple-600">638 px</td>
-                    <td className="py-3 px-4 font-mono">38 px</td>
-                    <td className="py-3 px-4 font-mono">N/A</td>
+                  <tr className="hover:bg-slate-50/60 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-[#1D3557]">Pixels @ 300 DPI</td>
+                    <td className="py-3.5 px-4 font-mono text-indigo-700 font-bold">1011 px</td>
+                    <td className="py-3.5 px-4 font-mono text-indigo-700 font-bold">638 px</td>
+                    <td className="py-3.5 px-4 font-mono">38 px</td>
+                    <td className="py-3.5 px-4 font-mono">N/A</td>
                   </tr>
                 </tbody>
               </table>
             </div>
-          </section>
+          </Card>
+
+          {/* CTA */}
+          <CTASection />
         </div>
       </div>
     </>
   );
 }
-

@@ -86,12 +86,22 @@ const nextConfig: NextConfig = {
       },
       {
         source: '/services/ration-card',
-        destination: '/services/ration-card-management',
+        destination: '/services/ration-card-printing',
         permanent: true,
       },
       {
-        source: '/services/ration-card-printing',
-        destination: '/services/ration-card-management',
+        source: '/services/ration-card-management',
+        destination: '/services/ration-card-printing',
+        permanent: true,
+      },
+      {
+        source: '/services/farmer-id',
+        destination: '/services/farmer-id-printing',
+        permanent: true,
+      },
+      {
+        source: '/services/farmer-id-management',
+        destination: '/services/farmer-id-printing',
         permanent: true,
       },
     ];

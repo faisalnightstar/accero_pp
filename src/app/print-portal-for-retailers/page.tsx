@@ -136,8 +136,11 @@ export default function PrintPortalForRetailersPage() {
               </h1>
 
               {/* AEO / GEO Definition Snippet Box */}
-              <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-teal-600 text-slate-700 text-base sm:text-lg leading-relaxed shadow-sm font-medium">
-                <strong>Accero PrintPortal for Retailers</strong> is a professional document management and printing utility engineered for retail document centers, stationary shops, and multi-counter digital service providers. Featuring automated financial ledgers, instant UPI wallet top-ups, automated balance refunds on failed queries, and 100% free lifetime re-prints, retailers scale their document printing business with complete accounting peace of mind.
+              <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-sm">
+                <div className="w-1.5 self-stretch bg-teal-600 rounded-full shrink-0" />
+                <p className="text-slate-700 text-base sm:text-lg leading-relaxed font-medium">
+                  <strong className="text-slate-900">Accero PrintPortal for Retailers</strong> is a professional document management and printing utility engineered for retail document centers, stationary shops, and multi-counter digital service providers. Featuring automated financial ledgers, instant UPI wallet top-ups, automated balance refunds on failed queries, and 100% free lifetime re-prints, retailers scale their document printing business with complete accounting peace of mind.
+                </p>
               </div>
 
               <p className="text-slate-600 text-base sm:text-lg leading-relaxed">

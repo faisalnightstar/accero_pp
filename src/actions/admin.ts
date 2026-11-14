@@ -21,7 +21,12 @@ import ServiceConfig, { ServiceType } from '@/models/ServiceConfig';
 import PromoCode from '@/models/PromoCode';
 import AuditLog from '@/models/AuditLog';
 import { logAuditEvent } from '@/lib/logger/audit';
-import { SERVICE_FEES } from '@/lib/wallet/constants';
+import {
+  SERVICE_FEES,
+  DEFAULT_SERVICE_PRICING,
+  calculateDiscountPercent,
+  calculateEffectiveFee,
+} from '@/lib/wallet/constants';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 
@@ -851,40 +856,67 @@ export async function toggleCampaignStatus(campaignId: string, status: 'ACTIVE' 
 }
 
 /**
- * 2.5 Service Management: Dynamic Pricing & Maintenance
+ * 2.5 Service Management: Dynamic Pricing, % OFF Discounts & Maintenance
  */
 export async function getAdminServices() {
   const session = await getSession();
   assertRole(session, ['super_admin', 'admin'], 'view service configs');
   await connectToDatabase();
 
-  const services: ServiceType[] = ['PAN', 'AADHAAR', 'VOTER', 'DL', 'RC', 'RATION'];
+  const services: ServiceType[] = ['PAN', 'AADHAAR', 'VOTER', 'DL', 'RC', 'RATION', 'MANUAL'];
   const configs = await ServiceConfig.find({}).lean();
   const configMap = new Map(configs.map((c) => [c.serviceId, c]));
 
   // Auto-seed default configs if missing
   const results = [];
   for (const s of services) {
+    const defaultDef = DEFAULT_SERVICE_PRICING[s];
     let conf = configMap.get(s);
     if (!conf) {
+      const fallbackFee = SERVICE_FEES[s] || defaultDef?.fee || 25;
+      const originalFee = defaultDef?.originalFee || fallbackFee;
+      const discountPercent = defaultDef?.discountPercent || calculateDiscountPercent(originalFee, fallbackFee);
       conf = await ServiceConfig.create({
         serviceId: s,
-        displayName: `${s} Card Processing`,
+        displayName: defaultDef?.displayName || `${s} Card Processing`,
         enabled: true,
-        fee: SERVICE_FEES[s] || 25,
-        providerPriority: ['NEO', 'SUREPASS', 'MANUAL'],
+        fee: fallbackFee,
+        originalFee,
+        discountPercent,
+        offerActive: defaultDef?.offerActive ?? discountPercent > 0,
+        offerBadge: defaultDef?.offerBadge || (discountPercent > 0 ? `${discountPercent}% OFF` : ''),
+        offerDescription: defaultDef?.note || '',
+        providerPriority: s === 'MANUAL' ? ['MANUAL'] : ['NEO', 'SUREPASS', 'MANUAL'],
         maintenanceMode: false,
         maintenanceNotice: '',
       });
     }
+
+    const fee = typeof conf.fee === 'number' && conf.fee >= 0 ? conf.fee : (SERVICE_FEES[s] || 25);
+    const originalFee = typeof conf.originalFee === 'number' && conf.originalFee > 0
+      ? conf.originalFee
+      : (defaultDef?.originalFee || fee);
+    const discountPercent = typeof conf.discountPercent === 'number' && conf.discountPercent >= 0
+      ? conf.discountPercent
+      : calculateDiscountPercent(originalFee, fee);
+    const offerActive = typeof conf.offerActive === 'boolean'
+      ? conf.offerActive
+      : discountPercent > 0;
+    const offerBadge = conf.offerBadge || (discountPercent > 0 ? `${discountPercent}% OFF` : '');
+
     results.push({
       id: ((conf as any)._id || s).toString(),
       serviceId: conf.serviceId,
-      displayName: conf.displayName,
-      enabled: conf.enabled,
-      fee: conf.fee,
-      providerPriority: conf.providerPriority || ['NEO', 'SUREPASS', 'MANUAL'],
-      maintenanceMode: conf.maintenanceMode,
+      displayName: conf.displayName || defaultDef?.displayName || `${s} Processing`,
+      enabled: conf.enabled !== false,
+      fee,
+      originalFee,
+      discountPercent,
+      offerActive,
+      offerBadge,
+      offerDescription: conf.offerDescription || defaultDef?.note || '',
+      providerPriority: conf.providerPriority || (s === 'MANUAL' ? ['MANUAL'] : ['NEO', 'SUREPASS', 'MANUAL']),
+      maintenanceMode: Boolean(conf.maintenanceMode),
       maintenanceNotice: conf.maintenanceNotice || '',
       updatedAt: conf.updatedAt ? new Date(conf.updatedAt).toISOString() : new Date().toISOString(),
     });
@@ -898,6 +930,11 @@ export async function updateAdminServiceConfig(
   data: {
     enabled?: boolean;
     fee?: number;
+    originalFee?: number;
+    discountPercent?: number;
+    offerActive?: boolean;
+    offerBadge?: string;
+    offerDescription?: string;
     maintenanceMode?: boolean;
     maintenanceNotice?: string;
   }
@@ -906,12 +943,34 @@ export async function updateAdminServiceConfig(
   assertRole(session, ['super_admin', 'admin'], 'modify service configuration');
   await connectToDatabase();
 
+  const orig = typeof data.originalFee === 'number' ? Math.max(0, data.originalFee) : undefined;
+  let disc = typeof data.discountPercent === 'number' ? Math.min(100, Math.max(0, data.discountPercent)) : undefined;
+  let fee = typeof data.fee === 'number' ? Math.max(0, data.fee) : undefined;
+
+  // Sync fee and discount percent if one was omitted or modified
+  if (orig !== undefined && disc !== undefined && fee === undefined) {
+    fee = calculateEffectiveFee(orig, disc);
+  } else if (orig !== undefined && fee !== undefined && disc === undefined) {
+    disc = calculateDiscountPercent(orig, fee);
+  }
+
+  const updateFields: any = {
+    updatedBy: session!.userId,
+  };
+
+  if (typeof data.enabled === 'boolean') updateFields.enabled = data.enabled;
+  if (typeof data.maintenanceMode === 'boolean') updateFields.maintenanceMode = data.maintenanceMode;
+  if (typeof data.maintenanceNotice === 'string') updateFields.maintenanceNotice = data.maintenanceNotice.trim();
+  if (typeof data.offerActive === 'boolean') updateFields.offerActive = data.offerActive;
+  if (typeof data.offerBadge === 'string') updateFields.offerBadge = data.offerBadge.trim();
+  if (typeof data.offerDescription === 'string') updateFields.offerDescription = data.offerDescription.trim();
+  if (orig !== undefined) updateFields.originalFee = orig;
+  if (fee !== undefined) updateFields.fee = fee;
+  if (disc !== undefined) updateFields.discountPercent = disc;
+
   const conf = await ServiceConfig.findOneAndUpdate(
     { serviceId },
-    {
-      ...data,
-      updatedBy: session!.userId,
-    },
+    updateFields,
     { new: true, upsert: true }
   );
 
@@ -922,11 +981,69 @@ export async function updateAdminServiceConfig(
     action: 'SERVICE_CONFIG_UPDATED',
     resourceType: 'SERVICE',
     resourceId: serviceId,
-    details: data,
+    details: updateFields,
     status: 'SUCCESS',
   });
 
-  return { success: true, serviceId, fee: conf.fee, enabled: conf.enabled };
+  return {
+    success: true,
+    serviceId,
+    fee: conf.fee,
+    originalFee: conf.originalFee,
+    discountPercent: conf.discountPercent,
+    offerActive: conf.offerActive,
+    offerBadge: conf.offerBadge,
+    enabled: conf.enabled,
+  };
+}
+
+/**
+ * Applies a batch discount percentage across all services or resets them.
+ */
+export async function applyBatchServiceDiscount(
+  discountPercent: number,
+  offerBadge?: string,
+  activateOffer = true
+) {
+  const session = await getSession();
+  assertRole(session, ['super_admin', 'admin'], 'apply batch service discounts');
+  await connectToDatabase();
+
+  const services = await getAdminServices();
+  const clampedDiscount = Math.min(100, Math.max(0, discountPercent));
+  const badge = offerBadge || (clampedDiscount > 0 ? `${clampedDiscount}% OFF` : '');
+
+  const updatedServices = [];
+  for (const svc of services) {
+    const orig = svc.originalFee || svc.fee;
+    const newFee = calculateEffectiveFee(orig, clampedDiscount);
+    const updated = await updateAdminServiceConfig(svc.serviceId as ServiceType, {
+      originalFee: orig,
+      discountPercent: clampedDiscount,
+      fee: newFee,
+      offerActive: activateOffer && clampedDiscount > 0,
+      offerBadge: badge,
+    });
+    updatedServices.push(updated);
+  }
+
+  await logAuditEvent({
+    actorId: session!.userId,
+    actorEmail: session!.email,
+    actorRole: session!.role,
+    action: 'SERVICE_CONFIG_UPDATED',
+    resourceType: 'SERVICE',
+    resourceId: 'ALL',
+    details: { batch: true, discountPercent: clampedDiscount, offerBadge: badge, activateOffer },
+    status: 'SUCCESS',
+  });
+
+  return {
+    success: true,
+    discountPercent: clampedDiscount,
+    offerBadge: badge,
+    count: updatedServices.length,
+  };
 }
 
 /**

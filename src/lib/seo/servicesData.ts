@@ -24,6 +24,10 @@ export interface ServiceConfig {
   metaTitle: string;
   metaDescription: string;
   fee: number;
+  originalFee?: number;
+  discountPercent?: number;
+  offerActive?: boolean;
+  offerBadge?: string;
   lookupPlaceholder: string;
   exampleId: string;
   aeoQuickAnswer: string;
@@ -47,6 +51,10 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
     metaDescription:
       'Print official-standard PVC PAN cards online with pixel-perfect ISO 7810 ID-1 dimensions (85.60 mm × 53.98 mm). Instant number lookup, photo upload, and print-ready PDF export.',
     fee: 20,
+    originalFee: 50,
+    discountPercent: 60,
+    offerActive: true,
+    offerBadge: '60% OFF',
     lookupPlaceholder: 'Enter 10-digit PAN (e.g. ABCDE1234F)',
     exampleId: 'ABCDE1234F',
     aeoQuickAnswer:
@@ -66,7 +74,7 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
       { label: 'Physical Dimensions', value: '85.60 mm × 53.98 mm (3.370 in × 2.125 in)' },
       { label: 'Resolution Density', value: '300+ DPI crisp vector reproduction' },
       { label: 'Compatible Printers', value: 'Epson L805/L850, Canon G-series, Zebra, Evolis, Fargo PVC trays' },
-      { label: 'Service Fee', value: '₹20 per verified lookup (100% Free Re-printing)' },
+      { label: 'Service Fee', value: '₹10 per verified lookup (100% Free Re-printing)' },
     ],
     howToSteps: [
       {
@@ -108,6 +116,11 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
           'No. Once a document has been generated and saved to your account, all subsequent views, edits, and PDF/PNG re-prints are 100% free of charge (₹0).',
       },
       {
+        question: 'What is the service fee for PAN card printing?',
+        answer:
+          'Verified API lookup is ₹10 per card generation (discounted from ₹30 with 67% OFF). Manual entry is only ₹5. All subsequent re-prints are 100% free (₹0).',
+      },
+      {
         question: 'What PVC card printers are compatible with the output PDF?',
         answer:
           'Output PDFs lock to CSS @page print margins compatible with all standard ID card trays on Epson (L805, L850), Canon (G-series ID trays), Zebra, Evolis, and Magicard direct-to-card printers.',
@@ -137,6 +150,10 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
     metaDescription:
       'Format and print official-standard Aadhaar PVC cards online with Devanagari regional typography, secure QR code, and exact ISO 7810 dimensions. Instant PDF export.',
     fee: 25,
+    originalFee: 30,
+    discountPercent: 17,
+    offerActive: true,
+    offerBadge: '17% OFF',
     lookupPlaceholder: 'Enter 12-digit Aadhaar Number (e.g. 5749 0326 7673)',
     exampleId: '574903267673',
     aeoQuickAnswer:
@@ -195,7 +212,7 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
       {
         question: 'What is the fee for formatting an Aadhaar card?',
         answer:
-          'Verified API lookup and formatting is ₹25, while manually drafted cards require only ₹5.',
+          'Verified API lookup and formatting is ₹25 (discounted from ₹30 with 17% OFF), while manually drafted cards require only ₹5. All subsequent re-prints are 100% free (₹0).',
       },
       {
         question: 'Does the generated QR code work when scanned?',
@@ -226,6 +243,10 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
     metaDescription:
       'Format and print official-standard Voter ID (EPIC) cards on durable PVC layouts. Instant EPIC number lookup, assembly constituency details, and high-DPI PDF export.',
     fee: 20,
+    originalFee: 25,
+    discountPercent: 20,
+    offerActive: true,
+    offerBadge: '20% OFF',
     lookupPlaceholder: 'Enter EPIC Voter ID (e.g. ABC0123456)',
     exampleId: 'ABC0123456',
     aeoQuickAnswer:
@@ -244,7 +265,7 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
       { label: 'Card Standard', value: 'ISO 7810 CR80 Standard' },
       { label: 'Physical Dimensions', value: '85.60 mm × 53.98 mm' },
       { label: 'Data Source', value: 'National Electoral Search & Direct EPIC lookup' },
-      { label: 'Service Fee', value: '₹20 per verified lookup (100% Free Re-printing)' },
+      { label: 'Service Fee', value: '₹10 per verified lookup (100% Free Re-printing)' },
       { label: 'Output Format', value: 'Print-ready vector PDF & High-DPI PNG' },
     ],
     howToSteps: [
@@ -279,7 +300,7 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
       {
         question: 'What is the fee for Voter ID card printing?',
         answer:
-          'Voter ID lookups are ₹20 per successful verification. Manual entry is ₹5. Re-prints are completely free.',
+          'Voter ID lookups are ₹10 per successful verification (discounted from ₹25 with 20% OFF). Manual entry is ₹5. All subsequent re-prints are 100% free (₹0).',
       },
       {
         question: 'Can I edit incorrect spelling in the electoral record?',
@@ -317,6 +338,10 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
     metaDescription:
       'Print official-standard PVC Driving Licence smart cards online. Smart chip layout, vehicle class authorizations, RTO details, and instant PVC tray PDF download.',
     fee: 30,
+    originalFee: 40,
+    discountPercent: 25,
+    offerActive: true,
+    offerBadge: '25% OFF',
     lookupPlaceholder: 'Enter Driving Licence No (e.g. DL-0420110123456)',
     exampleId: 'DL0420110123456',
     aeoQuickAnswer:
@@ -370,7 +395,7 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
       {
         question: 'What is the service fee for DL card printing?',
         answer:
-          'Verified API lookup is ₹30 per generation. Subsequent views, edits, and re-prints are 100% free (₹0).',
+          'Verified API lookup is ₹30 per generation (discounted from ₹40 with 25% OFF). Manual entry is ₹5. Subsequent views, edits, and re-prints are 100% free (₹0).',
       },
       {
         question: 'Can I print a Driving Licence without an active API lookup?',
@@ -414,6 +439,10 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
     metaDescription:
       'Format and print official-standard Vehicle Registration Certificate (RC) smart cards online. Chassis, engine, maker/model specs, and instant PVC card tray PDF export.',
     fee: 35,
+    originalFee: 50,
+    discountPercent: 30,
+    offerActive: true,
+    offerBadge: '30% OFF',
     lookupPlaceholder: 'Enter Vehicle RC Reg No (e.g. UP05LD1234)',
     exampleId: 'UP05LD1234',
     aeoQuickAnswer:
@@ -467,7 +496,7 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
       {
         question: 'What is the fee for printing a Vehicle RC?',
         answer:
-          'Verified API lookup is ₹35. Manual entry creation is ₹5. All re-prints of saved cards are 100% free.',
+          'Verified API lookup is ₹35 (discounted from ₹50 with 30% OFF). Manual entry creation is ₹5. All re-prints of saved cards are 100% free (₹0).',
       },
       {
         question: 'What happens if the chassis or engine number is partial?',
@@ -514,97 +543,266 @@ export const SERVICES_CONFIG: Record<string, ServiceConfig> = {
     },
   },
 
-  'ration-card-management': {
-    slug: 'ration-card-management',
+  'ration-card-printing': {
+    slug: 'ration-card-printing',
     docType: 'ration',
-    title: 'PVC Ration Card Management & Printing Service',
+    title: 'Ration Card Printing Software | Online Ration Card PDF – Accero',
     shortTitle: 'Ration Card',
     subtitle: 'NFSA Food Security Standard Layout with Family Member Records',
-    metaTitle: 'PVC Ration Card Print Online | NFSA Smart Card Format',
+    metaTitle: 'Ration Card Printing Software | Online Ration Card PDF – Accero',
     metaDescription:
-      'Format and print official-standard Ration Cards on CR80 PVC layouts. Family member details, FPS dealer info, and instant print-ready PDF export.',
+      'Process, manage and print supported Ration Card documents using Accero PrintPortal. A document-processing workflow for CSC operators, cyber cafes and retailers.',
     fee: 25,
-    lookupPlaceholder: 'Enter 12-digit Ration Card No (e.g. RC1234567890)',
-    exampleId: 'RC1234567890',
+    originalFee: 35,
+    discountPercent: 29,
+    offerActive: true,
+    offerBadge: '29% OFF',
+    lookupPlaceholder: 'Enter 12-digit Ration Card No (e.g. 10350050028009409992)',
+    exampleId: '10350050028009409992',
     aeoQuickAnswer:
-      'To format and print an official-standard PVC Ration Card online, enter your Ration Card number or fill in the head of family, member count, FPS dealer, and address details manually. Accero PrintPortal arranges the card into standard ISO 7810 CR80 dimensions with family member tables and bilingual text ready for PVC card tray printing.',
-    heroHeadline: 'Official PVC Ration Card Formatting & Printing',
+      'To print an official-standard PVC Ration Card online, enter your authorized Ration Card number into Accero PrintPortal or input family details manually. Accero formats the demographic records into standard ISO/IEC 7810 ID-1 CR80 dimensions with head of family photo, scheme badge (PHH, AAY, BPL, APL), QR verification code, and a reverse-side family beneficiary micro-table ready for local PVC card tray printing.',
+    heroHeadline: 'Ration Card Printing Software for CSC Operators & Retailers',
     heroSubheadline:
-      'Bilingual family member records, FPS dealer code mapping, and exact ISO CR80 physical card tray alignment.',
+      'Process, manage and print supported NFSA Ration Card documents with bilingual family beneficiary records, FPS dealer codes, and pixel-perfect CR80 PVC tray alignment.',
     features: [
-      'NFSA National Food Security Standard Demographic Layout',
-      'Family Member Roster Table with Age and Relation Mapping',
-      'Fair Price Shop (FPS) Code and Licensee Tracking',
-      'Bilingual Head of Family and Residential Address Typography',
-      'High-Resolution Print-Ready Vector PDF for PVC Card Trays',
+      'Official ISO/IEC 7810 ID-1 Standard CR80 Dimensions (85.60 mm × 53.98 mm)',
+      'Dynamic Scheme Palettes for PHH, AAY, BPL, APL, and Non-Subsidized White Cards',
+      'Family Beneficiary Micro-Table with Automatic Multi-Page Continuation Pagination',
+      'Dual Bilingual Typography with Native Devanagari Regional Script Support',
+      'Live Split-Screen Studio Highlighting Missing Fields with Instant Manual Corrections',
+      'High-Resolution 300+ DPI Print-Ready Vector PDF for Dual & Single PVC Card Trays',
     ],
     specs: [
-      { label: 'Card Standard', value: 'ISO 7810 CR80 / CR100 ID Card Standard' },
-      { label: 'Physical Dimensions', value: '85.60 mm × 53.98 mm' },
-      { label: 'Category Codes', value: 'AAY (Antyodaya), PHH (Priority), BPL, APL' },
-      { label: 'Service Fee', value: '₹25 per lookup (100% Free Re-printing)' },
-      { label: 'Printer Tray Support', value: 'Standard 2-card and 4-card PVC trays' },
+      { label: 'Card Standard', value: 'ISO/IEC 7810 ID-1 (CR80 standard)' },
+      { label: 'Physical Dimensions', value: '85.60 mm × 53.98 mm (Corner Radius: 3.18 mm)' },
+      { label: 'Category Codes', value: 'PHH (Priority Household), AAY (Antyodaya), BPL, APL, WHITE' },
+      { label: 'Max Table Capacity', value: '5 members per reverse card (multi-page continuation for >5)' },
+      { label: 'Resolution Density', value: '300+ DPI crisp vector reproduction' },
+      { label: 'Compatible Printers', value: 'Epson L805/L850/L8050, Canon G-series, Fargo, Zebra card trays' },
+      { label: 'Service Fee', value: '₹25 per lookup (100% Free Lifetime Re-printing)' },
     ],
     howToSteps: [
       {
-        name: 'Enter Ration Card Number',
-        text: 'Input your 12-digit Ration Card number or initiate blank manual entry in the studio.',
+        name: 'Enter Ration Card Number or Choose Blank Mode',
+        text: 'Input the 12-to-20 digit Ration Card number into the lookup search bar or initiate blank manual entry in the studio.',
       },
       {
-        name: 'Review Family Member Records',
-        text: 'Verify the head of family, listed family members, relation, and age details.',
+        name: 'Review Head of Family & Entitlement Category',
+        text: 'Verify the Head of Family name in English and regional script, scheme category (PHH, AAY, BPL), and Fair Price Shop (FPS) dealer code.',
       },
       {
-        name: 'Check FPS & Scheme Category',
-        text: 'Ensure the Fair Price Shop code and subsidy scheme (AAY, PHH, BPL) are correctly displayed.',
+        name: 'Audit Family Beneficiaries & Aadhaar Seeding',
+        text: 'Inspect the family members roster. Easily add, edit, or remove members in real-time with automatic total member count synchronization.',
       },
       {
-        name: 'Download PDF or Direct Print',
-        text: 'Generate an instant high-DPI vector PDF ready for feeding PVC card blanks into your printer.',
+        name: 'Preview Front & Reverse Canvases Live',
+        text: 'Examine the live 300+ DPI front identity side and reverse beneficiary table. Continuation pagination automatically handles households with more than 5 members.',
+      },
+      {
+        name: 'Download Print-Ready PDF or Direct Tray Print',
+        text: 'Generate an instant vector PDF configured for standard PVC card trays with zero margin drift and exact alignment.',
       },
     ],
     faqs: [
       {
-        question: 'Does Accero PrintPortal issue official government ration cards?',
+        question: 'What is a Ration Card?',
         answer:
-          'No. Accero PrintPortal is an independent document layout formatting utility. It does not issue official food cards, enroll beneficiaries, or distribute food grains.',
+          'A Ration Card is an official household identity document issued by state food and civil supplies departments under the National Food Security Act (NFSA). It certifies family composition and determines eligibility for subsidized food grains and essential commodities at designated Fair Price Shops (FPS).',
       },
       {
-        question: 'Which card categories are supported on the ration card layout?',
+        question: 'Does Accero PrintPortal issue government Ration Cards?',
         answer:
-          'The layout dynamically accommodates Antyodaya Anna Yojana (AAY), Priority Household (PHH), Below Poverty Line (BPL), and Above Poverty Line (APL) categories.',
+          'No. Accero PrintPortal is an independent commercial document processing and printing platform. It does not issue government Ration Cards, register new households, or distribute food grains. Its software enables authorized operators to format and print eligible document records onto standard PVC card trays.',
       },
       {
-        question: 'What is the service fee for formatting a Ration Card?',
+        question: 'Which software can CSC operators use for Ration Card printing?',
         answer:
-          'Verified API lookup is ₹25 per card generation. Manual creation is ₹5. All subsequent re-prints are 100% free (₹0).',
+          'CSC VLEs and cyber cafe operators use Accero PrintPortal. Unlike legacy portals that crash or crop names, Accero provides a live split-screen editor, multi-page continuation for large families, bilingual typography, and 100% free lifetime re-prints.',
       },
       {
-        question: 'Can I print all family members on a single CR80 card?',
+        question: 'Can Ration Card details be printed in PDF format?',
         answer:
-          'Yes, the reverse side of the CR80 card features a compact, high-legibility family roster table detailing member names, ages, and relationships.',
+          'Yes. Accero PrintPortal generates high-DPI, print-ready vector PDFs formatted specifically to ISO/IEC 7810 ID-1 standard dimensions (85.60 mm × 53.98 mm) for seamless feeding into Epson, Canon, and thermal PVC card printers.',
       },
       {
-        question: 'Is regional language text supported on the ration card?',
+        question: 'What information does a printed PVC Ration Card contain?',
         answer:
-          'Yes, head of family names and address lines can be entered and rendered in regional scripts (Hindi/Devanagari) alongside standard English.',
+          'The front side displays the state department header, Head of Family photo, card number, scheme category badge (PHH/AAY/BPL), FPS dealer code, LPG status, and dynamic QR code. The reverse side features the household residential address and a micro-table detailing member names, relations, ages, genders, and Aadhaar seeding status.',
+      },
+      {
+        question: 'How does Accero handle families with more than 5 members?',
+        answer:
+          'Accero features an automated continuation pagination engine. If a household has more than 5 beneficiaries, the reverse canvas dynamically creates continuation cards (Page 2+) with dedicated continuation badges, ensuring that no family member is ever truncated or excluded.',
+      },
+      {
+        question: 'What is the service fee for Ration Card document processing?',
+        answer:
+          'API lookup is ₹25 per card generation (discounted from ₹35 with 29% OFF). Manual entry formatting is ₹5. All subsequent re-prints from your operator vault are 100% free of charge (₹0).',
+      },
+      {
+        question: 'Is regional language text supported on the Ration Card template?',
+        answer:
+          'Yes. Head of family names, father/husband names, and residential addresses can be entered and rendered in native Devanagari (Hindi) and other regional Indian scripts alongside English.',
       },
     ],
     sampleData: {
-      rationCardNumber: 'RC1234567890',
-      headOfFamily: 'RAMESHWAR PRASAD',
-      headOfFamilyRegional: 'रामेश्वर प्रसाद',
-      fatherOrSpouseName: 'LATE BHOLA RAM',
+      rationCardNumber: '10350050028009409992',
+      headOfFamily: 'Sunita Devi',
+      headOfFamilyRegional: 'सुनीता देवी',
+      fatherOrSpouseName: 'Ramesh Kumar',
+      fatherOrSpouseNameRegional: 'रमेश कुमार',
       category: 'PHH',
-      fpsName: 'GUPTA RATION STORE',
-      fpsCode: 'FPS-4091',
+      state: 'Bihar',
+      district: 'Patna',
+      fpsName: 'Shri Ram Kripa Sahkari Bhandar',
+      fpsCode: '10423001',
       memberCount: 4,
+      gasConnectionStatus: 'Yes (PMUY)',
       familyMembers: [
-        { name: 'Kanti Devi', relation: 'Wife', gender: 'Female', age: 48, uidLinked: true },
-        { name: 'Rahul Prasad', relation: 'Son', gender: 'Male', age: 24, uidLinked: true },
-        { name: 'Pooja Kumari', relation: 'Daughter', gender: 'Female', age: 21, uidLinked: true },
+        { slNo: 1, name: 'Sunita Devi', nameRegional: 'सुनीता देवी', relation: 'Self (Head)', gender: 'Female', age: 42, uidLinked: true },
+        { slNo: 2, name: 'Ramesh Kumar', nameRegional: 'रमेश कुमार', relation: 'Spouse', gender: 'Male', age: 46, uidLinked: true },
+        { slNo: 3, name: 'Aman Kumar', nameRegional: 'अमन कुमार', relation: 'Son', gender: 'Male', age: 18, uidLinked: true },
+        { slNo: 4, name: 'Priya Kumari', nameRegional: 'प्रिया कुमारी', relation: 'Daughter', gender: 'Female', age: 15, uidLinked: true },
       ],
-      address: 'Village Rampur, Post Barabanki, Uttar Pradesh - 225001',
+      address: 'House No. 42, Ward 12, Rampur, Patna, Bihar - 800001',
+      addressRegional: 'मकान नं. 42, वार्ड 12, रामपुर, पटना, बिहार - 800001',
+      status: 'ACTIVE',
+      layoutFormat: 'cr80',
+    },
+  },
+
+  'farmer-id-printing': {
+    slug: 'farmer-id-printing',
+    docType: 'farmer',
+    title: 'Farmer ID Card Printing Software | Farmer Registry – Accero',
+    shortTitle: 'Farmer ID Card',
+    subtitle: 'AgriStack & State Farmer Registry Preformatted PVC Card Layouts',
+    metaTitle: 'Farmer ID Card Printing Software | Farmer Registry – Accero',
+    metaDescription:
+      'Process and print supported Farmer ID and Farmer Registry documents using Accero PrintPortal. Explore document preview, data validation and printing workflows for CSC operators and retailers.',
+    fee: 20,
+    originalFee: 35,
+    discountPercent: 43,
+    offerActive: true,
+    offerBadge: '43% OFF',
+    lookupPlaceholder: 'Enter 11/12-digit Farmer ID (e.g. 4256 177 6703)',
+    exampleId: '4256 177 6703',
+    aeoQuickAnswer:
+      'To print a Farmer ID Card online, enter your authorized Farmer ID or Aadhaar number in the Accero PrintPortal search bar or input demographic records manually. Accero formats the document onto an ISO/IEC 7810 ID-1 standard CR80 PVC card canvas with farmer photo, QR code, bilingual names, and landholding records (Khata, Khasra, Area) ready for PVC card tray printing.',
+    heroHeadline: 'Farmer ID Card Printing Software for CSC Operators & Retailers',
+    heroSubheadline:
+      'Format and print official-standard Farmer Registry cards on CR80 PVC layouts. Front & back preview, landholding tables, dynamic QR verification, and high-DPI PDF generation.',
+    features: [
+      'Official ISO/IEC 7810 ID-1 CR80 Landscape Dimensions (85.60 mm × 53.98 mm)',
+      'Authentic AgriStack & State Registry Visual Layout with Dual Emblems',
+      'Detailed Landholding Records Table Mapping Khata, Khasra, and Area (Hectares)',
+      'Front & Reverse Canvas with 180° Rotated High-Resolution Background Architecture',
+      'Dynamic QR Code Generator with Authorized Registry Verification Endpoint',
+      'Multi-Lingual Script Support across 12 Indian Languages with Instant Translation',
+    ],
+    specs: [
+      { label: 'Card Standard', value: 'ISO/IEC 7810 ID-1 (CR80 standard)' },
+      { label: 'Physical Dimensions', value: '85.60 mm × 53.98 mm (Corner Radius: 3.18 mm)' },
+      { label: 'Supported Templates', value: 'Rajasthan Farmer Registry (RJFR) under AgriStack framework' },
+      { label: 'Land Table Capacity', value: 'Up to 6 Khata/Khasra/Area entries on back card' },
+      { label: 'Resolution Density', value: '300+ DPI crisp vector reproduction' },
+      { label: 'Compatible Printers', value: 'Epson L805/L850, Canon G-series, Zebra, Evolis, Fargo PVC trays' },
+      { label: 'Service Fee', value: '₹20 per lookup (100% Free Lifetime Re-printing)' },
+    ],
+    howToSteps: [
+      {
+        name: 'Lookup Farmer Record or Enter Manually',
+        text: 'Input the 11/12-digit Farmer ID or Aadhaar number into the search bar, or select blank manual entry.',
+      },
+      {
+        name: 'Verify Identity, Photo & Address',
+        text: 'Review farmer name in English and regional script, gender, DOB, category, and complete residential address.',
+      },
+      {
+        name: 'Verify Landholding Details',
+        text: 'Inspect the reverse-side landholding table containing Khata number, Khasra number, and land area.',
+      },
+      {
+        name: 'Preview Front & Back Canvases Live',
+        text: 'Examine the live 300+ DPI preformatted canvas with AgriStack branding, Ashoka Crest, and QR code.',
+      },
+      {
+        name: 'Download Print-Ready PDF or Print to Tray',
+        text: '1-Click generation of a high-DPI vector PDF ready for feeding PVC card blanks into your printer.',
+      },
+    ],
+    faqs: [
+      {
+        question: 'What is a Farmer ID?',
+        answer:
+          'A Farmer ID is a unique digital identifier assigned to an agricultural landholder under government digital agriculture initiatives. It aggregates land ownership records, crop surveys, and demographic data into a single verified farmer profile.',
+      },
+      {
+        question: 'What is AgriStack?',
+        answer:
+          'AgriStack is the digital public infrastructure initiative by the Ministry of Agriculture and Farmers Welfare (Government of India) aimed at building a unified digital ecosystem for agriculture, encompassing the Farmer Registry, Geo-referenced Village Maps, and Crop Registry.',
+      },
+      {
+        question: 'What is a Farmer Registry?',
+        answer:
+          'A Farmer Registry is a state-level or national verified database of agricultural landowners and cultivators linked with land revenue records. States like Rajasthan operate registries (e.g. Rajasthan Farmer Registry / rjfr.agristack.gov.in) to deliver direct scheme benefits and credit.',
+      },
+      {
+        question: 'What is the difference between Farmer ID and Farmer Registry ID?',
+        answer:
+          'A Farmer ID is the individual alphanumeric code assigned to a farmer, whereas the Farmer Registry ID refers to the specific record number within a state or national registry database that links the farmer to their verified land parcels and Aadhaar authentication.',
+      },
+      {
+        question: 'Does Accero PrintPortal issue official Farmer IDs?',
+        answer:
+          'No. Accero PrintPortal is an independent commercial document layout and card printing utility. It does not create government farmer records, assign Farmer IDs, or modify land ownership. It only helps operators format authorized records onto printable PVC cards.',
+      },
+      {
+        question: 'Does every Indian state use the same Farmer ID format?',
+        answer:
+          'No. While AgriStack defines national digital guidelines, physical card designs and registry portals vary by state. Accero PrintPortal currently supports the authenticated Rajasthan Farmer Registry layout, and will roll out additional state-specific formats as they are released.',
+      },
+      {
+        question: 'Can CSC operators and cyber cafes print Farmer ID cards using Accero?',
+        answer:
+          'Yes. CSC VLEs, cyber cafe owners, and printing shops use Accero PrintPortal to format and print physical CR80 PVC Farmer ID cards for visiting farmers using standard tray printers.',
+      },
+      {
+        question: 'What is the service fee for Farmer ID Card document processing?',
+        answer:
+          'Verified API lookup is ₹20 per card generation (discounted from ₹35 with 43% OFF). Manual entry formatting is ₹5. All subsequent re-prints from your operator vault are 100% free of charge (₹0).',
+      },
+    ],
+    sampleData: {
+      farmerId: '4256 177 6703',
+      aadhaarNumber: '411921789250',
+      farmerName: 'Mohan Singh',
+      farmerNameRegional: 'मोहन सिंह',
+      gender: 'Male / Male',
+      genderRegional: 'पुरुष',
+      dateOfBirth: '01/01/1981',
+      caste: 'General',
+      areaCategory: 'Rural',
+      approvalDate: '15/06/2025',
+      downloadDate: '16/06/2025',
+      address: {
+        guardianRelation: 'S/O',
+        guardianName: 'Keshariya',
+        street: 'jatav muhalla, house no.',
+        village: 'Dahwa',
+        district: 'Bharatpur',
+        state: 'Rajasthan',
+        pincode: '321201',
+      },
+      landRecords: [
+        { khata: '10', khasra: '218', area: '0.000833' },
+        { khata: '10', khasra: '235', area: '0.010833' },
+        { khata: '11', khasra: '32', area: '0.022917' },
+        { khata: '10', khasra: '196', area: '0.023333' },
+        { khata: '10', khasra: '220', area: '0.024583' },
+        { khata: '11', khasra: '33', area: '0.025' },
+      ],
+      qrPayload: 'https://rjfr.agristack.gov.in/verify?id=42561776703',
       status: 'ACTIVE',
       layoutFormat: 'cr80',
     },
@@ -661,9 +859,22 @@ export function getServiceConfig(slugOrType: string): ServiceConfig | null {
   if (
     clean === 'ration' ||
     clean === 'ration-card' ||
-    clean === 'ration-card-printing'
+    clean === 'ration-card-printing' ||
+    clean === 'ration-card-management'
   ) {
-    return SERVICES_CONFIG['ration-card-management'];
+    return SERVICES_CONFIG['ration-card-printing'];
+  }
+  if (
+    clean === 'farmer' ||
+    clean === 'farmer-id' ||
+    clean === 'farmer-card' ||
+    clean === 'farmer-id-printing' ||
+    clean === 'farmer-registry' ||
+    clean === 'farmer-registry-card' ||
+    clean === 'agristack' ||
+    clean === 'agristack-farmer-id'
+  ) {
+    return SERVICES_CONFIG['farmer-id-printing'];
   }
 
   return null;

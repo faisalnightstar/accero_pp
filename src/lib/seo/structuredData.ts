@@ -213,3 +213,61 @@ export function generateArticleSchema({
   };
 }
 
+/**
+ * Service Schema for Individual Document Workflows
+ */
+export function generateServiceSchema({
+  name,
+  description,
+  serviceType,
+  url,
+  fee,
+  originalFee,
+}: {
+  name: string;
+  description: string;
+  serviceType: string;
+  url: string;
+  fee: number;
+  originalFee?: number;
+}) {
+  const baseUrl = getBaseUrl();
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    '@id': `${url}#service`,
+    name,
+    serviceType,
+    description,
+    url,
+    provider: {
+      '@type': 'Organization',
+      '@id': `${baseUrl}/#organization`,
+      name: 'Accero Technologies',
+      url: baseUrl,
+    },
+    areaServed: {
+      '@type': 'Country',
+      name: 'India',
+    },
+    termsOfService: `${baseUrl}/terms`,
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Accero PrintPortal Document Services',
+      itemListElement: [
+        {
+          '@type': 'Offer',
+          itemOffered: {
+            '@type': 'Service',
+            name,
+          },
+          priceCurrency: 'INR',
+          price: fee.toFixed(2),
+          description: `Document formatting fee with 100% free lifetime re-prints (₹0).`,
+          availability: 'https://schema.org/InStock',
+        },
+      ],
+    },
+  };
+}
+

@@ -17,6 +17,8 @@ import {
   ExternalLink,
   Check,
   AlertTriangle,
+  Sprout,
+  UtensilsCrossed,
 } from 'lucide-react';
 import StudioLayout from '@/components/studio/StudioLayout';
 import CardForm from '@/components/studio/CardForm';
@@ -28,6 +30,8 @@ import VoterCardCanvas from '@/components/cards/VoterCardCanvas';
 import AadhaarCardCanvas from '@/components/cards/AadhaarCardCanvas';
 import DlCardCanvas from '@/components/cards/DlCardCanvas';
 import RcCardCanvas from '@/components/cards/RcCardCanvas';
+import FarmerCardCanvas from '@/components/cards/FarmerCardCanvas';
+import RationCardCanvas from '@/components/cards/RationCardCanvas';
 import { StudioSearchBar } from '@/components/studio/StudioSearchBar';
 import { verifyDocument } from '@/actions/verify';
 import { authorizePrintAction } from '@/actions/print';
@@ -37,6 +41,7 @@ import { DocumentType } from '@/types/cards';
 import InsufficientBalanceModal from '@/components/wallet/InsufficientBalanceModal';
 import RechargeModal from '@/components/wallet/RechargeModal';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
+import { DEFAULT_SERVICE_PRICING, SERVICE_FEES } from '@/lib/wallet/constants';
 
 function StudioPageContent() {
   const router = useRouter();
@@ -45,7 +50,7 @@ function StudioPageContent() {
   const urlDocType = searchParams.get('type') as DocumentType | null;
   const urlLookup = searchParams.get('lookup');
 
-  const validTypes: DocumentType[] = ['pan', 'aadhaar', 'voter', 'dl', 'rc'];
+  const validTypes: DocumentType[] = ['pan', 'aadhaar', 'voter', 'dl', 'rc', 'ration', 'farmer'];
   const resolvedType: DocumentType = urlDocType && validTypes.includes(urlDocType) ? urlDocType : 'pan';
 
   const {
@@ -157,13 +162,14 @@ function StudioPageContent() {
         if (!isMounted) return;
 
         if (res.errorCode === 'INSUFFICIENT_BALANCE' || res.errorMessage === 'INSUFFICIENT_BALANCE') {
+          const req = res.requiredFee || DEFAULT_SERVICE_PRICING[resolvedType.toUpperCase()]?.fee || SERVICE_FEES[resolvedType.toUpperCase()] || 20;
           setInsufficientBalanceInfo({
-            requiredFee: res.requiredFee || 20,
+            requiredFee: req,
             currentBalance: res.currentBalance || 0,
             serviceName: `${resolvedType.toUpperCase()} Verification`,
           });
           setToastAlert({
-            message: `Insufficient wallet balance. This lookup requires ₹${res.requiredFee || 20}.`,
+            message: `Insufficient wallet balance. This lookup requires ₹${req}.`,
             type: 'error',
           });
           return;
@@ -280,13 +286,14 @@ function StudioPageContent() {
           throw new Error('Please sign in to save documents to your account.');
         }
         if (res.status === 402) {
+          const req = result.requiredFee || DEFAULT_SERVICE_PRICING.MANUAL?.fee || SERVICE_FEES.MANUAL || 5;
           setInsufficientBalanceInfo({
-            requiredFee: result.requiredFee || 5,
+            requiredFee: req,
             currentBalance: result.currentBalance || 0,
             serviceName: 'Manual Document Creation',
           });
           throw new Error(
-            result.message || 'Insufficient wallet balance. Manual card creation requires ₹5.'
+            result.message || `Insufficient wallet balance. Manual card creation requires ₹${req}.`
           );
         }
         throw new Error(result.error || 'Failed to save document');
@@ -315,6 +322,7 @@ function StudioPageContent() {
     if (docType === 'dl') return (cardData.dlNumber || '').trim().toUpperCase() || 'DL';
     if (docType === 'rc') return (cardData.registrationNumber || '').trim().toUpperCase() || 'RC';
     if (docType === 'ration') return (cardData.rationCardNumber || '').trim().toUpperCase() || 'RATION';
+    if (docType === 'farmer') return (cardData.farmerId || '').trim() || 'FARMER';
     return 'CARD';
   };
 
@@ -340,8 +348,9 @@ function StudioPageContent() {
 
       if (!res.success) {
         if (res.error?.code === 'INSUFFICIENT_BALANCE') {
+          const req = res.requiredFee || DEFAULT_SERVICE_PRICING[docType.toUpperCase()]?.fee || SERVICE_FEES[docType.toUpperCase()] || 20;
           setInsufficientBalanceInfo({
-            requiredFee: res.requiredFee || 20,
+            requiredFee: req,
             currentBalance: res.currentBalance || 0,
             serviceName: `${docType.toUpperCase()} Card Printing`,
           });
@@ -437,6 +446,12 @@ function StudioPageContent() {
         variant={cardData.templateVariant}
       />
     );
+  } else if (docType === 'ration') {
+    cardFront = <RationCardCanvas data={cardData} side="front" />;
+    cardBack = <RationCardCanvas data={cardData} side="back" />;
+  } else if (docType === 'farmer') {
+    cardFront = <FarmerCardCanvas data={cardData} side="front" />;
+    cardBack = <FarmerCardCanvas data={cardData} side="back" />;
   }
 
   // Studio Header Component
@@ -540,6 +555,8 @@ function StudioPageContent() {
             { id: 'voter', label: 'Voter ID', icon: CheckCircle2 },
             { id: 'dl', label: 'Driving License', icon: CreditCard },
             { id: 'rc', label: 'Vehicle RC', icon: Car },
+            { id: 'ration', label: 'Ration Card', icon: UtensilsCrossed },
+            { id: 'farmer', label: 'Farmer ID', icon: Sprout },
           ] as const
         ).map((item) => {
           const Icon = item.icon;

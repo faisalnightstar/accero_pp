@@ -14,6 +14,7 @@ import {
   generateFaqSchema as baseFaqSchema,
   generateHowToSchema as baseHowToSchema,
   generateArticleSchema,
+  generateServiceSchema,
 } from './structuredData';
 import { ServiceFaq, ServiceHowToStep } from './servicesData';
 
@@ -21,6 +22,7 @@ export {
   generateOrganizationSchema,
   generateWebSiteSchema,
   generateArticleSchema,
+  generateServiceSchema,
 };
 
 /**

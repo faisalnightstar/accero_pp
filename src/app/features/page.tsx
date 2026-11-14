@@ -6,7 +6,7 @@ import {
   Edit3,
   Globe,
   Printer,
-  Shield,
+  ShieldCheck,
   Wallet,
   ArrowRight,
   CheckCircle2,
@@ -19,6 +19,11 @@ import {
   generateBreadcrumbSchema,
   generateFaqSchema,
 } from '@/lib/seo/structuredData';
+import { Card } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { FAQSection } from '@/components/public/FAQSection';
+import { CTASection } from '@/components/public/CTASection';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Platform Features & Tools | Accero PrintPortal',
@@ -43,7 +48,7 @@ const featuresList = [
     description:
       'Enter 10-digit PAN, 12-digit Aadhaar/Ration, EPIC, or DL/RC numbers to retrieve verified demographic records directly to the editor canvas in under 2 seconds.',
     icon: Search,
-    color: 'text-[#E63946] bg-red-50 border-red-200',
+    color: 'text-[#8B1E2D]',
   },
   {
     slug: 'document-editing',
@@ -52,7 +57,7 @@ const featuresList = [
     description:
       'Side-by-side workspace flags missing father names, addresses, or photos with amber guides. Every keystroke synchronizes live with the CR80 card canvas.',
     icon: Edit3,
-    color: 'text-amber-600 bg-amber-50 border-amber-200',
+    color: 'text-amber-600',
   },
   {
     slug: 'multilingual-printing',
@@ -61,7 +66,7 @@ const featuresList = [
     description:
       'Renders crisp regional conjuncts in Devanagari (Hindi, Marathi) and other Indian scripts using Google Fonts Hind alongside standard Latin script.',
     icon: Globe,
-    color: 'text-blue-600 bg-blue-50 border-blue-200',
+    color: 'text-blue-600',
   },
   {
     slug: 'document-printing',
@@ -70,7 +75,7 @@ const featuresList = [
     description:
       'Engineered to meet ISO/IEC 7810 ID-1 standard dimensions (85.60 mm × 53.98 mm). Eliminates margin drift and clipping across all desktop and thermal card printers.',
     icon: Printer,
-    color: 'text-purple-600 bg-purple-50 border-purple-200',
+    color: 'text-purple-600',
   },
   {
     slug: 'document-management',
@@ -78,8 +83,8 @@ const featuresList = [
     subtitle: 'Operator Record Archival with 100% Free Re-prints',
     description:
       'Encrypted digital storage of previously formatted documents. Operators can re-print, modify, or download PDF cards anytime without recurring deduction fees.',
-    icon: Shield,
-    color: 'text-emerald-600 bg-emerald-50 border-emerald-200',
+    icon: ShieldCheck,
+    color: 'text-emerald-600',
   },
   {
     slug: 'wallet-management',
@@ -88,7 +93,7 @@ const featuresList = [
     description:
       'Zero monthly subscriptions. Top up your balance via UPI, monitor itemized transactions, and enjoy automated refunds on failed external lookups.',
     icon: Wallet,
-    color: 'text-indigo-600 bg-indigo-50 border-indigo-200',
+    color: 'text-indigo-600',
   },
 ];
 
@@ -133,8 +138,8 @@ export default function FeaturesOverviewPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <div className="bg-slate-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-12">
+      <div className="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8 space-y-12">
+        <div className="max-w-7xl mx-auto space-y-10">
           {/* Breadcrumbs */}
           <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
             <Link href="/" className="hover:text-[#1D3557] transition-colors">
@@ -145,15 +150,15 @@ export default function FeaturesOverviewPage() {
           </nav>
 
           {/* Hero Header */}
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-[#8B1E2D] border border-red-200">
-              <Sparkles className="w-3.5 h-3.5 text-[#E63946]" />
+          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/90 shadow-sm space-y-4 text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-[#1D3557] border border-slate-200">
+              <Sparkles className="w-3.5 h-3.5 text-[#8B1E2D]" />
               <span>Full Platform Feature Suite</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black text-[#1D3557] tracking-tight">
-              Powerful Document Processing & Printing Features
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D3557] tracking-tight">
+              Powerful Document Processing &amp; Printing Features
             </h1>
-            <p className="text-base text-slate-600 leading-relaxed">
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl">
               Engineered specifically for cyber cafes, CSC operators, and print shops to eliminate failed prints, missing fields, and printer tray alignment issues.
             </p>
           </div>
@@ -163,19 +168,18 @@ export default function FeaturesOverviewPage() {
             {featuresList.map((feat) => {
               const IconComp = feat.icon;
               return (
-                <div
+                <Card
                   key={feat.slug}
-                  className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                  hoverEffect
+                  className="p-8 border border-slate-200/90 flex flex-col justify-between"
                 >
                   <div className="space-y-4">
-                    <div
-                      className={`w-12 h-12 rounded-xl border flex items-center justify-center ${feat.color}`}
-                    >
-                      <IconComp className="w-6 h-6" />
+                    <div className="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
+                      <IconComp className={`w-6 h-6 ${feat.color}`} />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold text-[#1D3557]">{feat.title}</h2>
-                      <span className="text-xs font-semibold text-slate-500 block mb-2">
+                      <h2 className="text-base font-bold text-[#1D3557]">{feat.title}</h2>
+                      <span className="text-[11px] font-semibold text-slate-400 block mb-2 mt-0.5">
                         {feat.subtitle}
                       </span>
                       <p className="text-xs text-slate-600 leading-relaxed">
@@ -184,60 +188,34 @@ export default function FeaturesOverviewPage() {
                     </div>
                   </div>
 
-                  <div className="pt-4 mt-6 border-t border-slate-100">
+                  <div className="pt-6 mt-6 border-t border-slate-100">
                     <Link
                       href={`/features/${feat.slug}`}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#8B1E2D] hover:text-[#E63946] transition-colors"
+                      className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1D3557] hover:text-[#8B1E2D] transition-colors"
                     >
                       <span>Explore {feat.title}</span>
                       <ArrowRight className="w-3.5 h-3.5" />
                     </Link>
                   </div>
-                </div>
+                </Card>
               );
             })}
           </div>
 
-          {/* AEO FAQ Section */}
-          <section className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-sm space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl font-bold text-[#1D3557] flex items-center gap-2">
-                <HelpCircle className="w-6 h-6 text-[#8B1E2D]" />
-                <span>Frequently Asked Questions About Platform Features</span>
-              </h2>
-              <p className="text-xs text-slate-500">
-                Direct answers to common questions about our technical capabilities and printer support.
-              </p>
-            </div>
+          {/* FAQ Section */}
+          <FAQSection
+            faqs={faqs}
+            title="Frequently Asked Questions About Platform Features"
+            subtitle="Direct answers to common questions about our technical capabilities and printer support."
+          />
 
-            <div className="space-y-4">
-              {faqs.map((faq, i) => (
-                <div key={i} className="border-b border-slate-100 pb-4 last:border-0 last:pb-0">
-                  <h3 className="text-sm font-bold text-[#1D3557] mb-1">{faq.question}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">{faq.answer}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* CTA Banner */}
-          <div className="rounded-3xl bg-gradient-to-r from-[#1D3557] to-[#14233c] text-white p-8 sm:p-12 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
-            <div className="space-y-2">
-              <h3 className="text-2xl font-bold">Ready to Simplify Document Printing?</h3>
-              <p className="text-sm text-slate-300 max-w-xl">
-                Create an operator account today and start formatting ISO-compliant PVC cards with live split-screen precision.
-              </p>
-            </div>
-            <Link
-              href="/register"
-              className="px-6 py-3.5 rounded-xl text-sm font-bold bg-gradient-to-r from-[#8B1E2D] to-[#E63946] text-white hover:shadow-btn-hover transition-all shrink-0"
-            >
-              Get Started Now
-            </Link>
-          </div>
+          {/* CTA */}
+          <CTASection
+            title="Ready to Simplify Document Printing at Your Counter?"
+            description="Create an operator account today and start formatting ISO-compliant PVC cards with live split-screen precision."
+          />
         </div>
       </div>
     </>
   );
 }
-

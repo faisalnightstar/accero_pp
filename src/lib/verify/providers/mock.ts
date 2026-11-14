@@ -1,4 +1,4 @@
-import { DocumentType, PanCardData, VoterCardData, DlCardData, RcCardData, AadhaarCardData } from '@/types/cards';
+import { DocumentType, PanCardData, VoterCardData, DlCardData, RcCardData, AadhaarCardData, FarmerCardData, formatFarmerId } from '@/types/cards';
 import { ProviderAdapter, VerificationResult } from '../types';
 
 export class MockProvider implements ProviderAdapter {
@@ -108,6 +108,80 @@ export class MockProvider implements ProviderAdapter {
           address: '104, SHIVAM COMPLEX, DRIVE IN ROAD, NAVRANGPURA, AHMEDABAD, GUJARAT - 380009',
           addressRegional: '१०४, शिवम कॉम्प्लेक्स, ड्राइव इन रोड, नवरंगपुरा, अहमदाबाद, गुजरात - ३८०००९',
         } satisfies Partial<AadhaarCardData>;
+        break;
+
+      case 'farmer':
+        data = {
+          farmerId: upperId.length === 11 || upperId.length === 12 ? formatFarmerId(upperId) : upperId,
+          farmerName: 'MOHAN SINGH',
+          farmerNameRegional: 'मोहन सिंह',
+          gender: 'Male',
+          genderRegional: 'पुरुष',
+          dateOfBirth: '01/01/1981',
+          caste: '',
+          areaCategory: 'Rural',
+          aadhaarNumber: '411921789250',
+          approvalDate: '15/06/2025',
+          downloadDate: '15/06/2025',
+          registryTitle: 'राजस्थान फार्मर रजिस्ट्री',
+          departmentHeaderRegional: 'भारत सरकार',
+          departmentTitleRegional: 'भारत सरकार',
+          departmentTitleEnglish: 'Government of India',
+          ministryHeaderRegional: 'कृषि एवं किसान कल्याण मंत्रालय',
+          ministryTitleEnglish: 'Ministry of Agri & Farmers Welfare',
+          address: {
+            fatherOrSpouseName: 'S/O: Keshariya',
+            locality: 'jatav muhalla',
+            village: 'Dahwa',
+            district: 'Bharatpur',
+            state: 'Rajasthan',
+            pinCode: '321201',
+            fullAddress: 'S/O: Keshariya, jatav muhalla, house no., Dahwa, Bharatpur, Rajasthan - 321201',
+          },
+          landRecords: [
+            { khata: '10', khasra: '218', area: '0.000833' },
+            { khata: '10', khasra: '235', area: '0.010833' },
+            { khata: '11', khasra: '32', area: '0.022917' },
+            { khata: '10', khasra: '196', area: '0.023333' },
+            { khata: '10', khasra: '220', area: '0.024583' },
+            { khata: '11', khasra: '33', area: '0.025' },
+          ],
+        } satisfies Partial<FarmerCardData>;
+        break;
+
+      case 'farmer':
+        data = {
+          farmerId: upperId.length === 11 || upperId.length === 12 ? formatFarmerId(upperId) : upperId,
+          farmerName: 'MOHAN SINGH',
+          farmerNameRegional: 'मोहन सिंह',
+          gender: 'पुरुष / Male',
+          dateOfBirth: '01/01/1981',
+          caste: '',
+          areaCategory: 'Rural',
+          aadhaarNumber: '411921789250',
+          approvalDate: '15/06/2025',
+          downloadDate: '15/06/2025',
+          registryTitle: 'Rajasthan Farmer Registry',
+          departmentTitleHindi: 'भारत सरकार',
+          departmentTitleEnglish: 'Government of India',
+          address: {
+            fatherOrSpouseName: 'S/O: Keshariya',
+            locality: 'jatav muhalla',
+            village: 'Dahwa',
+            district: 'Bharatpur',
+            state: 'Rajasthan',
+            pinCode: '321201',
+            fullAddress: 'S/O: Keshariya, jatav muhalla, house no., Dahwa, Bharatpur, Rajasthan - 321201',
+          },
+          landRecords: [
+            { khata: '10', khasra: '218', area: '0.000833' },
+            { khata: '10', khasra: '235', area: '0.010833' },
+            { khata: '11', khasra: '32', area: '0.022917' },
+            { khata: '10', khasra: '196', area: '0.023333' },
+            { khata: '10', khasra: '220', area: '0.024583' },
+            { khata: '11', khasra: '33', area: '0.025' },
+          ],
+        } satisfies Partial<FarmerCardData>;
         break;
     }
 

@@ -136,8 +136,11 @@ export default function DocumentProcessingPlatformPage() {
               </h1>
 
               {/* AEO / GEO Definition Snippet Box */}
-              <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-blue-600 text-slate-700 text-base sm:text-lg leading-relaxed shadow-sm font-medium">
-                <strong>Accero Document Processing Platform</strong> is a cloud SaaS platform designed to manage the end-to-end lifecycle of citizen document formatting and card printing. Built on Next.js 15 App Router, React 19, and Vercel Edge, it combines multi-provider verification lookups, amber missing-field detection, Devanagari typography, and ISO/IEC 7810 ID-1 standard physical card output.
+              <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-sm">
+                <div className="w-1.5 self-stretch bg-blue-600 rounded-full shrink-0" />
+                <p className="text-slate-700 text-base sm:text-lg leading-relaxed font-medium">
+                  <strong className="text-slate-900">Accero Document Processing Platform</strong> is a cloud SaaS platform designed to manage the end-to-end lifecycle of citizen document formatting and card printing. Built on Next.js 15 App Router, React 19, and Vercel Edge, it combines multi-provider verification lookups, amber missing-field detection, Devanagari typography, and ISO/IEC 7810 ID-1 standard physical card output.
+                </p>
               </div>
 
               <p className="text-slate-600 text-base sm:text-lg leading-relaxed">

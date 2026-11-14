@@ -203,8 +203,11 @@ export default function KambojPanPortalAlternativePage() {
                 Looking for an Alternative to <span className="text-blue-600">Kamboj PAN Portal</span>?
               </h1>
 
-              <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-blue-600 text-slate-700 text-base leading-relaxed shadow-sm font-medium">
-                <strong>Accero PrintPortal</strong> is the all-in-one document processing and card tray printing software for Indian retail operators. While Kamboj PAN Portal requires upfront registration fees (₹49–₹149) and focuses narrowly on PAN cards, Accero provides a 100% free multi-document studio supporting PAN, Aadhaar PVC, Voter ID, Driving Licence, Vehicle RC, and Ration Cards.
+              <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-sm">
+                <div className="w-1.5 self-stretch bg-blue-600 rounded-full shrink-0" />
+                <p className="text-slate-700 text-base leading-relaxed font-medium">
+                  <strong className="text-slate-900">Accero PrintPortal</strong> is the all-in-one document processing and card tray printing software for Indian retail operators. While Kamboj PAN Portal requires upfront registration fees (₹49–₹149) and focuses narrowly on PAN cards, Accero provides a 100% free multi-document studio supporting PAN, Aadhaar PVC, Voter ID, Driving Licence, Vehicle RC, and Ration Cards.
+                </p>
               </div>
 
               <p className="text-slate-600 text-base leading-relaxed">

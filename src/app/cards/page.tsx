@@ -13,6 +13,8 @@ import {
   Image as ImageIcon,
   Loader2,
   Car,
+  Sprout,
+  UtensilsCrossed,
 } from 'lucide-react';
 import Cr80CardContainer from '@/components/cards/Cr80CardContainer';
 import PrintControls from '@/components/cards/PrintControls';
@@ -21,6 +23,8 @@ import VoterCardCanvas from '@/components/cards/VoterCardCanvas';
 import AadhaarCardCanvas from '@/components/cards/AadhaarCardCanvas';
 import DlCardCanvas from '@/components/cards/DlCardCanvas';
 import RcCardCanvas from '@/components/cards/RcCardCanvas';
+import FarmerCardCanvas from '@/components/cards/FarmerCardCanvas';
+import RationCardCanvas from '@/components/cards/RationCardCanvas';
 import { exportCardAsPdf, exportCardAsPng } from '@/lib/cardExport';
 import { authorizePrintAction } from '@/actions/print';
 import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
@@ -30,7 +34,13 @@ import {
   AadhaarCardData,
   DlCardData,
   RcCardData,
+  FarmerCardData,
+  RationCardData,
 } from '@/types/cards';
+import {
+  FarmerLanguageCode,
+  FARMER_LANGUAGE_OPTIONS,
+} from '@/lib/farmerLanguages';
 
 // Realistic sample PAN data
 const samplePanData: PanCardData = {
@@ -161,12 +171,94 @@ const sampleRcData: RcCardData = {
   templateVariant: 'authentic',
 };
 
+// Realistic sample Farmer ID data (matching official Rajasthan Farmer Registry sample)
+const sampleFarmerData: FarmerCardData = {
+  farmerId: '4256 177 6703',
+  farmerName: 'Mohan Singh',
+  farmerNameRegional: 'मोहन सिंह',
+  gender: 'Male',
+  genderRegional: 'पुरुष',
+  dateOfBirth: '01/01/1981',
+  caste: '',
+  areaCategory: 'Rural',
+  aadhaarNumber: '411921789250',
+  maskAadhaar: false,
+  photoUrl: '',
+  approvalDate: '15/06/2025',
+  downloadDate: '15/06/2025',
+  departmentHeaderRegional: 'भारत सरकार',
+  departmentTitleEnglish: 'Government of India',
+  ministryHeaderRegional: 'कृषि एवं किसान कल्याण मंत्रालय',
+  ministryTitleEnglish: 'Ministry of Agri & Farmers Welfare',
+  registryTitle: 'Rajasthan Farmer Registry',
+  helplineNumber: '1800-180-1551',
+  websiteUrl: 'www.rjfr.agristack.gov.in',
+  qrPayload: 'https://rjfr.agristack.gov.in/verify?id=42561776703',
+  address: {
+    fatherOrSpouseName: 'S/O: Keshariya',
+    locality: 'jatav muhalla',
+    houseNumber: '',
+    village: 'Dahwa',
+    district: 'Bharatpur',
+    state: 'Rajasthan',
+    pinCode: '321201',
+    fullAddress: 'S/O: Keshariya, jatav muhalla, house no., Dahwa, Bharatpur, Rajasthan - 321201',
+  },
+  landRecords: [
+    { khata: '10', khasra: '218', area: '0.000833' },
+    { khata: '10', khasra: '235', area: '0.010833' },
+    { khata: '11', khasra: '32', area: '0.022917' },
+    { khata: '10', khasra: '196', area: '0.023333' },
+    { khata: '10', khasra: '220', area: '0.024583' },
+    { khata: '11', khasra: '33', area: '0.025' },
+  ],
+  layoutFormat: 'cr80',
+  templateVariant: 'rajasthan',
+};
+
+// Realistic sample Ration Card data (NFSA / Department of Food & Civil Supplies)
+const sampleRationData: RationCardData = {
+  rationCardNumber: '10350050028009409992',
+  headOfFamily: 'Sunita Devi',
+  headOfFamilyRegional: 'सुनीता देवी',
+  fatherOrSpouseName: 'Ramesh Kumar',
+  fatherOrSpouseNameRegional: 'रमेश कुमार',
+  category: 'PHH',
+  schemeName: 'PHH - Priority Household (पात्र गृहस्थी)',
+  fpsName: 'Shri Ram Kripa Sahkari Bhandar',
+  fpsCode: '10423001',
+  memberCount: 4,
+  familyMembers: [
+    { slNo: 1, memberId: 'M001', name: 'Sunita Devi', nameRegional: 'सुनीता देवी', relation: 'Self (Head)', relationRegional: 'स्वयं (मुखिया)', gender: 'Female', age: 42, uidLinked: true, uidMasked: 'XXXX-XXXX-4589' },
+    { slNo: 2, memberId: 'M002', name: 'Ramesh Kumar', nameRegional: 'रमेश कुमार', relation: 'Spouse (Husband)', relationRegional: 'पति', gender: 'Male', age: 46, uidLinked: true, uidMasked: 'XXXX-XXXX-7812' },
+    { slNo: 3, memberId: 'M003', name: 'Aman Kumar', nameRegional: 'अमन कुमार', relation: 'Son', relationRegional: 'पुत्र', gender: 'Male', age: 18, uidLinked: true, uidMasked: 'XXXX-XXXX-3341' },
+    { slNo: 4, memberId: 'M004', name: 'Priya Kumari', nameRegional: 'प्रिया कुमारी', relation: 'Daughter', relationRegional: 'पुत्री', gender: 'Female', age: 15, uidLinked: true, uidMasked: 'XXXX-XXXX-9023' },
+  ],
+  gasConnectionStatus: 'Yes (PMUY)',
+  address: 'House No. 42, Ward 12, Rampur, Patna, Bihar - 800001',
+  addressRegional: 'मकान नं. 42, वार्ड 12, रामपुर, पटना, बिहार - 800001',
+  district: 'Patna',
+  state: 'Bihar',
+  issueDate: '12/04/2021',
+  validUpto: 'Life Time',
+  status: 'ACTIVE',
+  photoUrl: '',
+  qrPayload: 'https://nfsa.gov.in/portal/ration_card_verification?rcid=10350050028009409992',
+  departmentHeaderRegional: 'खाद्य एवं नागरिक आपूर्ति विभाग',
+  departmentHeaderEnglish: 'Food, Civil Supplies & Consumer Affairs Department',
+  helplineNumber: '1967 / 1800-180-2087',
+  websiteUrl: 'nfsa.gov.in',
+  onorcEligible: true,
+  layoutFormat: 'cr80',
+};
+
 export default function CardsShowcasePage() {
-  const [activeTab, setActiveTab] = useState<'pan' | 'voter' | 'aadhaar' | 'dl' | 'rc' | 'container'>('pan');
+  const [activeTab, setActiveTab] = useState<'pan' | 'voter' | 'aadhaar' | 'dl' | 'rc' | 'ration' | 'farmer' | 'container'>('pan');
   const [zoom, setZoom] = useState<number>(1.5);
   const [showGuides, setShowGuides] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<'both' | 'flip'>('both');
   const [isExporting, setIsExporting] = useState<boolean>(false);
+  const [farmerLanguage, setFarmerLanguage] = useState<FarmerLanguageCode>('HI');
 
   // References to card DOM nodes for html2canvas export
   const frontCardRef = useRef<HTMLDivElement | null>(null);
@@ -197,6 +289,18 @@ export default function CardsShowcasePage() {
     cardFront = <RcCardCanvas data={sampleRcData} side="front" variant={sampleRcData.templateVariant} />;
     cardBack = <RcCardCanvas data={sampleRcData} side="back" variant={sampleRcData.templateVariant} />;
     currentDocTitle = `rc_${sampleRcData.registrationNumber}`;
+  } else if (activeTab === 'ration') {
+    cardFront = <RationCardCanvas data={sampleRationData} side="front" />;
+    cardBack = <RationCardCanvas data={sampleRationData} side="back" />;
+    currentDocTitle = `ration_${sampleRationData.rationCardNumber}`;
+  } else if (activeTab === 'farmer') {
+    const farmerDataWithLang: FarmerCardData = {
+      ...sampleFarmerData,
+      language: farmerLanguage,
+    };
+    cardFront = <FarmerCardCanvas data={farmerDataWithLang} side="front" />;
+    cardBack = <FarmerCardCanvas data={farmerDataWithLang} side="back" />;
+    currentDocTitle = `farmer_${sampleFarmerData.farmerId?.replace(/\s+/g, '')}_${farmerLanguage}`;
   } else {
     // Base Demo Container
     cardFront = (
@@ -356,7 +460,7 @@ export default function CardsShowcasePage() {
               <h1 className="text-base font-bold text-navy flex items-center gap-2">
                 CR80 Vector Card Canvas & Print Studio
                 <span className="bg-emerald-500/10 text-emerald-700 border border-emerald-500/30 text-[10px] font-semibold px-2 py-0.5 rounded-full">
-                  All 5 Canvases Active
+                  All 7 Canvases Active
                 </span>
               </h1>
               <p className="text-xs text-gray-500">
@@ -439,6 +543,30 @@ export default function CardsShowcasePage() {
 
           <button
             type="button"
+            onClick={() => setActiveTab('ration')}
+            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${activeTab === 'ration'
+              ? 'border-burgundy text-burgundy'
+              : 'border-transparent text-gray-500 hover:text-navy'
+              }`}
+          >
+            <UtensilsCrossed className="w-3.5 h-3.5" />
+            <span>Ration Card</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('farmer')}
+            className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${activeTab === 'farmer'
+              ? 'border-burgundy text-burgundy'
+              : 'border-transparent text-gray-500 hover:text-navy'
+              }`}
+          >
+            <Sprout className="w-3.5 h-3.5" />
+            <span>Farmer ID</span>
+          </button>
+
+          <button
+            type="button"
             onClick={() => setActiveTab('container')}
             className={`py-2.5 px-3.5 text-xs font-bold border-b-2 flex items-center gap-1.5 transition-colors shrink-0 ${activeTab === 'container'
               ? 'border-burgundy text-burgundy'
@@ -506,6 +634,23 @@ export default function CardsShowcasePage() {
         />
 
         {/* Card Canvas Container */}
+        {activeTab === 'farmer' && (
+          <div className="no-print flex items-center gap-2 bg-white px-4 py-1.5 rounded-full border border-gray-200 shadow-2xs">
+            <span className="text-xs font-semibold text-gray-500">Language:</span>
+            <select
+              value={farmerLanguage}
+              onChange={(e) => setFarmerLanguage(e.target.value as FarmerLanguageCode)}
+              className="text-xs font-bold text-burgundy bg-transparent border-0 cursor-pointer focus:ring-0"
+            >
+              {FARMER_LANGUAGE_OPTIONS.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name} ({lang.nativeName})
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
         <section className="w-full flex justify-center py-4 print:py-0 print:block print:w-full">
           <Cr80CardContainer
             front={cardFront}

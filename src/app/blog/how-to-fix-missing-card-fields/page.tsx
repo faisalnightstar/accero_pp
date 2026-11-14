@@ -142,8 +142,11 @@ export default function HowToFixMissingCardFieldsPage() {
             </h1>
 
             {/* AEO / Quick Answer Box */}
-            <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-amber-500 text-slate-700 text-base leading-relaxed font-medium">
-              <strong>Quick Answer:</strong> When an online print portal or external verification API returns partial document records with missing father names, unformatted address lines, or low-resolution photo thumbnails, do not send the job directly to the card tray. Use Accero PrintPortal’s split-screen studio to identify amber-flagged missing fields, supply the verified data directly into the live form, and preview the 1:1 vector canvas before committing the print to physical PVC card stock.
+            <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-amber-50/70 border border-amber-200/90 shadow-xs">
+              <div className="w-1.5 self-stretch bg-amber-500 rounded-full shrink-0" />
+              <p className="text-slate-700 text-base leading-relaxed font-medium">
+                <strong className="text-slate-900">Quick Answer:</strong> When an online print portal or external verification API returns partial document records with missing father names, unformatted address lines, or low-resolution photo thumbnails, do not send the job directly to the card tray. Use Accero PrintPortal’s split-screen studio to identify amber-flagged missing fields, supply the verified data directly into the live form, and preview the 1:1 vector canvas before committing the print to physical PVC card stock.
+              </p>
             </div>
           </header>
 

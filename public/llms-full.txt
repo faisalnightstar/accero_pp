@@ -66,12 +66,19 @@ Accero PrintPortal provides:
 - **Standard:** Vahan transport registry format
 - **Features:** Registration number query, chassis number, engine number, fuel type, owner serial, emission norm, and fitness validity mapping.
 - **Dimensions:** ISO 7810 CR80 standard.
-- **Fee:** ₹35 per verified lookup, ₹5 manual, ₹0 re-prints.
+- **Fee:** ₹10 per verified lookup, ₹5 manual, ₹0 re-prints.
 
-### 6. Ration Card Management
-- **URL:** https://printportal.accero.app/services/ration-card-management
+### 6. Ration Card Printing
+- **URL:** https://printportal.accero.app/services/ration-card-printing
 - **Standard:** NFSA national food security standard layout
 - **Features:** 12-digit Ration card query, family member roster table, FPS dealer code, category indicator (AAY, PHH, BPL), bilingual residential address.
+- **Dimensions:** ISO 7810 CR80 standard.
+- **Fee:** ₹25 per verified lookup, ₹5 manual, ₹0 re-prints.
+
+### 7. Farmer Registry Card Printing
+- **URL:** https://printportal.accero.app/services/farmer-id-printing
+- **Standard:** PM-Kisan & State Department of Agriculture farmer record layout
+- **Features:** Farmer Registration Number (FRN) lookup, landholding size, survey/khasra number, Aadhaar-linked status, QR code verification.
 - **Dimensions:** ISO 7810 CR80 standard.
 - **Fee:** ₹25 per verified lookup, ₹5 manual, ₹0 re-prints.
 

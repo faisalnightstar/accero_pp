@@ -8,17 +8,36 @@ import {
   SERVICE_FEES,
   LOW_BALANCE_THRESHOLD,
   normalizeDocType,
+  DEFAULT_SERVICE_PRICING,
+  ServicePricingDefinition,
+  calculateDiscountPercent,
+  calculateEffectiveFee,
 } from './constants';
 import {
   generateDocumentCacheKey,
   normalizeDocumentIdentifier,
 } from '@/lib/documents/documentCache';
 
-export { SERVICE_FEES, LOW_BALANCE_THRESHOLD, normalizeDocType };
+export {
+  SERVICE_FEES,
+  LOW_BALANCE_THRESHOLD,
+  normalizeDocType,
+  DEFAULT_SERVICE_PRICING,
+  calculateDiscountPercent,
+  calculateEffectiveFee,
+};
+export type { ServicePricingDefinition };
 
 export interface ResolvedServicePricing {
   serviceId: string;
+  displayName: string;
   fee: number;
+  originalFee: number;
+  discountPercent: number;
+  offerActive: boolean;
+  offerBadge: string;
+  offerDescription?: string;
+  note?: string;
   enabled: boolean;
   maintenanceMode: boolean;
   maintenanceNotice: string;
@@ -43,13 +62,29 @@ async function resolveQueryResult<T = any>(queryOrPromise: any): Promise<T | nul
 /**
  * Resolves the active server-configured pricing and operational settings for a service.
  * Reads from ServiceConfig in MongoDB when connected (or mocked), safely falling back
- * to official SERVICE_FEES defaults.
+ * to official SERVICE_FEES defaults and DEFAULT_SERVICE_PRICING metadata.
  */
 export async function getConfiguredServicePricing(
   docType: string
 ): Promise<ResolvedServicePricing> {
   const cleanDocType = normalizeDocType(docType);
-  const fallbackFee = SERVICE_FEES[cleanDocType] ?? 20;
+  const defaultDef = DEFAULT_SERVICE_PRICING[cleanDocType] || {
+    serviceId: cleanDocType,
+    displayName: `${cleanDocType} Processing`,
+    category: 'identity' as const,
+    originalFee: SERVICE_FEES[cleanDocType] ?? 20,
+    fee: SERVICE_FEES[cleanDocType] ?? 20,
+    discountPercent: 0,
+    offerActive: false,
+    offerBadge: '',
+    note: '',
+  };
+
+  const fallbackFee = SERVICE_FEES[cleanDocType] ?? defaultDef.fee ?? 20;
+  const fallbackOriginalFee =
+    typeof defaultDef.originalFee === 'number' && defaultDef.originalFee > 0
+      ? defaultDef.originalFee
+      : Math.max(fallbackFee, 25);
 
   try {
     if (canQueryModel(ServiceConfig?.findOne)) {
@@ -59,9 +94,30 @@ export async function getConfiguredServicePricing(
       );
 
       if (conf) {
+        const fee = typeof conf.fee === 'number' && conf.fee >= 0 ? conf.fee : fallbackFee;
+        const originalFee =
+          typeof conf.originalFee === 'number' && conf.originalFee > 0
+            ? conf.originalFee
+            : Math.max(fee, fallbackOriginalFee);
+        const discountPercent =
+          typeof conf.discountPercent === 'number' && conf.discountPercent >= 0
+            ? conf.discountPercent
+            : calculateDiscountPercent(originalFee, fee);
+        const offerActive =
+          typeof conf.offerActive === 'boolean' ? conf.offerActive : discountPercent > 0;
+        const offerBadge =
+          conf.offerBadge || (discountPercent > 0 ? `${discountPercent}% OFF` : '');
+
         return {
           serviceId: cleanDocType,
-          fee: typeof conf.fee === 'number' && conf.fee >= 0 ? conf.fee : fallbackFee,
+          displayName: conf.displayName || defaultDef.displayName,
+          fee,
+          originalFee,
+          discountPercent,
+          offerActive,
+          offerBadge,
+          offerDescription: conf.offerDescription || '',
+          note: defaultDef.note,
           enabled: conf.enabled !== false,
           maintenanceMode: Boolean(conf.maintenanceMode),
           maintenanceNotice: conf.maintenanceNotice || '',
@@ -76,14 +132,33 @@ export async function getConfiguredServicePricing(
     console.warn('[Pricing] Failed to query ServiceConfig, falling back to default fee:', err);
   }
 
+  const discountPercent =
+    defaultDef.discountPercent ?? calculateDiscountPercent(fallbackOriginalFee, fallbackFee);
+
   return {
     serviceId: cleanDocType,
+    displayName: defaultDef.displayName,
     fee: fallbackFee,
+    originalFee: fallbackOriginalFee,
+    discountPercent,
+    offerActive: defaultDef.offerActive ?? discountPercent > 0,
+    offerBadge: defaultDef.offerBadge || (discountPercent > 0 ? `${discountPercent}% OFF` : ''),
+    offerDescription: '',
+    note: defaultDef.note,
     enabled: true,
     maintenanceMode: false,
     maintenanceNotice: '',
     timeoutMs: 8000,
   };
+}
+
+/**
+ * Retrieves the complete catalog of service pricing, % OFF discounts, and active offers.
+ * One single source of truth for public rate cards, studio, and admin overviews.
+ */
+export async function getPublicServicePricingCatalog(): Promise<ResolvedServicePricing[]> {
+  const serviceIds = ['PAN', 'AADHAAR', 'VOTER', 'DL', 'RC', 'RATION', 'MANUAL'];
+  return await Promise.all(serviceIds.map((sid) => getConfiguredServicePricing(sid)));
 }
 
 /**
@@ -241,7 +316,14 @@ export async function getRequiredServiceFee(
   docType: string,
   cardIdentifier?: string,
   isManual = false
-): Promise<{ fee: number; isFreeReprint: boolean; docType: string }> {
+): Promise<{
+  fee: number;
+  originalFee: number;
+  discountPercent: number;
+  offerActive: boolean;
+  isFreeReprint: boolean;
+  docType: string;
+}> {
   const cleanDocType = normalizeDocType(docType);
 
   // If card identifier is provided, check if it's already paid/entitled
@@ -254,6 +336,9 @@ export async function getRequiredServiceFee(
     if (isPaid) {
       return {
         fee: 0,
+        originalFee: 0,
+        discountPercent: 100,
+        offerActive: false,
         isFreeReprint: true,
         docType: cleanDocType,
       };
@@ -262,8 +347,12 @@ export async function getRequiredServiceFee(
 
   // If manual entry mode
   if (isManual) {
+    const manualPricing = await getConfiguredServicePricing('MANUAL');
     return {
-      fee: SERVICE_FEES.MANUAL,
+      fee: manualPricing.fee,
+      originalFee: manualPricing.originalFee,
+      discountPercent: manualPricing.discountPercent,
+      offerActive: manualPricing.offerActive,
       isFreeReprint: false,
       docType: 'MANUAL',
     };
@@ -273,6 +362,9 @@ export async function getRequiredServiceFee(
 
   return {
     fee: pricing.fee,
+    originalFee: pricing.originalFee,
+    discountPercent: pricing.discountPercent,
+    offerActive: pricing.offerActive,
     isFreeReprint: false,
     docType: cleanDocType,
   };

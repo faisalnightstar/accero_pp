@@ -16,6 +16,7 @@ import {
   FileCheck,
   ExternalLink,
   UtensilsCrossed,
+  AlertTriangle,
 } from 'lucide-react';
 import { getAllServices } from '@/lib/seo/servicesData';
 import { getBaseUrl, getCanonicalUrl } from '@/lib/seo/canonical';
@@ -23,6 +24,11 @@ import {
   generateSoftwareApplicationSchema,
   generateBreadcrumbSchema,
 } from '@/lib/seo/structuredData';
+import { ServiceGrid } from '@/components/public/ServiceGrid';
+import { ServiceCardData } from '@/components/public/ServiceCard';
+import { CTASection } from '@/components/public/CTASection';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
 
 export const metadata: Metadata = {
   title: 'PVC Card Printing Services Directory | Accero PrintPortal',
@@ -58,28 +64,23 @@ export default function ServicesDirectoryPage() {
     { name: 'Services Directory', url: '/services' },
   ]);
 
-  const getServiceIcon = (type: string) => {
-    switch (type) {
-      case 'pan':
-        return <CreditCard className="w-6 h-6 text-[#E63946]" />;
-      case 'aadhaar':
-        return <ShieldCheck className="w-6 h-6 text-amber-500" />;
-      case 'voter':
-        return <CheckCircle2 className="w-6 h-6 text-blue-500" />;
-      case 'dl':
-        return <CreditCard className="w-6 h-6 text-indigo-500" />;
-      case 'rc':
-        return <Car className="w-6 h-6 text-purple-500" />;
-      case 'ration':
-        return <UtensilsCrossed className="w-6 h-6 text-teal-500" />;
-      default:
-        return <Printer className="w-6 h-6 text-slate-400" />;
-    }
-  };
+  const serviceGridItems: ServiceCardData[] = services.map((s) => ({
+    id: s.docType,
+    serviceKey: s.docType.toUpperCase(),
+    slug: s.slug,
+    title: s.title,
+    tag: s.shortTitle,
+    description: s.subtitle,
+    docType: s.docType,
+    fee: s.fee,
+    originalFee: s.originalFee,
+    discountPercent: s.discountPercent,
+    offerBadge: s.offerBadge,
+    features: s.features,
+  }));
 
   return (
     <>
-      {/* Schema Injection */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
@@ -89,113 +90,113 @@ export default function ServicesDirectoryPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <div className="min-h-screen bg-slate-950 text-slate-100 py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-12">
+      <div className="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8 space-y-12">
+        <div className="max-w-7xl mx-auto space-y-10">
           {/* Breadcrumb Navigation */}
-          <nav className="flex items-center gap-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
-            <Link href="/" className="hover:text-white transition-colors">
+          <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <Link href="/" className="hover:text-[#1D3557] transition-colors">
               Home
             </Link>
             <span>/</span>
-            <span className="text-[#F4D35E]">Services Directory</span>
+            <span className="text-[#8B1E2D]">Services Directory</span>
           </nav>
 
-          {/* Hero Header */}
-          <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#8B1E2D]/20 text-[#F4D35E] border border-[#8B1E2D]/40 shadow-sm">
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>Official CR80 Physical Dimensions</span>
+          {/* Directory Hero Banner */}
+          <div className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/90 shadow-sm space-y-4 text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-[#1D3557] text-xs font-bold border border-slate-200">
+              <Sparkles className="w-3.5 h-3.5 text-[#8B1E2D]" />
+              <span>Standard CR80 Document Workflows</span>
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-              PVC Card Printing Services
+
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D3557] tracking-tight">
+              PVC Card Printing Services Directory
             </h1>
-            <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
-              Format official-standard preformatted PVC cards with zero missing-data failures.
-              Instant number lookup, interactive missing field completion, and 1-click print-ready PDF export.
+
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-3xl">
+              Standard preformatted layouts conforming strictly to ISO/IEC 7810 ID-1 dimensions (85.60 mm &times; 53.98 mm). Choose any card format below to inspect specifications, test live lookups, or launch split-screen formatting.
             </p>
-          </div>
 
-          {/* Services Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((svc) => (
-              <div
-                key={svc.slug}
-                className="group relative rounded-2xl bg-slate-900 border border-slate-800 p-6 shadow-xl hover:border-slate-700 transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 group-hover:scale-105 transition-transform">
-                      {getServiceIcon(svc.docType)}
-                    </div>
-                    <span className="px-3 py-1 rounded-full text-xs font-black bg-[#8B1E2D]/20 text-[#F4D35E] border border-[#8B1E2D]/40">
-                      ₹{svc.fee} / lookup
-                    </span>
-                  </div>
-
-                  <h2 className="text-lg font-bold text-white group-hover:text-[#F4D35E] transition-colors">
-                    {svc.title}
-                  </h2>
-                  <p className="text-xs text-slate-400 mt-1 mb-4 line-clamp-2">
-                    {svc.subtitle}
-                  </p>
-
-                  <ul className="space-y-2 mb-6 text-xs text-slate-300">
-                    {svc.features.slice(0, 3).map((feat, i) => (
-                      <li key={i} className="flex items-start gap-2">
-                        <Check className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
-                        <span className="line-clamp-1">{feat}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="pt-4 border-t border-slate-800/80 flex items-center gap-3">
-                  <Link
-                    href={`/services/${svc.slug}`}
-                    className="flex-1 inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition-colors"
-                  >
-                    <span>Overview & Specs</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </Link>
-                  <Link
-                    href={`/studio?type=${svc.docType}`}
-                    className="inline-flex items-center justify-center gap-1 py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-[#8B1E2D] to-[#E63946] text-white text-xs font-bold hover:opacity-95 transition-opacity shadow"
-                  >
-                    <span>Studio</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
+            <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-700">
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>Zero Margin Tray Alignment</span>
               </div>
-            ))}
-          </div>
-
-          {/* Compliance & Standards Section */}
-          <div className="p-6 sm:p-8 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0">
-                <Shield className="w-6 h-6" />
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>Epson &amp; Canon Tray J Ready</span>
               </div>
-              <div className="space-y-1">
-                <h3 className="text-base font-bold text-white">
-                  Compliance & Physical Standard Guarantees
-                </h3>
-                <p className="text-xs text-slate-400 leading-relaxed max-w-2xl">
-                  Outputs conform strictly to the international ISO/IEC 7810 ID-1 standard (85.60 mm × 53.98 mm).
-                  Compatible with all standard PVC card printer trays on Epson, Canon, Zebra, Evolis, and Magicard printers.
-                  Accero PrintPortal is an independent digital formatting utility with zero statutory authority impersonation.
-                </p>
+              <div className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600" />
+                <span>100% Free Lifetime Re-Prints</span>
               </div>
             </div>
-
-            <Link
-              href="/studio"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#8B1E2D] to-[#E63946] text-white text-xs font-bold hover:shadow-btn-hover transition-all shrink-0"
-            >
-              <Layers className="w-4 h-4 text-[#F4D35E]" />
-              <span>Open Split-Screen Studio</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
           </div>
+
+          {/* Interactive Searchable & Categorized Service Grid */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-[#1D3557]">All Document Services</h2>
+              <span className="text-xs text-slate-500 font-medium">
+                {services.length} Formats Available
+              </span>
+            </div>
+            <ServiceGrid services={serviceGridItems} showFilter={true} />
+          </div>
+
+          {/* Technical Specifications Matrix */}
+          <section className="bg-white rounded-3xl p-8 border border-slate-200/90 shadow-sm space-y-6">
+            <div className="space-y-2">
+              <h3 className="text-xl font-bold text-[#1D3557]">Physical Card Tray Specifications</h3>
+              <p className="text-xs text-slate-600">
+                All services generate output strictly aligned to international card standard specifications.
+              </p>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-400 font-semibold uppercase tracking-wider">
+                    <th className="py-3 px-4">Card Workflow</th>
+                    <th className="py-3 px-4">Standard Dimensions</th>
+                    <th className="py-3 px-4">Corner Radius</th>
+                    <th className="py-3 px-4">Resolution</th>
+                    <th className="py-3 px-4">Tray Support</th>
+                    <th className="py-3 px-4">Re-Print Fee</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {services.map((service) => (
+                    <tr key={service.slug} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-3.5 px-4 font-bold text-[#1D3557]">
+                        <Link href={`/services/${service.slug}`} className="hover:text-[#8B1E2D]">
+                          {service.shortTitle}
+                        </Link>
+                      </td>
+                      <td className="py-3.5 px-4">85.60 mm &times; 53.98 mm</td>
+                      <td className="py-3.5 px-4">3.18 mm (CR80)</td>
+                      <td className="py-3.5 px-4 font-medium text-emerald-700">300+ DPI Vector</td>
+                      <td className="py-3.5 px-4">Epson Tray J / Canon G</td>
+                      <td className="py-3.5 px-4 font-bold text-emerald-700">₹0 (Free Lifetime)</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          {/* Compliance Notice */}
+          <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-950 leading-relaxed flex items-start gap-3 shadow-xs">
+            <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+            <div>
+              <strong>Compliance Notice:</strong> Accero PrintPortal is an independent commercial software platform. It is not an official government portal, and is not affiliated with, endorsed by, or partnered with UIDAI, NSDL, UTIITSL, the Election Commission of India, MoRTH, or State Food Departments. Output templates conform to the international physical card standard ISO/IEC 7810 ID-1.
+            </div>
+          </div>
+
+          {/* CTA */}
+          <CTASection
+            title="Start Formatting PVC Cards at Your Center"
+            description="Recharge your wallet starting at ₹100 via UPI and print your first official-standard card in minutes."
+          />
         </div>
       </div>
     </>

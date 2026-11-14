@@ -205,8 +205,11 @@ export default function DigitalPortalAlternativePage() {
                 Looking for an Alternative to <span className="text-blue-600">Digital Portal</span>?
               </h1>
 
-              <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-blue-600 text-slate-700 text-base leading-relaxed shadow-sm font-medium">
-                <strong>Accero PrintPortal</strong> provides Indian cyber cafe operators, CSC VLEs, and printing shops with an enterprise-grade document printing gateway. Engineered on Next.js 15 and deployed on Vercel’s global Edge network, it solves the recurring server timeouts, wasted PVC plastic, and double-billing common in legacy portals like Digital Portal.
+              <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-sm">
+                <div className="w-1.5 self-stretch bg-blue-600 rounded-full shrink-0" />
+                <p className="text-slate-700 text-base leading-relaxed font-medium">
+                  <strong className="text-slate-900">Accero PrintPortal</strong> provides Indian cyber cafe operators, CSC VLEs, and printing shops with an enterprise-grade document printing gateway. Engineered on Next.js 15 and deployed on Vercel’s global Edge network, it solves the recurring server timeouts, wasted PVC plastic, and double-billing common in legacy portals like Digital Portal.
+                </p>
               </div>
 
               <p className="text-slate-600 text-base leading-relaxed">

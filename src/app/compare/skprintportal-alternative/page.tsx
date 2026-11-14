@@ -230,13 +230,16 @@ export default function SkPrintPortalAlternativePage() {
                 Explore <strong>Accero PrintPortal</strong>, an independent document-processing platform for CSC operators, cyber cafes and retailers.
               </p>
 
-              <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-blue-600 text-slate-600 text-sm sm:text-base leading-relaxed space-y-2">
-                <p>
-                  Operators searching for an alternative document-processing platform can evaluate Accero based on service availability, supported document workflows, physical card tray printing precision, wallet transparency, and operator support.
-                </p>
-                <p className="text-xs text-slate-500 italic">
-                  Notice: Accero PrintPortal is an independent commercial software tool developed by Accero Technologies. It is not affiliated with, endorsed by, or associated with SK Print Portal.
-                </p>
+              <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-sm">
+                <div className="w-1.5 self-stretch bg-blue-600 rounded-full shrink-0" />
+                <div className="text-slate-600 text-sm sm:text-base leading-relaxed space-y-2">
+                  <p>
+                    Operators searching for an alternative document-processing platform can evaluate Accero based on service availability, supported document workflows, physical card tray printing precision, wallet transparency, and operator support.
+                  </p>
+                  <p className="text-xs text-slate-500 italic">
+                    Notice: Accero PrintPortal is an independent commercial software tool developed by Accero Technologies. It is not affiliated with, endorsed by, or associated with SK Print Portal.
+                  </p>
+                </div>
               </div>
 
               <div className="flex flex-wrap items-center gap-4 pt-4">
@@ -403,7 +406,15 @@ export default function SkPrintPortalAlternativePage() {
                   lookup: 'State food portal data cascade',
                   validation: 'NFSA entitlement verification',
                   output: 'Tabular family roster formatted for card printing or lamination',
-                  href: '/services/ration-card-management',
+                  href: '/services/ration-card-printing',
+                },
+                {
+                  name: 'Farmer ID (AgriStack)',
+                  input: 'Farmer ID or Aadhaar number',
+                  lookup: 'State farmer registry & land records',
+                  validation: 'Khata/Khasra parcel verification',
+                  output: 'Dual-sided CR80 PVC card with landholding table',
+                  href: '/services/farmer-id-printing',
                 },
               ].map((svc, idx) => (
                 <div key={idx} className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-3 flex flex-col justify-between">

@@ -24,7 +24,8 @@ const placeholders: Record<DocumentType, string> = {
   dl: 'Enter Driving License No (e.g. DL-0420110123456)',
   rc: 'Enter Vehicle RC Reg No (e.g. UP05LD1234)',
   aadhaar: 'Enter 12-digit Aadhaar Number',
-  ration: 'Enter Ration Card Number (e.g. RC1234567890)',
+  ration: 'Enter 12 or 20-digit Ration Card Number (e.g. 10350050028009409992)',
+  farmer: 'Enter 11/12-digit Farmer ID or Aadhaar No (e.g. 4256 177 6703)',
 };
 
 const serviceNames: Record<DocumentType, string> = {
@@ -34,6 +35,7 @@ const serviceNames: Record<DocumentType, string> = {
   rc: 'Vehicle RC Verification',
   aadhaar: 'Aadhaar Verification',
   ration: 'Ration Card Verification',
+  farmer: 'Farmer ID (AgriStack) Verification',
 };
 
 export function StudioSearchBar({
@@ -47,6 +49,19 @@ export function StudioSearchBar({
   const [configuredFee, setConfiguredFee] = useState<number>(
     SERVICE_FEES[docType.toUpperCase()] || 20
   );
+  const [pricingInfo, setPricingInfo] = useState<{
+    fee: number;
+    originalFee?: number;
+    discountPercent?: number;
+    offerActive?: boolean;
+    offerBadge?: string;
+  }>({
+    fee: SERVICE_FEES[docType.toUpperCase()] || 20,
+    originalFee: SERVICE_FEES[docType.toUpperCase()] || 20,
+    discountPercent: 0,
+    offerActive: false,
+    offerBadge: '',
+  });
   const [statusMessage, setStatusMessage] = useState<{
     text: string;
     type: 'error' | 'warning' | 'success';
@@ -67,12 +82,26 @@ export function StudioSearchBar({
   useEffect(() => {
     const fallbackFee = SERVICE_FEES[docType.toUpperCase()] || 20;
     setConfiguredFee(fallbackFee);
+    setPricingInfo({
+      fee: fallbackFee,
+      originalFee: fallbackFee,
+      discountPercent: 0,
+      offerActive: false,
+      offerBadge: '',
+    });
 
     let active = true;
     getServicePricingAction(docType)
       .then((pricing) => {
         if (active && typeof pricing?.fee === 'number') {
           setConfiguredFee(pricing.fee);
+          setPricingInfo({
+            fee: pricing.fee,
+            originalFee: pricing.originalFee,
+            discountPercent: pricing.discountPercent,
+            offerActive: pricing.offerActive,
+            offerBadge: pricing.offerBadge,
+          });
         }
       })
       .catch(() => {
@@ -246,11 +275,23 @@ export function StudioSearchBar({
               <Sparkles className="w-3.5 h-3.5 text-amber-400" />
               <span>Instant API Lookup</span>
             </div>
-            {/* Service Fee Pill */}
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-[#F4D35E] border border-slate-700">
-              <Tag className="w-3 h-3" />
-              Fee: ₹{feeAmount}
-            </span>
+            {/* Service Fee Pill with % OFF Badge */}
+            <div className="inline-flex items-center gap-1.5 flex-wrap">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold px-2 py-0.5 rounded-full bg-slate-800 text-[#F4D35E] border border-slate-700">
+                <Tag className="w-3 h-3" />
+                Fee: ₹{feeAmount}
+                {pricingInfo.originalFee && pricingInfo.originalFee > feeAmount && (
+                  <span className="line-through text-slate-400 font-normal ml-0.5">
+                    ₹{pricingInfo.originalFee}
+                  </span>
+                )}
+              </span>
+              {pricingInfo.offerActive && (pricingInfo.discountPercent ?? 0) > 0 && (
+                <span className="inline-flex items-center text-[10px] font-extrabold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                  {pricingInfo.offerBadge || `${pricingInfo.discountPercent}% OFF`}
+                </span>
+              )}
+            </div>
           </div>
 
           {providerInfo?.name && (

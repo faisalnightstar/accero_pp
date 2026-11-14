@@ -26,7 +26,7 @@ export const WEBMCP_TOOLS: WebMcpTool[] = [
       properties: {
         documentType: {
           type: 'string',
-          enum: ['pan', 'aadhaar', 'voter', 'dl', 'rc', 'ration'],
+          enum: ['pan', 'aadhaar', 'voter', 'dl', 'rc', 'ration', 'farmer'],
           description: 'Official document type category to verify and format.',
         },
         documentNumber: {

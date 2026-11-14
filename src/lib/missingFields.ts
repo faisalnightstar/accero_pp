@@ -80,6 +80,24 @@ export const rationRules: DocumentFieldRule[] = [
   { key: 'headOfFamily', label: 'Head of Family Name', required: true, section: 'identity' },
   { key: 'category', label: 'Ration Category', required: true, section: 'identity' },
   { key: 'address', label: 'Full Address', required: true, section: 'address' },
+  { key: 'headOfFamilyRegional', label: 'Head of Family (Regional)', required: false, section: 'identity' },
+  { key: 'fatherOrSpouseName', label: "Father/Spouse Name", required: false, section: 'demographics' },
+  { key: 'fpsName', label: 'Fair Price Shop Name', required: false, section: 'technical' },
+  { key: 'fpsCode', label: 'Fair Price Shop Code', required: false, section: 'technical' },
+  { key: 'familyMembers', label: 'Family Members', required: false, section: 'demographics' },
+];
+
+const farmerRules: DocumentFieldRule[] = [
+  { key: 'farmerId', label: 'Farmer ID', required: true, section: 'identity' },
+  { key: 'farmerName', label: 'Farmer Name (English)', required: true, section: 'identity' },
+  { key: 'dateOfBirth', label: 'Date of Birth', required: true, section: 'identity' },
+  { key: 'gender', label: 'Gender', required: true, section: 'identity' },
+  { key: 'address', label: 'Address', required: true, section: 'address' },
+  { key: 'farmerNameRegional', label: 'Name (Regional)', required: false, section: 'identity' },
+  { key: 'caste', label: 'Caste', required: false, section: 'identity' },
+  { key: 'areaCategory', label: 'Area Category', required: false, section: 'identity' },
+  { key: 'aadhaarNumber', label: 'Aadhaar Number', required: false, section: 'identity' },
+  { key: 'landRecords', label: 'Land Records', required: false, section: 'technical' },
 ];
 
 export const documentRulesMap: Record<DocumentType, DocumentFieldRule[]> = {
@@ -89,6 +107,7 @@ export const documentRulesMap: Record<DocumentType, DocumentFieldRule[]> = {
   dl: dlRules,
   rc: rcRules,
   ration: rationRules,
+  farmer: farmerRules,
 };
 
 /**

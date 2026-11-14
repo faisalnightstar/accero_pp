@@ -22,6 +22,11 @@ import {
   generateBreadcrumbSchema,
   generateFaqSchema,
 } from '@/lib/seo/structuredData';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
+import { FAQSection } from '@/components/public/FAQSection';
+import { CTASection } from '@/components/public/CTASection';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Print Portal – Online Document Processing & Card Printing | Accero',
@@ -47,7 +52,7 @@ export const metadata: Metadata = buildPageMetadata({
 const comparisonData = [
   {
     feature: 'Missing Data Handling',
-    legacy: 'Blindly prints cards with blank names or broken photos, wasting ₹25 plastic stock.',
+    legacy: 'Blindly prints cards with blank names or broken photos, wasting expensive plastic stock.',
     accero: 'Split-screen live editor flags missing fields in amber so you complete them before printing.',
   },
   {
@@ -63,17 +68,17 @@ const comparisonData = [
   {
     feature: 'Server Uptime & Speed',
     legacy: 'Frequent 502 Bad Gateway timeouts, database lockouts, and shared hosting crashes during morning rush hours.',
-    accero: '99.9% platform availability on Vercel Edge with sub-100ms UI response (external department lookups subject to official portal speeds).',
+    accero: '99.9% platform availability on Vercel Edge with sub-100ms UI response times.',
   },
   {
     feature: 'Failed Lookup Policy',
     legacy: 'Balance is deducted; requires manual complaints on WhatsApp groups for refunds.',
-    accero: 'Automated atomic ledger rollback: zero fee deducted (₹0) if an API query fails.',
+    accero: 'Automatic atomic refund to your wallet balance within milliseconds on failed lookups.',
   },
   {
-    feature: 'Legal & Regulatory Posture',
-    legacy: 'Deceptive government emblem mimicry and false partnership claims risk sudden shutdown.',
-    accero: '100% transparent independent commercial software with full DPDP privacy protection.',
+    feature: 'Monthly Commitments',
+    legacy: 'Forces monthly subscription plans or expiry of unused wallet balances.',
+    accero: 'Zero monthly fees; prepaid wallet balance never expires.',
   },
 ];
 
@@ -81,27 +86,22 @@ const faqs = [
   {
     question: 'What is a Print Portal?',
     answer:
-      'A print portal is a specialized web software platform used by cyber cafes, Common Service Centres (CSC), and printing shops in India to format, preview, and print identity cards and government documents (such as PAN, Aadhaar PVC, Voter ID, Driving Licence, and Vehicle RC) onto physical PVC card trays or photo paper.',
+      'A print portal is a web-based document processing platform that enables Common Service Center (CSC) operators, cyber cafe owners, and printing shops to retrieve, verify, format, and print official-standard cards (such as PAN, Aadhaar, Voter ID, Driving Licence, and Vehicle RC) onto physical PVC plastic card stock.',
   },
   {
-    question: 'How is Accero PrintPortal different from other print portals in India?',
+    question: 'How does Accero PrintPortal prevent ruined PVC card stock?',
     answer:
-      'Unlike legacy PHP script portals that crash during peak hours or ruin cards when API data is incomplete, Accero PrintPortal provides a real-time split-screen editor that flags missing demographic fields in amber before printing. Additionally, Accero provides 100% free lifetime re-prints (₹0) for all saved documents and guarantees exact millimeter alignment (85.60 mm × 53.98 mm) for Epson Tray J and Canon ID trays.',
+      'Accero features a reactive split-screen studio that automatically inspects demographic records returned by external registries. If a critical field (such as father name, candidate photo, or address) is missing, the interface flags it with an amber alert and provides an instant inline input so you can complete the data before sending it to the printer tray.',
   },
   {
-    question: 'Why are operators searching for alternatives to Digital Portal, Fast Print Portal, or Kamboj Pan Portal?',
+    question: 'Are card re-prints charged from my prepaid wallet?',
     answer:
-      'Many Indian cyber cafe and CSC operators search for alternatives to older platforms like Digital Portal, Fast Print Portal, and Kamboj Pan Portal due to common operational headaches: sudden 502 Bad Gateway server timeouts during peak morning hours, rigid upfront distributor fees (often ₹49 to ₹149), and double charges for re-printing lost cards. Furthermore, older portals often print cards blindly even when government API lookups return blank or missing fields, resulting in wasted ₹25 PVC plastic stock. Accero PrintPortal resolves these issues with a real-time missing data editor, 99.9% edge platform availability, atomic wallet rollbacks on failed lookups, and 100% free lifetime re-prints.',
-  },
-  {
-    question: 'How much does it cost to use Accero PrintPortal?',
-    answer:
-      'Registration is 100% free with zero monthly subscriptions. You recharge your prepaid wallet starting at ₹100 via instant UPI QR code. Manual drafts are ₹5, automated card lookups range from ₹20 to ₹35, and all subsequent re-prints of saved cards are ₹0 Free Forever.',
+      'No! Once a document has been verified or drafted and saved to your operator vault, subsequent views, edits, and PDF/PNG re-prints are 100% free of charge (₹0).',
   },
   {
     question: 'Which printers are compatible with Accero PrintPortal?',
     answer:
-      'Accero PrintPortal supports all standard PVC card tray printers, including the Epson L805, L850, L8050 (using Tray J), Canon PIXMA G-series with ID card trays, as well as direct-to-card thermal PVC printers from Zebra and Evolis.',
+      'Accero PrintPortal supports all standard PVC card tray printers, including the Epson L805, L850, L8050, L1800 (using Tray J), Canon PIXMA G-series with ID card trays, as well as thermal card printers.',
   },
   {
     question: 'Is Accero PrintPortal an official government website?',
@@ -133,61 +133,67 @@ export default function PrintPortalPillarPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <div className="bg-slate-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-16">
+      <div className="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8 space-y-12">
+        <div className="max-w-7xl mx-auto space-y-12">
           {/* Breadcrumb Navigation */}
           <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            <Link href="/" className="hover:text-blue-600 transition-colors">
+            <Link href="/" className="hover:text-[#1D3557] transition-colors">
               Home
             </Link>
             <span>/</span>
-            <span className="text-slate-900 font-bold">Print Portal</span>
+            <span className="text-[#8B1E2D]">Print Portal</span>
           </nav>
 
           {/* Hero Section */}
-          <section className="bg-white rounded-3xl p-8 sm:p-12 lg:p-16 border border-slate-200 shadow-sm relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-bl from-blue-100 to-indigo-50 rounded-full blur-3xl -z-10 opacity-70"></div>
+          <section className="bg-white rounded-3xl p-8 sm:p-12 lg:p-16 border border-slate-200/90 shadow-sm relative overflow-hidden text-left">
             <div className="max-w-4xl space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-bold tracking-wide uppercase">
-                <Sparkles className="w-3.5 h-3.5" />
-                Next-Generation Document Printing Gateway
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-[#1D3557] text-xs font-bold border border-slate-200">
+                <Sparkles className="w-3.5 h-3.5 text-[#8B1E2D]" />
+                <span>Next-Generation Document Printing Gateway</span>
               </div>
 
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                Online <span className="text-blue-600">Print Portal</span> for CSC Operators, Cyber Cafes &amp; Retailers
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D3557] tracking-tight leading-tight">
+                Online <span className="text-[#8B1E2D]">Print Portal</span> for CSC Operators, Cyber Cafes &amp; Retailers
               </h1>
 
               {/* AEO / GEO Definition Snippet Box */}
-              <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-blue-600 text-slate-700 text-base sm:text-lg leading-relaxed shadow-sm font-medium">
-                <strong>Accero PrintPortal</strong> is an independent, high-performance document processing and printing platform engineered for cyber cafes, CSC operators, and print shops in India. It features a real-time split-screen editor that flags missing demographic data in amber, prevents ruined PVC cards, conforms to ISO/IEC 7810 ID-1 standard dimensions (85.60 mm × 53.98 mm), and provides 100% free lifetime re-prints.
+              <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-xs">
+                <div className="w-1.5 self-stretch bg-[#1D3557] rounded-full shrink-0" />
+                <p className="text-slate-700 text-sm sm:text-base leading-relaxed font-medium">
+                  <strong className="text-[#1D3557]">Accero PrintPortal</strong> is an independent, high-performance document processing and printing platform engineered for cyber cafes, CSC operators, and print shops in India. It features a real-time split-screen editor that flags missing demographic data in amber, prevents ruined PVC cards, conforms to ISO/IEC 7810 ID-1 standard dimensions (85.60 mm &times; 53.98 mm), and provides 100% free lifetime re-prints.
+                </p>
               </div>
 
-              <p className="text-slate-600 text-base sm:text-lg leading-relaxed">
+              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
                 Stop losing money on 502 Bad Gateway timeouts, misaligned printer tray margins, and ruined plastic card stock. Accero gives your retail business an enterprise-grade document engine with zero monthly subscriptions.
               </p>
 
-              <div className="flex flex-wrap items-center gap-4 pt-4">
-                <Link
+              <div className="flex flex-wrap items-center gap-3 pt-2">
+                <Button
                   href="/studio"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md hover:shadow-lg transition-all"
+                  variant="primary"
+                  size="md"
+                  icon={<Eye className="w-4 h-4" />}
                 >
-                  <Eye className="w-4 h-4" />
-                  Try Live Split-Screen Studio
-                </Link>
-                <Link
+                  Try Split-Screen Studio
+                </Button>
+                <Button
                   href="/pricing"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-slate-800 font-bold text-sm border border-slate-300 shadow-sm transition-all"
+                  variant="outline"
+                  size="md"
+                  icon={<CreditCard className="w-4 h-4" />}
                 >
-                  <CreditCard className="w-4 h-4" />
-                  View Transparent Pricing
-                </Link>
-                <Link
+                  View Pricing
+                </Button>
+                <Button
                   href="/register"
-                  className="inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md transition-all"
+                  variant="accent"
+                  size="md"
+                  icon={<ArrowRight className="w-4 h-4" />}
+                  iconPosition="right"
                 >
-                  <span>Register Free Operator Account</span>
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+                  Register Free
+                </Button>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-100 text-xs text-slate-600 font-semibold">
@@ -201,47 +207,169 @@ export default function PrintPortalPillarPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Auto Rollback on Failed API</span>
+                  <span>Amber Missing Field Guides</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-                  <span>Instant UPI QR Recharges</span>
+                  <span>Atomic Auto-Refund on Fail</span>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* The Competitor Contrast Table */}
+          {/* Supported Document Pipelines & Card Services Grid */}
           <section className="space-y-6">
-            <div className="text-center max-w-3xl mx-auto space-y-3">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-                Why Operators Are Switching from Legacy Print Portals
+            <div className="text-center max-w-2xl mx-auto space-y-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#8B1E2D]">
+                Supported Document Pipelines
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1D3557]">
+                Official-Standard Document Print Portals
               </h2>
-              <p className="text-slate-600 text-sm sm:text-base">
-                See how Accero PrintPortal eliminates the daily friction, ruined card stock, and arbitrary charges common in traditional script-based portals.
+              <p className="text-sm text-slate-600">
+                Explore specialized printing engines engineered for CSC operators, cyber cafes, and digital service centers.
               </p>
             </div>
 
-            <div className="overflow-x-auto bg-white rounded-2xl border border-slate-200 shadow-sm">
-              <table className="w-full text-left border-collapse">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+              <Link
+                href="/services/pan-card-printing"
+                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-[#1D3557] hover:shadow-md transition-all space-y-2 block"
+              >
+                <div className="font-bold text-sm text-[#1D3557] flex items-center justify-between">
+                  <span>PAN Card Printing</span>
+                  <ArrowRight className="w-4 h-4 text-[#8B1E2D]" />
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  NSDL &amp; UTI standard layouts with live missing father name indicator and instant photo cropping.
+                </p>
+              </Link>
+
+              <Link
+                href="/services/aadhaar-document-management"
+                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-[#1D3557] hover:shadow-md transition-all space-y-2 block"
+              >
+                <div className="font-bold text-sm text-[#1D3557] flex items-center justify-between">
+                  <span>Aadhaar PVC Format</span>
+                  <ArrowRight className="w-4 h-4 text-[#8B1E2D]" />
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  Bilingual Devanagari smart card layouts with QR verification and ISO ID-1 tray alignment.
+                </p>
+              </Link>
+
+              <Link
+                href="/services/voter-id-printing"
+                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-[#1D3557] hover:shadow-md transition-all space-y-2 block"
+              >
+                <div className="font-bold text-sm text-[#1D3557] flex items-center justify-between">
+                  <span>Voter ID (EPIC) Print</span>
+                  <ArrowRight className="w-4 h-4 text-[#8B1E2D]" />
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  Election Commission standard EPIC layouts with assembly constituency and polling station mapping.
+                </p>
+              </Link>
+
+              <Link
+                href="/services/driving-licence-printing"
+                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-[#1D3557] hover:shadow-md transition-all space-y-2 block"
+              >
+                <div className="font-bold text-sm text-[#1D3557] flex items-center justify-between">
+                  <span>Driving Licence (DL)</span>
+                  <ArrowRight className="w-4 h-4 text-[#8B1E2D]" />
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  Sarithi-compatible transport layouts with vehicle class badges and organ donor indicators.
+                </p>
+              </Link>
+
+              <Link
+                href="/services/vehicle-rc-printing"
+                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-[#1D3557] hover:shadow-md transition-all space-y-2 block"
+              >
+                <div className="font-bold text-sm text-[#1D3557] flex items-center justify-between">
+                  <span>Vehicle RC Smart Card</span>
+                  <ArrowRight className="w-4 h-4 text-[#8B1E2D]" />
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  Vahan standard vehicle registration certificates mapping chassis, engine, and fuel specs.
+                </p>
+              </Link>
+
+              <Link
+                href="/services/ration-card-printing"
+                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-600 hover:shadow-md transition-all space-y-2 block"
+              >
+                <div className="font-bold text-sm text-emerald-800 flex items-center justify-between">
+                  <span>Ration Card Printing</span>
+                  <ArrowRight className="w-4 h-4 text-emerald-600" />
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  NFSA standard layouts with family member tables and multi-page continuation for large households.
+                </p>
+              </Link>
+
+              <Link
+                href="/services/farmer-id-printing"
+                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-emerald-600 hover:shadow-md transition-all space-y-2 block"
+              >
+                <div className="font-bold text-sm text-emerald-800 flex items-center justify-between">
+                  <span>Farmer ID (AgriStack)</span>
+                  <ArrowRight className="w-4 h-4 text-emerald-600" />
+                </div>
+                <p className="text-slate-600 leading-relaxed">
+                  Farmer Registry smart card layouts with Khata, Khasra, and area land parcel tables.
+                </p>
+              </Link>
+
+              <Link
+                href="/best-print-portal-for-csc"
+                className="p-5 rounded-2xl bg-slate-900 text-white hover:bg-slate-800 hover:shadow-md transition-all space-y-2 block"
+              >
+                <div className="font-bold text-sm text-amber-400 flex items-center justify-between">
+                  <span>CSC Operator Hub</span>
+                  <ArrowRight className="w-4 h-4 text-amber-400" />
+                </div>
+                <p className="text-slate-300 leading-relaxed">
+                  Discover why thousands of VLEs rely on Accero for zero wasted PVC cards and ₹0 lifetime reprints.
+                </p>
+              </Link>
+            </div>
+          </section>
+
+          {/* Accero vs Legacy Print Portals Comparison Table */}
+          <section className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200/90 shadow-sm space-y-8">
+            <div className="text-center max-w-2xl mx-auto space-y-2">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#8B1E2D]">
+                Side-by-Side Analysis
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1D3557]">
+                Why Operators Are Switching to Accero
+              </h2>
+              <p className="text-sm text-slate-600">
+                Compare how Accero solves the critical daily frustrations that plague legacy print portals.
+              </p>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-100/75 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-700">
-                    <th className="py-4 px-6 w-1/4">Key Capability</th>
-                    <th className="py-4 px-6 w-3/8 text-rose-700">Typical Legacy Print Portals</th>
-                    <th className="py-4 px-6 w-3/8 text-blue-700">Accero PrintPortal Platform</th>
+                  <tr className="border-b border-slate-200 text-slate-400 font-semibold uppercase tracking-wider">
+                    <th className="py-3 px-4 w-1/4">Operational Capability</th>
+                    <th className="py-3 px-4 w-3/8 text-rose-700">Legacy Print Portals</th>
+                    <th className="py-3 px-4 w-3/8 text-emerald-800 bg-emerald-50/50 rounded-t-xl font-bold">
+                      Accero PrintPortal
+                    </th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-sm">
-                  {comparisonData.map((row, index) => (
-                    <tr key={index} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="py-4 px-6 font-bold text-slate-900">{row.feature}</td>
-                      <td className="py-4 px-6 text-slate-600 flex items-start gap-2">
-                        <AlertTriangle className="w-4 h-4 text-rose-500 shrink-0 mt-0.5" />
-                        <span>{row.legacy}</span>
-                      </td>
-                      <td className="py-4 px-6 text-slate-900 font-medium flex items-start gap-2 bg-blue-50/30">
-                        <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
-                        <span>{row.accero}</span>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {comparisonData.map((row, idx) => (
+                    <tr key={idx} className="hover:bg-slate-50/60 transition-colors">
+                      <td className="py-4 px-4 font-bold text-[#1D3557]">{row.feature}</td>
+                      <td className="py-4 px-4 text-slate-500 leading-relaxed">{row.legacy}</td>
+                      <td className="py-4 px-4 font-medium text-slate-800 bg-emerald-50/30 leading-relaxed">
+                        {row.accero}
                       </td>
                     </tr>
                   ))}
@@ -250,317 +378,24 @@ export default function PrintPortalPillarPage() {
             </div>
           </section>
 
-          {/* Comparative Market Analysis & Alternative Evaluation */}
-          <section className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm space-y-8">
-            <div className="max-w-4xl space-y-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-200">
-                Industry Comparison
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
-                Evaluating Print Portal Alternatives in India
-              </h2>
-              <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-                Cyber cafe operators and CSC VLEs across India frequently evaluate alternatives to traditional portals such as <strong>Digital Portal</strong>, <strong>Fast Print Portal</strong>, and <strong>Kamboj Pan Portal</strong>. While these platforms established early market awareness, operators often encounter critical bottlenecks during daily high-volume production.
-              </p>
+          {/* FAQ Section */}
+          <FAQSection faqs={faqs} />
+
+          {/* Compliance Disclaimer */}
+          <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-950 leading-relaxed flex items-start gap-3 shadow-xs">
+            <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+            <div>
+              <strong>Compliance Notice:</strong> Accero PrintPortal is an independent commercial software platform. It is not an official government portal, and is not affiliated with UIDAI, NSDL, UTIITSL, the Election Commission of India, MoRTH, or State Food Departments. Output templates conform to the international physical card standard ISO/IEC 7810 ID-1.
             </div>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 flex flex-col justify-between">
-                <div className="space-y-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Market Profile</span>
-                  <h3 className="text-lg font-bold text-slate-900">Digital Portal Alternative</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Known for broad document coverage, but legacy script infrastructure experiences frequent 502 gateway timeouts and charges duplicate wallet fees on customer reprints.
-                  </p>
-                  <div className="pt-2 border-t border-slate-200 text-xs font-semibold text-blue-700">
-                    Accero Advantage: 99.9% edge platform availability, zero ruined cards via split-screen validation, and 100% free lifetime reprints.
-                  </div>
-                </div>
-                <div className="pt-3 border-t border-slate-200">
-                  <Link
-                    href="/compare/digitalportal-alternative"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <span>Read Full Digital Portal Comparison</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 flex flex-col justify-between">
-                <div className="space-y-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Market Profile</span>
-                  <h3 className="text-lg font-bold text-slate-900">Fast Print Portal Alternative</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Focuses on rapid lookup scripts, but lacks live pre-print data validation. When external APIs omit addresses or photos, cards print with blank spots, ruining ₹25 PVC blanks.
-                  </p>
-                  <div className="pt-2 border-t border-slate-200 text-xs font-semibold text-blue-700">
-                    Accero Advantage: Real-time amber warning flags highlight missing fields so operators complete them before printing.
-                  </div>
-                </div>
-                <div className="pt-3 border-t border-slate-200">
-                  <Link
-                    href="/compare/fastprintportal-alternative"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <span>Read Full Fast Print Portal Comparison</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-
-              <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4 flex flex-col justify-between">
-                <div className="space-y-3">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Market Profile</span>
-                  <h3 className="text-lg font-bold text-slate-900">Kamboj Pan Portal Alternative</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">
-                    Specialized in UTI and NSDL PAN card services with upfront registration fees (₹49–₹149), but requires separate disjointed portals for Aadhaar, Voter, DL, and RC cards.
-                  </p>
-                  <div className="pt-2 border-t border-slate-200 text-xs font-semibold text-blue-700">
-                    Accero Advantage: Free registration (₹0), 6-in-1 unified document studio, and automatic barcode / QR code generation.
-                  </div>
-                </div>
-                <div className="pt-3 border-t border-slate-200">
-                  <Link
-                    href="/compare/kamboj-print-portal-alternative"
-                    className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    <span>Read Full Kamboj PAN Comparison</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-4 border-t border-slate-200 flex flex-col gap-3 text-xs text-slate-500">
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                <span className="font-semibold text-slate-700">Detailed Alternative Reviews:</span>
-                <Link href="/compare/digitalportal-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                  Digital Portal
-                </Link>
-                <span>&bull;</span>
-                <Link href="/compare/fastprintportal-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                  Fast Print Portal
-                </Link>
-                <span>&bull;</span>
-                <Link href="/compare/kamboj-print-portal-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                  Kamboj PAN
-                </Link>
-                <span>&bull;</span>
-                <Link href="/compare/skprintportal-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                  SK Print Portal
-                </Link>
-                <span>&bull;</span>
-                <Link href="/compare/rajprint-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                  RajPrint
-                </Link>
-                <span>&bull;</span>
-                <Link href="/compare/eforms99-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                  eForms99
-                </Link>
-                <span>&bull;</span>
-                <Link href="/compare/apna-print-portal-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                  Apna Print Portal
-                </Link>
-                <span>&bull;</span>
-                <Link href="/compare/docprint-alternative" className="text-blue-600 hover:text-blue-800 font-medium transition-colors">
-                  DocPrint Shop
-                </Link>
-              </div>
-              <p className="italic">
-                Note: Brand names and portal references are used strictly for comparative and informative purposes to assist operators in choosing suitable business software.
-              </p>
-            </div>
-          </section>
-
-          {/* 6 Supported Document Workflows */}
-          <section className="space-y-8">
-            <div className="text-center max-w-3xl mx-auto space-y-3">
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-                Six Essential Document Workflows in One Portal
-              </h2>
-              <p className="text-slate-600 text-sm sm:text-base">
-                Everything your cyber cafe or CSC center needs to format, edit, and print customer documents instantly.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {[
-                {
-                  title: 'PAN Card Print Format',
-                  desc: 'Auto-fetches NSDL and UTI formats with high-contrast ITD emblem, photo, signature, and QR code.',
-                  url: '/services/pan-card-management',
-                  rate: '₹20 lookup / ₹5 manual',
-                },
-                {
-                  title: 'Aadhaar PVC Card Format',
-                  desc: 'Bilingual Devanagari layout conforming to official UID card standards with ghost photo and secure QR.',
-                  url: '/services/aadhaar-document-processing',
-                  rate: '₹25 lookup / ₹5 manual',
-                },
-                {
-                  title: 'Voter ID (New EPIC) Format',
-                  desc: 'Official 2024–2026 Election Commission standard card with assembly constituency, part number, and barcode.',
-                  url: '/services/voter-id-card-management',
-                  rate: '₹20 lookup / ₹5 manual',
-                },
-                {
-                  title: 'Driving Licence Smart Card',
-                  desc: 'State transport department smart card format with micro-chip vector graphic and vehicle category badges.',
-                  url: '/services/driving-licence-management',
-                  rate: '₹30 lookup / ₹5 manual',
-                },
-                {
-                  title: 'Vehicle RC Smart Card',
-                  desc: 'Vahan registration certificate with dual-side layout, owner specifications, chassis, and engine numbers.',
-                  url: '/services/vehicle-rc-management',
-                  rate: '₹35 lookup / ₹5 manual',
-                },
-                {
-                  title: 'Ration Card (NFSA) Format',
-                  desc: 'Family member tabular roster with food security entitlement details formatted for card printing or lamination.',
-                  url: '/services/ration-card-printing',
-                  rate: '₹25 lookup / ₹5 manual',
-                },
-              ].map((card, i) => (
-                <div key={i} className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">
-                        {card.rate}
-                      </span>
-                      <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded">
-                        ₹0 Re-Prints
-                      </span>
-                    </div>
-                    <h3 className="text-lg font-bold text-slate-900">{card.title}</h3>
-                    <p className="text-sm text-slate-600 leading-relaxed">{card.desc}</p>
-                  </div>
-                  <div className="pt-4 border-t border-slate-100 mt-4">
-                    <Link
-                      href={card.url}
-                      className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors"
-                    >
-                      <span>Explore Layout & Specifications</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Hardware & Printer Calibration Section */}
-          <section className="bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-3xl p-8 sm:p-12 shadow-xl space-y-8">
-            <div className="max-w-3xl space-y-4">
-              <span className="text-xs font-bold uppercase tracking-widest text-blue-400 bg-blue-900/50 px-3 py-1 rounded-full border border-blue-700/50">
-                Hardware Engineering
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                Engineered for Epson Tray J & Canon ID Card Trays
-              </h2>
-              <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-                Most print portals fail because they send raw web pages to your printer. Accero PrintPortal uses exact CSS print specifications (ISO/IEC 7810 ID-1 standard: 85.60 mm × 53.98 mm) with zero margin drift.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="bg-slate-800/80 p-5 rounded-xl border border-slate-700">
-                <Printer className="w-6 h-6 text-blue-400 mb-3" />
-                <h4 className="font-bold text-white text-base">Epson L805 / L8050 / L850</h4>
-                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                  Pre-calibrated for Epson 2-card Tray J. Just set Paper Source to Tray J and click print without manual Photoshop cropping.
-                </p>
-              </div>
-
-              <div className="bg-slate-800/80 p-5 rounded-xl border border-slate-700">
-                <SlidersHorizontal className="w-6 h-6 text-indigo-400 mb-3" />
-                <h4 className="font-bold text-white text-base">Canon PIXMA G-Series</h4>
-                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                  Compatible with Canon MP, G3010, G5070 card trays. Direct 1:1 vector rendering eliminates blurry text and smudged QR codes.
-                </p>
-              </div>
-
-              <div className="bg-slate-800/80 p-5 rounded-xl border border-slate-700">
-                <ShieldCheck className="w-6 h-6 text-emerald-400 mb-3" />
-                <h4 className="font-bold text-white text-base">Thermal PVC Card Printers</h4>
-                <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                  Works seamlessly with Zebra ZXP, Evolis Zenius/Primacy, and Magicard direct-to-card dye sublimation printers.
-                </p>
-              </div>
-            </div>
-
-            <div className="pt-2">
-              <Link
-                href="/pvc-card-printing-software"
-                className="inline-flex items-center gap-2 text-sm font-bold text-blue-300 hover:text-white transition-colors"
-              >
-                <span>Read Full Hardware & Printer Tray Setup Guide</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </section>
-
-          {/* People Also Ask / Answer Engine FAQ */}
-          <section className="bg-white rounded-3xl p-8 sm:p-12 border border-slate-200 shadow-sm space-y-8">
-            <div className="text-center max-w-3xl mx-auto space-y-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-3 py-1 rounded-full">
-                Answer Engine Optimization
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-                Frequently Asked Questions About Print Portals
-              </h2>
-              <p className="text-slate-600 text-sm sm:text-base">
-                Clear, factual answers regarding print portal functionality, hardware setup, and operator economics.
-              </p>
-            </div>
-
-            <div className="divide-y divide-slate-100 max-w-4xl mx-auto">
-              {faqs.map((faq, idx) => (
-                <div key={idx} className="py-5 space-y-2">
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900 flex items-start gap-2">
-                    <HelpCircle className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
-                    <span>{faq.question}</span>
-                  </h3>
-                  <p className="text-slate-600 text-sm leading-relaxed pl-7">{faq.answer}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Final Call to Action */}
-          <section className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 sm:p-12 text-center text-white space-y-6 shadow-xl">
-            <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight">
-              Ready to Upgrade Your Print Portal Experience?
-            </h2>
-            <p className="text-blue-100 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-              Join thousands of Indian cyber cafe owners and CSC VLEs who have eliminated ruined card stock and daily server crashes.
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-              <Link
-                href="/register"
-                className="px-8 py-4 rounded-xl bg-white text-blue-700 font-extrabold text-sm shadow-md hover:bg-blue-50 transition-all"
-              >
-                Create Free Operator Account
-              </Link>
-              <Link
-                href="/studio"
-                className="px-8 py-4 rounded-xl bg-blue-800/80 hover:bg-blue-900 text-white font-bold text-sm border border-blue-400/40 transition-all"
-              >
-                Open Studio Demo
-              </Link>
-            </div>
-          </section>
-
-          {/* Mandatory Independent Legal Disclaimer */}
-          <footer className="text-center text-xs text-slate-500 max-w-3xl mx-auto pt-4 space-y-2">
-            <p>
-              <strong>Important Compliance Notice:</strong> Accero PrintPortal is an independent commercial software platform developed for document formatting, layout preparation, and PVC card printing. It is not affiliated with, authorized by, or an official representative of the Government of India, UIDAI, NSDL, UTIITSL, Election Commission of India, or Ministry of Road Transport and Highways.
-            </p>
-          </footer>
+          {/* CTA */}
+          <CTASection
+            title="Ready to Upgrade Your Print Portal Experience?"
+            description="Create your free operator account in 30 seconds. Zero subscription fees, instant UPI recharge, and lifetime free re-prints."
+          />
         </div>
       </div>
     </>
   );
 }
-

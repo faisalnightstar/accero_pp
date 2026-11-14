@@ -62,4 +62,13 @@ export const SUPPORT_KNOWLEDGE_BASE: KnowledgeBaseArticle[] = [
       'E001: Third-party API timeout (Advise retry after 2 minutes or use manual entry mode). E002: Invalid document format (Check regex format for 10-char PAN or 12-digit Aadhaar). E003: Insufficient wallet balance (Direct operator to recharge wallet). E004: Payment gateway communication failure (Advise retry with alternative UPI app).',
     keywords: ['error', 'codes', 'timeout', 'e001', 'e002', 'e003'],
   },
+  {
+    id: 'kb-007',
+    category: 'Billing Policy',
+    title: 'Service Pricing, % OFF Discounts & Active Promotional Offers',
+    summary: 'Single source of truth for service rates, base MRP, and promotional discount structure.',
+    content:
+      'Accero PrintPortal operates with a single source of truth for all service rates. Standard rates: Manual Draft Studio is ₹5 (50% OFF base ₹10). Verified API lookups: PAN is ₹20 (60% OFF base ₹50), Voter ID is ₹20 (20% OFF base ₹25), Aadhaar PVC is ₹25 (17% OFF base ₹30), Ration Card is ₹25 (29% OFF base ₹35), Driving Licence is ₹30 (25% OFF base ₹40), and Vehicle RC is ₹35 (30% OFF base ₹50). Subsequent re-prints of saved documents are always 100% free (₹0).',
+    keywords: ['pricing', 'fee', 'discount', 'percent off', 'mrp', 'rate card', 'reprint'],
+  },
 ];

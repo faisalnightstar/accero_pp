@@ -12,9 +12,12 @@ import {
   Sparkles,
   ArrowRight,
   FilePlus,
+  FileText,
 } from 'lucide-react';
 import { DocumentType } from '@/types/cards';
 import { validateEpicNumber } from '@/lib/verify/validators';
+
+import { DEFAULT_SERVICE_PRICING } from '@/lib/wallet/constants';
 
 interface QuickLookupModalProps {
   isOpen: boolean;
@@ -28,14 +31,15 @@ const docTypesList: Array<{
   hint: string;
   icon: React.ComponentType<{ className?: string }>;
   example: string;
-  fee: number;
+  serviceKey: string;
 }> = [
-    { id: 'pan', label: 'PAN Card', hint: '10-character PAN number', icon: CreditCard, example: 'ABCDE1234F', fee: 50 },
-    { id: 'rc', label: 'Vehicle RC', hint: 'Vehicle registration certificate number', icon: Car, example: 'UP05LD1234', fee: 35 },
-    { id: 'dl', label: 'Driving License', hint: 'State transport license number', icon: CreditCard, example: 'DL-0420110123456', fee: 30 },
-    { id: 'aadhaar', label: 'Aadhaar Card', hint: '12-digit UIDAI number', icon: ShieldCheck, example: '5749 0326 7673', fee: 25 },
-    { id: 'voter', label: 'Voter ID', hint: 'Election Commission EPIC number', icon: CheckCircle2, example: 'ABC0123456', fee: 20 },
-  ];
+  { id: 'pan', label: 'PAN Card', hint: '10-character PAN number', icon: CreditCard, example: 'ABCDE1234F', serviceKey: 'PAN' },
+  { id: 'rc', label: 'Vehicle RC', hint: 'Vehicle registration certificate number', icon: Car, example: 'UP05LD1234', serviceKey: 'RC' },
+  { id: 'dl', label: 'Driving License', hint: 'State transport license number', icon: CreditCard, example: 'DL-0420110123456', serviceKey: 'DL' },
+  { id: 'aadhaar', label: 'Aadhaar Card', hint: '12-digit UIDAI number', icon: ShieldCheck, example: '5749 0326 7673', serviceKey: 'AADHAAR' },
+  { id: 'voter', label: 'Voter ID', hint: 'Election Commission EPIC number', icon: CheckCircle2, example: 'ABC0123456', serviceKey: 'VOTER' },
+  { id: 'ration', label: 'Ration Card', hint: '12-digit NFSA ration card number', icon: FileText, example: 'RC1234567890', serviceKey: 'RATION' },
+];
 
 export function QuickLookupModal({
   isOpen,
@@ -129,7 +133,25 @@ export function QuickLookupModal({
                   <Icon className={`w-4 h-4 shrink-0 ${isSelected ? 'text-[#E63946]' : 'text-slate-500'}`} />
                   <div className="flex-1 min-w-0">
                     <span className="text-xs font-semibold block truncate">{doc.label}</span>
-                    <span className="text-[10px] text-[#F4D35E] font-bold">Fee: ₹{doc.fee}</span>
+                    {(() => {
+                      const pricing = DEFAULT_SERVICE_PRICING[doc.serviceKey];
+                      const fee = pricing?.fee ?? 20;
+                      const orig = pricing?.originalFee ?? fee;
+                      const disc = pricing?.discountPercent ?? 0;
+                      return (
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[10px] text-[#F4D35E] font-bold">Fee: ₹{fee}</span>
+                          {orig > fee && (
+                            <span className="text-[9px] line-through text-slate-500 font-normal">₹{orig}</span>
+                          )}
+                          {disc > 0 && (
+                            <span className="text-[9px] font-extrabold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-1 rounded">
+                              {disc}% OFF
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
                 </button>
               );

@@ -11,6 +11,9 @@ import {
   Sparkles,
   Receipt,
   FileCheck,
+  Tag,
+  Percent,
+  Flame,
 } from 'lucide-react';
 import { buildPageMetadata } from '@/lib/seo/metadata';
 import {
@@ -20,6 +23,12 @@ import {
 } from '@/lib/seo/structuredData';
 import PageTracker from '@/components/analytics/PageTracker';
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events';
+import { getPublicServicePricingCatalog } from '@/lib/wallet/pricing';
+import { FAQSection } from '@/components/public/FAQSection';
+import { CTASection } from '@/components/public/CTASection';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
 
 export const metadata: Metadata = buildPageMetadata({
   title: 'Transparent Pay-As-You-Print Pricing | Accero PrintPortal',
@@ -36,41 +45,45 @@ export const metadata: Metadata = buildPageMetadata({
   ],
 });
 
-const serviceRates = [
-  { service: 'Manual Draft (Any Document)', rate: '₹5', note: 'Operator inputs data and photo manually' },
-  { service: 'PAN Card (Alphanumeric Lookup)', rate: '₹20', note: 'Auto-fetches NSDL/UTI format with QR' },
-  { service: 'Voter ID (EPIC Number Lookup)', rate: '₹20', note: 'Includes Assembly and Polling Part' },
-  { service: 'Aadhaar PVC Card (UID Lookup)', rate: '₹25', note: 'Bilingual Devanagari layout with QR' },
-  { service: 'Ration Card (NFSA Number Lookup)', rate: '₹25', note: 'Includes full family member roster table' },
-  { service: 'Driving Licence (DL Number Lookup)', rate: '₹30', note: 'Smart chip graphic with vehicle classes' },
-  { service: 'Vehicle RC (Vahan Reg No Lookup)', rate: '₹35', note: 'Chassis, engine, and owner specifications' },
-  { service: 'Subsequent Re-Prints (Saved Records)', rate: '₹0', note: '100% Free Forever for all saved cards' },
-];
-
 const faqs = [
   {
     question: 'Are there any recurring monthly subscriptions or hidden charges?',
     answer:
-      'No. Accero PrintPortal is completely subscription-free. You only recharge your prepaid wallet balance as needed and pay transparent utility rates per card generated.',
+      'No. Accero PrintPortal is completely subscription-free. You only recharge your prepaid wallet balance as needed starting at ₹100 and pay transparent utility rates per card generated.',
   },
   {
     question: 'What happens if a lookup fails or the document is not found?',
     answer:
-      'If an external query times out or fails, zero fee is charged (₹0). You are never billed for incomplete or failed operations.',
+      'If an external query times out or fails, zero fee is charged (₹0). Any provisional wallet deduction is rolled back atomically in milliseconds. You are never billed for incomplete operations.',
   },
   {
     question: 'Do I have to pay again when re-printing a saved card?',
     answer:
-      'No! Once a document has been saved to your account, you can re-print it or re-download the vector PDF as many times as you want for free (₹0).',
+      'No! Once a document has been saved to your operator vault, you can re-print it or re-download the high-DPI vector PDF as many times as you want for free (₹0).',
   },
   {
-    question: 'What is the minimum wallet recharge amount?',
+    question: 'What is the minimum wallet recharge amount and what payment modes are supported?',
     answer:
-      'You can recharge your prepaid balance starting at ₹100 using any standard UPI app (Google Pay, PhonePe, Paytm, BHIM) via dynamic QR code.',
+      'You can recharge your prepaid balance starting at ₹100 using any standard UPI app (Google Pay, PhonePe, Paytm, BHIM) via instant dynamic QR code.',
+  },
+  {
+    question: 'Can I test the editor before depositing funds into my wallet?',
+    answer:
+      'Yes. You can explore the split-screen studio, inspect all card templates, and test layout controls with sample data before adding funds to your wallet.',
   },
 ];
 
-export default function PricingPage() {
+export default async function PricingPage() {
+  const dynamicCatalog = await getPublicServicePricingCatalog();
+
+  const manualConfig = dynamicCatalog.find((s) => s.serviceId === 'MANUAL');
+  const lookupConfigs = dynamicCatalog.filter((s) => s.serviceId !== 'MANUAL');
+
+  const minLookupFee = lookupConfigs.length > 0 ? Math.min(...lookupConfigs.map((s) => s.fee)) : 20;
+  const maxLookupFee = lookupConfigs.length > 0 ? Math.max(...lookupConfigs.map((s) => s.fee)) : 30;
+  const maxDiscountPercent = Math.max(...dynamicCatalog.map((s) => s.discountPercent), 0);
+  const hasActiveOffers = dynamicCatalog.some((s) => s.offerActive && s.discountPercent > 0);
+
   const softwareSchema = generateSoftwareApplicationSchema('Accero PrintPortal Pricing');
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: 'Home', url: '/' },
@@ -94,8 +107,8 @@ export default function PricingPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
 
-      <div className="bg-slate-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-12">
+      <div className="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8 space-y-12">
+        <div className="max-w-7xl mx-auto space-y-10">
           {/* Breadcrumb */}
           <nav className="flex items-center gap-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
             <Link href="/" className="hover:text-[#1D3557] transition-colors">
@@ -107,43 +120,90 @@ export default function PricingPage() {
 
           {/* Hero Header */}
           <div className="text-center max-w-3xl mx-auto space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-200">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-bold bg-white text-[#1D3557] border border-slate-200 shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#8B1E2D]" />
               <span>Zero Monthly Subscriptions • Pay Only What You Print</span>
+              {hasActiveOffers && maxDiscountPercent > 0 && (
+                <span className="ml-1 bg-emerald-700 text-white px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase">
+                  Up to {maxDiscountPercent}% OFF
+                </span>
+              )}
             </div>
-            <h1 className="text-3xl sm:text-5xl font-black text-[#1D3557] tracking-tight">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D3557] tracking-tight">
               Transparent Pay-As-You-Print Pricing
             </h1>
-            <p className="text-base text-slate-600 leading-relaxed">
-              No contracts, no setup fees, and no recurring deductions. Top up your operator wallet via UPI and print official-standard CR80 PVC cards on demand.
+            <p className="text-sm sm:text-base text-slate-600 leading-relaxed max-w-2xl mx-auto">
+              No monthly retainers, no hidden fees, and zero renewal charges. Top up your operator balance via UPI and print official-standard CR80 PVC cards on demand.
             </p>
           </div>
 
-          {/* Pricing Cards */}
+          {/* Promotional Offer Banner */}
+          {hasActiveOffers && (
+            <div className="max-w-5xl mx-auto bg-white border border-amber-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+              <div className="flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center shrink-0 border border-amber-200">
+                  <Flame className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <h2 className="text-sm font-bold text-[#1D3557] flex items-center gap-2">
+                    <span>Special Promotional Rates Active</span>
+                    <Badge variant="gold" size="sm">
+                      Limited Time
+                    </Badge>
+                  </h2>
+                  <p className="text-xs text-slate-600 mt-0.5">
+                    Save up to {maxDiscountPercent}% on official card lookups. Lifetime re-prints remain completely ₹0.
+                  </p>
+                </div>
+              </div>
+              <Button href="/register" variant="accent" size="sm" className="shrink-0">
+                Claim Offer &amp; Register
+              </Button>
+            </div>
+          )}
+
+          {/* Pricing Cards Grid */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {/* Card 1 */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-[#1D3557]">Manual Draft Studio</h2>
-                <div className="mt-4 mb-2">
-                  <span className="text-4xl font-extrabold text-[#1D3557]">₹5</span>
+            {/* Card 1: Manual Mode */}
+            <Card hoverEffect className="p-8 border border-slate-200/90 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    Offline Drafting
+                  </span>
+                  <h2 className="text-lg font-bold text-[#1D3557] mt-1">Manual Draft Studio</h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Ideal when customers provide their own application receipts or physical photos.
+                  </p>
+                </div>
+                <div className="pt-2 pb-4 border-b border-slate-100 flex items-baseline gap-2">
+                  <span className="text-4xl font-extrabold text-[#1D3557]">
+                    ₹{manualConfig?.fee ?? 5}
+                  </span>
+                  {manualConfig?.originalFee && manualConfig.originalFee > (manualConfig.fee ?? 5) && (
+                    <span className="text-sm line-through text-slate-400 font-semibold">
+                      ₹{manualConfig.originalFee}
+                    </span>
+                  )}
                   <span className="text-xs text-slate-500"> / card generated</span>
                 </div>
-                <p className="text-xs text-slate-500 mb-6">
-                  Perfect when customers bring their own documents, photographs, or application receipts.
-                </p>
-                <ul className="space-y-3 text-xs text-slate-700">
+                {manualConfig?.offerActive && manualConfig.discountPercent > 0 && (
+                  <Badge variant="success" size="sm">
+                    {manualConfig.offerBadge || `${manualConfig.discountPercent}% OFF`}
+                  </Badge>
+                )}
+                <ul className="space-y-3 text-xs text-slate-600 pt-1">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Full Access to All 6 Card Canvases</span>
+                    <span>Full Access to All 6 CR80 Card Canvases</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Photo & Signature Drag-and-Drop</span>
+                    <span>Drag-and-Drop Photo &amp; Signature Upload</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Unlimited Free Re-prints (₹0)</span>
+                    <span>100% Free Lifetime Re-Prints (₹0)</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -151,29 +211,43 @@ export default function PricingPage() {
                   </li>
                 </ul>
               </div>
-              <Link
-                href="/register"
-                className="mt-8 text-center py-3 px-4 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-[#1D3557] transition-colors"
-              >
-                Start with Manual Mode
-              </Link>
-            </div>
+              <div className="pt-8">
+                <Button href="/register" variant="outline" size="md" className="w-full text-xs">
+                  Start with Manual Mode
+                </Button>
+              </div>
+            </Card>
 
-            {/* Card 2 (Featured) */}
-            <div className="bg-white rounded-3xl p-8 border-2 border-[#8B1E2D] shadow-xl flex flex-col justify-between relative">
-              <span className="absolute -top-3 right-6 bg-[#8B1E2D] text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow">
-                Most Popular for Cyber Cafes
+            {/* Card 2: Most Popular */}
+            <Card
+              hoverEffect
+              className="p-8 border-2 border-[#1D3557] shadow-card flex flex-col justify-between relative bg-white"
+            >
+              <span className="absolute -top-3.5 right-6 bg-[#1D3557] text-white text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full shadow-xs">
+                Most Popular
               </span>
-              <div>
-                <h2 className="text-lg font-bold text-[#1D3557]">Alphanumeric Lookup</h2>
-                <div className="mt-4 mb-2">
-                  <span className="text-4xl font-extrabold text-[#8B1E2D]">₹20 – ₹35</span>
+              <div className="space-y-4">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    High Volume Cyber Cafes
+                  </span>
+                  <h2 className="text-lg font-bold text-[#1D3557] mt-1">Alphanumeric Lookup</h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    Automated demographic query with silent multi-provider fallback.
+                  </p>
+                </div>
+                <div className="pt-2 pb-4 border-b border-slate-100 flex items-baseline gap-2">
+                  <span className="text-4xl font-extrabold text-[#8B1E2D]">
+                    ₹{minLookupFee} – ₹{maxLookupFee}
+                  </span>
                   <span className="text-xs text-slate-500"> / verified lookup</span>
                 </div>
-                <p className="text-xs text-slate-500 mb-6">
-                  Automated query for PAN, Voter, DL, RC, Ration, and Aadhaar demographic data.
-                </p>
-                <ul className="space-y-3 text-xs text-slate-700">
+                {hasActiveOffers && maxDiscountPercent > 0 && (
+                  <Badge variant="success" size="sm">
+                    Up to {maxDiscountPercent}% OFF Active
+                  </Badge>
+                )}
+                <ul className="space-y-3 text-xs text-slate-600 pt-1">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>Auto-Fetches Official Demographic Data</span>
@@ -184,7 +258,7 @@ export default function PricingPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Dynamic Demographic QR Code</span>
+                    <span>Dynamic Demographic QR Code Synthesis</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -192,30 +266,34 @@ export default function PricingPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Unlimited Free Re-prints (₹0)</span>
+                    <span>100% Free Lifetime Re-Prints (₹0)</span>
                   </li>
                 </ul>
               </div>
-              <Link
-                href="/register"
-                className="mt-8 text-center py-3 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#8B1E2D] to-[#E63946] shadow transition-all hover:shadow-btn-hover"
-              >
-                Create Operator Account
-              </Link>
-            </div>
+              <div className="pt-8">
+                <Button href="/register" variant="accent" size="md" className="w-full text-xs">
+                  Create Operator Account
+                </Button>
+              </div>
+            </Card>
 
-            {/* Card 3 */}
-            <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm flex flex-col justify-between">
-              <div>
-                <h2 className="text-lg font-bold text-[#1D3557]">Enterprise / Hubs</h2>
-                <div className="mt-4 mb-2">
+            {/* Card 3: Enterprise */}
+            <Card hoverEffect className="p-8 border border-slate-200/90 flex flex-col justify-between">
+              <div className="space-y-4">
+                <div>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    High Volume Hubs
+                  </span>
+                  <h2 className="text-lg font-bold text-[#1D3557] mt-1">Multi-Counter Enterprise</h2>
+                  <p className="text-xs text-slate-500 mt-1">
+                    For multi-desk centers, franchise networks, and high-capacity print shops.
+                  </p>
+                </div>
+                <div className="pt-2 pb-4 border-b border-slate-100">
                   <span className="text-4xl font-extrabold text-[#1D3557]">Custom</span>
                   <span className="text-xs text-slate-500"> / high-volume counters</span>
                 </div>
-                <p className="text-xs text-slate-500 mb-6">
-                  For regional multi-desk centers, franchise networks, and high-capacity printing shops.
-                </p>
-                <ul className="space-y-3 text-xs text-slate-700">
+                <ul className="space-y-3 text-xs text-slate-600 pt-1">
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0" />
                     <span>Dedicated High-Throughput Quotas</span>
@@ -226,7 +304,7 @@ export default function PricingPage() {
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-                    <span>Priority WhatsApp & Phone SLA</span>
+                    <span>Priority WhatsApp &amp; Phone SLA</span>
                   </li>
                   <li className="flex items-center gap-2">
                     <Check className="w-4 h-4 text-emerald-600 shrink-0" />
@@ -234,67 +312,108 @@ export default function PricingPage() {
                   </li>
                 </ul>
               </div>
-              <Link
-                href="/contact"
-                className="mt-8 text-center py-3 px-4 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-[#1D3557] transition-colors"
-              >
-                Contact Enterprise Sales
-              </Link>
-            </div>
+              <div className="pt-8">
+                <Button href="/contact" variant="outline" size="md" className="w-full text-xs">
+                  Contact Sales
+                </Button>
+              </div>
+            </Card>
           </div>
 
-          {/* Itemized Rates Table */}
-          <section className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-6">
-            <div className="space-y-1">
-              <h2 className="text-2xl font-bold text-[#1D3557]">Itemized Service Rate Card</h2>
-              <p className="text-xs text-slate-500">
-                Transparent per-service fees. Debited directly from your prepaid operator balance.
-              </p>
+          {/* Itemized Rates Table with Single Source of Truth & % OFF */}
+          <section className="bg-white rounded-3xl border border-slate-200/90 p-8 shadow-sm space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="space-y-1">
+                <h2 className="text-xl sm:text-2xl font-bold text-[#1D3557] flex items-center gap-2">
+                  <span>Itemized Service Rate Card</span>
+                  {hasActiveOffers && (
+                    <Badge variant="success" size="sm">
+                      Live Offer Rates
+                    </Badge>
+                  )}
+                </h2>
+                <p className="text-xs text-slate-500">
+                  Transparent per-service fees. Debited directly from your prepaid operator balance upon successful generation.
+                </p>
+              </div>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-200 text-slate-500 font-bold uppercase tracking-wider">
+                  <tr className="border-b border-slate-200 text-slate-400 font-semibold uppercase tracking-wider">
                     <th className="py-3 px-4">Service Workflow</th>
+                    <th className="py-3 px-4">Base MRP</th>
                     <th className="py-3 px-4">Operator Fee</th>
-                    <th className="py-3 px-4">Details & Guarantees</th>
+                    <th className="py-3 px-4">Offer / Discount</th>
+                    <th className="py-3 px-4">Guarantees</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {serviceRates.map((item, i) => (
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {dynamicCatalog.map((item) => (
                     <tr
-                      key={i}
-                      className="border-b border-slate-100 last:border-0 hover:bg-slate-50/80 transition-colors"
+                      key={item.serviceId}
+                      className="hover:bg-slate-50/60 transition-colors"
                     >
-                      <td className="py-3.5 px-4 font-bold text-[#1D3557]">{item.service}</td>
-                      <td className="py-3.5 px-4 font-mono font-bold text-[#8B1E2D]">{item.rate}</td>
+                      <td className="py-3.5 px-4 font-bold text-[#1D3557]">
+                        {item.displayName || `${item.serviceId} Card Print`}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono text-slate-400">
+                        {item.originalFee > item.fee ? (
+                          <span className="line-through">₹{item.originalFee}</span>
+                        ) : (
+                          <span>₹{item.originalFee || item.fee}</span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4 font-mono font-bold text-[#8B1E2D] text-sm">
+                        ₹{item.fee}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        {item.offerActive && item.discountPercent > 0 ? (
+                          <Badge variant="success" size="sm">
+                            <Tag className="w-3 h-3 text-emerald-600" />
+                            {item.offerBadge || `${item.discountPercent}% OFF`}
+                          </Badge>
+                        ) : (
+                          <span className="text-slate-400 text-[11px]">Regular Rate</span>
+                        )}
+                      </td>
                       <td className="py-3.5 px-4 text-slate-600">{item.note}</td>
                     </tr>
                   ))}
+                  {/* Free Re-Prints Row */}
+                  <tr className="bg-emerald-50/50 hover:bg-emerald-50 transition-colors">
+                    <td className="py-3.5 px-4 font-bold text-emerald-900 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                      <span>Subsequent Re-Prints (Saved Records)</span>
+                    </td>
+                    <td className="py-3.5 px-4 font-mono text-slate-400">₹0</td>
+                    <td className="py-3.5 px-4 font-mono font-black text-emerald-700 text-sm">₹0</td>
+                    <td className="py-3.5 px-4">
+                      <Badge variant="success" size="sm">
+                        100% Free
+                      </Badge>
+                    </td>
+                    <td className="py-3.5 px-4 text-emerald-800 font-medium">
+                      100% Free Forever for all saved cards from your Document History
+                    </td>
+                  </tr>
                 </tbody>
               </table>
             </div>
           </section>
 
-          {/* FAQs */}
-          <section className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-10 shadow-sm space-y-6">
-            <h2 className="text-2xl font-bold text-[#1D3557] flex items-center gap-2">
-              <HelpCircle className="w-6 h-6 text-[#8B1E2D]" />
-              <span>Pricing & Wallet Billing FAQs</span>
-            </h2>
-            <div className="space-y-4">
-              {faqs.map((faq, i) => (
-                <div key={i} className="border-b border-slate-100 pb-4 last:border-0 last:pb-0">
-                  <h3 className="text-sm font-bold text-[#1D3557] mb-1">{faq.question}</h3>
-                  <p className="text-xs text-slate-600 leading-relaxed">{faq.answer}</p>
-                </div>
-              ))}
-            </div>
-          </section>
+          {/* Pricing FAQ Section */}
+          <FAQSection
+            faqs={faqs}
+            title="Pricing & Wallet Billing FAQs"
+            subtitle="Straight answers about wallet recharge, refunds, and operator billing."
+          />
+
+          {/* CTA */}
+          <CTASection />
         </div>
       </div>
     </>
   );
 }
-

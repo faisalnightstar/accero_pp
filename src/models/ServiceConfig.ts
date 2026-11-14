@@ -1,12 +1,17 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-export type ServiceType = 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION';
+export type ServiceType = 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION' | 'FARMER' | 'MANUAL';
 
 export interface IServiceConfig extends Document {
   serviceId: ServiceType;
   displayName: string;
   enabled: boolean;
   fee: number;
+  originalFee?: number;
+  discountPercent?: number;
+  offerActive?: boolean;
+  offerBadge?: string;
+  offerDescription?: string;
   providerPriority: string[];
   maintenanceMode: boolean;
   maintenanceNotice: string;
@@ -43,6 +48,32 @@ const ServiceConfigSchema = new Schema<IServiceConfig>(
       type: Number,
       required: true,
       min: 0,
+    },
+    originalFee: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    discountPercent: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
+    },
+    offerActive: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+    offerBadge: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    offerDescription: {
+      type: String,
+      default: '',
+      trim: true,
     },
     providerPriority: {
       type: [String],

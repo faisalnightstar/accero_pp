@@ -20,7 +20,8 @@
 - [Voter ID (EPIC) Card Printing](https://printportal.accero.app/services/voter-id-printing): Instant EPIC verification and CR80 PVC formatting.
 - [Driving Licence Printing](https://printportal.accero.app/services/driving-licence-printing): State RTO DL lookup and card tray formatting.
 - [Vehicle Registration Certificate (RC)](https://printportal.accero.app/services/vehicle-rc-printing): VAHAN RC search and smart card printing.
-- [Ration Card Management](https://printportal.accero.app/services/ration-card-management): NFSA ration card lookup and family sheet formatting.
+- [Ration Card Printing](https://printportal.accero.app/services/ration-card-printing): NFSA ration card lookup and family sheet formatting.
+- [Farmer Registry Card Printing](https://printportal.accero.app/services/farmer-id-printing): PM-Kisan & State Farmer ID card printing and formatting.
 
 ## Target Operator Audiences & Pillar Pages
 - [Print Portal Hub](https://printportal.accero.app/print-portal): Centralized directory and document utility index.

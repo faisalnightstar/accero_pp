@@ -6,6 +6,12 @@
         "Authorization": "Bearer e5c898f8c15a57de9fdeccecb918a7939899",
         "Content-Type": "application/json"
       }
+    },
+    "21st": {
+      "url": "https://21st.dev/api/mcp",
+      "headers": {
+        "x-api-key": "21st_sk_e6e9c6895928e5335df845bcf1aea1eb91290904839d03faf552535f6372c05d"
+      }
     }
   }
 }

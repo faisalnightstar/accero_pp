@@ -228,4 +228,166 @@ export function RcAshokaCrest({
   );
 }
 
+/**
+ * Clean AgriStack Official Header Brand Logo
+ */
+export function AgriStackLogo({
+  className = 'h-7',
+}: {
+  className?: string;
+}) {
+  return (
+    <div className={`flex items-center select-none ${className}`}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/assets/farmer/farmer-card-logo.png"
+        alt="AgriStack Logo"
+        className="h-full w-auto object-contain pointer-events-none select-none"
+        loading="eager"
+      />
+    </div>
+  );
+}
+
+/**
+ * National Food Security Act (NFSA) Golden Wheat Crest
+ */
+export function NfsaWheatEmblem({
+  className = 'w-9 h-9',
+}: {
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="NFSA Wheat Emblem"
+    >
+      {/* Outer Green Ring */}
+      <circle cx="50" cy="50" r="46" fill="#047857" stroke="#F59E0B" strokeWidth="2.5" />
+      <circle cx="50" cy="50" r="41" fill="#FFFFFF" stroke="#047857" strokeWidth="1" />
+      {/* Golden Wheat Grains Left */}
+      <path
+        d="M50 82 C40 70 34 56 36 38 C32 44 30 52 32 62 C34 72 42 80 50 82 Z"
+        fill="#D97706"
+      />
+      <ellipse cx="40" cy="46" rx="4" ry="7" transform="rotate(-30 40 46)" fill="#F59E0B" stroke="#B45309" strokeWidth="0.8" />
+      <ellipse cx="37" cy="56" rx="4" ry="7" transform="rotate(-25 37 56)" fill="#F59E0B" stroke="#B45309" strokeWidth="0.8" />
+      <ellipse cx="38" cy="66" rx="4" ry="7" transform="rotate(-20 38 66)" fill="#F59E0B" stroke="#B45309" strokeWidth="0.8" />
+      {/* Golden Wheat Grains Right */}
+      <path
+        d="M50 82 C60 70 66 56 64 38 C68 44 70 52 68 62 C66 72 58 80 50 82 Z"
+        fill="#D97706"
+      />
+      <ellipse cx="60" cy="46" rx="4" ry="7" transform="rotate(30 60 46)" fill="#F59E0B" stroke="#B45309" strokeWidth="0.8" />
+      <ellipse cx="63" cy="56" rx="4" ry="7" transform="rotate(25 63 56)" fill="#F59E0B" stroke="#B45309" strokeWidth="0.8" />
+      <ellipse cx="62" cy="66" rx="4" ry="7" transform="rotate(20 62 66)" fill="#F59E0B" stroke="#B45309" strokeWidth="0.8" />
+      {/* Center Wheat Ear Stem */}
+      <path d="M50 24 V82" stroke="#047857" strokeWidth="2.5" strokeLinecap="round" />
+      <ellipse cx="50" cy="28" rx="3.5" ry="7" fill="#F59E0B" stroke="#B45309" strokeWidth="0.8" />
+      <ellipse cx="46" cy="38" rx="3.5" ry="6.5" transform="rotate(-20 46 38)" fill="#F59E0B" stroke="#B45309" strokeWidth="0.8" />
+      <ellipse cx="54" cy="38" rx="3.5" ry="6.5" transform="rotate(20 54 38)" fill="#F59E0B" stroke="#B45309" strokeWidth="0.8" />
+      {/* NFSA Text Arc */}
+      <rect x="25" y="70" width="50" height="12" rx="3" fill="#047857" />
+      <text
+        x="50"
+        y="79"
+        textAnchor="middle"
+        fontSize="7.5"
+        fontWeight="900"
+        fill="#FFFFFF"
+        fontFamily="sans-serif"
+        letterSpacing="1"
+      >
+        NFSA
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * One Nation One Ration Card (ONORC) Official Emblem
+ */
+export function OnorcBadge({
+  className = 'w-10 h-10',
+}: {
+  className?: string;
+}) {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      aria-label="One Nation One Ration Card (ONORC)"
+    >
+      <circle cx="50" cy="50" r="46" fill="#1E3A8A" stroke="#F59E0B" strokeWidth="2" />
+      <circle cx="50" cy="50" r="41" fill="#FFFFFF" />
+      {/* India Map outline / Silhouette representation */}
+      <circle cx="50" cy="46" r="22" fill="#DBEAFE" />
+      {/* Tricolor Swirl */}
+      <path d="M28 42 C40 38 60 48 72 40" stroke="#FF9933" strokeWidth="3" strokeLinecap="round" fill="none" />
+      <path d="M28 48 C40 44 60 54 72 46" stroke="#1E3A8A" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path d="M28 54 C40 50 60 60 72 52" stroke="#138808" strokeWidth="3" strokeLinecap="round" fill="none" />
+      {/* Center Text */}
+      <text
+        x="50"
+        y="68"
+        textAnchor="middle"
+        fontSize="8"
+        fontWeight="900"
+        fill="#1E3A8A"
+        fontFamily="sans-serif"
+      >
+        ONORC
+      </text>
+      <text
+        x="50"
+        y="78"
+        textAnchor="middle"
+        fontSize="5"
+        fontWeight="bold"
+        fill="#B45309"
+        fontFamily="sans-serif"
+      >
+        एक राष्ट्र एक राशन
+      </text>
+    </svg>
+  );
+}
+
+/**
+ * Ration Security Guilloche Pattern
+ */
+export function RationGuillocheSecurity({
+  className = '',
+  opacity = 0.07,
+  color = '#047857',
+}: {
+  className?: string;
+  opacity?: number;
+  color?: string;
+}) {
+  return (
+    <svg
+      className={`absolute inset-0 w-full h-full pointer-events-none ${className}`}
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ opacity }}
+    >
+      <defs>
+        <pattern id="ration-waves" width="40" height="20" patternUnits="userSpaceOnUse">
+          <path
+            d="M 0 10 Q 10 0 20 10 T 40 10 M 0 15 Q 10 5 20 15 T 40 15"
+            fill="none"
+            stroke={color}
+            strokeWidth="0.4"
+          />
+        </pattern>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#ration-waves)" />
+    </svg>
+  );
+}
+
+
 

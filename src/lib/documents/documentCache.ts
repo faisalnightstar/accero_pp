@@ -49,6 +49,11 @@ export function normalizeDocumentIdentifier(docType: string, rawId: string): str
       // Remove all spaces and uppercase
       return clean.replace(/\s+/g, '').toUpperCase();
 
+    case 'FARMER':
+    case 'AGRISTACK':
+      // Remove all spaces and uppercase
+      return clean.replace(/\s+/g, '').toUpperCase();
+
     default:
       return clean.toUpperCase();
   }
@@ -57,7 +62,9 @@ export function normalizeDocumentIdentifier(docType: string, rawId: string): str
 /**
  * Normalize docType to standard uppercase string
  */
-export function normalizeDocTypeString(type: string): 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION' {
+export function normalizeDocTypeString(
+  type: string
+): 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION' | 'FARMER' {
   const upper = type.toUpperCase().trim();
   if (upper === 'VOTER' || upper === 'EPIC') return 'VOTER';
   if (upper === 'PAN') return 'PAN';
@@ -65,6 +72,7 @@ export function normalizeDocTypeString(type: string): 'PAN' | 'AADHAAR' | 'VOTER
   if (upper === 'DL' || upper === 'DRIVING_LICENSE') return 'DL';
   if (upper === 'RC' || upper === 'VEHICLE_RC') return 'RC';
   if (upper === 'RATION' || upper === 'RATION_CARD') return 'RATION';
+  if (upper === 'FARMER' || upper === 'AGRISTACK') return 'FARMER';
   return (upper as any) || 'PAN';
 }
 
@@ -76,7 +84,7 @@ export function generateDocumentCacheKey(
   docType: string,
   documentNumber: string
 ): {
-  normalizedType: 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION';
+  normalizedType: 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION' | 'FARMER';
   normalizedId: string;
   hash: string;
   cacheKey: string;

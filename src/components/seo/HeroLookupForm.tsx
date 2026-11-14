@@ -10,6 +10,9 @@ interface HeroLookupFormProps {
   placeholder: string;
   exampleId: string;
   fee: number;
+  originalFee?: number;
+  discountPercent?: number;
+  offerBadge?: string;
 }
 
 export default function HeroLookupForm({
@@ -17,6 +20,9 @@ export default function HeroLookupForm({
   placeholder,
   exampleId,
   fee,
+  originalFee,
+  discountPercent,
+  offerBadge,
 }: HeroLookupFormProps) {
   const router = useRouter();
   const [lookupValue, setLookupValue] = useState('');
@@ -93,13 +99,24 @@ export default function HeroLookupForm({
           </button>
         </div>
 
-        <div className="flex items-center gap-3">
-          <span className="text-emerald-400 font-medium">Standard Fee: ₹{fee}</span>
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-emerald-400 font-medium inline-flex items-center gap-1.5">
+            <span>Standard Fee:</span>
+            {originalFee && originalFee > fee && (
+              <span className="line-through text-slate-400 font-normal">₹{originalFee}</span>
+            )}
+            <span className="font-bold text-white">₹{fee}</span>
+            {discountPercent && discountPercent > 0 && (
+              <span className="bg-emerald-500/20 text-emerald-300 text-[10px] font-black px-1.5 py-0.5 rounded border border-emerald-500/30">
+                {offerBadge || `${discountPercent}% OFF`}
+              </span>
+            )}
+          </span>
           <a
             href={`/studio?type=${docType}`}
             className="text-slate-400 hover:text-white transition-colors underline underline-offset-2"
           >
-            Manual Entry Studio
+            Manual Entry Studio (₹5)
           </a>
         </div>
       </div>

@@ -13,7 +13,7 @@ interface WhatsAppSupportWidgetProps {
  * Automatically pushes conversion event 'whatsapp_support_click' to GTM/GA4 dataLayer.
  */
 export default function WhatsAppSupportWidget({
-  phoneNumber = '919876543210',
+  phoneNumber = '919891210648',
   defaultMessage = 'Hello Accero Support, I run a CSC / Cyber Cafe and have a question about PrintPortal.',
 }: WhatsAppSupportWidgetProps) {
   const handleClick = () => {

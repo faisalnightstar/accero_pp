@@ -17,9 +17,9 @@ describe('Technical SEO & Public Route Indexing Architecture', () => {
   const sitemapUrls = generatedSitemap.map((item) => item.url);
 
   describe('1. Sitemap Coverage & Parity', () => {
-    it('contains all 49 genuinely public canonical website routes', () => {
-      expect(CANONICAL_PUBLIC_ROUTES).toHaveLength(49);
-      expect(generatedSitemap).toHaveLength(49);
+    it('contains all 52 genuinely public canonical website routes', () => {
+      expect(CANONICAL_PUBLIC_ROUTES).toHaveLength(52);
+      expect(generatedSitemap).toHaveLength(52);
     });
 
     it('ensures every sitemap URL starts with the canonical HTTPS domain', () => {
@@ -83,6 +83,11 @@ describe('Technical SEO & Public Route Indexing Architecture', () => {
         '/services/driving-license',
         '/services/vehicle-rc',
         '/services/ration-card',
+        '/services/ration-card-management',
+        '/services/farmer',
+        '/services/farmer-id',
+        '/services/farmer-card',
+        '/services/farmer-registry-card',
       ];
 
       aliasSlugs.forEach((alias) => {

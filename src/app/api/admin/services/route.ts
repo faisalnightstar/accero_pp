@@ -1,5 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getAdminServices, updateAdminServiceConfig } from '@/actions/admin';
+import {
+  getAdminServices,
+  updateAdminServiceConfig,
+  applyBatchServiceDiscount,
+} from '@/actions/admin';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,9 +22,24 @@ export async function GET() {
 export async function PATCH(request: Request) {
   try {
     const body = await request.json();
+
+    if (body.batch === true && typeof body.discountPercent === 'number') {
+      const batchResult = await applyBatchServiceDiscount(
+        body.discountPercent,
+        body.offerBadge,
+        body.activateOffer ?? true
+      );
+      return NextResponse.json(batchResult);
+    }
+
     const result = await updateAdminServiceConfig(body.serviceId, {
       enabled: body.enabled,
       fee: body.fee,
+      originalFee: body.originalFee,
+      discountPercent: body.discountPercent,
+      offerActive: body.offerActive,
+      offerBadge: body.offerBadge,
+      offerDescription: body.offerDescription,
       maintenanceMode: body.maintenanceMode,
       maintenanceNotice: body.maintenanceNotice,
     });

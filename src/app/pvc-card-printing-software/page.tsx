@@ -130,8 +130,11 @@ export default function PvcCardPrintingSoftwarePage() {
               </h1>
 
               {/* AEO / GEO Definition Snippet Box */}
-              <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-blue-600 text-slate-700 text-base sm:text-lg leading-relaxed shadow-sm font-medium">
-                <strong>Accero PrintPortal’s PVC Card Print Engine</strong> is a browser-native formatting platform engineered for physical ID card printing on Epson (Tray J), Canon PIXMA, and thermal dye-sublimation card printers. Conforming strictly to international ISO/IEC 7810 ID-1 dimensions (85.60 mm × 53.98 mm), it delivers zero-margin print precision, 300 DPI vector clarity, and live split-screen missing data validation.
+              <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-sm">
+                <div className="w-1.5 self-stretch bg-blue-600 rounded-full shrink-0" />
+                <p className="text-slate-700 text-base sm:text-lg leading-relaxed font-medium">
+                  <strong className="text-slate-900">Accero PrintPortal’s PVC Card Print Engine</strong> is a browser-native formatting platform engineered for physical ID card printing on Epson (Tray J), Canon PIXMA, and thermal dye-sublimation card printers. Conforming strictly to international ISO/IEC 7810 ID-1 dimensions (85.60 mm × 53.98 mm), it delivers zero-margin print precision, 300 DPI vector clarity, and live split-screen missing data validation.
+                </p>
               </div>
 
               <p className="text-slate-600 text-base sm:text-lg leading-relaxed">

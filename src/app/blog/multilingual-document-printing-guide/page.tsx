@@ -140,8 +140,11 @@ export default function MultilingualDocumentPrintingGuidePage() {
             </h1>
 
             {/* AEO / Quick Answer Box */}
-            <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-indigo-600 text-slate-700 text-base leading-relaxed font-medium">
-              <strong>Quick Answer:</strong> To print bilingual Indian identity cards (such as Aadhaar, Voter ID, and Ration cards) without broken characters or missing vowel marks (matras), use an embedded Unicode font engine rather than unverified local desktop fonts. Accero PrintPortal natively embeds high-legibility Google Fonts Hind and regional glyph sets into 300 DPI vector layouts, guaranteeing 100% accurate rendering on Epson and Canon PVC card trays across Windows 7, 10, and 11.
+            <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-sm">
+              <div className="w-1.5 self-stretch bg-indigo-600 rounded-full shrink-0" />
+              <p className="text-slate-700 text-base leading-relaxed font-medium">
+                <strong className="text-slate-900">Quick Answer:</strong> To print bilingual Indian identity cards (such as Aadhaar, Voter ID, and Ration cards) without broken characters or missing vowel marks (matras), use an embedded Unicode font engine rather than unverified local desktop fonts. Accero PrintPortal natively embeds high-legibility Google Fonts Hind and regional glyph sets into 300 DPI vector layouts, guaranteeing 100% accurate rendering on Epson and Canon PVC card trays across Windows 7, 10, and 11.
+              </p>
             </div>
           </header>
 

@@ -20,6 +20,12 @@ import {
 } from 'lucide-react';
 import { VOTER_LANGUAGES, VoterLanguageCode, translateVoterText } from '@/lib/voterLanguages';
 import { AADHAAR_LANGUAGES, AadhaarLanguageCode, translateAadhaarText } from '@/lib/aadhaarLanguages';
+import {
+  FARMER_LANGUAGE_OPTIONS,
+  getFarmerLanguageConfig,
+  FarmerLanguageCode,
+  translateFarmerText,
+} from '@/lib/farmerLanguages';
 
 const DL_VEHICLE_PRESETS = [
   { code: 'MCWG', desc: 'Motor Cycle With Gear', category: 'NT' },
@@ -50,6 +56,63 @@ export default function CardForm({
 }: CardFormProps) {
   const [isTranslating, setIsTranslating] = useState(false);
   const [isAadhaarTranslating, setIsAadhaarTranslating] = useState(false);
+  const [isFarmerTranslating, setIsFarmerTranslating] = useState(false);
+  const [isRationTranslating, setIsRationTranslating] = useState(false);
+
+  // Auto-translate helper for Ration Card
+  const handleRationTranslate = async () => {
+    setIsRationTranslating(true);
+    try {
+      if (data.headOfFamily) {
+        const tr = await translateAadhaarText(data.headOfFamily, 'HI');
+        onFieldChange('headOfFamilyRegional', tr);
+      }
+      if (data.fatherOrSpouseName) {
+        const tr = await translateAadhaarText(data.fatherOrSpouseName, 'HI');
+        onFieldChange('fatherOrSpouseNameRegional', tr);
+      }
+      if (data.address) {
+        const tr = await translateAadhaarText(data.address, 'HI');
+        onFieldChange('addressRegional', tr);
+      }
+    } finally {
+      setIsRationTranslating(false);
+    }
+  };
+
+  const handleAddFamilyMember = () => {
+    const list = Array.isArray(data.familyMembers) ? [...data.familyMembers] : [];
+    const nextIdx = list.length + 1;
+    const newMember = {
+      slNo: nextIdx,
+      memberId: `M00${nextIdx}`,
+      name: '',
+      nameRegional: '',
+      relation: 'Family Member',
+      gender: 'Male',
+      age: 20,
+      uidLinked: true,
+      uidMasked: 'XXXX-XXXX-1234',
+    };
+    const updated = [...list, newMember];
+    onFieldChange('familyMembers', updated);
+    onFieldChange('memberCount', updated.length);
+  };
+
+  const handleRemoveFamilyMember = (index: number) => {
+    const list = Array.isArray(data.familyMembers) ? [...data.familyMembers] : [];
+    const updated = list.filter((_, i) => i !== index).map((m, i) => ({ ...m, slNo: i + 1 }));
+    onFieldChange('familyMembers', updated);
+    onFieldChange('memberCount', updated.length);
+  };
+
+  const handleUpdateFamilyMember = (index: number, key: string, val: any) => {
+    const list = Array.isArray(data.familyMembers) ? [...data.familyMembers] : [];
+    if (!list[index]) return;
+    const updated = [...list];
+    updated[index] = { ...updated[index], [key]: val };
+    onFieldChange('familyMembers', updated);
+  };
 
   // Auto-translate helper for multi-lingual Aadhaar Card
   const handleAadhaarTranslate = async (targetLang?: string) => {
@@ -143,6 +206,40 @@ export default function CardForm({
       }
     } finally {
       setIsTranslating(false);
+    }
+  };
+
+  // Auto-translate helper for multi-lingual Farmer Card
+  const handleFarmerTranslate = async (targetLang?: string) => {
+    const lang = (targetLang || data.language || 'HI').toUpperCase() as FarmerLanguageCode;
+    const langConfig = getFarmerLanguageConfig(lang);
+    setIsFarmerTranslating(true);
+
+    try {
+      onFieldChange('language', lang);
+
+      // 1. Set regional headers from dictionary for target language
+      onFieldChange('departmentHeaderRegional', langConfig.headerTitle.regional);
+      onFieldChange('departmentTitleRegional', langConfig.headerTitle.regional);
+      onFieldChange('ministryHeaderRegional', langConfig.ministryTitle.regional);
+      onFieldChange('ministryTitleRegional', langConfig.ministryTitle.regional);
+
+      // 2. Set regional gender from dictionary
+      const isFemale = (data.gender || '').toLowerCase().includes('female');
+      onFieldChange('genderRegional', isFemale ? langConfig.labels.female : langConfig.labels.male);
+
+      // 3. Auto-translate Farmer Name (English -> Regional)
+      const nameToTranslate = data.farmerName || data.name;
+      if (nameToTranslate) {
+        if (lang === 'EN') {
+          onFieldChange('farmerNameRegional', nameToTranslate);
+        } else {
+          const transName = await translateFarmerText(nameToTranslate, lang);
+          onFieldChange('farmerNameRegional', transName);
+        }
+      }
+    } finally {
+      setIsFarmerTranslating(false);
     }
   };
 
@@ -1225,6 +1322,586 @@ export default function CardForm({
               </div>
               <div>
                 {renderInput('cardIssueDate', 'Card Issue Date', '30-08-2026', 'text', false)}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 5B. RATION CARD (NFSA / Department of Food & Civil Supplies)  */}
+      {/* ============================================================== */}
+      {docType === 'ration' && (
+        <div className="space-y-4">
+          {/* Section 1: Ration Card Identity & Scheme */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+                <CreditCard className="w-3.5 h-3.5 text-burgundy" />
+                <span>1. Ration Card Identity & Category</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleRationTranslate}
+                disabled={isRationTranslating}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-white bg-burgundy hover:bg-burgundy/90 rounded-md shadow-2xs transition-all disabled:opacity-50"
+                title="Auto-translate Head of Family, Father/Spouse, and Address to Hindi"
+              >
+                {isRationTranslating ? (
+                  <>
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                    <span>Translating...</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3 h-3 text-gold" />
+                    <span>Auto-Translate</span>
+                  </>
+                )}
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                {renderInput('rationCardNumber', 'Ration Card Number', '10350050028009409992', 'text', true)}
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Card Category / Scheme <span className="text-crimson">*</span>
+                </label>
+                <select
+                  value={data.category || 'PHH'}
+                  onChange={(e) => {
+                    const cat = e.target.value;
+                    onFieldChange('category', cat);
+                    const schemeNames: Record<string, string> = {
+                      PHH: 'PHH - Priority Household (पात्र गृहस्थी)',
+                      AAY: 'AAY - Antyodaya Anna Yojana (अंत्योदय अन्न योजना)',
+                      BPL: 'BPL - Below Poverty Line (गरीबी रेखा से नीचे)',
+                      APL: 'APL - Above Poverty Line (सामान्य परिवार)',
+                      WHITE: 'WHITE - Non-Subsidized White Card',
+                    };
+                    onFieldChange('schemeName', schemeNames[cat] || cat);
+                  }}
+                  className="w-full text-xs font-semibold rounded-lg border border-slate-300 p-2 bg-white focus:ring-1 focus:ring-burgundy"
+                >
+                  <option value="PHH">PHH - Priority Household (पात्र गृहस्थी)</option>
+                  <option value="AAY">AAY - Antyodaya Anna Yojana (अंत्योदय)</option>
+                  <option value="BPL">BPL - Below Poverty Line</option>
+                  <option value="APL">APL - Above Poverty Line</option>
+                  <option value="WHITE">WHITE - Non-Subsidized Card</option>
+                </select>
+              </div>
+
+              <div>
+                {renderInput('schemeName', 'Scheme Description', 'PHH - Priority Household (पात्र गृहस्थी)', 'text', false)}
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Card Status
+                </label>
+                <select
+                  value={data.status || 'ACTIVE'}
+                  onChange={(e) => onFieldChange('status', e.target.value)}
+                  className="w-full text-xs font-semibold rounded-lg border border-slate-300 p-2 bg-white focus:ring-1 focus:ring-burgundy"
+                >
+                  <option value="ACTIVE">ACTIVE (सक्रिय)</option>
+                  <option value="INACTIVE">INACTIVE (निष्क्रिय / निलंबित)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Head of Family & Photograph */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <User className="w-3.5 h-3.5 text-burgundy" />
+              <span>2. Head of Family (मुखिया) Details</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                {renderInput('headOfFamily', 'Head of Family Name (English)', 'Sunita Devi', 'text', true)}
+              </div>
+              <div>
+                {renderInput('headOfFamilyRegional', 'Head of Family Name (Regional / Hindi)', 'सुनीता देवी', 'text', false)}
+              </div>
+              <div>
+                {renderInput('fatherOrSpouseName', 'Father / Spouse Name (English)', 'Ramesh Kumar', 'text', false)}
+              </div>
+              <div>
+                {renderInput('fatherOrSpouseNameRegional', 'Father / Spouse Name (Regional / Hindi)', 'रमेश कुमार', 'text', false)}
+              </div>
+              <div className="sm:col-span-2 pt-2 border-t border-slate-200/60">
+                <AssetDropzone
+                  label="Head of Family Photograph"
+                  value={data.photoUrl}
+                  onChange={(val) => onFieldChange('photoUrl', val)}
+                  onClear={() => onFieldChange('photoUrl', '')}
+                  aspectRatio="photo"
+                  helperText="Passport photograph of Head of Family (Mukhya)"
+                  isMissing={missingKeys.includes('photoUrl')}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Fair Price Shop (FPS) & Entitlements */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <Shield className="w-3.5 h-3.5 text-burgundy" />
+              <span>3. Fair Price Shop (FPS) & Gas Details</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                {renderInput('fpsCode', 'Fair Price Shop Code', '10423001', 'text', false)}
+              </div>
+              <div>
+                {renderInput('fpsName', 'Fair Price Shop Dealer Name', 'Shri Ram Kripa Sahkari Bhandar', 'text', false)}
+              </div>
+              <div>
+                {renderInput('gasConnectionStatus', 'Gas Connection (PMUY / None)', 'Yes (PMUY)', 'text', false)}
+              </div>
+              <div className="flex items-center gap-2 pt-5">
+                <input
+                  id="input-onorcEligible"
+                  type="checkbox"
+                  checked={data.onorcEligible !== false}
+                  onChange={(e) => onFieldChange('onorcEligible', e.target.checked)}
+                  className="w-4 h-4 text-burgundy rounded border-slate-300 focus:ring-burgundy"
+                />
+                <label htmlFor="input-onorcEligible" className="text-xs font-semibold text-gray-700 cursor-pointer">
+                  One Nation One Ration Card (ONORC) Eligible
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Residential Address & Jurisdiction */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <MapPin className="w-3.5 h-3.5 text-burgundy" />
+              <span>4. Address & Jurisdiction</span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="sm:col-span-2">
+                {renderInput('address', 'Full Residential Address (English)', 'House No. 42, Ward 12, Rampur, Patna, Bihar - 800001', 'text', true)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('addressRegional', 'Full Address (Regional / Hindi)', 'मकान नं. 42, वार्ड 12, रामपुर, पटना, बिहार - 800001', 'text', false)}
+              </div>
+              <div>
+                {renderInput('district', 'District (जिला)', 'Patna', 'text', false)}
+              </div>
+              <div>
+                {renderInput('state', 'State (राज्य)', 'Bihar', 'text', false)}
+              </div>
+              <div>
+                {renderInput('issueDate', 'Issue Date (DD/MM/YYYY)', '12/04/2021', 'text', false)}
+              </div>
+              <div>
+                {renderInput('validUpto', 'Validity', 'Life Time', 'text', false)}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 5: Family Members Manager */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+                <User className="w-3.5 h-3.5 text-burgundy" />
+                <span>5. Family Members List</span>
+                <span className="text-[10px] font-bold bg-burgundy/10 text-burgundy px-1.5 py-0.5 rounded-full ml-1">
+                  {Array.isArray(data.familyMembers) ? data.familyMembers.length : 0} Members
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleAddFamilyMember}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-md shadow-2xs transition-all"
+              >
+                <Plus className="w-3 h-3" />
+                <span>Add Member</span>
+              </button>
+            </div>
+
+            {Array.isArray(data.familyMembers) && data.familyMembers.length > 0 ? (
+              <div className="space-y-2">
+                {data.familyMembers.map((member: any, idx: number) => (
+                  <div
+                    key={member.memberId || idx}
+                    className="p-2.5 bg-white border border-slate-200 rounded-lg space-y-2 shadow-2xs"
+                  >
+                    <div className="flex items-center justify-between border-b border-slate-100 pb-1">
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-black flex items-center justify-center">
+                          {idx + 1}
+                        </span>
+                        <span className="text-xs font-bold text-slate-800">
+                          {member.name || `Member ${idx + 1}`}
+                        </span>
+                        <span className="text-[10px] text-gray-500">
+                          ({member.relation || 'Member'})
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveFamilyMember(idx)}
+                        className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
+                        title="Remove member"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
+                      <div className="sm:col-span-2">
+                        <label className="block text-[10px] font-semibold text-gray-600 mb-0.5">
+                          Member Name
+                        </label>
+                        <input
+                          type="text"
+                          value={member.name || ''}
+                          onChange={(e) => handleUpdateFamilyMember(idx, 'name', e.target.value)}
+                          placeholder="Full Name"
+                          className="w-full text-xs rounded border border-slate-300 p-1.5 focus:ring-1 focus:ring-burgundy"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-semibold text-gray-600 mb-0.5">
+                          Relation
+                        </label>
+                        <input
+                          type="text"
+                          value={member.relation || ''}
+                          onChange={(e) => handleUpdateFamilyMember(idx, 'relation', e.target.value)}
+                          placeholder="e.g. Son, Wife"
+                          className="w-full text-xs rounded border border-slate-300 p-1.5 focus:ring-1 focus:ring-burgundy"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] font-semibold text-gray-600 mb-0.5">
+                          Gender / Age
+                        </label>
+                        <div className="flex gap-1">
+                          <select
+                            value={member.gender || 'Male'}
+                            onChange={(e) => handleUpdateFamilyMember(idx, 'gender', e.target.value)}
+                            className="w-1/2 text-xs rounded border border-slate-300 p-1 focus:ring-1 focus:ring-burgundy"
+                          >
+                            <option value="Male">M</option>
+                            <option value="Female">F</option>
+                            <option value="Other">O</option>
+                          </select>
+                          <input
+                            type="number"
+                            value={member.age || ''}
+                            onChange={(e) => handleUpdateFamilyMember(idx, 'age', Number(e.target.value))}
+                            placeholder="Age"
+                            className="w-1/2 text-xs rounded border border-slate-300 p-1 focus:ring-1 focus:ring-burgundy"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1 pt-3 sm:pt-4">
+                        <input
+                          type="checkbox"
+                          id={`uid-link-${idx}`}
+                          checked={member.uidLinked !== false}
+                          onChange={(e) => handleUpdateFamilyMember(idx, 'uidLinked', e.target.checked)}
+                          className="w-3.5 h-3.5 text-burgundy rounded border-slate-300"
+                        />
+                        <label htmlFor={`uid-link-${idx}`} className="text-[10px] font-semibold text-gray-600 cursor-pointer">
+                          Aadhaar Linked
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-4 bg-white border border-dashed border-slate-300 rounded-lg text-xs text-gray-500">
+                No family members added. Click &quot;Add Member&quot; to add family members to this Ration Card.
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* 6. FARMER ID (AgriStack / Rajasthan Farmer Registry) FORM     */}
+      {/* ============================================================== */}
+      {docType === 'farmer' && (
+        <div className="space-y-4">
+          {/* Section 1: Identity & Personal Details */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+                <User className="w-3.5 h-3.5 text-burgundy" />
+                <span>1. Farmer Identity & Details</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
+                  <Languages className="w-3.5 h-3.5 text-burgundy" />
+                  <select
+                    value={data.language || 'HI'}
+                    onChange={(e) => {
+                      const newLang = e.target.value as FarmerLanguageCode;
+                      onFieldChange('language', newLang);
+                      handleFarmerTranslate(newLang);
+                    }}
+                    className="text-[11px] font-semibold text-slate-700 bg-white border border-slate-300 rounded px-2 py-0.5 focus:ring-1 focus:ring-burgundy"
+                  >
+                    {FARMER_LANGUAGE_OPTIONS.map((lang) => (
+                      <option key={lang.code} value={lang.code}>
+                        {lang.name} ({lang.nativeName})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleFarmerTranslate()}
+                  disabled={isFarmerTranslating}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold text-white bg-burgundy hover:bg-burgundy/90 rounded-md shadow-2xs transition-all disabled:opacity-50"
+                  title="Auto-translate Farmer Name, Department Header, and Ministry Header into selected regional language"
+                >
+                  {isFarmerTranslating ? (
+                    <>
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span>Translating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-3 h-3 text-gold" />
+                      <span>Auto-Translate</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                {renderInput('farmerId', 'Farmer ID', '4256 177 6703', 'text', true)}
+              </div>
+              <div>
+                {renderInput('aadhaarNumber', 'Aadhaar Number (12 Digits)', '411921789250', 'text', false)}
+              </div>
+              <div>
+                <label htmlFor="input-farmerName" className="block text-xs font-semibold text-gray-700 mb-1">
+                  Farmer Name (English) <span className="text-crimson">*</span>
+                </label>
+                <input
+                  id="input-farmerName"
+                  type="text"
+                  value={data.farmerName || ''}
+                  onChange={(e) => onFieldChange('farmerName', e.target.value)}
+                  onBlur={async () => {
+                    const name = data.farmerName;
+                    if (name && !data.farmerNameRegional) {
+                      setIsFarmerTranslating(true);
+                      try {
+                        const res = await translateFarmerText(name, data.language || 'HI');
+                        onFieldChange('farmerNameRegional', res);
+                      } finally {
+                        setIsFarmerTranslating(false);
+                      }
+                    }
+                  }}
+                  className="w-full text-xs rounded-lg border border-slate-300 p-2 focus:ring-1 focus:ring-burgundy focus:border-burgundy"
+                  placeholder="e.g. Mohan Singh"
+                />
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label htmlFor="input-farmerNameRegional" className="text-xs font-semibold text-gray-700">
+                    Farmer Name (Regional / {getFarmerLanguageConfig(data.language).name})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const name = data.farmerName;
+                      if (!name) return;
+                      setIsFarmerTranslating(true);
+                      try {
+                        const res = await translateFarmerText(name, data.language || 'HI');
+                        onFieldChange('farmerNameRegional', res);
+                      } finally {
+                        setIsFarmerTranslating(false);
+                      }
+                    }}
+                    disabled={isFarmerTranslating || !data.farmerName}
+                    className="inline-flex items-center gap-1 text-[10px] font-bold text-burgundy hover:text-burgundy/80 hover:underline disabled:opacity-40"
+                    title="Translate name to regional script"
+                  >
+                    <Sparkles className="w-2.5 h-2.5 text-gold" />
+                    <span>Auto-Translate</span>
+                  </button>
+                </div>
+                <input
+                  id="input-farmerNameRegional"
+                  type="text"
+                  value={data.farmerNameRegional || ''}
+                  onChange={(e) => onFieldChange('farmerNameRegional', e.target.value)}
+                  className="w-full text-xs rounded-lg border border-slate-300 p-2 focus:ring-1 focus:ring-burgundy focus:border-burgundy"
+                  placeholder="e.g. मोहन सिंह"
+                />
+              </div>
+              <div>
+                {renderInput('gender', 'Gender (English)', 'Male', 'text', true)}
+              </div>
+              <div>
+                {renderInput('genderRegional', 'Gender (Regional / Hindi)', 'पुरुष', 'text', false)}
+              </div>
+              <div>
+                {renderInput('dateOfBirth', 'Date of Birth (DD/MM/YYYY)', '01/01/1981', 'text', true)}
+              </div>
+              <div>
+                {renderInput('caste', 'Caste / Category', 'General / OBC / SC / ST', 'text', false)}
+              </div>
+              <div>
+                {renderInput('areaCategory', 'Area (Rural / Urban)', 'Rural', 'text', false)}
+              </div>
+              <div>
+                {renderInput('approvalDate', 'Approval Date', '15/06/2025', 'text', false)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('downloadDate', 'Download Date', '15/06/2025', 'text', false)}
+              </div>
+              <div className="sm:col-span-2 pt-2 border-t border-slate-200/60">
+                <AssetDropzone
+                  label="Farmer Photograph"
+                  value={data.photoUrl}
+                  onChange={(val) => onFieldChange('photoUrl', val)}
+                  onClear={() => onFieldChange('photoUrl', '')}
+                  aspectRatio="photo"
+                  helperText="Passport photograph (White or neutral background)"
+                  isMissing={missingKeys.includes('photoUrl')}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Address Information */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <MapPin className="w-3.5 h-3.5 text-burgundy" />
+              <span>2. Farmer Address</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-medium text-slate-700 mb-1">
+                  Full Address Line
+                </label>
+                <textarea
+                  rows={2}
+                  value={
+                    typeof data.address === 'object' && data.address?.fullAddress
+                      ? data.address.fullAddress
+                      : typeof data.address === 'string'
+                        ? data.address
+                        : ''
+                  }
+                  onChange={(e) => {
+                    const fullAddr = e.target.value;
+                    if (typeof data.address === 'object' && data.address !== null) {
+                      onFieldChange('address', { ...data.address, fullAddress: fullAddr });
+                    } else {
+                      onFieldChange('address', { fullAddress: fullAddr });
+                    }
+                  }}
+                  className="w-full text-xs rounded-lg border border-slate-300 p-2 focus:ring-1 focus:ring-burgundy focus:border-burgundy"
+                  placeholder="S/O: Keshariya, jatav muhalla, house no., Dahwa, Bharatpur, Rajasthan - 321201"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Header, Footer & Verification Configuration */}
+          <div className="space-y-3 p-3.5 rounded-xl bg-slate-50/80 border border-slate-200/80">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <Calendar className="w-3.5 h-3.5 text-burgundy" />
+              <span>3. Registry & Contact Info</span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label htmlFor="input-departmentHeaderRegional" className="text-xs font-semibold text-gray-700">
+                    Department Header (Regional / {getFarmerLanguageConfig(data.language).name})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cfg = getFarmerLanguageConfig(data.language || 'HI');
+                      onFieldChange('departmentHeaderRegional', cfg.headerTitle.regional);
+                      onFieldChange('departmentTitleRegional', cfg.headerTitle.regional);
+                    }}
+                    className="inline-flex items-center gap-1 text-[10px] font-bold text-burgundy hover:text-burgundy/80 hover:underline"
+                    title="Auto-fill official regional department header"
+                  >
+                    <Sparkles className="w-2.5 h-2.5 text-gold" />
+                    <span>Auto-Fill</span>
+                  </button>
+                </div>
+                <input
+                  id="input-departmentHeaderRegional"
+                  type="text"
+                  value={data.departmentHeaderRegional || data.departmentTitleRegional || ''}
+                  onChange={(e) => {
+                    onFieldChange('departmentHeaderRegional', e.target.value);
+                    onFieldChange('departmentTitleRegional', e.target.value);
+                  }}
+                  className="w-full text-xs rounded-lg border border-slate-300 p-2 focus:ring-1 focus:ring-burgundy focus:border-burgundy"
+                  placeholder="e.g. भारत सरकार"
+                />
+              </div>
+              <div>
+                {renderInput('departmentTitleEnglish', 'Department Header (English)', 'Government of India', 'text', false)}
+              </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label htmlFor="input-ministryHeaderRegional" className="text-xs font-semibold text-gray-700">
+                    Ministry Header (Regional / {getFarmerLanguageConfig(data.language).name})
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const cfg = getFarmerLanguageConfig(data.language || 'HI');
+                      onFieldChange('ministryHeaderRegional', cfg.ministryTitle.regional);
+                      onFieldChange('ministryTitleRegional', cfg.ministryTitle.regional);
+                    }}
+                    className="inline-flex items-center gap-1 text-[10px] font-bold text-burgundy hover:text-burgundy/80 hover:underline"
+                    title="Auto-fill official regional ministry header"
+                  >
+                    <Sparkles className="w-2.5 h-2.5 text-gold" />
+                    <span>Auto-Fill</span>
+                  </button>
+                </div>
+                <input
+                  id="input-ministryHeaderRegional"
+                  type="text"
+                  value={data.ministryHeaderRegional || data.ministryTitleRegional || ''}
+                  onChange={(e) => {
+                    onFieldChange('ministryHeaderRegional', e.target.value);
+                    onFieldChange('ministryTitleRegional', e.target.value);
+                  }}
+                  className="w-full text-xs rounded-lg border border-slate-300 p-2 focus:ring-1 focus:ring-burgundy focus:border-burgundy"
+                  placeholder="e.g. कृषि एवं किसान कल्याण मंत्रालय"
+                />
+              </div>
+              <div>
+                {renderInput('ministryTitleEnglish', 'Ministry Header (English)', 'Ministry of Agri & Farmers Welfare', 'text', false)}
+              </div>
+              <div>
+                {renderInput('registryTitle', 'Registry Title', 'Rajasthan Farmer Registry', 'text', false)}
+              </div>
+              <div>
+                {renderInput('helplineNumber', 'Toll-free Helpline', '1800-180-1551', 'text', false)}
+              </div>
+              <div className="sm:col-span-2">
+                {renderInput('websiteUrl', 'Official Portal URL', 'www.rjfr.agristack.gov.in', 'text', false)}
               </div>
             </div>
           </div>

@@ -27,6 +27,7 @@ import {
 import { QuickLookupModal } from '@/components/dashboard/QuickLookupModal';
 import RechargeModal from '@/components/wallet/RechargeModal';
 import { DocumentType } from '@/types/cards';
+import { DEFAULT_SERVICE_PRICING } from '@/lib/wallet/constants';
 
 interface UserData {
   id: string;
@@ -50,51 +51,68 @@ interface SavedDocument {
   updatedAt: string;
 }
 
-const cardServices = [
+const cardServices: Array<{
+  type: DocumentType;
+  serviceKey: string;
+  title: string;
+  subtitle: string;
+  color: string;
+  border: string;
+  tag: string;
+}> = [
   {
     type: 'pan',
+    serviceKey: 'PAN',
     title: 'PAN Card Studio',
     subtitle: 'NSDL & UTI Layouts',
-    fee: '₹50',
     color: 'from-[#8B1E2D] to-[#E63946]',
     border: 'border-red-200',
     tag: 'Instant Lookup',
   },
   {
     type: 'aadhaar',
+    serviceKey: 'AADHAAR',
     title: 'Aadhaar PVC Studio',
     subtitle: 'High-Res Hologram & QR',
-    fee: '₹25',
     color: 'from-amber-600 to-amber-700',
     border: 'border-amber-200',
     tag: 'Bilingual Font',
   },
   {
     type: 'voter',
+    serviceKey: 'VOTER',
     title: 'Voter ID Studio',
     subtitle: 'ECI Standard EPIC Format',
-    fee: '₹20',
     color: 'from-[#1D3557] to-[#457B9D]',
     border: 'border-blue-200',
     tag: 'Assembly Details',
   },
   {
     type: 'dl',
+    serviceKey: 'DL',
     title: 'Driving License Studio',
     subtitle: 'Smart Chip Transport Format',
-    fee: '₹30',
     color: 'from-indigo-600 to-indigo-700',
     border: 'border-indigo-200',
     tag: 'Vehicle Classes',
   },
   {
     type: 'rc',
+    serviceKey: 'RC',
     title: 'Vehicle RC Studio',
     subtitle: 'Vahan Smart Card Format',
-    fee: '₹35',
     color: 'from-purple-600 to-purple-700',
     border: 'border-purple-200',
     tag: 'Chassis & Engine',
+  },
+  {
+    type: 'ration',
+    serviceKey: 'RATION',
+    title: 'Ration Card Studio',
+    subtitle: 'NFSA Family Roster Format',
+    color: 'from-teal-600 to-teal-700',
+    border: 'border-teal-200',
+    tag: 'Family Table',
   },
 ];
 
@@ -107,6 +125,25 @@ export default function DashboardPage() {
   const [showLookupModal, setShowLookupModal] = useState(false);
   const [lookupDocType, setLookupDocType] = useState<DocumentType>('pan');
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
+  const [pricingMap, setPricingMap] = useState<Record<string, {
+    fee: number;
+    originalFee: number;
+    discountPercent: number;
+    offerActive: boolean;
+    offerBadge: string;
+  }>>(() => {
+    const initial: Record<string, any> = {};
+    for (const [k, v] of Object.entries(DEFAULT_SERVICE_PRICING)) {
+      initial[k] = {
+        fee: v.fee,
+        originalFee: v.originalFee,
+        discountPercent: v.discountPercent,
+        offerActive: v.offerActive,
+        offerBadge: v.offerBadge,
+      };
+    }
+    return initial;
+  });
 
   useEffect(() => {
     async function loadSessionAndDocs() {
@@ -129,6 +166,26 @@ export default function DashboardPage() {
           const docsData = await docsRes.json();
           setSavedDocs(docsData.documents || []);
         }
+
+        // Fetch live dynamic pricing from SSOT API
+        fetch('/api/services/pricing')
+          .then((r) => (r.ok ? r.json() : null))
+          .then((pData) => {
+            if (pData?.success && Array.isArray(pData.services)) {
+              const updated: Record<string, any> = {};
+              pData.services.forEach((s: any) => {
+                updated[s.serviceId] = {
+                  fee: s.fee,
+                  originalFee: s.originalFee,
+                  discountPercent: s.discountPercent,
+                  offerActive: s.offerActive,
+                  offerBadge: s.offerBadge,
+                };
+              });
+              setPricingMap(updated);
+            }
+          })
+          .catch(() => {});
       } catch {
         router.push('/login');
       } finally {
@@ -483,32 +540,53 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {cardServices.map((card) => (
-            <div
-              key={card.type}
-              className={`bg-white rounded-2xl border ${card.border} p-6 shadow-sm hover:shadow-card transition-all group flex flex-col justify-between`}
-            >
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div
-                    className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} text-white flex items-center justify-center shadow-md`}
-                  >
-                    <CreditCard className="w-6 h-6" />
+          {cardServices.map((card) => {
+            const p = pricingMap[card.serviceKey] || DEFAULT_SERVICE_PRICING[card.serviceKey] || {
+              fee: 20,
+              originalFee: 20,
+              discountPercent: 0,
+              offerActive: false,
+              offerBadge: '',
+            };
+
+            return (
+              <div
+                key={card.type}
+                className={`bg-white rounded-2xl border ${card.border} p-6 shadow-sm hover:shadow-card transition-all group flex flex-col justify-between`}
+              >
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <div
+                      className={`w-12 h-12 rounded-xl bg-gradient-to-br ${card.color} text-white flex items-center justify-center shadow-md`}
+                    >
+                      <CreditCard className="w-6 h-6" />
+                    </div>
+                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-800">
+                        ₹{p.fee}
+                      </span>
+                      {p.originalFee > p.fee && (
+                        <span className="text-[11px] line-through text-slate-400 font-normal">
+                          ₹{p.originalFee}
+                        </span>
+                      )}
+                      {p.offerActive && p.discountPercent > 0 && (
+                        <span className="text-[10px] font-black px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                          {p.offerBadge || `${p.discountPercent}% OFF`}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-700">
-                    {card.fee}
-                  </span>
+                  <h3 className="text-lg font-bold text-[#1D3557] group-hover:text-[#8B1E2D] transition-colors">
+                    {card.title}
+                  </h3>
+                  <p className="text-xs text-slate-500 mt-1">{card.subtitle}</p>
+                  <div className="mt-3">
+                    <span className="inline-block text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                      {card.tag}
+                    </span>
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold text-[#1D3557] group-hover:text-[#8B1E2D] transition-colors">
-                  {card.title}
-                </h3>
-                <p className="text-xs text-slate-500 mt-1">{card.subtitle}</p>
-                <div className="mt-3">
-                  <span className="inline-block text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                    {card.tag}
-                  </span>
-                </div>
-              </div>
 
               <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col gap-2">
                 <button
@@ -531,7 +609,8 @@ export default function DashboardPage() {
                 </Link>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       </div>
 

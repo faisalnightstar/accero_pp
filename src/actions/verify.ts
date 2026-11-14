@@ -14,12 +14,20 @@ import { maskIdentifier } from '@/lib/network/proxy-config';
  */
 export async function getServicePricingAction(docType: DocumentType): Promise<{
   fee: number;
+  originalFee: number;
+  discountPercent: number;
+  offerActive: boolean;
+  offerBadge: string;
   enabled: boolean;
   maintenanceMode: boolean;
 }> {
   const pricing = await getConfiguredServicePricing(docType);
   return {
     fee: pricing.fee,
+    originalFee: pricing.originalFee,
+    discountPercent: pricing.discountPercent,
+    offerActive: pricing.offerActive,
+    offerBadge: pricing.offerBadge,
     enabled: pricing.enabled,
     maintenanceMode: pricing.maintenanceMode,
   };

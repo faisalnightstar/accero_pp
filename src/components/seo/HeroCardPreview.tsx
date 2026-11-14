@@ -8,6 +8,8 @@ import AadhaarCardCanvas from '@/components/cards/AadhaarCardCanvas';
 import VoterCardCanvas from '@/components/cards/VoterCardCanvas';
 import DlCardCanvas from '@/components/cards/DlCardCanvas';
 import RcCardCanvas from '@/components/cards/RcCardCanvas';
+import RationCardCanvas from '@/components/cards/RationCardCanvas';
+import FarmerCardCanvas from '@/components/cards/FarmerCardCanvas';
 import { RotateCw, CheckCircle2, Shield, Eye } from 'lucide-react';
 
 interface HeroCardPreviewProps {
@@ -35,6 +37,10 @@ export default function HeroCardPreview({
         return <DlCardCanvas data={sampleData as any} side={side} />;
       case 'rc':
         return <RcCardCanvas data={sampleData as any} side={side} />;
+      case 'ration':
+        return <RationCardCanvas data={sampleData as any} side={side} />;
+      case 'farmer':
+        return <FarmerCardCanvas data={sampleData as any} side={side} />;
       default:
         return <div className="p-4 text-center">Preview Unavailable</div>;
     }

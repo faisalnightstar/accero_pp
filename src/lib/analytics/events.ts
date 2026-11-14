@@ -47,6 +47,19 @@ export const ANALYTICS_EVENTS = {
   APNAPRINT_LANDING_VIEW: 'apnaprint_landing_view',
   DOCPRINT_LANDING_VIEW: 'docprint_landing_view',
 
+  // Ration Card & Farmer ID Specific Funnel Events
+  RATION_PAGE_VIEW: 'ration_page_view',
+  RATION_REGISTRATION_CTA_CLICK: 'ration_registration_cta_click',
+  RATION_REGISTRATION_COMPLETED: 'ration_registration_completed',
+  RATION_FIRST_LOOKUP_SUCCESS: 'ration_first_lookup_success',
+  RATION_FIRST_RECHARGE_SUCCESS: 'ration_first_recharge_success',
+
+  FARMER_PAGE_VIEW: 'farmer_page_view',
+  FARMER_REGISTRATION_CTA_CLICK: 'farmer_registration_cta_click',
+  FARMER_REGISTRATION_COMPLETED: 'farmer_registration_completed',
+  FARMER_FIRST_LOOKUP_SUCCESS: 'farmer_first_lookup_success',
+  FARMER_FIRST_RECHARGE_SUCCESS: 'farmer_first_recharge_success',
+
   // Backward-Compatible Aliases
   HOMEPAGE_VISIT: 'homepage_visit',
   PRICING_VISIT: 'pricing_visit',
@@ -63,8 +76,8 @@ export interface SafeEventMetadata {
   pagePath?: string;
   pageTitle?: string;
   referrer?: string;
-  docType?: 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION' | string;
-  docCategory?: 'pan' | 'aadhaar' | 'voter' | 'dl' | 'rc' | 'ration' | 'manual' | string;
+  docType?: 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION' | 'FARMER' | string;
+  docCategory?: 'pan' | 'aadhaar' | 'voter' | 'dl' | 'rc' | 'ration' | 'farmer' | 'manual' | string;
   isManual?: boolean;
   errorType?: string;
   paymentMethod?: 'GATEWAY' | 'MANUAL_UTR' | 'UPI' | string;

@@ -15,6 +15,7 @@ import {
   FileCheck,
   Check,
   AlertTriangle,
+  RotateCw,
 } from 'lucide-react';
 import { getServiceConfig, getAllServices } from '@/lib/seo/servicesData';
 import { getBaseUrl, getCanonicalUrl } from '@/lib/seo/canonical';
@@ -23,10 +24,15 @@ import {
   generateFaqSchema,
   generateHowToSchema,
   generateBreadcrumbSchema,
+  generateServiceSchema,
 } from '@/lib/seo/structuredData';
 import HeroCardPreview from '@/components/seo/HeroCardPreview';
 import HeroLookupForm from '@/components/seo/HeroLookupForm';
 import Breadcrumbs from '@/components/seo/Breadcrumbs';
+import { FAQSection } from '@/components/public/FAQSection';
+import { CTASection } from '@/components/public/CTASection';
+import { Card } from '@/components/ui/Card';
+import { Badge } from '@/components/ui/Badge';
 
 interface ServicePageProps {
   params: Promise<{
@@ -114,12 +120,20 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
   const allServices = getAllServices();
   const canonicalUrl = getCanonicalUrl(`/services/${config.slug}`);
 
-  // Generate Schemas (clean, verified, no fake ratings)
+  // Generate Schemas
   const softwareSchema = generateSoftwareApplicationSchema(
     `${config.title} - Accero PrintPortal`,
     'BusinessApplication',
     config.features
   );
+  const serviceSchema = generateServiceSchema({
+    name: config.title,
+    description: config.metaDescription,
+    serviceType: 'Document Printing Service',
+    url: canonicalUrl,
+    fee: config.fee,
+    originalFee: config.originalFee,
+  });
   const faqSchema = generateFaqSchema(config.faqs);
   const howToSchema = generateHowToSchema(config.title, config.howToSteps);
   const breadcrumbSchema = generateBreadcrumbSchema([
@@ -130,10 +144,13 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
 
   return (
     <>
-      {/* Structured Data Schemas */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }}
       />
       <script
         type="application/ld+json"
@@ -148,39 +165,39 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <div className="min-h-screen bg-slate-950 text-slate-100 py-10 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto space-y-16">
+      <div className="bg-slate-50 min-h-screen py-10 px-4 sm:px-6 lg:px-8 space-y-16">
+        <div className="max-w-7xl mx-auto space-y-12">
           {/* Breadcrumb Navigation */}
           <Breadcrumbs
             items={[
               { name: 'Services', url: '/services' },
               { name: config.shortTitle, url: `/services/${config.slug}` },
             ]}
-            className="text-slate-400"
+            className="text-slate-500"
           />
 
           {/* Above-The-Fold Split Hero */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
             {/* Left Column: Copy & Lookup Form */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-[#8B1E2D]/20 text-[#F4D35E] border border-[#8B1E2D]/40 shadow-sm">
-                <Sparkles className="w-3.5 h-3.5" />
+            <div className="lg:col-span-7 space-y-6 text-left">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-bold bg-white text-[#1D3557] border border-slate-200 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-[#8B1E2D]" />
                 <span>Instant CR80 Physical Print Template</span>
               </div>
 
-              <h1 className="text-3xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D3557] tracking-tight leading-tight">
                 {config.heroHeadline}
               </h1>
 
-              <p className="text-base sm:text-lg text-slate-300 leading-relaxed">
+              <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
                 {config.heroSubheadline}
               </p>
 
               {/* Value Proposition Highlights */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 py-2">
                 {config.features.map((feature, i) => (
-                  <div key={i} className="flex items-start gap-2.5 text-xs text-slate-300">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                  <div key={i} className="flex items-start gap-2.5 text-xs text-slate-700 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                     <span>{feature}</span>
                   </div>
                 ))}
@@ -193,6 +210,9 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
                   placeholder={config.lookupPlaceholder}
                   exampleId={config.exampleId}
                   fee={config.fee}
+                  originalFee={config.originalFee}
+                  discountPercent={config.discountPercent}
+                  offerBadge={config.offerBadge}
                 />
               </div>
             </div>
@@ -204,24 +224,35 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
           </div>
 
           {/* Dedicated AEO Direct Answer Block */}
-          <section className="bg-gradient-to-r from-slate-900 via-slate-900/90 to-slate-900 border-l-4 border-l-[#F4D35E] border-y border-r border-slate-800 rounded-xl p-6 sm:p-8 shadow-xl">
+          <section className="bg-white border-l-4 border-l-[#8B1E2D] border-y border-r border-slate-200/90 rounded-2xl p-6 sm:p-8 shadow-sm">
             <div className="flex items-start gap-4">
-              <div className="p-2.5 rounded-lg bg-[#F4D35E]/10 text-[#F4D35E] shrink-0 mt-1">
+              <div className="p-2.5 rounded-xl bg-red-50 text-[#8B1E2D] shrink-0 mt-1">
                 <Sparkles className="w-6 h-6" />
               </div>
               <div className="space-y-3">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-[#F4D35E]">
-                  Quick Answer / TL;DR: How to Format & Print Official {config.shortTitle}
+                <h2 className="text-xs font-bold uppercase tracking-wider text-[#8B1E2D]">
+                  Quick Answer / TL;DR: How to Format &amp; Print Official {config.shortTitle}
                 </h2>
-                <p className="text-base sm:text-lg text-white font-medium leading-relaxed">
+                <p className="text-base sm:text-lg text-[#1D3557] font-semibold leading-relaxed">
                   {config.aeoQuickAnswer}
                 </p>
-                <div className="flex flex-wrap items-center gap-4 pt-1 text-xs text-slate-400">
+                <div className="flex flex-wrap items-center gap-4 pt-1 text-xs text-slate-500">
                   <span>Format: ISO 7810 ID-1 (CR80)</span>
-                  <span>•</span>
+                  <span>&bull;</span>
                   <span>Resolution: 300+ DPI Vector</span>
-                  <span>•</span>
-                  <span>Utility Fee: ₹{config.fee}</span>
+                  <span>&bull;</span>
+                  <span className="inline-flex items-center gap-1.5">
+                    <span>Utility Fee:</span>
+                    {config.originalFee && config.originalFee > config.fee && (
+                      <span className="line-through text-slate-400">₹{config.originalFee}</span>
+                    )}
+                    <span className="text-emerald-700 font-bold">₹{config.fee}</span>
+                    {config.discountPercent && config.discountPercent > 0 && (
+                      <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-1.5 py-0.5 rounded border border-emerald-200">
+                        {config.offerBadge || `${config.discountPercent}% OFF`}
+                      </span>
+                    )}
+                  </span>
                 </div>
               </div>
             </div>
@@ -230,10 +261,13 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
           {/* 4-Step HowTo Process Section */}
           <section className="space-y-8">
             <div className="text-center max-w-2xl mx-auto space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-black text-white">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#8B1E2D]">
+                Step-by-Step
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#1D3557]">
                 How It Works: 4 Steps to Print
               </h2>
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-slate-600">
                 Generate high-resolution printable card PDF files ready for your thermal or inkjet ID card tray.
               </p>
             </div>
@@ -242,14 +276,14 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
               {config.howToSteps.map((step, idx) => (
                 <div
                   key={idx}
-                  className="bg-slate-900/60 border border-slate-800 rounded-xl p-6 relative flex flex-col justify-between hover:border-slate-700 transition-all"
+                  className="bg-white border border-slate-200/90 rounded-2xl p-6 relative flex flex-col justify-between hover:border-slate-300 transition-all shadow-xs"
                 >
                   <div className="space-y-3">
-                    <div className="w-8 h-8 rounded-lg bg-[#8B1E2D]/30 border border-[#8B1E2D]/50 text-[#F4D35E] font-bold text-sm flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 text-[#1D3557] font-bold text-sm flex items-center justify-center">
                       0{idx + 1}
                     </div>
-                    <h3 className="text-base font-bold text-white">{step.name}</h3>
-                    <p className="text-xs text-slate-400 leading-relaxed">{step.text}</p>
+                    <h3 className="text-base font-bold text-[#1D3557]">{step.name}</h3>
+                    <p className="text-xs text-slate-600 leading-relaxed">{step.text}</p>
                   </div>
                 </div>
               ))}
@@ -257,12 +291,12 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
           </section>
 
           {/* Technical Specifications & ID Printer Compatibility */}
-          <section className="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 space-y-6">
+          <section className="bg-white border border-slate-200/90 rounded-2xl p-6 sm:p-8 space-y-6 shadow-xs">
             <div className="space-y-1">
-              <h2 className="text-xl sm:text-2xl font-black text-white">
-                Technical Specifications & Printer Tray Compatibility
+              <h2 className="text-xl sm:text-2xl font-bold text-[#1D3557]">
+                Technical Specifications &amp; Printer Tray Compatibility
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-600">
                 Engineered to meet ISO physical identity card specifications for commercial and desktop card printers.
               </p>
             </div>
@@ -273,12 +307,12 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
                   {config.specs.map((spec, i) => (
                     <tr
                       key={i}
-                      className="border-b border-slate-800/80 last:border-0 hover:bg-slate-800/30 transition-colors"
+                      className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors"
                     >
-                      <td className="py-3 px-4 font-semibold text-slate-300 w-1/3">
+                      <td className="py-3 px-4 font-semibold text-slate-700 w-1/3">
                         {spec.label}
                       </td>
-                      <td className="py-3 px-4 text-slate-400">{spec.value}</td>
+                      <td className="py-3 px-4 text-slate-600">{spec.value}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -287,63 +321,48 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
           </section>
 
           {/* FAQ Accordion Section */}
-          <section className="space-y-6">
-            <div className="space-y-2">
-              <h2 className="text-2xl sm:text-3xl font-black text-white flex items-center gap-2">
-                <HelpCircle className="w-6 h-6 text-[#F4D35E]" />
-                <span>Frequently Asked Questions</span>
-              </h2>
-              <p className="text-xs text-slate-400">
-                Common questions about {config.shortTitle} PVC printing, tray alignment, and verification.
-              </p>
-            </div>
-
-            <div className="space-y-4">
-              {config.faqs.map((faq, i) => (
-                <div
-                  key={i}
-                  className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 hover:border-slate-700 transition-colors space-y-2"
-                >
-                  <h3 className="text-sm sm:text-base font-bold text-white flex items-start gap-2">
-                    <span className="text-[#F4D35E] font-mono">Q:</span>
-                    <span>{faq.question}</span>
-                  </h3>
-                  <p className="text-xs sm:text-sm text-slate-400 leading-relaxed pl-6">
-                    {faq.answer}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </section>
+          <FAQSection
+            faqs={config.faqs}
+            title={`Frequently Asked Questions: ${config.shortTitle}`}
+            subtitle={`Common questions about ${config.shortTitle} PVC printing, tray alignment, and verification.`}
+          />
 
           {/* Cross-Service Exploration Links */}
-          <section className="pt-6 border-t border-slate-800/80 space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400">
+          <section className="pt-6 border-t border-slate-200 space-y-4">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
               Other Official PVC Card Services
             </h3>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
               {allServices
                 .filter((s) => s.slug !== config.slug)
                 .map((srv) => (
                   <Link
                     key={srv.slug}
                     href={`/services/${srv.slug}`}
-                    className="p-3 rounded-lg bg-slate-900/50 border border-slate-800 hover:border-slate-700 text-xs font-semibold text-slate-300 hover:text-white flex items-center justify-between transition-colors"
+                    className="p-3 rounded-xl bg-white border border-slate-200 hover:border-slate-300 text-xs font-semibold text-slate-700 hover:text-[#8B1E2D] flex items-center justify-between transition-colors shadow-xs"
                   >
                     <span>{srv.shortTitle}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-500" />
+                    <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
                   </Link>
                 ))}
             </div>
           </section>
 
           {/* Regulatory & Security Disclaimer */}
-          <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800/80 text-[11px] text-slate-400 leading-relaxed flex items-start gap-3">
-            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+          <div className="p-5 rounded-2xl bg-amber-50/80 border border-amber-200 text-xs text-amber-950 leading-relaxed flex items-start gap-3 shadow-xs">
+            <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
             <p>
               <strong>Compliance Notice:</strong> Accero PrintPortal is an independent document layout formatting utility and physical card tray alignment tool. It is not an official government portal, does not issue official credentials, and does not impersonate statutory authorities. Operators are solely responsible for verifying the authenticity of data processed.
             </p>
           </div>
+
+          {/* Final CTA */}
+          <CTASection
+            title={`Ready to Print Official-Standard ${config.shortTitle} Cards?`}
+            description={`Launch the split-screen studio to preview your ${config.shortTitle} template, detect missing data, and export high-DPI prints.`}
+            primaryButtonText="Open in Studio"
+            primaryButtonHref={`/studio?type=${config.docType}`}
+          />
         </div>
       </div>
     </>

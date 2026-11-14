@@ -204,8 +204,11 @@ export default function FastPrintPortalAlternativePage() {
                 Looking for an Alternative to <span className="text-blue-600">Fast Print Portal</span>?
               </h1>
 
-              <div className="p-5 rounded-2xl bg-slate-50 border-l-4 border-blue-600 text-slate-700 text-base leading-relaxed shadow-sm font-medium">
-                <strong>Accero PrintPortal</strong> is the modern, crash-proof document printing software engineered for Indian cyber cafes, CSC VLEs, and card printing kiosks. It replaces blind print scripts with an intelligent split-screen canvas that flags missing data in amber, provides 100% free lifetime re-prints, and guarantees zero balance deductions on failed API queries.
+              <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-sm">
+                <div className="w-1.5 self-stretch bg-blue-600 rounded-full shrink-0" />
+                <p className="text-slate-700 text-base leading-relaxed font-medium">
+                  <strong className="text-slate-900">Accero PrintPortal</strong> is the modern, crash-proof document printing software engineered for Indian cyber cafes, CSC VLEs, and card printing kiosks. It replaces blind print scripts with an intelligent split-screen canvas that flags missing data in amber, provides 100% free lifetime re-prints, and guarantees zero balance deductions on failed API queries.
+                </p>
               </div>
 
               <p className="text-slate-600 text-base leading-relaxed">

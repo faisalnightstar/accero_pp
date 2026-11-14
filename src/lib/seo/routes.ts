@@ -35,14 +35,17 @@ export const CANONICAL_PUBLIC_ROUTES: CanonicalRouteConfig[] = [
   { path: '/pvc-card-printing-software', priority: 0.9, changeFrequency: 'weekly', category: 'pillar', lastModified: '2026-11-10' },
   { path: '/csc-operator-software', priority: 0.85, changeFrequency: 'weekly', category: 'pillar', lastModified: '2026-11-10' },
   { path: '/document-processing-platform', priority: 0.85, changeFrequency: 'weekly', category: 'pillar', lastModified: '2026-11-10' },
+  { path: '/ration-card-printing-for-csc', priority: 0.9, changeFrequency: 'weekly', category: 'pillar', lastModified: '2026-11-14' },
+  { path: '/farmer-id-printing-for-csc', priority: 0.9, changeFrequency: 'weekly', category: 'pillar', lastModified: '2026-11-14' },
 
-  // 3. Core Document Services (6 Primary Canonical Slugs)
+  // 3. Core Document Services (7 Primary Canonical Slugs)
   { path: '/services/pan-card-printing', priority: 0.9, changeFrequency: 'weekly', category: 'service', lastModified: '2026-11-10' },
   { path: '/services/aadhaar-document-management', priority: 0.9, changeFrequency: 'weekly', category: 'service', lastModified: '2026-11-10' },
   { path: '/services/voter-id-printing', priority: 0.9, changeFrequency: 'weekly', category: 'service', lastModified: '2026-11-10' },
   { path: '/services/driving-licence-printing', priority: 0.9, changeFrequency: 'weekly', category: 'service', lastModified: '2026-11-10' },
   { path: '/services/vehicle-rc-printing', priority: 0.9, changeFrequency: 'weekly', category: 'service', lastModified: '2026-11-10' },
-  { path: '/services/ration-card-management', priority: 0.9, changeFrequency: 'weekly', category: 'service', lastModified: '2026-11-10' },
+  { path: '/services/ration-card-printing', priority: 0.9, changeFrequency: 'weekly', category: 'service', lastModified: '2026-11-14' },
+  { path: '/services/farmer-id-printing', priority: 0.9, changeFrequency: 'weekly', category: 'service', lastModified: '2026-11-14' },
 
   // 4. Feature Detail Pages
   { path: '/features/document-lookup', priority: 0.8, changeFrequency: 'monthly', category: 'feature', lastModified: '2026-11-10' },

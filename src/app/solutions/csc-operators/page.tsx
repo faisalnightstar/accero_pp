@@ -112,10 +112,16 @@ export default function CscOperatorsSolutionPage() {
                   Join as CSC Operator
                 </Link>
                 <Link
-                  href="/services/ration-card-management"
+                  href="/ration-card-printing-for-csc"
                   className="px-6 py-3 rounded-xl text-sm font-bold bg-white text-[#1D3557] border border-slate-300 hover:bg-slate-100 transition-colors"
                 >
-                  Explore Ration Card Layout
+                  Ration Card for CSC
+                </Link>
+                <Link
+                  href="/farmer-id-printing-for-csc"
+                  className="px-6 py-3 rounded-xl text-sm font-bold bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition-colors"
+                >
+                  Farmer ID for CSC
                 </Link>
               </div>
             </div>
@@ -200,8 +206,11 @@ export default function CscOperatorsSolutionPage() {
               <Link href="/services/voter-id-printing" className="text-[#8B1E2D] hover:underline font-semibold">
                 Voter ID Print
               </Link>
-              <Link href="/services/ration-card-management" className="text-[#8B1E2D] hover:underline font-semibold">
+              <Link href="/services/ration-card-printing" className="text-[#8B1E2D] hover:underline font-semibold">
                 Ration Card Print
+              </Link>
+              <Link href="/services/farmer-id-printing" className="text-[#8B1E2D] hover:underline font-semibold">
+                Farmer ID Print
               </Link>
               <Link href="/features/multilingual-printing" className="text-[#8B1E2D] hover:underline font-semibold">
                 Multilingual Printing

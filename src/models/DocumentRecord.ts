@@ -1,6 +1,6 @@
 import mongoose, { Schema, Document, Model } from 'mongoose';
 
-export type DocumentType = 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION';
+export type DocumentType = 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION' | 'FARMER';
 export type InputMode = 'API' | 'MANUAL';
 
 export interface IDocumentRecord extends Document {
@@ -38,7 +38,7 @@ const DocumentRecordSchema: Schema<IDocumentRecord> = new Schema(
     },
     docType: {
       type: String,
-      enum: ['PAN', 'AADHAAR', 'VOTER', 'DL', 'RC', 'RATION'],
+      enum: ['PAN', 'AADHAAR', 'VOTER', 'DL', 'RC', 'RATION', 'FARMER'],
       required: true,
       index: true,
     },
@@ -97,7 +97,6 @@ const DocumentRecordSchema: Schema<IDocumentRecord> = new Schema(
     },
     expiresAt: {
       type: Date,
-      index: true,
     },
     isPaid: {
       type: Boolean,
