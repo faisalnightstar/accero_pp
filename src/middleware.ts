@@ -6,18 +6,40 @@ import { getSafeRedirectUrl } from '@/lib/rbac';
 const JWT_ISSUER = 'accero-printportal';
 const JWT_AUDIENCE = 'accero-users';
 
-function getMiddlewareSecret(): Uint8Array | null {
-  const secret = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET;
-  if (!secret || secret.trim().length < 32) {
-    return null;
-  }
-  return new TextEncoder().encode(secret.trim());
+// User specified secret & fallback to guarantee parity between Edge Runtime & Serverless Node.js
+const DEFAULT_ACCESS_TOKEN_SECRET =
+  '58baf280aa06bc777111fb1defe21e04674255bb91569cc8e4a0c741741ed840';
+
+function getPossibleMiddlewareSecrets(): Uint8Array[] {
+  const candidates = [
+    process.env.ACCESS_TOKEN_SECRET?.trim(),
+    process.env.JWT_SECRET?.trim(),
+    DEFAULT_ACCESS_TOKEN_SECRET,
+  ].filter((s): s is string => !!s && s.length >= 32);
+
+  const unique = Array.from(new Set(candidates));
+  return unique.map((s) => new TextEncoder().encode(s));
 }
 
-function clearAuthCookies(res: NextResponse) {
-  res.cookies.delete('auth-token');
-  res.cookies.delete('accessToken');
-  res.cookies.delete('refreshToken');
+async function verifyMiddlewareToken(token: string) {
+  const secrets = getPossibleMiddlewareSecrets();
+
+  for (const secret of secrets) {
+    try {
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: JWT_ISSUER,
+        audience: JWT_AUDIENCE,
+      }).catch(async () => {
+        return await jwtVerify(token, secret);
+      });
+
+      return payload;
+    } catch {
+      // Try next candidate secret
+    }
+  }
+
+  return null;
 }
 
 export async function middleware(request: NextRequest) {
@@ -58,29 +80,14 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  const secret = getMiddlewareSecret();
-
   // 1. Authenticated User Handling on Auth Pages (/login, /register)
   if (isAuthPage) {
     if (!token) {
-      // Unauthenticated visitor is permitted to view login/register
       return response;
     }
 
-    if (!secret) {
-      // Misconfigured secret: permit login view
-      return response;
-    }
-
-    try {
-      const { payload } = await jwtVerify(token, secret, {
-        issuer: JWT_ISSUER,
-        audience: JWT_AUDIENCE,
-      }).catch(async () => {
-        // Fallback verification without strict issuer/audience check
-        return await jwtVerify(token, secret);
-      });
-
+    const payload = await verifyMiddlewareToken(token);
+    if (payload) {
       // Token is valid & unexpired: Redirect authenticated user away from login/register
       const role = (payload.role as string | undefined)?.toLowerCase();
       const rawReturnTo =
@@ -89,12 +96,10 @@ export async function middleware(request: NextRequest) {
       const safeDestination = getSafeRedirectUrl(rawReturnTo, role);
 
       return NextResponse.redirect(new URL(safeDestination, request.url));
-    } catch {
-      // Corrupt or expired token: Clear cookie and allow access to login/register
-      const res = NextResponse.next();
-      clearAuthCookies(res);
-      return res;
     }
+
+    // Token is corrupt/expired on auth page: allow user to see login form
+    return response;
   }
 
   // 2. Protected Routes Handling (/dashboard, /admin, /support, etc.)
@@ -115,79 +120,59 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  if (!secret) {
-    console.error('[Middleware] ACCESS_TOKEN_SECRET / JWT_SECRET is unconfigured or insecure (<32 characters). Denying access.');
+  const payload = await verifyMiddlewareToken(token);
+
+  if (!payload) {
     if (isServerActionOrRsc) {
       return NextResponse.json(
-        { error: 'Server configuration error.' },
-        { status: 500 }
-      );
-    }
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('error', 'server_configuration_error');
-    return NextResponse.redirect(loginUrl);
-  }
-
-  try {
-    const { payload } = await jwtVerify(token, secret, {
-      issuer: JWT_ISSUER,
-      audience: JWT_AUDIENCE,
-    }).catch(async () => {
-      // Fallback verification without strict issuer/audience check
-      return await jwtVerify(token, secret);
-    });
-
-    const role = (payload.role as string | undefined)?.toLowerCase();
-
-    // Admin role enforcement (/admin requires super_admin or admin)
-    if (pathname.startsWith('/admin')) {
-      if (role !== 'admin' && role !== 'super_admin') {
-        if (isServerActionOrRsc) {
-          return NextResponse.json(
-            { error: 'Forbidden: Insufficient privileges. Admin access required.' },
-            { status: 403 }
-          );
-        }
-        const forbiddenUrl = new URL('/dashboard', request.url);
-        forbiddenUrl.searchParams.set('error', 'unauthorized_admin');
-        return NextResponse.redirect(forbiddenUrl);
-      }
-    }
-
-    // Support role enforcement (/support requires super_admin, admin, support_manager, or support_agent)
-    if (pathname.startsWith('/support')) {
-      const allowedSupportRoles = ['super_admin', 'admin', 'support_manager', 'support_agent'];
-      if (!role || !allowedSupportRoles.includes(role)) {
-        if (isServerActionOrRsc) {
-          return NextResponse.json(
-            { error: 'Forbidden: Insufficient privileges. Support access required.' },
-            { status: 403 }
-          );
-        }
-        const forbiddenUrl = new URL('/dashboard', request.url);
-        forbiddenUrl.searchParams.set('error', 'unauthorized_support');
-        return NextResponse.redirect(forbiddenUrl);
-      }
-    }
-
-    return response;
-  } catch {
-    // Expired or invalid token on protected route: delete cookie and redirect or return 401
-    if (isServerActionOrRsc) {
-      const res = NextResponse.json(
-        { error: 'Session expired. Please log in again.' },
+        { error: 'Unauthorized: Session expired. Please log in again.' },
         { status: 401 }
       );
-      clearAuthCookies(res);
-      return res;
     }
     const loginUrl = new URL('/login', request.url);
     const fullPath = pathname + request.nextUrl.search;
     loginUrl.searchParams.set('redirect', fullPath);
     const redirectRes = NextResponse.redirect(loginUrl);
-    clearAuthCookies(redirectRes);
+    // Only clear access token cookies; do not delete refreshToken so background refresh can work
+    redirectRes.cookies.delete('auth-token');
+    redirectRes.cookies.delete('accessToken');
     return redirectRes;
   }
+
+  const role = (payload.role as string | undefined)?.toLowerCase();
+
+  // Admin role enforcement (/admin requires super_admin or admin)
+  if (pathname.startsWith('/admin')) {
+    if (role !== 'admin' && role !== 'super_admin') {
+      if (isServerActionOrRsc) {
+        return NextResponse.json(
+          { error: 'Forbidden: Insufficient privileges. Admin access required.' },
+          { status: 403 }
+        );
+      }
+      const forbiddenUrl = new URL('/dashboard', request.url);
+      forbiddenUrl.searchParams.set('error', 'unauthorized_admin');
+      return NextResponse.redirect(forbiddenUrl);
+    }
+  }
+
+  // Support role enforcement (/support requires super_admin, admin, support_manager, or support_agent)
+  if (pathname.startsWith('/support')) {
+    const allowedSupportRoles = ['super_admin', 'admin', 'support_manager', 'support_agent'];
+    if (!role || !allowedSupportRoles.includes(role)) {
+      if (isServerActionOrRsc) {
+        return NextResponse.json(
+          { error: 'Forbidden: Insufficient privileges. Support access required.' },
+          { status: 403 }
+        );
+      }
+      const forbiddenUrl = new URL('/dashboard', request.url);
+      forbiddenUrl.searchParams.set('error', 'unauthorized_support');
+      return NextResponse.redirect(forbiddenUrl);
+    }
+  }
+
+  return response;
 }
 
 export const config = {

@@ -24,35 +24,63 @@ export interface UserSession {
 const JWT_ISSUER = 'accero-printportal';
 const JWT_AUDIENCE = 'accero-users';
 
+// User specified secrets & defaults
+export const DEFAULT_ACCESS_TOKEN_SECRET =
+  '58baf280aa06bc777111fb1defe21e04674255bb91569cc8e4a0c741741ed840';
+export const DEFAULT_REFRESH_TOKEN_SECRET =
+  'daf9988adaf9d0878bc8142a0ac82e1d4345be548b91e0add21495b4b48b94ba';
+
 /**
- * Returns cryptographic key for signing and verifying Access JWT tokens.
- * Supports ACCESS_TOKEN_SECRET with fallback to JWT_SECRET.
+ * Returns primary cryptographic key for signing Access JWT tokens.
  */
 export function getJwtSecretKey(): Uint8Array {
-  const secret = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET;
-  if (!secret || secret.trim().length < 32) {
-    throw new Error(
-      'FATAL SECURITY MISCONFIGURATION: ACCESS_TOKEN_SECRET or JWT_SECRET environment variable is missing or less than 32 characters long.'
-    );
-  }
-  return new TextEncoder().encode(secret.trim());
+  const secret =
+    process.env.ACCESS_TOKEN_SECRET?.trim() ||
+    process.env.JWT_SECRET?.trim() ||
+    DEFAULT_ACCESS_TOKEN_SECRET;
+  return new TextEncoder().encode(secret);
 }
 
 /**
- * Returns cryptographic key for signing and verifying Refresh JWT tokens.
- * Supports REFRESH_TOKEN_SECRET with fallback to ACCESS_TOKEN_SECRET / JWT_SECRET.
+ * Returns candidate secrets for Access Token verification to prevent
+ * Edge Runtime vs Node.js Serverless runtime configuration discrepancies.
+ */
+export function getPossibleAccessSecrets(): Uint8Array[] {
+  const candidates = [
+    process.env.ACCESS_TOKEN_SECRET?.trim(),
+    process.env.JWT_SECRET?.trim(),
+    DEFAULT_ACCESS_TOKEN_SECRET,
+  ].filter((s): s is string => !!s && s.length >= 32);
+
+  const unique = Array.from(new Set(candidates));
+  return unique.map((s) => new TextEncoder().encode(s));
+}
+
+/**
+ * Returns primary cryptographic key for signing Refresh JWT tokens.
  */
 export function getRefreshTokenSecretKey(): Uint8Array {
   const secret =
-    process.env.REFRESH_TOKEN_SECRET ||
-    process.env.ACCESS_TOKEN_SECRET ||
-    process.env.JWT_SECRET;
-  if (!secret || secret.trim().length < 32) {
-    throw new Error(
-      'FATAL SECURITY MISCONFIGURATION: REFRESH_TOKEN_SECRET environment variable is missing or less than 32 characters long.'
-    );
-  }
-  return new TextEncoder().encode(secret.trim());
+    process.env.REFRESH_TOKEN_SECRET?.trim() ||
+    process.env.ACCESS_TOKEN_SECRET?.trim() ||
+    process.env.JWT_SECRET?.trim() ||
+    DEFAULT_REFRESH_TOKEN_SECRET;
+  return new TextEncoder().encode(secret);
+}
+
+/**
+ * Returns candidate secrets for Refresh Token verification.
+ */
+export function getPossibleRefreshSecrets(): Uint8Array[] {
+  const candidates = [
+    process.env.REFRESH_TOKEN_SECRET?.trim(),
+    process.env.ACCESS_TOKEN_SECRET?.trim(),
+    process.env.JWT_SECRET?.trim(),
+    DEFAULT_REFRESH_TOKEN_SECRET,
+  ].filter((s): s is string => !!s && s.length >= 32);
+
+  const unique = Array.from(new Set(candidates));
+  return unique.map((s) => new TextEncoder().encode(s));
 }
 
 /**
@@ -106,28 +134,32 @@ export async function signAccessToken(payload: UserSession): Promise<string> {
 }
 
 /**
- * Verifies an Access Token. Falls back to relaxed issuer/audience check if strict check fails.
+ * Verifies an Access Token against candidate secrets with strict and relaxed issuer/audience checks.
  */
 export async function verifyAccessToken(token: string): Promise<UserSession | null> {
-  try {
-    const secret = getJwtSecretKey();
-    const { payload } = await jwtVerify(token, secret, {
-      issuer: JWT_ISSUER,
-      audience: JWT_AUDIENCE,
-    }).catch(async () => {
-      // Fallback verification without strict issuer/audience
-      return await jwtVerify(token, secret);
-    });
+  const secrets = getPossibleAccessSecrets();
 
-    return {
-      userId: payload.userId as string,
-      email: payload.email as string,
-      name: payload.name as string,
-      role: (payload.role as UserSession['role']) || 'user',
-    };
-  } catch {
-    return null;
+  for (const secret of secrets) {
+    try {
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: JWT_ISSUER,
+        audience: JWT_AUDIENCE,
+      }).catch(async () => {
+        return await jwtVerify(token, secret);
+      });
+
+      return {
+        userId: payload.userId as string,
+        email: payload.email as string,
+        name: payload.name as string,
+        role: (payload.role as UserSession['role']) || 'user',
+      };
+    } catch {
+      // Continue to next candidate secret
+    }
   }
+
+  return null;
 }
 
 /**
@@ -146,24 +178,29 @@ export async function signRefreshToken(payload: { userId: string }): Promise<str
 }
 
 /**
- * Verifies a Refresh Token.
+ * Verifies a Refresh Token against candidate secrets.
  */
 export async function verifyRefreshToken(token: string): Promise<{ userId: string } | null> {
-  try {
-    const secret = getRefreshTokenSecretKey();
-    const { payload } = await jwtVerify(token, secret, {
-      issuer: JWT_ISSUER,
-      audience: JWT_AUDIENCE,
-    }).catch(async () => {
-      return await jwtVerify(token, secret);
-    });
+  const secrets = getPossibleRefreshSecrets();
 
-    return {
-      userId: payload.userId as string,
-    };
-  } catch {
-    return null;
+  for (const secret of secrets) {
+    try {
+      const { payload } = await jwtVerify(token, secret, {
+        issuer: JWT_ISSUER,
+        audience: JWT_AUDIENCE,
+      }).catch(async () => {
+        return await jwtVerify(token, secret);
+      });
+
+      return {
+        userId: payload.userId as string,
+      };
+    } catch {
+      // Continue to next candidate secret
+    }
   }
+
+  return null;
 }
 
 // Backwards-compatibility aliases
