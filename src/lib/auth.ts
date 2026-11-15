@@ -24,10 +24,10 @@ export interface UserSession {
 const JWT_ISSUER = 'accero-printportal';
 const JWT_AUDIENCE = 'accero-users';
 
-// User specified secrets & defaults
-export const DEFAULT_ACCESS_TOKEN_SECRET =
+// User specified secrets & defaults guaranteed across Edge & Node.js runtimes
+export const ACCESS_TOKEN_SECRET_VALUE =
   '58baf280aa06bc777111fb1defe21e04674255bb91569cc8e4a0c741741ed840';
-export const DEFAULT_REFRESH_TOKEN_SECRET =
+export const REFRESH_TOKEN_SECRET_VALUE =
   'daf9988adaf9d0878bc8142a0ac82e1d4345be548b91e0add21495b4b48b94ba';
 
 /**
@@ -36,8 +36,7 @@ export const DEFAULT_REFRESH_TOKEN_SECRET =
 export function getJwtSecretKey(): Uint8Array {
   const secret =
     process.env.ACCESS_TOKEN_SECRET?.trim() ||
-    process.env.JWT_SECRET?.trim() ||
-    DEFAULT_ACCESS_TOKEN_SECRET;
+    ACCESS_TOKEN_SECRET_VALUE;
   return new TextEncoder().encode(secret);
 }
 
@@ -47,9 +46,9 @@ export function getJwtSecretKey(): Uint8Array {
  */
 export function getPossibleAccessSecrets(): Uint8Array[] {
   const candidates = [
+    ACCESS_TOKEN_SECRET_VALUE,
     process.env.ACCESS_TOKEN_SECRET?.trim(),
     process.env.JWT_SECRET?.trim(),
-    DEFAULT_ACCESS_TOKEN_SECRET,
   ].filter((s): s is string => !!s && s.length >= 32);
 
   const unique = Array.from(new Set(candidates));
@@ -62,9 +61,7 @@ export function getPossibleAccessSecrets(): Uint8Array[] {
 export function getRefreshTokenSecretKey(): Uint8Array {
   const secret =
     process.env.REFRESH_TOKEN_SECRET?.trim() ||
-    process.env.ACCESS_TOKEN_SECRET?.trim() ||
-    process.env.JWT_SECRET?.trim() ||
-    DEFAULT_REFRESH_TOKEN_SECRET;
+    REFRESH_TOKEN_SECRET_VALUE;
   return new TextEncoder().encode(secret);
 }
 
@@ -73,10 +70,10 @@ export function getRefreshTokenSecretKey(): Uint8Array {
  */
 export function getPossibleRefreshSecrets(): Uint8Array[] {
   const candidates = [
+    REFRESH_TOKEN_SECRET_VALUE,
     process.env.REFRESH_TOKEN_SECRET?.trim(),
     process.env.ACCESS_TOKEN_SECRET?.trim(),
     process.env.JWT_SECRET?.trim(),
-    DEFAULT_REFRESH_TOKEN_SECRET,
   ].filter((s): s is string => !!s && s.length >= 32);
 
   const unique = Array.from(new Set(candidates));

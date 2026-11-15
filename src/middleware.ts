@@ -6,15 +6,15 @@ import { getSafeRedirectUrl } from '@/lib/rbac';
 const JWT_ISSUER = 'accero-printportal';
 const JWT_AUDIENCE = 'accero-users';
 
-// User specified secret & fallback to guarantee parity between Edge Runtime & Serverless Node.js
-const DEFAULT_ACCESS_TOKEN_SECRET =
+// User specified secret guaranteed across Edge & Node.js runtimes
+const ACCESS_TOKEN_SECRET_VALUE =
   '58baf280aa06bc777111fb1defe21e04674255bb91569cc8e4a0c741741ed840';
 
 function getPossibleMiddlewareSecrets(): Uint8Array[] {
   const candidates = [
+    ACCESS_TOKEN_SECRET_VALUE,
     process.env.ACCESS_TOKEN_SECRET?.trim(),
     process.env.JWT_SECRET?.trim(),
-    DEFAULT_ACCESS_TOKEN_SECRET,
   ].filter((s): s is string => !!s && s.length >= 32);
 
   const unique = Array.from(new Set(candidates));
@@ -107,6 +107,7 @@ export async function middleware(request: NextRequest) {
     request.headers.has('next-action') ||
     request.headers.get('accept')?.includes('text/x-component');
 
+  // If visitor has NO token at all, redirect to login
   if (!token) {
     if (isServerActionOrRsc) {
       return NextResponse.json(
@@ -120,58 +121,46 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // If visitor has a token, attempt edge verification for role gating
   const payload = await verifyMiddlewareToken(token);
 
-  if (!payload) {
-    if (isServerActionOrRsc) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Session expired. Please log in again.' },
-        { status: 401 }
-      );
-    }
-    const loginUrl = new URL('/login', request.url);
-    const fullPath = pathname + request.nextUrl.search;
-    loginUrl.searchParams.set('redirect', fullPath);
-    const redirectRes = NextResponse.redirect(loginUrl);
-    // Only clear access token cookies; do not delete refreshToken so background refresh can work
-    redirectRes.cookies.delete('auth-token');
-    redirectRes.cookies.delete('accessToken');
-    return redirectRes;
-  }
+  if (payload) {
+    const role = (payload.role as string | undefined)?.toLowerCase();
 
-  const role = (payload.role as string | undefined)?.toLowerCase();
-
-  // Admin role enforcement (/admin requires super_admin or admin)
-  if (pathname.startsWith('/admin')) {
-    if (role !== 'admin' && role !== 'super_admin') {
-      if (isServerActionOrRsc) {
-        return NextResponse.json(
-          { error: 'Forbidden: Insufficient privileges. Admin access required.' },
-          { status: 403 }
-        );
+    // Admin role enforcement (/admin requires super_admin or admin)
+    if (pathname.startsWith('/admin')) {
+      if (role !== 'admin' && role !== 'super_admin') {
+        if (isServerActionOrRsc) {
+          return NextResponse.json(
+            { error: 'Forbidden: Insufficient privileges. Admin access required.' },
+            { status: 403 }
+          );
+        }
+        const forbiddenUrl = new URL('/dashboard', request.url);
+        forbiddenUrl.searchParams.set('error', 'unauthorized_admin');
+        return NextResponse.redirect(forbiddenUrl);
       }
-      const forbiddenUrl = new URL('/dashboard', request.url);
-      forbiddenUrl.searchParams.set('error', 'unauthorized_admin');
-      return NextResponse.redirect(forbiddenUrl);
     }
-  }
 
-  // Support role enforcement (/support requires super_admin, admin, support_manager, or support_agent)
-  if (pathname.startsWith('/support')) {
-    const allowedSupportRoles = ['super_admin', 'admin', 'support_manager', 'support_agent'];
-    if (!role || !allowedSupportRoles.includes(role)) {
-      if (isServerActionOrRsc) {
-        return NextResponse.json(
-          { error: 'Forbidden: Insufficient privileges. Support access required.' },
-          { status: 403 }
-        );
+    // Support role enforcement (/support requires super_admin, admin, support_manager, or support_agent)
+    if (pathname.startsWith('/support')) {
+      const allowedSupportRoles = ['super_admin', 'admin', 'support_manager', 'support_agent'];
+      if (!role || !allowedSupportRoles.includes(role)) {
+        if (isServerActionOrRsc) {
+          return NextResponse.json(
+            { error: 'Forbidden: Insufficient privileges. Support access required.' },
+            { status: 403 }
+          );
+        }
+        const forbiddenUrl = new URL('/dashboard', request.url);
+        forbiddenUrl.searchParams.set('error', 'unauthorized_support');
+        return NextResponse.redirect(forbiddenUrl);
       }
-      const forbiddenUrl = new URL('/dashboard', request.url);
-      forbiddenUrl.searchParams.set('error', 'unauthorized_support');
-      return NextResponse.redirect(forbiddenUrl);
     }
   }
 
+  // Pass request through. Server Components (e.g. AdminLayout) perform
+  // authoritative validation in Node.js runtime without destroying cookies.
   return response;
 }
 
