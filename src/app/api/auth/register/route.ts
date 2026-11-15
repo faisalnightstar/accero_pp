@@ -3,7 +3,13 @@ import { z } from 'zod';
 import { connectToDatabase } from '@/lib/mongodb';
 import User from '@/models/User';
 import Wallet from '@/models/Wallet';
-import { hashPassword, signJwtToken, getRoleDashboardUrl } from '@/lib/auth';
+import {
+  hashPassword,
+  signAccessToken,
+  signRefreshToken,
+  parseDurationToSeconds,
+  getRoleDashboardUrl,
+} from '@/lib/auth';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
 import { logAuditEvent } from '@/lib/logger/audit';
 import {
@@ -118,17 +124,23 @@ export async function POST(request: Request) {
       status: 'SUCCESS',
     });
 
-    // Issue JWT Token in HTTP-only Cookie
-    const token = await signJwtToken({
+    // Issue JWT Access & Refresh Tokens
+    const accessToken = await signAccessToken({
       userId: user._id.toString(),
       email: user.email,
       name: user.name,
       role: user.role,
     });
 
+    const refreshToken = await signRefreshToken({
+      userId: user._id.toString(),
+    });
+
     const response = NextResponse.json(
       {
         message: 'Account registered successfully',
+        accessToken,
+        refreshToken,
         user: {
           id: user._id,
           name: user.name,
@@ -142,14 +154,44 @@ export async function POST(request: Request) {
       { status: 201 }
     );
 
+    const host = request.headers.get('host') || '';
+    const isLocalhost = host.includes('localhost') || host.includes('127.0.0.1');
+    const secureCookie = process.env.NODE_ENV === 'production' && !isLocalhost;
+
+    const accessMaxAge = parseDurationToSeconds(process.env.ACCESS_TOKEN_EXPIRY, 3 * 86400); // 3 days
+    const refreshMaxAge = parseDurationToSeconds(process.env.REFRESH_TOKEN_EXPIRY, 30 * 86400); // 30 days
+
+    // Set auth-token cookie
     response.cookies.set({
       name: 'auth-token',
-      value: token,
+      value: accessToken,
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: secureCookie,
       sameSite: 'lax',
       path: '/',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      maxAge: accessMaxAge,
+    });
+
+    // Set accessToken cookie
+    response.cookies.set({
+      name: 'accessToken',
+      value: accessToken,
+      httpOnly: true,
+      secure: secureCookie,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: accessMaxAge,
+    });
+
+    // Set refreshToken cookie
+    response.cookies.set({
+      name: 'refreshToken',
+      value: refreshToken,
+      httpOnly: true,
+      secure: secureCookie,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: refreshMaxAge,
     });
 
     return response;

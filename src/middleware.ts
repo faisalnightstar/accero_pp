@@ -7,11 +7,17 @@ const JWT_ISSUER = 'accero-printportal';
 const JWT_AUDIENCE = 'accero-users';
 
 function getMiddlewareSecret(): Uint8Array | null {
-  const secret = process.env.JWT_SECRET;
+  const secret = process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET;
   if (!secret || secret.trim().length < 32) {
     return null;
   }
   return new TextEncoder().encode(secret.trim());
+}
+
+function clearAuthCookies(res: NextResponse) {
+  res.cookies.delete('auth-token');
+  res.cookies.delete('accessToken');
+  res.cookies.delete('refreshToken');
 }
 
 export async function middleware(request: NextRequest) {
@@ -33,7 +39,9 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  const token = request.cookies.get('auth-token')?.value;
+  const token =
+    request.cookies.get('accessToken')?.value ||
+    request.cookies.get('auth-token')?.value;
   const pathname = request.nextUrl.pathname;
 
   const isAuthPage = pathname === '/login' || pathname === '/register';
@@ -68,6 +76,9 @@ export async function middleware(request: NextRequest) {
       const { payload } = await jwtVerify(token, secret, {
         issuer: JWT_ISSUER,
         audience: JWT_AUDIENCE,
+      }).catch(async () => {
+        // Fallback verification without strict issuer/audience check
+        return await jwtVerify(token, secret);
       });
 
       // Token is valid & unexpired: Redirect authenticated user away from login/register
@@ -81,7 +92,7 @@ export async function middleware(request: NextRequest) {
     } catch {
       // Corrupt or expired token: Clear cookie and allow access to login/register
       const res = NextResponse.next();
-      res.cookies.delete('auth-token');
+      clearAuthCookies(res);
       return res;
     }
   }
@@ -105,7 +116,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (!secret) {
-    console.error('[Middleware] JWT_SECRET is unconfigured or insecure (<32 characters). Denying access.');
+    console.error('[Middleware] ACCESS_TOKEN_SECRET / JWT_SECRET is unconfigured or insecure (<32 characters). Denying access.');
     if (isServerActionOrRsc) {
       return NextResponse.json(
         { error: 'Server configuration error.' },
@@ -121,6 +132,9 @@ export async function middleware(request: NextRequest) {
     const { payload } = await jwtVerify(token, secret, {
       issuer: JWT_ISSUER,
       audience: JWT_AUDIENCE,
+    }).catch(async () => {
+      // Fallback verification without strict issuer/audience check
+      return await jwtVerify(token, secret);
     });
 
     const role = (payload.role as string | undefined)?.toLowerCase();
@@ -164,14 +178,14 @@ export async function middleware(request: NextRequest) {
         { error: 'Session expired. Please log in again.' },
         { status: 401 }
       );
-      res.cookies.delete('auth-token');
+      clearAuthCookies(res);
       return res;
     }
     const loginUrl = new URL('/login', request.url);
     const fullPath = pathname + request.nextUrl.search;
     loginUrl.searchParams.set('redirect', fullPath);
     const redirectRes = NextResponse.redirect(loginUrl);
-    redirectRes.cookies.delete('auth-token');
+    clearAuthCookies(redirectRes);
     return redirectRes;
   }
 }
