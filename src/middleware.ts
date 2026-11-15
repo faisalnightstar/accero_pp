@@ -21,6 +21,29 @@ function getPossibleMiddlewareSecrets(): Uint8Array[] {
   return unique.map((s) => new TextEncoder().encode(s));
 }
 
+function extractToken(request: NextRequest): string | undefined {
+  // 1. NextRequest cookie accessor
+  const fromCookie =
+    request.cookies.get('accessToken')?.value ||
+    request.cookies.get('auth-token')?.value;
+  if (fromCookie) return fromCookie;
+
+  // 2. Raw Cookie header fallback (resilient to Edge cookie proxying bugs on Vercel)
+  const rawCookie = request.headers.get('cookie');
+  if (rawCookie) {
+    const match = rawCookie.match(/(?:accessToken|auth-token)=([^;]+)/);
+    if (match) return decodeURIComponent(match[1].trim());
+  }
+
+  // 3. Bearer authorization header fallback
+  const authHeader = request.headers.get('authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authHeader.substring(7).trim();
+  }
+
+  return undefined;
+}
+
 async function verifyMiddlewareToken(token: string) {
   const secrets = getPossibleMiddlewareSecrets();
 
@@ -61,9 +84,7 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  const token =
-    request.cookies.get('accessToken')?.value ||
-    request.cookies.get('auth-token')?.value;
+  const token = extractToken(request);
   const pathname = request.nextUrl.pathname;
 
   const isAuthPage = pathname === '/login' || pathname === '/register';
@@ -79,6 +100,13 @@ export async function middleware(request: NextRequest) {
   if (!isAuthPage && !isProtectedPath) {
     return response;
   }
+
+  // Detect Next.js client-side flight / RSC requests
+  const isServerActionOrRsc =
+    request.headers.has('next-action') ||
+    request.headers.get('accept')?.includes('text/x-component') ||
+    request.headers.get('rsc') === '1' ||
+    request.nextUrl.searchParams.has('_rsc');
 
   // 1. Authenticated User Handling on Auth Pages (/login, /register)
   if (isAuthPage) {
@@ -103,25 +131,22 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. Protected Routes Handling (/dashboard, /admin, /support, etc.)
-  const isServerActionOrRsc =
-    request.headers.has('next-action') ||
-    request.headers.get('accept')?.includes('text/x-component');
+  // On RSC / client-side sub-route transitions, let requests pass to Server Components.
+  // Server Components (e.g. AdminLayout, StudioLayout) perform authoritative validation
+  // in Node.js runtime and generate native React Flight transitions without 307 bounces.
+  if (isServerActionOrRsc) {
+    return response;
+  }
 
-  // If visitor has NO token at all, redirect to login
+  // If visitor has NO token at all during direct browser document load, redirect to login
   if (!token) {
-    if (isServerActionOrRsc) {
-      return NextResponse.json(
-        { error: 'Unauthorized: Session expired. Please log in again.' },
-        { status: 401 }
-      );
-    }
     const loginUrl = new URL('/login', request.url);
     const fullPath = pathname + request.nextUrl.search;
     loginUrl.searchParams.set('redirect', fullPath);
     return NextResponse.redirect(loginUrl);
   }
 
-  // If visitor has a token, attempt edge verification for role gating
+  // If visitor has a token on direct document load, verify for role-based protection
   const payload = await verifyMiddlewareToken(token);
 
   if (payload) {
@@ -130,12 +155,6 @@ export async function middleware(request: NextRequest) {
     // Admin role enforcement (/admin requires super_admin or admin)
     if (pathname.startsWith('/admin')) {
       if (role !== 'admin' && role !== 'super_admin') {
-        if (isServerActionOrRsc) {
-          return NextResponse.json(
-            { error: 'Forbidden: Insufficient privileges. Admin access required.' },
-            { status: 403 }
-          );
-        }
         const forbiddenUrl = new URL('/dashboard', request.url);
         forbiddenUrl.searchParams.set('error', 'unauthorized_admin');
         return NextResponse.redirect(forbiddenUrl);
@@ -146,12 +165,6 @@ export async function middleware(request: NextRequest) {
     if (pathname.startsWith('/support')) {
       const allowedSupportRoles = ['super_admin', 'admin', 'support_manager', 'support_agent'];
       if (!role || !allowedSupportRoles.includes(role)) {
-        if (isServerActionOrRsc) {
-          return NextResponse.json(
-            { error: 'Forbidden: Insufficient privileges. Support access required.' },
-            { status: 403 }
-          );
-        }
         const forbiddenUrl = new URL('/dashboard', request.url);
         forbiddenUrl.searchParams.set('error', 'unauthorized_support');
         return NextResponse.redirect(forbiddenUrl);
@@ -159,8 +172,7 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // Pass request through. Server Components (e.g. AdminLayout) perform
-  // authoritative validation in Node.js runtime without destroying cookies.
+  // Pass request through to Server Component layout for final database-backed auth check
   return response;
 }
 
