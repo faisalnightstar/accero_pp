@@ -60,6 +60,15 @@ export const ANALYTICS_EVENTS = {
   FARMER_FIRST_LOOKUP_SUCCESS: 'farmer_first_lookup_success',
   FARMER_FIRST_RECHARGE_SUCCESS: 'farmer_first_recharge_success',
 
+  // Progressive Web App (PWA) Lifecycle & Funnel Events
+  PWA_INSTALL_PROMPT_VIEW: 'pwa_install_prompt_view',
+  PWA_INSTALL_PROMPT_DISMISS: 'pwa_install_prompt_dismiss',
+  PWA_INSTALL_COMPLETED: 'pwa_install_completed',
+  PWA_STANDALONE_LAUNCH: 'pwa_standalone_launch',
+  PWA_OFFLINE_VIEW: 'pwa_offline_view',
+  PWA_UPDATE_AVAILABLE: 'pwa_update_available',
+  PWA_UPDATE_COMPLETED: 'pwa_update_completed',
+
   // Backward-Compatible Aliases
   HOMEPAGE_VISIT: 'homepage_visit',
   PRICING_VISIT: 'pricing_visit',

@@ -8,7 +8,8 @@
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4.17-38B2AC?logo=tailwind-css)](https://tailwindcss.com/)
 [![Database](https://img.shields.io/badge/Database-MongoDB_Atlas-47A248?logo=mongodb)](https://www.mongodb.com/)
 [![Card Standard](https://img.shields.io/badge/Card_Standard-ISO%2FIEC_7810_ID--1_(CR80)-navy)](https://en.wikipedia.org/wiki/ISO/IEC_7810)
-[![Test Suite](https://img.shields.io/badge/Tests-305%20Passed%20(Vitest)-success?logo=vitest)](tests)
+[![PWA Ready](https://img.shields.io/badge/PWA-Cross--Platform%20Ready-8B1E2D?logo=pwa)](docs/pwa/architecture.md)
+[![Test Suite](https://img.shields.io/badge/Tests-323%20Passed%20(Vitest)-success?logo=vitest)](tests)
 [![Deployment](https://img.shields.io/badge/Deployment-Vercel-black?logo=vercel)](https://vercel.com/)
 
 **Production Website:** [https://printportal.accero.app](https://printportal.accero.app)  
@@ -97,6 +98,15 @@ The platform provides preformatted, official-standard card canvases for seven co
 - **High-Resolution PNG Download:** One-click 300+ DPI PNG export for direct image printing.
 - **Physical Card Tray Alignment:** Dedicated `@media print` CSS rules isolate the card elements, hide navigation chrome, and space cards precisely for standard dual-card PVC printer trays (e.g., Epson L805).
 - **Multilingual Rendering:** Embedded Google Fonts (`Hind`, `Roboto`, `Open Sans`) ensure proper typography rendering across Hindi, Marathi, Tamil, Telugu, Gujarati, Punjabi, Bengali, Kannada, and Malayalam.
+
+### Progressive Web App (PWA) & Cross-Platform Installation
+- **Cross-Platform Installability:** Installs as a standalone business desktop/mobile application across Windows 10/11, macOS, Android, and iOS/iPadOS without app store dependencies.
+- **W3C Web App Manifest:** Configured via `src/app/manifest.ts` with brand theming (`#8B1E2D`), standalone display mode, adaptive icons, and quick-launch shortcuts (Studio, Dashboard, Wallet).
+- **High-Resolution Brand Assets:** Standard, maskable (with 20% safe zones for Android), and Apple touch icons generated from the official Accero emblem.
+- **Zero-Trust Caching Engine:** Lightweight custom service worker (`public/sw.js`) precaches the application shell while strictly enforcing **Network-Only** access for all sensitive API endpoints, authentication sessions, and citizen document data.
+- **Graceful Offline Fallback:** Dedicated `/offline` route with real-time connectivity status and retry controls, safely pausing financial and lookup transactions when network drops.
+- **Platform-Aware Install Prompts:** Smart floating install card (`InstallPrompt.tsx`) with 7-day dismissal cooldown and step-by-step Apple Safari Share Sheet guides for iPhone/iPad operators.
+- **Safe Background Updates:** Real-time update detection (`ServiceWorkerRegistration.tsx`) surfaces an unobtrusive "Update Now" alert that avoids disrupting active card editing or payment sessions.
 
 ### Business Operations & Financial Ledger
 - **Universal Authentication & RBAC:** Single sign-on entry point with 7-day secure JWT cookies. Role-based routing enforces permissions for `super_admin`, `admin`, `support_manager`, `support_agent`, and `operator`.
@@ -368,8 +378,8 @@ npm test
 
 ### Verified Test Suite Status
 ```
-Test Files  31 passed (31)
-     Tests  305 passed (305)
+Test Files  32 passed (32)
+     Tests  323 passed (323)
   Duration  ~1.0s
 ```
 
@@ -482,6 +492,15 @@ This repository includes detailed specifications, research reports, and operatio
 - [Ration & Farmer ID Competitor Intelligence](docs/seo/ration-farmer/competitor-research.md) — Competitive landscape analysis for rural agricultural and PDS services.
 - [Ration & Farmer ID Content Roadmap](docs/seo/ration-farmer/content-roadmap.md) — Content production plan targeting state-wise search queries.
 - [Ration & Farmer ID Structured Data Audit](docs/seo/ration-farmer/structured-data-audit.md) — Schema.org markup validation for rural document services.
+
+### 8. Progressive Web App (PWA) & Cross-Platform Distribution
+- [PWA Architecture & Lifecycle Specification](docs/pwa/architecture.md) — System design, manifest attributes, and push notification roadmap.
+- [Cross-Platform Installation Guide](docs/pwa/installation-guide.md) — Step-by-step setup for Windows 10/11, macOS, Android, and iOS/iPadOS.
+- [Service Worker & Tiered Caching Policy](docs/pwa/service-worker-and-caching.md) — Caching rules, never-cache guards, and cache invalidation.
+- [Cross-Platform Compatibility & Printing Analysis](docs/pwa/cross-platform-compatibility.md) — Hardware printer access, display modes, and OS limitations.
+- [PWA Security, Privacy & DPDP Compliance](docs/pwa/security-and-privacy.md) — Zero-trust caching, shared terminal security, and offline defenses.
+- [PWA Quality Assurance & Testing Report](docs/pwa/testing-report.md) — Automated Vitest test suite and static build validation.
+- [PWA Implementation & Engineering Report](docs/pwa/implementation-report.md) — Complete implementation milestone report and file inventory.
 
 ---
 

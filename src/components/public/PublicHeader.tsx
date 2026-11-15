@@ -24,6 +24,7 @@ import {
   Search,
   Compass,
 } from 'lucide-react';
+import InstallNavbarButton from '@/components/pwa/InstallNavbarButton';
 
 const serviceItems = [
   {
@@ -361,6 +362,8 @@ export default function PublicHeader({ className = '' }: PublicHeaderProps) {
 
           {/* Right Action Buttons */}
           <div className="hidden sm:flex items-center gap-2.5">
+            <InstallNavbarButton className="hidden md:inline-flex" />
+
             <Link
               href="/login"
               className="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 hover:text-[#1D3557] hover:bg-slate-100 rounded-xl transition-colors border border-transparent hover:border-slate-200"
@@ -508,6 +511,11 @@ export default function PublicHeader({ className = '' }: PublicHeaderProps) {
             >
               Security Architecture
             </Link>
+
+            {/* PWA Mobile Drawer Install Action */}
+            <div className="pt-2 border-t border-slate-100">
+              <InstallNavbarButton variant="full" className="w-full justify-center py-2.5" />
+            </div>
           </div>
         </div>
       )}

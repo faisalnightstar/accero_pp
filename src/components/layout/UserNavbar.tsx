@@ -23,6 +23,7 @@ import {
   Ticket,
 } from 'lucide-react';
 import RechargeModal from '@/components/wallet/RechargeModal';
+import InstallNavbarButton from '@/components/pwa/InstallNavbarButton';
 
 export interface UserSessionData {
   id?: string;
@@ -50,22 +51,28 @@ export default function UserNavbar({
   const router = useRouter();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isRewardsOpen, setIsRewardsOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isRechargeModalOpen, setIsRechargeModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const profileRef = useRef<HTMLDivElement>(null);
+  const rewardsRef = useRef<HTMLDivElement>(null);
 
-  // Close profile dropdown on outside click or Esc
+  // Close dropdowns on outside click or Esc
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (profileRef.current && !profileRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
       }
+      if (rewardsRef.current && !rewardsRef.current.contains(event.target as Node)) {
+        setIsRewardsOpen(false);
+      }
     }
     function handleKeyDown(event: KeyboardEvent) {
       if (event.key === 'Escape') {
         setIsProfileOpen(false);
+        setIsRewardsOpen(false);
         setIsMobileMenuOpen(false);
       }
     }
@@ -78,10 +85,11 @@ export default function UserNavbar({
     };
   }, []);
 
-  // Close mobile drawer on route change
+  // Close mobile drawer and dropdowns on route change
   useEffect(() => {
     setIsMobileMenuOpen(false);
     setIsProfileOpen(false);
+    setIsRewardsOpen(false);
   }, [pathname]);
 
   const handleLogout = async () => {
@@ -102,7 +110,8 @@ export default function UserNavbar({
 
   const isLowBalance = user.walletBalance < 50;
 
-  const navLinks = [
+  // Primary Operational Nav Links (Desktop + Mobile)
+  const primaryNavLinks = [
     {
       name: 'Dashboard',
       href: '/dashboard',
@@ -110,42 +119,56 @@ export default function UserNavbar({
       active: pathname === '/dashboard',
     },
     {
-      name: 'Interactive Studio',
+      name: 'Studio',
       href: '/studio',
       icon: Layers,
       active: pathname.startsWith('/studio'),
     },
     {
-      name: 'Card Templates',
+      name: 'Templates',
       href: '/cards',
       icon: CreditCard,
       active: pathname === '/cards',
     },
     {
-      name: 'Wallet Ledger',
+      name: 'Wallet',
       href: '/wallet',
       icon: Wallet,
       active: pathname === '/wallet',
     },
+  ];
+
+  // Secondary Promotional / Incentive Links
+  const rewardNavLinks = [
     {
       name: 'Refer & Earn',
       href: '/dashboard/refer-earn',
       icon: Gift,
       active: pathname === '/dashboard/refer-earn',
+      description: 'Invite operators & earn wallet credits',
     },
     {
       name: 'Offers & Rewards',
       href: '/dashboard/offers',
       icon: Sparkles,
       active: pathname === '/dashboard/offers',
+      description: 'Cashback & high-volume print perks',
     },
     {
       name: 'Promo Codes',
       href: '/dashboard/promo-codes',
       icon: Ticket,
       active: pathname === '/dashboard/promo-codes',
+      description: 'Redeem promotional balance vouchers',
     },
   ];
+
+  const isRewardsActive =
+    pathname.startsWith('/dashboard/refer-earn') ||
+    pathname.startsWith('/dashboard/offers') ||
+    pathname.startsWith('/dashboard/promo-codes');
+
+  const allNavLinks = [...primaryNavLinks, ...rewardNavLinks];
 
   return (
     <>
@@ -153,11 +176,11 @@ export default function UserNavbar({
         className={`sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 no-print transition-colors ${className}`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16 gap-4">
+          <div className="flex justify-between items-center h-16 gap-2 sm:gap-4">
             {/* 1. Brand Logo */}
             <Link
               href="/dashboard"
-              className="flex items-center gap-2.5 group shrink-0 focus:outline-none"
+              className="flex items-center gap-2.5 group shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-burgundy/40 rounded-xl"
               title="PrintPortal App Workspace"
             >
               <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shadow-sm group-hover:scale-105 transition-transform overflow-hidden relative">
@@ -170,7 +193,7 @@ export default function UserNavbar({
                   priority
                 />
               </div>
-              <div>
+              <div className="shrink-0">
                 <div className="flex items-center gap-1.5">
                   <span className="font-bold text-xl tracking-tight text-[#1D3557]">
                     Print<span className="text-[#E63946]">Portal</span>
@@ -185,56 +208,139 @@ export default function UserNavbar({
               </div>
             </Link>
 
-            {/* 2. Desktop Navigation Links */}
-            <nav className="hidden lg:flex items-center gap-1">
-              {navLinks.map((item) => {
+            {/* 2. Desktop Navigation Links (Compact + Responsive) */}
+            <nav className="hidden lg:flex items-center gap-1 shrink-0" aria-label="Main Navigation">
+              {primaryNavLinks.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
-                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-2 ${item.active
-                        ? 'text-burgundy bg-burgundy/10 shadow-xs'
+                    className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-burgundy/40 ${
+                      item.active
+                        ? 'text-burgundy bg-burgundy/10 shadow-2xs'
                         : 'text-slate-600 hover:text-navy hover:bg-slate-100'
-                      }`}
+                    }`}
                   >
                     <Icon
-                      className={`w-4 h-4 ${item.active ? 'text-burgundy' : 'text-slate-400 group-hover:text-navy'
-                        }`}
+                      className={`w-4 h-4 ${
+                        item.active ? 'text-burgundy' : 'text-slate-400 group-hover:text-navy'
+                      }`}
                     />
                     <span>{item.name}</span>
                   </Link>
                 );
               })}
+
+              {/* Rewards Dropdown for desktop */}
+              <div className="relative" ref={rewardsRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsRewardsOpen((prev) => !prev)}
+                  className={`px-3 py-2 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-burgundy/40 cursor-pointer ${
+                    isRewardsActive || isRewardsOpen
+                      ? 'text-burgundy bg-burgundy/10 shadow-2xs'
+                      : 'text-slate-600 hover:text-navy hover:bg-slate-100'
+                  }`}
+                  aria-expanded={isRewardsOpen}
+                  aria-haspopup="true"
+                  aria-label="Rewards and promotional programs menu"
+                >
+                  <Sparkles
+                    className={`w-4 h-4 ${
+                      isRewardsActive ? 'text-burgundy' : 'text-slate-400 group-hover:text-navy'
+                    }`}
+                  />
+                  <span>Rewards</span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform duration-200 ${
+                      isRewardsOpen ? 'rotate-180 text-burgundy' : 'text-slate-400'
+                    }`}
+                  />
+                </button>
+
+                {isRewardsOpen && (
+                  <div
+                    role="menu"
+                    aria-orientation="vertical"
+                    className="absolute left-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  >
+                    <div className="px-3.5 py-1.5 border-b border-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Rewards & Incentives
+                    </div>
+                    <div className="py-1">
+                      {rewardNavLinks.map((item) => {
+                        const Icon = item.icon;
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={() => setIsRewardsOpen(false)}
+                            role="menuitem"
+                            className={`flex items-start gap-3 px-3.5 py-2 text-xs transition-colors ${
+                              item.active
+                                ? 'bg-burgundy/10 text-burgundy font-bold'
+                                : 'text-slate-700 hover:text-navy hover:bg-slate-50 font-semibold'
+                            }`}
+                          >
+                            <div
+                              className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
+                                item.active
+                                  ? 'bg-burgundy text-white'
+                                  : 'bg-slate-100 text-slate-600'
+                              }`}
+                            >
+                              <Icon className="w-3.5 h-3.5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <span className="block truncate font-bold">{item.name}</span>
+                              <p className="text-[11px] text-slate-400 font-normal leading-tight mt-0.5 truncate">
+                                {item.description}
+                              </p>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
             </nav>
 
             {/* 3. Right Area: CTA, Live Wallet Pill, User Profile & Mobile Toggle */}
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
               {/* Quick Action: New Print */}
               <Link
                 href="/studio"
-                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-burgundy to-crimson hover:shadow-btn-hover rounded-lg transition-all shrink-0"
+                className="hidden sm:inline-flex items-center gap-1.5 px-2.5 xl:px-3 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-burgundy to-crimson hover:shadow-btn-hover rounded-lg transition-all shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-burgundy/50"
                 title="Launch Interactive Card Studio"
+                aria-label="New Print Studio"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>New Print</span>
+                <span className="hidden xl:inline">New Print</span>
               </Link>
+
+              {/* PWA Install Button (Shown when not in standalone mode) */}
+              <InstallNavbarButton className="hidden md:inline-flex" />
 
               {/* Live Wallet Balance Pill */}
               <button
                 type="button"
                 onClick={() => setIsRechargeModalOpen(true)}
                 title="Click to recharge wallet balance"
-                className={`group flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all shadow-2xs shrink-0 cursor-pointer ${isLowBalance
+                className={`group flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1.5 rounded-full border transition-all shadow-2xs shrink-0 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-burgundy/40 ${
+                  isLowBalance
                     ? 'bg-amber-500/10 border-amber-400 text-amber-950 hover:bg-amber-500/20'
                     : 'bg-slate-50 border-slate-200 text-slate-800 hover:border-burgundy/40 hover:bg-slate-100'
-                  }`}
+                }`}
+                aria-label={`Wallet balance ₹${user.walletBalance.toFixed(2)}. Click to top up.`}
               >
                 <div
-                  className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${isLowBalance
+                  className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${
+                    isLowBalance
                       ? 'bg-amber-400 text-amber-950 animate-pulse'
                       : 'bg-burgundy/10 text-burgundy'
-                    }`}
+                  }`}
                 >
                   {isLowBalance ? (
                     <AlertTriangle className="w-3.5 h-3.5" />
@@ -252,9 +358,9 @@ export default function UserNavbar({
                   </span>
                 </div>
 
-                <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-bold text-burgundy bg-burgundy/10 hover:bg-burgundy/20 px-2 py-0.5 rounded-md transition-colors ml-0.5">
+                <span className="hidden sm:inline-flex items-center gap-0.5 sm:gap-1 text-[10px] font-bold text-burgundy bg-burgundy/10 hover:bg-burgundy/20 px-1.5 sm:px-2 py-0.5 rounded-md transition-colors ml-0.5">
                   <Plus className="w-2.5 h-2.5" />
-                  Top-up
+                  <span className="hidden md:inline">Top-up</span>
                 </span>
               </button>
 
@@ -263,13 +369,15 @@ export default function UserNavbar({
                 <button
                   type="button"
                   onClick={() => setIsProfileOpen((prev) => !prev)}
-                  className={`flex items-center gap-1.5 p-1 rounded-full border transition-all ${isProfileOpen
+                  className={`flex items-center gap-1.5 p-1 rounded-full border transition-all cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-burgundy/40 ${
+                    isProfileOpen
                       ? 'border-burgundy ring-2 ring-burgundy/20 bg-slate-50'
                       : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
-                    }`}
+                  }`}
                   aria-expanded={isProfileOpen}
                   aria-haspopup="true"
                   title="User Account Menu"
+                  aria-label="User account menu"
                 >
                   <div className="relative">
                     <div className="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-navy font-black text-xs uppercase shadow-2xs">
@@ -281,14 +389,19 @@ export default function UserNavbar({
                     />
                   </div>
                   <ChevronDown
-                    className={`w-3.5 h-3.5 text-slate-400 mr-0.5 transition-transform duration-200 ${isProfileOpen ? 'rotate-180 text-navy' : ''
-                      }`}
+                    className={`w-3.5 h-3.5 text-slate-400 mr-0.5 transition-transform duration-200 ${
+                      isProfileOpen ? 'rotate-180 text-navy' : ''
+                    }`}
                   />
                 </button>
 
                 {/* Dropdown Menu */}
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+                  <div
+                    role="menu"
+                    aria-orientation="vertical"
+                    className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-slate-200/80 py-2 z-50 animate-in fade-in zoom-in-95 duration-150"
+                  >
                     {/* User Info Header */}
                     <div className="px-4 py-3 border-b border-slate-100">
                       <div className="flex items-center justify-between">
@@ -316,6 +429,7 @@ export default function UserNavbar({
                       <Link
                         href="/dashboard"
                         onClick={() => setIsProfileOpen(false)}
+                        role="menuitem"
                         className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-burgundy hover:bg-slate-50 transition-colors"
                       >
                         <LayoutDashboard className="w-4 h-4 text-slate-400" />
@@ -325,6 +439,7 @@ export default function UserNavbar({
                       <Link
                         href="/studio"
                         onClick={() => setIsProfileOpen(false)}
+                        role="menuitem"
                         className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-burgundy hover:bg-slate-50 transition-colors"
                       >
                         <Layers className="w-4 h-4 text-slate-400" />
@@ -334,6 +449,7 @@ export default function UserNavbar({
                       <Link
                         href="/cards"
                         onClick={() => setIsProfileOpen(false)}
+                        role="menuitem"
                         className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-burgundy hover:bg-slate-50 transition-colors"
                       >
                         <CreditCard className="w-4 h-4 text-slate-400" />
@@ -343,15 +459,19 @@ export default function UserNavbar({
                       <Link
                         href="/wallet"
                         onClick={() => setIsProfileOpen(false)}
+                        role="menuitem"
                         className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-burgundy hover:bg-slate-50 transition-colors"
                       >
                         <Wallet className="w-4 h-4 text-slate-400" />
                         <span>Wallet Ledger & Top-Up</span>
                       </Link>
 
+                      <div className="my-1 border-t border-slate-100" />
+
                       <Link
                         href="/dashboard/refer-earn"
                         onClick={() => setIsProfileOpen(false)}
+                        role="menuitem"
                         className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-burgundy hover:bg-slate-50 transition-colors"
                       >
                         <Gift className="w-4 h-4 text-emerald-600" />
@@ -361,6 +481,7 @@ export default function UserNavbar({
                       <Link
                         href="/dashboard/offers"
                         onClick={() => setIsProfileOpen(false)}
+                        role="menuitem"
                         className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-burgundy hover:bg-slate-50 transition-colors"
                       >
                         <Sparkles className="w-4 h-4 text-purple-600" />
@@ -370,11 +491,17 @@ export default function UserNavbar({
                       <Link
                         href="/dashboard/promo-codes"
                         onClick={() => setIsProfileOpen(false)}
+                        role="menuitem"
                         className="flex items-center gap-2.5 px-4 py-2 text-xs font-semibold text-slate-700 hover:text-burgundy hover:bg-slate-50 transition-colors"
                       >
                         <Ticket className="w-4 h-4 text-pink-600" />
                         <span>Promo Codes & Coupons</span>
                       </Link>
+                    </div>
+
+                    {/* PWA App Install in Account Menu */}
+                    <div className="px-3 py-2 border-t border-slate-100">
+                      <InstallNavbarButton variant="full" className="w-full justify-center" />
                     </div>
 
                     {/* Sign Out Action */}
@@ -383,7 +510,8 @@ export default function UserNavbar({
                         type="button"
                         onClick={handleLogout}
                         disabled={isLoggingOut}
-                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors text-left disabled:opacity-50"
+                        className="w-full flex items-center gap-2.5 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors text-left disabled:opacity-50 cursor-pointer"
+                        role="menuitem"
                       >
                         <LogOut className="w-4 h-4 text-red-500" />
                         <span>{isLoggingOut ? 'Signing Out...' : 'Sign Out'}</span>
@@ -397,8 +525,9 @@ export default function UserNavbar({
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen((prev) => !prev)}
-                className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-navy hover:bg-slate-100 transition-colors"
+                className="lg:hidden p-2 rounded-lg text-slate-600 hover:text-navy hover:bg-slate-100 transition-colors cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-burgundy/40"
                 aria-label="Toggle navigation menu"
+                aria-expanded={isMobileMenuOpen}
               >
                 {isMobileMenuOpen ? (
                   <X className="w-5 h-5 text-navy" />
@@ -412,24 +541,24 @@ export default function UserNavbar({
 
         {/* 4. Responsive Mobile Drawer */}
         {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-4 animate-in slide-in-from-top duration-200 shadow-xl">
+          <div className="lg:hidden border-t border-slate-200 bg-white px-4 pt-3 pb-6 space-y-4 animate-in slide-in-from-top duration-200 shadow-xl max-h-[calc(100vh-4rem)] overflow-y-auto">
             {/* User Profile Info in Drawer */}
             <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-navy font-black text-sm uppercase">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center text-navy font-black text-sm uppercase shrink-0">
                   {user.name ? user.name[0] : 'U'}
                 </div>
-                <div>
-                  <h4 className="text-xs font-bold text-navy truncate max-w-[160px]">
+                <div className="min-w-0">
+                  <h4 className="text-xs font-bold text-navy truncate">
                     {user.name || 'User Account'}
                   </h4>
-                  <p className="text-[11px] text-slate-500 truncate max-w-[160px]">
+                  <p className="text-[11px] text-slate-500 truncate">
                     {user.email || user.phone}
                   </p>
                 </div>
               </div>
 
-              <div className="text-right">
+              <div className="text-right shrink-0">
                 <span className="text-[10px] uppercase font-bold text-slate-500 block">Balance</span>
                 <span className="text-xs font-black text-navy font-mono">
                   ₹{user.walletBalance.toFixed(2)}
@@ -445,7 +574,7 @@ export default function UserNavbar({
                   setIsMobileMenuOpen(false);
                   setIsRechargeModalOpen(true);
                 }}
-                className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-navy bg-white border border-slate-300 rounded-lg shadow-2xs hover:bg-slate-50 transition-colors"
+                className="flex items-center justify-center gap-1.5 py-2 px-3 text-xs font-bold text-navy bg-white border border-slate-300 rounded-lg shadow-2xs hover:bg-slate-50 transition-colors cursor-pointer"
               >
                 <Wallet className="w-3.5 h-3.5 text-burgundy" />
                 <span>Top-up Wallet</span>
@@ -463,17 +592,43 @@ export default function UserNavbar({
 
             {/* Mobile Navigation Links */}
             <div className="space-y-1 pt-1">
-              {navLinks.map((item) => {
+              <div className="px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Workspace
+              </div>
+              {primaryNavLinks.map((item) => {
                 const Icon = item.icon;
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors ${item.active
+                    className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                      item.active
                         ? 'text-burgundy bg-burgundy/10 shadow-2xs'
                         : 'text-slate-700 hover:bg-slate-100'
-                      }`}
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 text-slate-500" />
+                    <span>{item.name}</span>
+                  </Link>
+                );
+              })}
+
+              <div className="px-2 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                Rewards & Programs
+              </div>
+              {rewardNavLinks.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                      item.active
+                        ? 'text-burgundy bg-burgundy/10 shadow-2xs'
+                        : 'text-slate-700 hover:bg-slate-100'
+                    }`}
                   >
                     <Icon className="w-4 h-4 text-slate-500" />
                     <span>{item.name}</span>
@@ -482,13 +637,18 @@ export default function UserNavbar({
               })}
             </div>
 
+            {/* PWA Mobile Drawer Install Action */}
+            <div className="pt-2 border-t border-slate-100">
+              <InstallNavbarButton variant="full" className="w-full justify-center py-2.5" />
+            </div>
+
             {/* Sign Out Button */}
             <div className="pt-2 border-t border-slate-100">
               <button
                 type="button"
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-2 px-4 rounded-xl text-xs font-bold text-red-600 bg-red-50 hover:bg-red-100 transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
                 <span>{isLoggingOut ? 'Signing Out...' : 'Sign Out of Account'}</span>
@@ -511,4 +671,5 @@ export default function UserNavbar({
     </>
   );
 }
+
 

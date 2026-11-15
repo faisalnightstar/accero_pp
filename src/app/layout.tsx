@@ -1,9 +1,11 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
 import './globals.css';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
 import WhatsAppSupportWidget from '@/components/layout/WhatsAppSupportWidget';
+import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration';
+import InstallPrompt from '@/components/pwa/InstallPrompt';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { Analytics } from '@vercel/analytics/next';
 import WebMcpProvider from '@/components/ai/WebMcpProvider';
@@ -15,8 +17,17 @@ import {
   generateWebSiteSchema,
 } from '@/lib/seo/structuredData';
 
+export const viewport: Viewport = {
+  themeColor: '#8B1E2D',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: 'cover',
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL(PRIMARY_CANONICAL_DOMAIN),
+  manifest: '/manifest.webmanifest',
   title: {
     default: 'Accero PrintPortal | Document Processing & Printing Software',
     template: '%s | Accero PrintPortal',
@@ -46,13 +57,20 @@ export const metadata: Metadata = {
   alternates: {
     canonical: '/',
   },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Accero PrintPortal',
+  },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },
-      { url: '/assets/logo.png', type: 'image/png' },
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/icons/icon-192.png', type: 'image/png', sizes: '192x192' },
+      { url: '/icons/icon-512.png', type: 'image/png', sizes: '512x512' },
     ],
     shortcut: '/favicon.ico',
-    apple: '/assets/logo.png',
+    apple: '/icons/apple-touch-icon.png',
   },
   openGraph: {
     type: 'website',
@@ -122,9 +140,11 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(webSiteSchema) }}
         />
       </head>
-      <body className="min-h-screen flex flex-col font-sans antialiased">
+      <body className="min-h-screen flex flex-col font-sans antialiased overflow-x-hidden">
         <GoogleTagManagerNoscript />
         <WebMcpProvider />
+        <ServiceWorkerRegistration />
+        <InstallPrompt />
         <Suspense fallback={null}>
           <AppRouterPageTracker />
         </Suspense>
