@@ -22,20 +22,18 @@ function getPossibleMiddlewareSecrets(): Uint8Array[] {
 }
 
 function extractToken(request: NextRequest): string | undefined {
-  // 1. NextRequest cookie accessor
   const fromCookie =
     request.cookies.get('accessToken')?.value ||
-    request.cookies.get('auth-token')?.value;
+    request.cookies.get('auth-token')?.value ||
+    request.cookies.get('refreshToken')?.value;
   if (fromCookie) return fromCookie;
 
-  // 2. Raw Cookie header fallback (resilient to Edge cookie proxying bugs on Vercel)
   const rawCookie = request.headers.get('cookie');
   if (rawCookie) {
-    const match = rawCookie.match(/(?:accessToken|auth-token)=([^;]+)/);
+    const match = rawCookie.match(/(?:accessToken|auth-token|refreshToken)=([^;]+)/);
     if (match) return decodeURIComponent(match[1].trim());
   }
 
-  // 3. Bearer authorization header fallback
   const authHeader = request.headers.get('authorization');
   if (authHeader && authHeader.startsWith('Bearer ')) {
     return authHeader.substring(7).trim();
@@ -68,7 +66,7 @@ async function verifyMiddlewareToken(token: string) {
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
-  // Enforce standard production security headers
+  // Enforce standard production security headers on all routes
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('X-Frame-Options', 'SAMEORIGIN');
   response.headers.set('X-XSS-Protection', '1; mode=block');
@@ -84,39 +82,18 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  const token = extractToken(request);
   const pathname = request.nextUrl.pathname;
-
   const isAuthPage = pathname === '/login' || pathname === '/register';
-  const isProtectedPath =
-    pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/studio') ||
-    pathname.startsWith('/wallet') ||
-    pathname.startsWith('/admin') ||
-    pathname.startsWith('/support') ||
-    pathname.startsWith('/cards');
 
-  // If path is neither auth nor protected, proceed normally with security headers
-  if (!isAuthPage && !isProtectedPath) {
-    return response;
-  }
-
-  // Detect Next.js client-side flight / RSC requests
-  const isServerActionOrRsc =
-    request.headers.has('next-action') ||
-    request.headers.get('accept')?.includes('text/x-component') ||
-    request.headers.get('rsc') === '1' ||
-    request.nextUrl.searchParams.has('_rsc');
-
-  // 1. Authenticated User Handling on Auth Pages (/login, /register)
+  // If visitor is on /login or /register, redirect already-authenticated users to their dashboard
   if (isAuthPage) {
+    const token = extractToken(request);
     if (!token) {
       return response;
     }
 
     const payload = await verifyMiddlewareToken(token);
     if (payload) {
-      // Token is valid & unexpired: Redirect authenticated user away from login/register
       const role = (payload.role as string | undefined)?.toLowerCase();
       const rawReturnTo =
         request.nextUrl.searchParams.get('returnTo') ||
@@ -125,66 +102,24 @@ export async function middleware(request: NextRequest) {
 
       return NextResponse.redirect(new URL(safeDestination, request.url));
     }
-
-    // Token is corrupt/expired on auth page: allow user to see login form
-    return response;
   }
 
-  // 2. Protected Routes Handling (/dashboard, /admin, /support, etc.)
-  // On RSC / client-side sub-route transitions, let requests pass to Server Components.
-  // Server Components (e.g. AdminLayout, StudioLayout) perform authoritative validation
-  // in Node.js runtime and generate native React Flight transitions without 307 bounces.
-  if (isServerActionOrRsc) {
-    return response;
-  }
-
-  // If visitor has NO token at all during direct browser document load, redirect to login
-  if (!token) {
-    const loginUrl = new URL('/login', request.url);
-    const fullPath = pathname + request.nextUrl.search;
-    loginUrl.searchParams.set('redirect', fullPath);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  // If visitor has a token on direct document load, verify for role-based protection
-  const payload = await verifyMiddlewareToken(token);
-
-  if (payload) {
-    const role = (payload.role as string | undefined)?.toLowerCase();
-
-    // Admin role enforcement (/admin requires super_admin or admin)
-    if (pathname.startsWith('/admin')) {
-      if (role !== 'admin' && role !== 'super_admin') {
-        const forbiddenUrl = new URL('/dashboard', request.url);
-        forbiddenUrl.searchParams.set('error', 'unauthorized_admin');
-        return NextResponse.redirect(forbiddenUrl);
-      }
-    }
-
-    // Support role enforcement (/support requires super_admin, admin, support_manager, or support_agent)
-    if (pathname.startsWith('/support')) {
-      const allowedSupportRoles = ['super_admin', 'admin', 'support_manager', 'support_agent'];
-      if (!role || !allowedSupportRoles.includes(role)) {
-        const forbiddenUrl = new URL('/dashboard', request.url);
-        forbiddenUrl.searchParams.set('error', 'unauthorized_support');
-        return NextResponse.redirect(forbiddenUrl);
-      }
-    }
-  }
-
-  // Pass request through to Server Component layout for final database-backed auth check
+  // Protected route security is authoritatively enforced by Server Component Layouts
+  // (AdminLayout, SupportLayout, DashboardLayout, etc.) in Node.js runtime, ensuring
+  // zero Edge-runtime token drops, zero false 307 redirects, and seamless client navigations.
   return response;
 }
 
 export const config = {
   matcher: [
-    '/login',
-    '/register',
-    '/dashboard/:path*',
-    '/studio/:path*',
-    '/wallet/:path*',
-    '/admin/:path*',
-    '/support/:path*',
-    '/cards/:path*',
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - assets (public static assets)
+     * - favicon.ico, manifest.webmanifest (metadata files)
+     */
+    '/((?!api|_next/static|_next/image|assets|favicon.ico|manifest.webmanifest).*)',
   ],
 };

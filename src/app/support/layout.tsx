@@ -24,7 +24,11 @@ export default async function SupportLayout({
 }) {
   const session = await getSession();
 
-  if (!session || !isSupportStaff(session.role)) {
+  if (!session) {
+    redirect('/login?redirect=/support');
+  }
+
+  if (!isSupportStaff(session.role)) {
     redirect('/dashboard?error=unauthorized_support');
   }
 
