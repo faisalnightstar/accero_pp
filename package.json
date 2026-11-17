@@ -29,7 +29,7 @@
     "lucide-react": "^0.475.0",
     "mongoose": "^9.10.2",
     "next": "^15.1.7",
-    "next-cloudinary": "^7.1.0",
+    "next-cloudinary": "^6.19.3",
     "nodemailer": "^10.3.1",
     "qrcode": "^1.5.4",
     "react": "^19.0.0",
