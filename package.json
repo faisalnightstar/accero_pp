@@ -28,7 +28,7 @@
     "jspdf": "^4.2.1",
     "lucide-react": "^0.475.0",
     "mongoose": "^9.10.2",
-    "next": "^15.1.7",
+    "next": "^15.5.29",
     "next-cloudinary": "^6.19.3",
     "nodemailer": "^10.3.1",
     "qrcode": "^1.5.4",
