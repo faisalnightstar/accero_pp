@@ -84,6 +84,6 @@ Rather than relying on unverified third-party analytics cookies, Accero PrintPor
 ## 5. NEXT STEPS FOR CONTINUED ORGANIC DOMINANCE
 
 1. **Submit Updated Sitemap:** Submit `https://printportal.accero.app/sitemap.xml` directly in Google Search Console and Bing Webmaster Tools.
-2. **Weekly AI Tracking:** Use [`AI_VISIBILITY_TRACKER.md`](file:///Users/faisal/Documents/GitHub/accero_pp/AI_VISIBILITY_TRACKER.md) to audit the 30 conversational queries across Perplexity, ChatGPT Search, and Google AI Overviews.
-3. **GSC Performance Reporting:** Log weekly metrics into [`SEARCH_CONSOLE_REPORT_TEMPLATE.md`](file:///Users/faisal/Documents/GitHub/accero_pp/SEARCH_CONSOLE_REPORT_TEMPLATE.md) to track click-through rate improvements for `print portal` and `csc print portal`.
+2. **Weekly AI Tracking:** Use [`AI_VISIBILITY_TRACKER.md`](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/ai-visibility-tracker.md) to audit the 30 conversational queries across Perplexity, ChatGPT Search, and Google AI Overviews.
+3. **GSC Performance Reporting:** Log weekly metrics into [`SEARCH_CONSOLE_REPORT_TEMPLATE.md`](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase2/search-console-report-template.md) to track click-through rate improvements for `print portal` and `csc print portal`.
 

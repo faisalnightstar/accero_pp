@@ -237,5 +237,5 @@ $$\text{Organic Search Visitor} \longrightarrow \text{Operator Registration} \lo
 10. `docs/SEO_GEO_AEO_AUDIT_REPORT.md`: Created master comprehensive audit deliverable.
 
 ### Immediate Action Required by Operator:
-* Follow the 4-Day Wave Plan in [docs/URL_INSPECTIONS.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/URL_INSPECTIONS.md) to inspect and submit the Wave 1 high-priority URLs in Google Search Console.
+* Follow the 4-Day Wave Plan in [docs/URL_INSPECTIONS.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase2/url-inspections.md) to inspect and submit the Wave 1 high-priority URLs in Google Search Console.
 

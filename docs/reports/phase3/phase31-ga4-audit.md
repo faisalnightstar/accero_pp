@@ -10,7 +10,7 @@
 - [`src/components/analytics/PageTracker.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/components/analytics/PageTracker.tsx)
 - [`src/app/studio/page.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/app/studio/page.tsx)
 - [`src/components/wallet/RechargeModal.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/components/wallet/RechargeModal.tsx)
-- [`src/app/(auth)/register/RegisterForm.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/app/(auth)/register/RegisterForm.tsx)
+- [`src/app/%28auth%29/register/RegisterForm.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/app/%28auth%29/register/RegisterForm.tsx)
 
 ---
 
@@ -33,21 +33,21 @@ The implementation of Google Tag Manager (`GTM-MKXHQ658`) and the custom dataLay
 Below is the verification of the 6 proposed core conversion events:
 
 ### Event 1: `registration_started`
-* **Trigger Location:** `src/app/(auth)/register/RegisterForm.tsx` (on input focus / form initialization).
+* **Trigger Location:** `src/app/%28auth%29/register/RegisterForm.tsx` (on input focus / form initialization).
 * **Current Implementation:** Fires `ANALYTICS_EVENTS.REGISTRATION_START`.
 * **Payload:** `{ pagePath: '/register' }`.
 * **PII Risk:** **ZERO**. No user input values are captured.
 * **Audit Verdict:** **VALID**. Correctly measures registration intent.
 
 ### Event 2: `registration_completed`
-* **Trigger Location:** `src/app/(auth)/register/RegisterForm.tsx` (after `POST /api/auth/register` returns HTTP 201).
+* **Trigger Location:** `src/app/%28auth%29/register/RegisterForm.tsx` (after `POST /api/auth/register` returns HTTP 201).
 * **Current Implementation:** Fires `ANALYTICS_EVENTS.REGISTRATION_COMPLETE`.
 * **Payload:** Anonymous user role (`operator`).
 * **PII Risk:** **ZERO**. Phone numbers, passwords, and shop names are excluded.
 * **Audit Verdict:** **VALID**. Accurately tracks successful account creation.
 
 ### Event 3: `login_success`
-* **Trigger Location:** `src/app/(auth)/login/LoginForm.tsx` (after `POST /api/auth/login` returns HTTP 200).
+* **Trigger Location:** `src/app/%28auth%29/login/LoginForm.tsx` (after `POST /api/auth/login` returns HTTP 200).
 * **Current Implementation:** Dispatches session initialization.
 * **Payload:** `{ role: 'operator', login_method: 'credentials' }`.
 * **PII Risk:** **ZERO**. Authentication tokens and passwords remain in httpOnly cookies.

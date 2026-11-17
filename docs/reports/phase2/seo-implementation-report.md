@@ -42,15 +42,15 @@ This project establishes a resilient, production-grade search visibility foundat
 
 All required strategic documentation has been authored and committed in `docs/seo/`:
 
-1. [docs/seo/SEO_BASELINE_AUDIT.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/SEO_BASELINE_AUDIT.md): Complete audit of all 77 application routes across 11 functional classifications.
-2. [docs/seo/TECHNICAL_SEO_IMPLEMENTATION.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/TECHNICAL_SEO_IMPLEMENTATION.md): Deep technical breakdown of metadata factories, canonicalization, Next.js RSC rendering, and Edge caching.
-3. [docs/seo/GEO_STRATEGY.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/GEO_STRATEGY.md): Generative Engine Optimization strategy for ChatGPT, Perplexity, Claude, and Google AI Overviews.
-4. [docs/seo/AEO_STRATEGY.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/AEO_STRATEGY.md): Answer Engine Optimization framework targeting featured snippets, direct answers, and PAA accordions.
-5. [docs/seo/ACCERO_ENTITY_STRATEGY.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/ACCERO_ENTITY_STRATEGY.md): Knowledge Graph entity definitions and strict statutory disambiguation from UIDAI, NSDL, UTIITSL, and ECI.
-6. [docs/seo/TOPICAL_AUTHORITY_MAP.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/TOPICAL_AUTHORITY_MAP.md): 5 interlinked semantic clusters mapping primary, secondary, and long-tail keywords to target URLs.
-7. [docs/seo/COMPETITOR_VISIBILITY_GAP.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/COMPETITOR_VISIBILITY_GAP.md): Market gap analysis highlighting legacy competitor deficits (502 timeouts, ruined blanks, balance loss) and counter-positioning.
-8. [docs/seo/INTERNAL_LINKING_AUDIT.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/INTERNAL_LINKING_AUDIT.md): Hub-and-spoke link graph analysis, anchor text accessibility governance, and breadcrumb schemas.
-9. [docs/seo/SEO_IMPLEMENTATION_REPORT.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/SEO_IMPLEMENTATION_REPORT.md): This master implementation milestone report.
+1. [docs/seo/SEO_BASELINE_AUDIT.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase2/seo-baseline-audit.md): Complete audit of all 77 application routes across 11 functional classifications.
+2. [docs/seo/TECHNICAL_SEO_IMPLEMENTATION.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/technical-seo.md): Deep technical breakdown of metadata factories, canonicalization, Next.js RSC rendering, and Edge caching.
+3. [docs/seo/GEO_STRATEGY.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/geo-strategy.md): Generative Engine Optimization strategy for ChatGPT, Perplexity, Claude, and Google AI Overviews.
+4. [docs/seo/AEO_STRATEGY.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/aeo-strategy.md): Answer Engine Optimization framework targeting featured snippets, direct answers, and PAA accordions.
+5. [docs/seo/ACCERO_ENTITY_STRATEGY.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/entity-identity.md): Knowledge Graph entity definitions and strict statutory disambiguation from UIDAI, NSDL, UTIITSL, and ECI.
+6. [docs/seo/TOPICAL_AUTHORITY_MAP.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/topical-clusters.md): 5 interlinked semantic clusters mapping primary, secondary, and long-tail keywords to target URLs.
+7. [docs/seo/COMPETITOR_VISIBILITY_GAP.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/competitor-intelligence/competitor-visibility-gap.md): Market gap analysis highlighting legacy competitor deficits (502 timeouts, ruined blanks, balance loss) and counter-positioning.
+8. [docs/seo/INTERNAL_LINKING_AUDIT.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/internal-linking-audit.md): Hub-and-spoke link graph analysis, anchor text accessibility governance, and breadcrumb schemas.
+9. [docs/seo/SEO_IMPLEMENTATION_REPORT.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase2/seo-implementation-report.md): This master implementation milestone report.
 
 ---
 

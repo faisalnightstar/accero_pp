@@ -104,7 +104,7 @@ Google Search Console enforces an unpublished daily quota of approximately **10 
 | 19 | **Operator FAQ** | `https://printportal.accero.app/faq` | Commercial / Support | [Inspect in GSC](https://search.google.com/search-console/inspect?resource_id=https%3A%2F%2Fprintportal.accero.app%2F&id=https%3A%2F%2Fprintportal.accero.app%2Ffaq) |
 
 ### Detailed Wave 3 & 4 (Days 3 & 4):
-* Full table listings and direct links for Wave 3 (Features & Solutions) and Wave 4 (Blog Guides & Trust Pages) are documented in [docs/URL_INSPECTIONS.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/URL_INSPECTIONS.md).
+* Full table listings and direct links for Wave 3 (Features & Solutions) and Wave 4 (Blog Guides & Trust Pages) are documented in [docs/URL_INSPECTIONS.md](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase2/url-inspections.md).
 
 ---
 

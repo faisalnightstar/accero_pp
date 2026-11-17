@@ -56,12 +56,12 @@ In compliance with strict technical integrity standards, all discrepancies betwe
 
 | Deliverable | File Location | Purpose & Core Contents |
 |---|---|---|
-| **SEO Growth Report** | [`SEO_GROWTH_REPORT.md`](file:///Users/faisal/Documents/GitHub/accero_pp/SEO_GROWTH_REPORT.md) | High-level growth strategy, architecture verification, and production route catalog. |
-| **Competitor Keyword Gap** | [`COMPETITOR_KEYWORD_GAP.md`](file:///Users/faisal/Documents/GitHub/accero_pp/COMPETITOR_KEYWORD_GAP.md) | Detailed analysis of the 5 direct competitors, 4 keyword clusters, search intent mapping, and on-page content blueprints. |
-| **AI Visibility Tracker** | [`AI_VISIBILITY_TRACKER.md`](file:///Users/faisal/Documents/GitHub/accero_pp/AI_VISIBILITY_TRACKER.md) | Repeatable monitoring protocol and baseline observation matrix for 30 customer queries across ChatGPT Search, Perplexity, Gemini, and Copilot. |
-| **Search Console Template** | [`SEARCH_CONSOLE_REPORT_TEMPLATE.md`](file:///Users/faisal/Documents/GitHub/accero_pp/SEARCH_CONSOLE_REPORT_TEMPLATE.md) | Complete GSC integration guide, weekly reporting template, and indexing exclusion triage matrix. |
-| **Organic Conversion Report** | [`ORGANIC_CONVERSION_REPORT.md`](file:///Users/faisal/Documents/GitHub/accero_pp/ORGANIC_CONVERSION_REPORT.md) | 8-stage conversion funnel documentation and privacy-conscious analytics framework. |
-| **Phase 2 Completion Report** | [`SEO_PHASE_2_COMPLETION.md`](file:///Users/faisal/Documents/GitHub/accero_pp/SEO_PHASE_2_COMPLETION.md) | Technical audit, route count reconciliation, and operational handover. |
+| **SEO Growth Report** | [`SEO_GROWTH_REPORT.md`](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase2/seo-growth-report.md) | High-level growth strategy, architecture verification, and production route catalog. |
+| **Competitor Keyword Gap** | [`COMPETITOR_KEYWORD_GAP.md`](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/competitor-intelligence/competitor-keyword-gap.md) | Detailed analysis of the 5 direct competitors, 4 keyword clusters, search intent mapping, and on-page content blueprints. |
+| **AI Visibility Tracker** | [`AI_VISIBILITY_TRACKER.md`](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/ai-visibility-tracker.md) | Repeatable monitoring protocol and baseline observation matrix for 30 customer queries across ChatGPT Search, Perplexity, Gemini, and Copilot. |
+| **Search Console Template** | [`SEARCH_CONSOLE_REPORT_TEMPLATE.md`](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase2/search-console-report-template.md) | Complete GSC integration guide, weekly reporting template, and indexing exclusion triage matrix. |
+| **Organic Conversion Report** | [`ORGANIC_CONVERSION_REPORT.md`](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase2/organic-conversion-report.md) | 8-stage conversion funnel documentation and privacy-conscious analytics framework. |
+| **Phase 2 Completion Report** | [`SEO_PHASE_2_COMPLETION.md`](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase2/seo-phase2-completion.md) | Technical audit, route count reconciliation, and operational handover. |
 
 ---
 
@@ -72,7 +72,7 @@ In compliance with strict technical integrity standards, all discrepancies betwe
 3. **Funnel Event Integration:** Wired client analytics events into key conversion moments:
    - `homepage_visit` on [`src/app/page.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/app/page.tsx)
    - `pricing_visit` on [`src/app/pricing/page.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/app/pricing/page.tsx)
-   - `registration_start` and `registration_complete` on [`src/app/(auth)/register/page.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/app/(auth)/register/page.tsx)
+   - `registration_start` and `registration_complete` on [`src/app/%28auth%29/register/page.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/app/%28auth%29/register/page.tsx)
    - `first_lookup_success` on [`src/components/studio/StudioSearchBar.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/components/studio/StudioSearchBar.tsx)
    - `first_recharge_success` on [`src/components/wallet/RechargeModal.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/components/wallet/RechargeModal.tsx)
    - `first_print_success` on [`src/components/cards/PrintControls.tsx`](file:///Users/faisal/Documents/GitHub/accero_pp/src/components/cards/PrintControls.tsx)

@@ -87,19 +87,19 @@ By implementing these remediations, Accero PrintPortal achieves:
 
 All 16 requested Phase 3.1 technical and strategic documents have been generated and reside in `docs/`:
 
-1. [**`docs/SEO_PHASE31_GSC_RECONCILIATION.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_GSC_RECONCILIATION.md) — Reconciliation of all performance figures and dimension segregation.
-2. [**`docs/SEO_PHASE31_GSC_BASELINE.csv`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_GSC_BASELINE.csv) — 25-row unblended baseline dataset directly from Windsor Search Console API.
-3. [**`docs/SEO_PHASE31_KEYWORD_VALIDATION.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_KEYWORD_VALIDATION.md) — Syntax and cannibalization audit of keyword research matrix.
-4. [**`docs/SEO_KEYWORD_RESEARCH_VALIDATED.csv`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_KEYWORD_RESEARCH_VALIDATED.csv) — 33-row RFC 4180 compliant keyword research matrix.
-5. [**`docs/SEO_PHASE31_CONTENT_CALENDAR_VALIDATED.csv`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_CONTENT_CALENDAR_VALIDATED.csv) — Validated 8-week content calendar with corrected 2027 dates.
-6. [**`docs/SEO_PHASE31_CONTENT_BRIEFS.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_CONTENT_BRIEFS.md) — Comprehensive production briefs for Epson L8050 and Canon G570 guides.
-7. [**`docs/SEO_PHASE31_COMPETITOR_EVIDENCE_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_COMPETITOR_EVIDENCE_AUDIT.md) — Evidence classification matrix for all 8 Indian competitor portals.
-8. [**`docs/SEO_PHASE31_GA4_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_GA4_AUDIT.md) — Product analytics audit, printing semantics corrections, and PII denylist review.
-9. [**`docs/SEO_PHASE31_CONVERSION_FUNNEL.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_CONVERSION_FUNNEL.md) — 8-stage conversion funnel specification and drop-off benchmarks.
-10. [**`docs/SEO_PHASE31_PRIVACY_CLAIMS_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_PRIVACY_CLAIMS_AUDIT.md) — Security and DPDPA marketing claim verification against MongoDB schemas.
-11. [**`docs/SEO_PHASE31_INTERNAL_LINKING_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_INTERNAL_LINKING_AUDIT.md) — Audit table mapping all 52 canonical routes, link counts, and click depths.
-12. [**`docs/SEO_PHASE31_CRO_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_CRO_AUDIT.md) — Commercial page CRO audit, mobile sticky CTA conflict analysis, and trust signal rules.
-13. [**`docs/SEO_PHASE31_TECHNICAL_REGRESSION_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_TECHNICAL_REGRESSION_AUDIT.md) — Technical SEO audit verifying sitemap, robots, canonicals, and duplicate title fix.
-14. [**`docs/SEO_PHASE31_BACKLINK_EXECUTION_PLAN.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_BACKLINK_EXECUTION_PLAN.md) — White-hat link acquisition framework, link magnets, and outreach channels.
-15. [**`docs/SEO_PHASE31_IMPLEMENTATION_REPORT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_IMPLEMENTATION_REPORT.md) — Comprehensive technical implementation report.
-16. [**`docs/SEO_PHASE31_EXECUTIVE_SUMMARY.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE31_EXECUTIVE_SUMMARY.md) — Executive decision briefing and operational roadmap.
+1. [**`docs/SEO_PHASE31_GSC_RECONCILIATION.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-gsc-reconciliation.md) — Reconciliation of all performance figures and dimension segregation.
+2. [**`docs/SEO_PHASE31_GSC_BASELINE.csv`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-gsc-baseline.csv) — 25-row unblended baseline dataset directly from Windsor Search Console API.
+3. [**`docs/SEO_PHASE31_KEYWORD_VALIDATION.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-keyword-validation.md) — Syntax and cannibalization audit of keyword research matrix.
+4. [**`docs/SEO_KEYWORD_RESEARCH_VALIDATED.csv`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/keyword-research-validated.csv) — 33-row RFC 4180 compliant keyword research matrix.
+5. [**`docs/SEO_PHASE31_CONTENT_CALENDAR_VALIDATED.csv`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-content-calendar-validated.csv) — Validated 8-week content calendar with corrected 2027 dates.
+6. [**`docs/SEO_PHASE31_CONTENT_BRIEFS.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-content-briefs.md) — Comprehensive production briefs for Epson L8050 and Canon G570 guides.
+7. [**`docs/SEO_PHASE31_COMPETITOR_EVIDENCE_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-competitor-evidence-audit.md) — Evidence classification matrix for all 8 Indian competitor portals.
+8. [**`docs/SEO_PHASE31_GA4_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-ga4-audit.md) — Product analytics audit, printing semantics corrections, and PII denylist review.
+9. [**`docs/SEO_PHASE31_CONVERSION_FUNNEL.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-conversion-funnel.md) — 8-stage conversion funnel specification and drop-off benchmarks.
+10. [**`docs/SEO_PHASE31_PRIVACY_CLAIMS_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-privacy-claims-audit.md) — Security and DPDPA marketing claim verification against MongoDB schemas.
+11. [**`docs/SEO_PHASE31_INTERNAL_LINKING_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-internal-linking-audit.md) — Audit table mapping all 52 canonical routes, link counts, and click depths.
+12. [**`docs/SEO_PHASE31_CRO_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-cro-audit.md) — Commercial page CRO audit, mobile sticky CTA conflict analysis, and trust signal rules.
+13. [**`docs/SEO_PHASE31_TECHNICAL_REGRESSION_AUDIT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-technical-regression-audit.md) — Technical SEO audit verifying sitemap, robots, canonicals, and duplicate title fix.
+14. [**`docs/SEO_PHASE31_BACKLINK_EXECUTION_PLAN.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-backlink-execution-plan.md) — White-hat link acquisition framework, link magnets, and outreach channels.
+15. [**`docs/SEO_PHASE31_IMPLEMENTATION_REPORT.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-implementation-report.md) — Comprehensive technical implementation report.
+16. [**`docs/SEO_PHASE31_EXECUTIVE_SUMMARY.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase31-executive-summary.md) — Executive decision briefing and operational roadmap.

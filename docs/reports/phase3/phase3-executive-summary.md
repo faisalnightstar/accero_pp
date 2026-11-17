@@ -91,11 +91,11 @@ Paced at 1 strategic guide per week to build compounding topical authority witho
 
 All 8 requested Phase 3 strategic artifacts are generated and accessible in the repository:
 
-1. [**`docs/SEO_PHASE3_GROWTH_STRATEGY.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE3_GROWTH_STRATEGY.md) — Master organic growth strategy, data reconciliation, and technical quality gate.
-2. [**`docs/SEO_KEYWORD_RESEARCH.csv`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_KEYWORD_RESEARCH.csv) — 33-row commercial keyword matrix covering 10 clusters with measured GSC rankings, content gaps, and internal linking targets.
-3. [**`docs/SEO_TOPICAL_AUTHORITY_MAP.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_TOPICAL_AUTHORITY_MAP.md) — 4-pillar architectural hierarchy, cornerstone hub mapping, and cannibalization prevention guardrails.
-4. [**`docs/SEO_60_DAY_CONTENT_CALENDAR.csv`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_60_DAY_CONTENT_CALENDAR.csv) — 8-week structured publishing schedule with H1, H2 outlines, keywords, and practical value.
-5. [**`docs/SEO_COMPETITOR_INTELLIGENCE.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_COMPETITOR_INTELLIGENCE.md) — In-depth analysis of 8 Indian print portals, distinguishing verified technical facts from market observations.
-6. [**`docs/SEO_BACKLINK_STRATEGY.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_BACKLINK_STRATEGY.md) — White-hat link acquisition framework, link magnets, community outreach channels, and email pitch templates.
-7. [**`docs/SEO_CONVERSION_OPTIMIZATION.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_CONVERSION_OPTIMIZATION.md) — Commercial landing page CRO audit, mobile touch optimization, and complete GA4 custom event tracking code.
-8. [**`docs/SEO_PHASE3_EXECUTIVE_SUMMARY.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_PHASE3_EXECUTIVE_SUMMARY.md) — Comprehensive executive summary and 30-60-90 day milestone roadmap.
+1. [**`docs/SEO_PHASE3_GROWTH_STRATEGY.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase3-growth-strategy.md) — Master organic growth strategy, data reconciliation, and technical quality gate.
+2. [**`docs/SEO_KEYWORD_RESEARCH.csv`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/keyword-research.csv) — 33-row commercial keyword matrix covering 10 clusters with measured GSC rankings, content gaps, and internal linking targets.
+3. [**`docs/SEO_TOPICAL_AUTHORITY_MAP.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/topical-authority-map.md) — 4-pillar architectural hierarchy, cornerstone hub mapping, and cannibalization prevention guardrails.
+4. [**`docs/SEO_60_DAY_CONTENT_CALENDAR.csv`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/content-calendar-60day.csv) — 8-week structured publishing schedule with H1, H2 outlines, keywords, and practical value.
+5. [**`docs/SEO_COMPETITOR_INTELLIGENCE.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/competitor-intelligence/market-intelligence.md) — In-depth analysis of 8 Indian print portals, distinguishing verified technical facts from market observations.
+6. [**`docs/SEO_BACKLINK_STRATEGY.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/backlink-strategy.md) — White-hat link acquisition framework, link magnets, community outreach channels, and email pitch templates.
+7. [**`docs/SEO_CONVERSION_OPTIMIZATION.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/conversion-optimization.md) — Commercial landing page CRO audit, mobile touch optimization, and complete GA4 custom event tracking code.
+8. [**`docs/SEO_PHASE3_EXECUTIVE_SUMMARY.md`**](file:///Users/faisal/Documents/GitHub/accero_pp/docs/reports/phase3/phase3-executive-summary.md) — Comprehensive executive summary and 30-60-90 day milestone roadmap.

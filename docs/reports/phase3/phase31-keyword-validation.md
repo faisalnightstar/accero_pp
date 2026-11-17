@@ -74,4 +74,4 @@ A common technical SEO risk is mapping multiple keywords with identical search i
 ---
 
 ## 5. Artifact Reference
-* Validated File: [`docs/SEO_KEYWORD_RESEARCH_VALIDATED.csv`](file:///Users/faisal/Documents/GitHub/accero_pp/docs/SEO_KEYWORD_RESEARCH_VALIDATED.csv)
+* Validated File: [`docs/SEO_KEYWORD_RESEARCH_VALIDATED.csv`](file:///Users/faisal/Documents/GitHub/accero_pp/docs/seo/keyword-research-validated.csv)
