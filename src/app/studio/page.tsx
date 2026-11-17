@@ -40,7 +40,13 @@ import { analyzeDocumentCompleteness } from '@/lib/missingFields';
 import { DocumentType } from '@/types/cards';
 import InsufficientBalanceModal from '@/components/wallet/InsufficientBalanceModal';
 import RechargeModal from '@/components/wallet/RechargeModal';
-import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
+import {
+  trackEvent,
+  ANALYTICS_EVENTS,
+  Analytics,
+  trackPrintInitiated,
+  trackPrintDialogClosed,
+} from '@/lib/analytics/events';
 import { DEFAULT_SERVICE_PRICING, SERVICE_FEES } from '@/lib/wallet/constants';
 
 function StudioPageContent() {
@@ -333,11 +339,6 @@ function StudioPageContent() {
       const identifier = resolveCurrentIdentifier();
       const printJobId = `pj_${crypto.randomUUID()}`;
 
-      trackEvent(ANALYTICS_EVENTS.PRINT_STARTED, {
-        docType: docType.toUpperCase(),
-        printFormat: 'CR80',
-      });
-
       const res = await authorizePrintAction({
         documentType: docType,
         cardIdentifier: identifier,
@@ -364,11 +365,17 @@ function StudioPageContent() {
       }
 
       const isReprint = res.fee === 0;
-      trackEvent(ANALYTICS_EVENTS.PRINT_COMPLETED, {
-        docType: docType.toUpperCase(),
-        printFormat: 'CR80',
-        isReprint,
-      });
+
+      // Track verified print initiation (post-authorization, prior to window.print)
+      try {
+        if (typeof trackPrintInitiated === 'function') {
+          trackPrintInitiated(docType, isReprint, res.fee);
+        } else if (Analytics?.trackPrintInitiated) {
+          Analytics.trackPrintInitiated(docType, isReprint, res.fee);
+        }
+      } catch (analyticsErr) {
+        console.warn('[Studio] Analytics tracking error (non-fatal):', analyticsErr);
+      }
 
       if (isReprint) {
         trackEvent(ANALYTICS_EVENTS.REPEAT_PRINT, {
@@ -393,6 +400,17 @@ function StudioPageContent() {
 
       // Execute browser print
       window.print();
+
+      // Track browser print dialog returning control to application
+      try {
+        if (typeof trackPrintDialogClosed === 'function') {
+          trackPrintDialogClosed(docType, isReprint);
+        } else if (Analytics?.trackPrintDialogClosed) {
+          Analytics.trackPrintDialogClosed(docType, isReprint);
+        }
+      } catch (analyticsErr) {
+        console.warn('[Studio] Analytics tracking error (non-fatal):', analyticsErr);
+      }
     } catch (err: any) {
       setToastAlert({
         message: err.message || 'Error executing print.',

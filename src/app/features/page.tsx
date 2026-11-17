@@ -223,7 +223,7 @@ const faqs = [
   {
     question: 'How is customer identity data protected?',
     answer:
-      'All traffic is secured via TLS 1.3 / 256-bit SSL encryption. Vault records are isolated per operator account and strictly follow Indian data protection standards.',
+      'All traffic is secured via modern TLS 1.3 / 256-bit encryption. Document records are stored in an ephemeral 72-hour cache with automated expiration, isolated per operator account, and designed in alignment with Indian data protection standards.',
   },
 ];
 

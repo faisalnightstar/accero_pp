@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/Button';
 import { FaqInteractiveClient, FAQCategoryItem } from '@/components/public/FaqInteractiveClient';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Frequently Asked Questions (FAQ) | Accero PrintPortal',
+  title: 'Frequently Asked Questions (FAQ)',
   description:
     'Find clear answers regarding Accero PrintPortal, desktop card printer compatibility (Epson/Canon PVC trays), wallet billing, zero-margin calibration, and compliance.',
   path: '/faq',
@@ -135,12 +135,12 @@ const faqCategories: FAQCategoryItem[] = [
       {
         question: 'How is customer identity data protected?',
         answer:
-          'Data transmitted through the portal is encrypted via TLS 1.3 / 256-bit SSL. User records in the vault are isolated and accessible only via cryptographically signed operator sessions.',
+          'Data transmitted through the portal is secured via TLS 1.3 / 256-bit encryption. Document records required for re-printing are stored in an ephemeral 72-hour cache with automated expiration, accessible only via cryptographically signed operator sessions.',
       },
       {
-        question: 'Does Accero PrintPortal comply with India’s Digital Personal Data Protection (DPDP) Act?',
+        question: 'How does Accero PrintPortal align with India’s Digital Personal Data Protection (DPDP) Act?',
         answer:
-          'Yes. We operate under strict data minimization and encryption standards. Operators retain control over customer data, and documents can be permanently removed from vault records at any time.',
+          'Our architecture is designed in alignment with Indian data minimization and storage limitation principles. Document records expire automatically after 72 hours via MongoDB TTL background cleanup, and sensitive identifiers are never indexed in plain text.',
       },
     ],
   },

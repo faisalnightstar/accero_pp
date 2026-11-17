@@ -123,7 +123,7 @@ export default function VoterCardCanvas({
         >
           {data.photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={data.photoUrl} alt="Elector" className="w-full h-full object-cover" />
+            <img src={data.photoUrl} alt="Elector" className="w-full h-full object-cover" crossOrigin="anonymous" />
           ) : (
             <User className="w-8 h-8 text-gray-400" />
           )}
@@ -143,7 +143,7 @@ export default function VoterCardCanvas({
         >
           {data.photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={data.photoUrl} alt="Ghost" className="w-full h-full object-cover" />
+            <img src={data.photoUrl} alt="Ghost" className="w-full h-full object-cover" crossOrigin="anonymous" />
           ) : (
             <User className="w-4 h-4 text-gray-400" />
           )}
@@ -498,7 +498,7 @@ export default function VoterCardCanvas({
       >
         {data.photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={data.photoUrl} alt="Elector" className="w-full h-full object-cover" />
+          <img src={data.photoUrl} alt="Elector" className="w-full h-full object-cover" crossOrigin="anonymous" />
         ) : (
           <div className="flex flex-col items-center justify-center text-gray-400">
             <User className="w-8 h-8" />
@@ -521,7 +521,7 @@ export default function VoterCardCanvas({
       >
         {data.photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={data.photoUrl} alt="Ghost" className="w-full h-full object-cover" />
+          <img src={data.photoUrl} alt="Ghost" className="w-full h-full object-cover" crossOrigin="anonymous" />
         ) : (
           <User className="w-4 h-4 text-gray-400" />
         )}
@@ -693,7 +693,7 @@ function renderLegacyPortrait({
           <div className="flex flex-col items-center">
             {data.signatureUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={data.signatureUrl} alt="Signature" className="h-6 object-contain" />
+              <img src={data.signatureUrl} alt="Signature" className="h-6 object-contain" crossOrigin="anonymous" />
             ) : (
               <span className="text-[7px] italic text-gray-700">ERO Sign</span>
             )}
@@ -768,7 +768,7 @@ function renderLegacyPortrait({
       >
         {data.photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={data.photoUrl} alt="Elector" className="w-full h-full object-cover" />
+          <img src={data.photoUrl} alt="Elector" className="w-full h-full object-cover" crossOrigin="anonymous" />
         ) : (
           <div className="flex flex-col items-center justify-center text-gray-400">
             <User className="w-12 h-12" />

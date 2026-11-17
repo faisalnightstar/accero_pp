@@ -446,6 +446,7 @@ export default function CardForm({
               aspectRatio="photo"
               helperText="Passport photograph (White background)"
               isMissing={missingKeys.includes('photoUrl')}
+              docType="pan"
             />
             <AssetDropzone
               label="Cardholder Signature"
@@ -455,6 +456,7 @@ export default function CardForm({
               aspectRatio="signature"
               helperText="Scanned signature on plain white paper"
               isMissing={missingKeys.includes('signatureUrl')}
+              docType="pan"
             />
           </div>
         </div>
@@ -619,6 +621,7 @@ export default function CardForm({
               aspectRatio="photo"
               helperText="Official UIDAI Resident Portrait"
               isMissing={missingKeys.includes('photoUrl')}
+              docType="aadhaar"
             />
           </div>
         </div>
@@ -850,6 +853,7 @@ export default function CardForm({
               aspectRatio="photo"
               helperText="Official ECI Portrait (Front & Ghost Photo)"
               isMissing={missingKeys.includes('photoUrl')}
+              docType="voter"
             />
             <AssetDropzone
               label="Officer Specimen Signature"
@@ -858,6 +862,7 @@ export default function CardForm({
               onClear={() => onFieldChange('signatureUrl', '')}
               aspectRatio="signature"
               helperText="Electoral Registration Officer Signature"
+              docType="voter"
             />
           </div>
         </div>
@@ -1101,6 +1106,7 @@ export default function CardForm({
               aspectRatio="photo"
               helperText="35mm × 45mm Driving Licence Photo"
               isMissing={missingKeys.includes('photoUrl')}
+              docType="dl"
             />
             <AssetDropzone
               label="Driver Signature"
@@ -1110,6 +1116,7 @@ export default function CardForm({
               aspectRatio="signature"
               helperText="Official Driver Specimen Signature"
               isMissing={missingKeys.includes('signatureUrl')}
+              docType="dl"
             />
           </div>
         </div>
@@ -1442,6 +1449,7 @@ export default function CardForm({
                   aspectRatio="photo"
                   helperText="Passport photograph of Head of Family (Mukhya)"
                   isMissing={missingKeys.includes('photoUrl')}
+                  docType="ration"
                 />
               </div>
             </div>
@@ -1779,6 +1787,7 @@ export default function CardForm({
                   aspectRatio="photo"
                   helperText="Passport photograph (White or neutral background)"
                   isMissing={missingKeys.includes('photoUrl')}
+                  docType="farmer"
                 />
               </div>
             </div>

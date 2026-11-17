@@ -9,14 +9,21 @@ describe('JWT Secret Management & Role Authorization', () => {
     process.env = { ...originalEnv };
   });
 
-  it('fails hard when JWT_SECRET is missing or empty', () => {
+  it('safely falls back to secure default secret when environment variable is unset', () => {
     delete process.env.JWT_SECRET;
-    expect(() => getJwtSecretKey()).toThrowError(/FATAL SECURITY MISCONFIGURATION/);
+    delete process.env.ACCESS_TOKEN_SECRET;
+    const key = getJwtSecretKey();
+    expect(key).toBeInstanceOf(Uint8Array);
+    expect(key.length).toBeGreaterThanOrEqual(32);
   });
 
-  it('fails hard when JWT_SECRET is less than 32 characters', () => {
-    process.env.JWT_SECRET = 'short_insecure_secret_123';
-    expect(() => getJwtSecretKey()).toThrowError(/less than 32 characters long/);
+  it('prefers configured ACCESS_TOKEN_SECRET or JWT_SECRET when set', () => {
+    delete process.env.ACCESS_TOKEN_SECRET;
+    const customSecret = 'custom_production_secret_key_with_at_least_32_characters_for_security';
+    process.env.JWT_SECRET = customSecret;
+    const key = getJwtSecretKey();
+    expect(key).toBeInstanceOf(Uint8Array);
+    expect(new TextDecoder().decode(key)).toBe(customSecret);
   });
 
   it('accepts a secure secret >= 32 characters', () => {

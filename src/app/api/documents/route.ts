@@ -12,6 +12,8 @@ import {
   normalizeDocumentIdentifier,
   CACHE_TTL_MS,
 } from '@/lib/documents/documentCache';
+import { processDocumentIncomingImages } from '@/lib/cloudinary/documentImageHandler';
+import { executeSafeAssetCleanup } from '@/lib/cloudinary/assetReplacement';
 
 const saveDocumentSchema = z.object({
   id: z.string().optional(),
@@ -100,20 +102,6 @@ export async function POST(request: Request) {
         _id: validated.id,
         userId: session.userId,
       });
-
-      if (record) {
-        record.docType = normalizedDocType;
-        record.cardIdentifier = cardIdentifier;
-        record.documentNumberHash = hash;
-        record.inputMode = validated.inputMode;
-        record.data = validated.data;
-        record.missingFields = validated.missingFields;
-        record.isComplete = validated.isComplete;
-        if (validated.frontImage) record.frontImage = validated.frontImage;
-        if (validated.backImage) record.backImage = validated.backImage;
-        record.updatedAt = now;
-        await record.save();
-      }
     }
 
     // Reuse existing record by tenant + docType + identifier/hash to prevent duplicate records
@@ -123,19 +111,59 @@ export async function POST(request: Request) {
         docType: normalizedDocType,
         $or: [{ documentNumberHash: hash }, { cardIdentifier }],
       });
-
       if (existingByIdentity) {
-        existingByIdentity.cardIdentifier = cardIdentifier;
-        existingByIdentity.documentNumberHash = hash;
-        existingByIdentity.inputMode = validated.inputMode;
-        existingByIdentity.data = validated.data;
-        existingByIdentity.missingFields = validated.missingFields;
-        existingByIdentity.isComplete = validated.isComplete;
-        if (validated.frontImage) existingByIdentity.frontImage = validated.frontImage;
-        if (validated.backImage) existingByIdentity.backImage = validated.backImage;
-        existingByIdentity.updatedAt = now;
-        await existingByIdentity.save();
         record = existingByIdentity;
+      }
+    }
+
+    // Offload any incoming Base64 image payloads (photos, signatures, canvas previews) to Cloudinary
+    const imgProcessed = await processDocumentIncomingImages({
+      userId: session.userId,
+      docType: normalizedDocType,
+      data: validated.data,
+      frontImage: validated.frontImage,
+      backImage: validated.backImage,
+      existingPhotoMetadata: record?.photoMetadata,
+      existingSignatureMetadata: record?.signatureMetadata,
+      existingFrontMetadata: record?.frontImageMetadata,
+    });
+
+    if (record) {
+      record.docType = normalizedDocType;
+      record.cardIdentifier = cardIdentifier;
+      record.documentNumberHash = hash;
+      record.inputMode = validated.inputMode;
+      record.data = imgProcessed.data;
+      record.missingFields = validated.missingFields;
+      record.isComplete = validated.isComplete;
+      if (imgProcessed.frontImage) record.frontImage = imgProcessed.frontImage;
+      if (imgProcessed.backImage) record.backImage = imgProcessed.backImage;
+      if (imgProcessed.photoMetadata) record.photoMetadata = imgProcessed.photoMetadata;
+      if (imgProcessed.signatureMetadata) record.signatureMetadata = imgProcessed.signatureMetadata;
+      if (imgProcessed.frontImageMetadata) record.frontImageMetadata = imgProcessed.frontImageMetadata;
+      if (imgProcessed.backImageMetadata) record.backImageMetadata = imgProcessed.backImageMetadata;
+      if (imgProcessed.hasUploadedToCloudinary) {
+        record.imageMigrationStatus = 'MIGRATED';
+        record.imageMigratedAt = now;
+      }
+      record.updatedAt = now;
+      await record.save();
+
+      // Execute safe cleanup of prior Cloudinary assets ONLY after successful MongoDB persistence
+      if (imgProcessed.stagedDeletions && imgProcessed.stagedDeletions.length > 0) {
+        for (const staged of imgProcessed.stagedDeletions) {
+          executeSafeAssetCleanup({
+            publicId: staged.publicId,
+            deliveryType: staged.type,
+            resourceType: staged.resourceType,
+            docType: staged.docType,
+            userId: session.userId,
+            documentId: record._id,
+            replacementPublicId: staged.replacementPublicId,
+          }).catch((err) => {
+            console.warn('[API/Documents] Background asset cleanup warning:', err);
+          });
+        }
       }
     }
 
@@ -172,11 +200,17 @@ export async function POST(request: Request) {
         cardIdentifier,
         documentNumberHash: hash,
         inputMode: validated.inputMode,
-        data: validated.data,
+        data: imgProcessed.data,
         missingFields: validated.missingFields,
         isComplete: validated.isComplete,
-        frontImage: validated.frontImage,
-        backImage: validated.backImage,
+        frontImage: imgProcessed.frontImage,
+        backImage: imgProcessed.backImage,
+        photoMetadata: imgProcessed.photoMetadata,
+        signatureMetadata: imgProcessed.signatureMetadata,
+        frontImageMetadata: imgProcessed.frontImageMetadata,
+        backImageMetadata: imgProcessed.backImageMetadata,
+        imageMigrationStatus: imgProcessed.hasUploadedToCloudinary ? 'MIGRATED' : 'UNMIGRATED',
+        imageMigratedAt: imgProcessed.hasUploadedToCloudinary ? now : undefined,
         source: validated.inputMode,
         status: 'ACTIVE',
         fetchedAt: now,

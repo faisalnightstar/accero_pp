@@ -5,7 +5,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Printer, AlertCircle, ArrowRight, ShieldCheck, Gift } from 'lucide-react';
-import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
+import {
+  Analytics,
+  trackRegistrationStarted,
+  trackRegistrationCompleted,
+} from '@/lib/analytics/events';
 import { getSafeRedirectUrl } from '@/lib/rbac';
 
 export default function RegisterForm() {
@@ -24,14 +28,21 @@ export default function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    trackEvent(ANALYTICS_EVENTS.REGISTRATION_START, { pagePath: '/register' });
-  }, []);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    // Track genuine registration attempt initiation (only when user submits)
+    try {
+      if (typeof trackRegistrationStarted === 'function') {
+        trackRegistrationStarted('/register');
+      } else if (Analytics?.trackRegistrationStarted) {
+        Analytics.trackRegistrationStarted('/register');
+      }
+    } catch {
+      // Non-fatal analytics error
+    }
 
     try {
       const res = await fetch('/api/auth/register', {
@@ -46,7 +57,16 @@ export default function RegisterForm() {
         throw new Error(data.error || 'Failed to create account');
       }
 
-      trackEvent(ANALYTICS_EVENTS.REGISTRATION_COMPLETE, { pagePath: '/register' });
+      // Track server-verified registration completion (zero PII passed)
+      try {
+        if (typeof trackRegistrationCompleted === 'function') {
+          trackRegistrationCompleted('/register');
+        } else if (Analytics?.trackRegistrationCompleted) {
+          Analytics.trackRegistrationCompleted('/register');
+        }
+      } catch {
+        // Non-fatal analytics error
+      }
 
       const rawReturn = searchParams.get('returnTo') || searchParams.get('redirect') || data.redirectTo;
       const destination = getSafeRedirectUrl(rawReturn, data.user?.role);

@@ -109,9 +109,9 @@ const comparisonTable = [
     advantage: 'Accero',
   },
   {
-    feature: 'Security & DPDP Compliance',
-    competitor: 'Unverified legacy database storage without documented customer data encryption',
-    accero: '256-bit AES database encryption, zero plain-text Aadhaar storage, India DPDP Act compliance',
+    feature: 'Data Retention & Security Architecture',
+    competitor: 'Undocumented retention policies and manual account provisioning [OBSERVED]',
+    accero: '72-Hour ephemeral document cache with automated TTL expiration, TLS 1.3 transport security, role-based isolation',
     advantage: 'Accero',
   },
   {
@@ -149,9 +149,9 @@ const faqs = [
       'Yes. Accero PrintPortal generates pixel-perfect card layouts calibrated specifically for Epson 2-card Tray J (L805, L850, L8050) and Canon ID trays. All printable cards strictly adhere to ISO/IEC 7810 ID-1 standard dimensions (85.60 mm × 53.98 mm) with zero-margin CSS (@page { margin: 0; }), eliminating white border trimming.',
   },
   {
-    question: 'Is Accero PrintPortal compliant with Indian data protection laws?',
+    question: 'How does Accero PrintPortal align with Indian data protection principles?',
     answer:
-      'Yes. Accero PrintPortal is engineered in strict compliance with the Digital Personal Data Protection (DPDP) Act, 2023. All sensitive citizen identifiers are encrypted at rest with AES-256 GCM, full Aadhaar numbers are never stored in plain text, and operator vaults are secured with role-based access controls.',
+      'Accero PrintPortal is engineered with data minimization and retention controls aligned to the Digital Personal Data Protection (DPDP) Act, 2023. Documents are stored in an ephemeral 72-hour retention cache with automated TTL expiration, sensitive citizen identifiers are never indexed in plain text, and operator vaults are secured with multi-tenant role-based access controls.',
   },
 ];
 

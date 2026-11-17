@@ -25,7 +25,8 @@ if (!globalThis.mongooseCache) {
 }
 
 export async function connectToDatabase(): Promise<typeof mongoose> {
-  if (!MONGODB_URI) {
+  const uri = process.env.MONGODB_URI || MONGODB_URI;
+  if (!uri) {
     throw new Error('Please define the MONGODB_URI environment variable in .env.local');
   }
 
@@ -41,7 +42,7 @@ export async function connectToDatabase(): Promise<typeof mongoose> {
       family: 4,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {
+    cached.promise = mongoose.connect(uri, opts).then((mongooseInstance) => {
       return mongooseInstance;
     });
   }

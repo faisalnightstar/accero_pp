@@ -24,14 +24,14 @@ describe('Structured Data (JSON-LD) Validation & Entity Conformance', () => {
     expect(org.sameAs.length).toBeGreaterThanOrEqual(3);
   });
 
-  it('generates a valid WebSite schema with SearchAction query-input', () => {
+  it('generates a valid WebSite schema without obsolete SearchAction', () => {
     const site = generateWebSiteSchema();
 
     expect(site['@context']).toBe('https://schema.org');
     expect(site['@type']).toBe('WebSite');
-    expect(site.potentialAction).toBeDefined();
-    expect(site.potentialAction['@type']).toBe('SearchAction');
-    expect(site.potentialAction.target.urlTemplate).toContain('/services?q=');
+    expect(site.name).toBe('Accero PrintPortal');
+    expect(site.url).toBe('https://printportal.accero.app');
+    expect((site as any).potentialAction).toBeUndefined();
   });
 
   it('generates a valid SoftwareApplication schema with pricing offer and zero fabricated ratings', () => {

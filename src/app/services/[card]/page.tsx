@@ -258,6 +258,45 @@ export default async function ServiceDetailPage({ params }: ServicePageProps) {
             </div>
           </section>
 
+          {/* Specialized CSC Operator Portal Contextual Callouts */}
+          {config.slug === 'ration-card-printing' && (
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="space-y-1">
+                <p className="font-bold text-amber-950 text-sm">
+                  Dedicated CSC &amp; Jan Seva Kendra Operator Workflow
+                </p>
+                <p className="text-amber-800">
+                  Formatting family ration cards with full NFSA member rosters? Access our specialized CSC operator portal.
+                </p>
+              </div>
+              <Link
+                href="/ration-card-printing-for-csc"
+                className="shrink-0 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold transition-colors text-center"
+              >
+                CSC Ration Card Portal &rarr;
+              </Link>
+            </div>
+          )}
+
+          {config.slug === 'farmer-id-printing' && (
+            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+              <div className="space-y-1">
+                <p className="font-bold text-emerald-950 text-sm">
+                  CSC AgriStack &amp; PM-KISAN Operator Portal
+                </p>
+                <p className="text-emerald-800">
+                  Formatting digital Farmer ID cards for rural farmers in your panchayat? Access our specialized CSC farmer tool.
+                </p>
+              </div>
+              <Link
+                href="/farmer-id-printing-for-csc"
+                className="shrink-0 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition-colors text-center"
+              >
+                CSC Farmer ID Portal &rarr;
+              </Link>
+            </div>
+          )}
+
           {/* 4-Step HowTo Process Section */}
           <section className="space-y-8">
             <div className="text-center max-w-2xl mx-auto space-y-2">

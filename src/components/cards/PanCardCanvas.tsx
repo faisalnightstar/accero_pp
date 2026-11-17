@@ -84,6 +84,7 @@ export default function PanCardCanvas({
               src={data.photoUrl}
               alt="Applicant"
               className="w-full h-full object-cover"
+              crossOrigin="anonymous"
             />
           ) : (
             <div className="flex flex-col items-center justify-center text-gray-400">
@@ -169,6 +170,7 @@ export default function PanCardCanvas({
               src={data.signatureUrl}
               alt="Signature"
               className="max-w-full max-h-full object-contain mix-blend-multiply"
+              crossOrigin="anonymous"
             />
           ) : (
             <span className="text-[6px] text-gray-400 italic">Signature</span>
@@ -253,6 +255,7 @@ export default function PanCardCanvas({
             src={data.photoUrl}
             alt="Applicant"
             className="w-full h-full object-cover"
+            crossOrigin="anonymous"
           />
         ) : (
           <div className="flex flex-col items-center justify-center text-gray-400">
@@ -334,6 +337,7 @@ export default function PanCardCanvas({
             src={data.signatureUrl}
             alt="Signature"
             className="max-w-full max-h-full object-contain mix-blend-multiply"
+            crossOrigin="anonymous"
           />
         ) : (
           <span className="text-[7px] text-gray-400 italic">Signature</span>

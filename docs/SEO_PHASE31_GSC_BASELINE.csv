@@ -1,0 +1,27 @@
+Dimension Type,Query,Landing Page,Date,Device,Country,Clicks,Impressions,CTR,Average Position,Record Status,Audit Notes
+Multi-Dimension,utiitsl pan card,https://printportal.accero.app/,2026-11-10,Desktop,India,0.0,1.0,0.00%,119.0,Verified Measurement,Government portal search; low commercial conversion intent
+Multi-Dimension,easy print portal,https://printportal.accero.app/,2026-11-11,Desktop,India,0.0,1.0,0.00%,68.0,Verified Measurement,Generic category search
+Multi-Dimension,chassis number print,https://printportal.accero.app/services/vehicle-rc-printing,2026-11-14,Desktop,India,0.0,1.0,0.00%,7.0,Verified Measurement,Commercial smart card query; quick win opportunity
+Multi-Dimension,free print portal,https://printportal.accero.app/print-portal,2026-11-14,Desktop,India,0.0,1.0,0.00%,37.0,Verified Measurement,Category search term
+Multi-Dimension,kamboj pan portal,https://printportal.accero.app/compare/kamboj-print-portal-alternative,2026-11-14,Desktop,India,0.0,2.0,0.00%,6.5,Verified Measurement,Competitor alternative query; quick win opportunity
+Multi-Dimension,kamboj print portal,https://printportal.accero.app/compare/kamboj-print-portal-alternative,2026-11-14,Desktop,India,0.0,2.0,0.00%,5.0,Verified Measurement,Competitor alternative query; top 5 opportunity
+Multi-Dimension,kamboj print portal,https://printportal.accero.app/compare/kamboj-print-portal-alternative,2026-11-14,Mobile,India,0.0,1.0,0.00%,6.0,Verified Measurement,Same query on Mobile device
+Multi-Dimension,printing portal,https://printportal.accero.app/print-portal,2026-11-14,Desktop,India,0.0,1.0,0.00%,22.0,Verified Measurement,Core category head term
+Multi-Dimension,robo print portal,https://printportal.accero.app/print-portal,2026-11-14,Desktop,India,0.0,2.0,0.00%,60.5,Verified Measurement,Competitor navigational search
+Multi-Dimension,s k print portal,https://printportal.accero.app/compare/skprintportal-alternative,2026-11-14,Desktop,India,0.0,1.0,0.00%,24.0,Verified Measurement,Competitor alternative query
+Page-Only,[Aggregated Query],https://printportal.accero.app/,2026-11-09 to 2026-11-14,All,All,1.0,4.0,25.00%,47.75,Verified Page Aggregate,Single organic click occurred on 2026-11-12 (query anonymized by Google)
+Page-Only,[Aggregated Query],https://printportal.accero.app/compare/kamboj-print-portal-alternative,2026-11-09 to 2026-11-14,All,All,0.0,6.0,0.00%,5.83,Verified Page Aggregate,Highest impression competitor page in dataset
+Page-Only,[Aggregated Query],https://printportal.accero.app/print-portal,2026-11-09 to 2026-11-14,All,All,0.0,5.0,0.00%,43.60,Verified Page Aggregate,Commercial portal overview page
+Page-Only,[Aggregated Query],https://printportal.accero.app/services/vehicle-rc-printing,2026-11-09 to 2026-11-14,All,All,0.0,2.0,0.00%,8.00,Verified Page Aggregate,Vehicle registration certificate service route
+Page-Only,[Aggregated Query],https://printportal.accero.app/blog/pvc-card-printer-tray-guide,2026-11-09 to 2026-11-14,All,All,0.0,1.0,0.00%,6.00,Verified Page Aggregate,Cornerstone technical tray calibration guide
+Page-Only,[Aggregated Query],https://printportal.accero.app/compare/skprintportal-alternative,2026-11-09 to 2026-11-14,All,All,0.0,1.0,0.00%,24.00,Verified Page Aggregate,Competitor alternative comparison page
+Date-Only,[All Queries],[All Pages],2026-11-09,All,All,0.0,0.0,N/A,0.0,Verified Daily Total,Zero search activity
+Date-Only,[All Queries],[All Pages],2026-11-10,All,All,0.0,1.0,0.00%,119.0,Verified Daily Total,Initial single impression
+Date-Only,[All Queries],[All Pages],2026-11-11,All,All,0.0,1.0,0.00%,68.0,Verified Daily Total,Single impression
+Date-Only,[All Queries],[All Pages],2026-11-12,All,All,1.0,2.0,50.00%,2.0,Verified Daily Total,First organic click recorded on root URL
+Date-Only,[All Queries],[All Pages],2026-11-13,All,All,0.0,1.0,0.00%,6.0,Verified Daily Total,Single impression
+Date-Only,[All Queries],[All Pages],2026-11-14,All,All,0.0,14.0,0.00%,20.93,Verified Daily Total,Surge to 14 daily impressions
+Device-Only,[All Queries],[All Pages],2026-11-09 to 2026-11-14,Mobile,All,1.0,3.0,33.33%,5.67,Verified Device Total,Preliminary sample (N=3); not statistically conclusive of mobile dominance
+Device-Only,[All Queries],[All Pages],2026-11-09 to 2026-11-14,Desktop,All,0.0,16.0,0.00%,29.56,Verified Device Total,Desktop searchers browsing broad category queries
+Country-Only,[All Queries],[All Pages],2026-11-09 to 2026-11-14,All,India,1.0,18.0,5.56%,26.89,Verified Country Total,Core target market (94.74% of impressions)
+Country-Only,[All Queries],[All Pages],2026-11-09 to 2026-11-14,All,United Kingdom,0.0,1.0,0.00%,6.00,Verified Country Total,Incidental foreign impression (5.26% of impressions)

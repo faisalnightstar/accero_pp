@@ -36,6 +36,7 @@ export const REFRESH_TOKEN_SECRET_VALUE =
 export function getJwtSecretKey(): Uint8Array {
   const secret =
     process.env.ACCESS_TOKEN_SECRET?.trim() ||
+    process.env.JWT_SECRET?.trim() ||
     ACCESS_TOKEN_SECRET_VALUE;
   return new TextEncoder().encode(secret);
 }

@@ -201,10 +201,10 @@ describe('Privacy-Preserving Google Tag Manager & Analytics Engine', () => {
         'registration_completed',
         'first_lookup',
         'lookup_failed',
-        'recharge_started',
-        'recharge_completed',
-        'print_started',
-        'print_completed',
+        'wallet_recharge_initiated',
+        'purchase',
+        'print_initiated',
+        'print_dialog_closed',
         'repeat_print',
       ]);
     });

@@ -30,7 +30,7 @@ export default function PublicFooter() {
             </p>
             <div className="flex items-center gap-2 text-[11px] text-emerald-400 bg-emerald-950/60 border border-emerald-800/50 px-2.5 py-1.5 rounded-lg w-fit">
               <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
-              <span>256-Bit SSL Encrypted</span>
+              <span>256-Bit TLS Encryption</span>
             </div>
             <div className="text-[11px] text-slate-400 pt-1">
               <Link href="/pricing" className="text-amber-400 hover:text-amber-300 font-semibold underline underline-offset-2">
@@ -132,6 +132,16 @@ export default function PublicFooter() {
               <li>
                 <Link href="/document-processing-platform" className="hover:text-white transition-colors">
                   Document Platform
+                </Link>
+              </li>
+              <li>
+                <Link href="/ration-card-printing-for-csc" className="hover:text-white transition-colors">
+                  Ration Card for CSC
+                </Link>
+              </li>
+              <li>
+                <Link href="/farmer-id-printing-for-csc" className="hover:text-white transition-colors">
+                  Farmer ID for CSC
                 </Link>
               </li>
             </ul>
@@ -240,6 +250,11 @@ export default function PublicFooter() {
               </Link>
             </h4>
             <ul className="space-y-1.5">
+              <li>
+                <Link href="/tools/cr80-card-size-calculator" className="hover:text-white transition-colors text-sky-400 font-medium">
+                  CR80 Card Size Calculator
+                </Link>
+              </li>
               <li>
                 <Link href="/blog/cr80-card-dimensions-guide" className="hover:text-white transition-colors">
                   ISO 7810 CR80 Card Dimensions
@@ -356,7 +371,7 @@ export default function PublicFooter() {
         <div className="mt-6 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p>&copy; {new Date().getFullYear()} Accero Technologies. All rights reserved.</p>
           <div className="flex items-center gap-4">
-            <Link href="/llms.txt" className="hover:text-slate-400 transition-colors">
+            <Link href="/llms.txt" rel="nofollow" className="hover:text-slate-400 transition-colors">
               llms.txt
             </Link>
             <span>&bull;</span>

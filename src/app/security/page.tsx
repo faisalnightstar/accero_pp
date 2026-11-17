@@ -23,12 +23,12 @@ import { CTASection } from '@/components/public/CTASection';
 export const metadata: Metadata = buildPageMetadata({
   title: 'Security Architecture & Data Protection | Accero PrintPortal',
   description:
-    'Learn about Accero PrintPortal’s enterprise security architecture: 256-bit SSL encryption, zero credential storage, atomic financial ledger, and strict operator data boundaries.',
+    'Learn about Accero PrintPortal’s enterprise security architecture: modern TLS 1.3 encryption, ephemeral 72-hour document retention with automated expiration, atomic financial accounting, and strict operator data isolation.',
   path: '/security',
   keywords: [
     'accero printportal security',
     'document data security',
-    'zero credential storage policy',
+    'ephemeral document cache retention',
     'secure card printing architecture',
     'operator session encryption',
   ],
@@ -80,7 +80,7 @@ export default function SecurityPage() {
               </div>
               <h2 className="text-lg font-bold text-[#1D3557]">End-to-End Transport Encryption</h2>
               <p className="text-xs text-slate-600 leading-relaxed">
-                All communications between operator web browsers, Accero servers, and payment/provider APIs are secured via modern TLS 1.3 / 256-bit SSL encryption. We enforce HTTP Strict Transport Security (HSTS) with preloading.
+                All communications between operator web browsers, Accero servers, and payment/provider APIs are secured via modern TLS 1.3 / 256-bit encryption. We enforce HTTP Strict Transport Security (HSTS) with preloading.
               </p>
             </Card>
 
@@ -98,9 +98,9 @@ export default function SecurityPage() {
               <div className="w-12 h-12 rounded-xl bg-slate-100 text-[#8B1E2D] border border-slate-200 flex items-center justify-center">
                 <Database className="w-6 h-6" />
               </div>
-              <h2 className="text-lg font-bold text-[#1D3557]">Encrypted Vault &amp; Operator Isolation</h2>
+              <h2 className="text-lg font-bold text-[#1D3557]">72-Hour Ephemeral Cache &amp; Operator Isolation</h2>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Document snapshots saved for re-printing are stored in isolated MongoDB replica collections with AES-256 encryption-at-rest. Strict multi-tenant access controls ensure no operator can access another business’s records.
+                Document records required for formatting and re-printing are stored in tenant-isolated collections with automatic 72-hour expiration (TTL purge) and encrypted storage at rest. No operator can access another business’s records.
               </p>
             </Card>
 

@@ -126,11 +126,11 @@ export default function DocumentManagementFeaturePage() {
               <div className="space-y-3">
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                   <span className="text-xs font-bold text-[#1D3557]">Subsequent Re-Prints</span>
-                  <span className="text-xs font-mono font-bold text-emerald-600">₹0 (Free Forever)</span>
+                  <span className="text-xs font-mono font-bold text-emerald-600">₹0 (Within Valid Session)</span>
                 </div>
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#1D3557]">Encrypted Record Storage</span>
-                  <span className="text-xs font-mono font-bold text-slate-600">AES-256 / SHA-256</span>
+                  <span className="text-xs font-bold text-[#1D3557]">Secure Hash Indexing</span>
+                  <span className="text-xs font-mono font-bold text-slate-600">TLS 1.3 / HMAC-SHA256</span>
                 </div>
                 <div className="p-3 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-between">
                   <span className="text-xs font-bold text-[#1D3557]">Re-Download Formats</span>

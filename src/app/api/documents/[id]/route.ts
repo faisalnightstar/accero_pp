@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { connectToDatabase } from '@/lib/mongodb';
 import DocumentRecord from '@/models/DocumentRecord';
 import { getSession } from '@/lib/auth';
+import { executeSafeAssetCleanup } from '@/lib/cloudinary/assetReplacement';
 
 export async function GET(
   request: Request,
@@ -114,6 +115,44 @@ export async function DELETE(
         { error: 'Document not found or unauthorized.' },
         { status: 404 }
       );
+    }
+
+    // Clean up associated Cloudinary assets safely (checks references & queues retry on failure)
+    if (deleted.photoMetadata?.publicId) {
+      executeSafeAssetCleanup({
+        publicId: deleted.photoMetadata.publicId,
+        deliveryType: 'authenticated',
+        docType: deleted.docType,
+        userId: session.userId,
+        documentId: deleted._id,
+      }).catch(() => {});
+    }
+    if (deleted.signatureMetadata?.publicId) {
+      executeSafeAssetCleanup({
+        publicId: deleted.signatureMetadata.publicId,
+        deliveryType: 'authenticated',
+        docType: deleted.docType,
+        userId: session.userId,
+        documentId: deleted._id,
+      }).catch(() => {});
+    }
+    if (deleted.frontImageMetadata?.publicId) {
+      executeSafeAssetCleanup({
+        publicId: deleted.frontImageMetadata.publicId,
+        deliveryType: 'authenticated',
+        docType: deleted.docType,
+        userId: session.userId,
+        documentId: deleted._id,
+      }).catch(() => {});
+    }
+    if (deleted.backImageMetadata?.publicId) {
+      executeSafeAssetCleanup({
+        publicId: deleted.backImageMetadata.publicId,
+        deliveryType: 'authenticated',
+        docType: deleted.docType,
+        userId: session.userId,
+        documentId: deleted._id,
+      }).catch(() => {});
     }
 
     return NextResponse.json({

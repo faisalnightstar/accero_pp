@@ -236,6 +236,7 @@ function FarmerCardFront({ data, langConfig, frontAsset, formattedId, displayAad
             src={data.photoUrl}
             alt={data.farmerName || 'Farmer'}
             className="w-full h-full object-cover"
+            crossOrigin="anonymous"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center bg-gray-50 text-gray-400 p-1">

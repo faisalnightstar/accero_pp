@@ -285,7 +285,7 @@ export default function DlCardCanvas({
       >
         {data.photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={data.photoUrl} alt="Applicant" className="w-full h-full object-cover" />
+          <img src={data.photoUrl} alt="Applicant" className="w-full h-full object-cover" crossOrigin="anonymous" />
         ) : (
           <div className="flex flex-col items-center justify-center text-gray-400">
             <User className="w-7 h-7" />
@@ -307,7 +307,7 @@ export default function DlCardCanvas({
         <span className="text-[5px] font-bold text-gray-800 leading-none">Holder&apos;s Signature</span>
         {data.signatureUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={data.signatureUrl} alt="Signature" className="h-4 object-contain mt-0.5" />
+          <img src={data.signatureUrl} alt="Signature" className="h-4 object-contain mt-0.5" crossOrigin="anonymous" />
         ) : (
           <span className="text-[6px] italic text-gray-600 mt-0.5 font-serif">Signature</span>
         )}

@@ -202,7 +202,7 @@ export default function AadhaarCardCanvas({
         >
           {data.photoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={data.photoUrl} alt="Resident" className="w-full h-full object-cover" />
+            <img src={data.photoUrl} alt="Resident" className="w-full h-full object-cover" crossOrigin="anonymous" />
           ) : (
             <User className="w-8 h-8 text-gray-400" />
           )}
@@ -445,7 +445,7 @@ export default function AadhaarCardCanvas({
       >
         {data.photoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={data.photoUrl} alt="Resident" className="w-full h-full object-cover" />
+          <img src={data.photoUrl} alt="Resident" className="w-full h-full object-cover" crossOrigin="anonymous" />
         ) : (
           <div className="flex flex-col items-center justify-center text-gray-400">
             <User className="w-7 h-7" />
@@ -466,7 +466,7 @@ export default function AadhaarCardCanvas({
           }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={data.photoUrl} alt="Ghost" className="w-full h-full object-cover" />
+          <img src={data.photoUrl} alt="Ghost" className="w-full h-full object-cover" crossOrigin="anonymous" />
         </div>
       )}
 

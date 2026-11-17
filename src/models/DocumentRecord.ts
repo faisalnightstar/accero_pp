@@ -3,6 +3,21 @@ import mongoose, { Schema, Document, Model } from 'mongoose';
 export type DocumentType = 'PAN' | 'AADHAAR' | 'VOTER' | 'DL' | 'RC' | 'RATION' | 'FARMER';
 export type InputMode = 'API' | 'MANUAL';
 
+export interface ICloudinaryAssetSubdocument {
+  provider: 'cloudinary';
+  publicId: string;
+  assetId?: string;
+  secureUrl: string;
+  resourceType?: string;
+  format?: string;
+  bytes?: number;
+  width?: number;
+  height?: number;
+  folder?: string;
+  uploadedAt?: Date | string;
+  accessMode?: 'public' | 'authenticated';
+}
+
 export interface IDocumentRecord extends Document {
   userId?: mongoose.Types.ObjectId;
   docType: DocumentType;
@@ -15,6 +30,13 @@ export interface IDocumentRecord extends Document {
   isComplete: boolean;
   frontImage?: string;
   backImage?: string;
+  frontImageMetadata?: ICloudinaryAssetSubdocument;
+  backImageMetadata?: ICloudinaryAssetSubdocument;
+  photoMetadata?: ICloudinaryAssetSubdocument;
+  signatureMetadata?: ICloudinaryAssetSubdocument;
+  imageMigrationStatus?: 'UNMIGRATED' | 'MIGRATED' | 'FAILED' | 'SKIPPED';
+  imageMigrationError?: string;
+  imageMigratedAt?: Date;
   source?: string;
   provider?: string;
   status?: string;
@@ -79,6 +101,30 @@ const DocumentRecordSchema: Schema<IDocumentRecord> = new Schema(
     },
     backImage: {
       type: String,
+    },
+    frontImageMetadata: {
+      type: Schema.Types.Mixed,
+    },
+    backImageMetadata: {
+      type: Schema.Types.Mixed,
+    },
+    photoMetadata: {
+      type: Schema.Types.Mixed,
+    },
+    signatureMetadata: {
+      type: Schema.Types.Mixed,
+    },
+    imageMigrationStatus: {
+      type: String,
+      enum: ['UNMIGRATED', 'MIGRATED', 'FAILED', 'SKIPPED'],
+      default: 'UNMIGRATED',
+      index: true,
+    },
+    imageMigrationError: {
+      type: String,
+    },
+    imageMigratedAt: {
+      type: Date,
     },
     source: {
       type: String,

@@ -18,6 +18,8 @@ export interface IUser extends Document {
   walletId?: mongoose.Types.ObjectId;
   referralCode?: string;
   referredBy?: string;
+  avatar?: string;
+  avatarMetadata?: Record<string, any>;
   status: 'active' | 'suspended';
   notes?: string;
   suspendedReason?: string;
@@ -86,6 +88,12 @@ const UserSchema: Schema<IUser> = new Schema(
       type: String,
       uppercase: true,
       trim: true,
+    },
+    avatar: {
+      type: String,
+    },
+    avatarMetadata: {
+      type: Schema.Types.Mixed,
     },
     status: {
       type: String,

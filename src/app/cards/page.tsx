@@ -27,7 +27,13 @@ import FarmerCardCanvas from '@/components/cards/FarmerCardCanvas';
 import RationCardCanvas from '@/components/cards/RationCardCanvas';
 import { exportCardAsPdf, exportCardAsPng } from '@/lib/cardExport';
 import { authorizePrintAction } from '@/actions/print';
-import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
+import {
+  trackEvent,
+  ANALYTICS_EVENTS,
+  Analytics,
+  trackPrintInitiated,
+  trackPrintDialogClosed,
+} from '@/lib/analytics/events';
 import {
   PanCardData,
   VoterCardData,
@@ -345,11 +351,6 @@ export default function CardsShowcasePage() {
       setIsExporting(true);
       const printJobId = `pj_${crypto.randomUUID()}`;
 
-      trackEvent(ANALYTICS_EVENTS.PRINT_STARTED, {
-        docType: activeTab.toUpperCase(),
-        printFormat: 'CR80',
-      });
-
       const res = await authorizePrintAction({
         documentType: activeTab,
         cardIdentifier: currentDocTitle,
@@ -363,11 +364,17 @@ export default function CardsShowcasePage() {
       }
 
       const isReprint = res.fee === 0;
-      trackEvent(ANALYTICS_EVENTS.PRINT_COMPLETED, {
-        docType: activeTab.toUpperCase(),
-        printFormat: 'CR80',
-        isReprint,
-      });
+
+      // Track verified print initiation (post-authorization, prior to window.print)
+      try {
+        if (typeof trackPrintInitiated === 'function') {
+          trackPrintInitiated(activeTab, isReprint, res.fee);
+        } else if (Analytics?.trackPrintInitiated) {
+          Analytics.trackPrintInitiated(activeTab, isReprint, res.fee);
+        }
+      } catch (analyticsErr) {
+        console.warn('[Cards] Analytics tracking error (non-fatal):', analyticsErr);
+      }
 
       if (isReprint) {
         trackEvent(ANALYTICS_EVENTS.REPEAT_PRINT, {
@@ -377,6 +384,17 @@ export default function CardsShowcasePage() {
       }
 
       window.print();
+
+      // Track browser print dialog returning control to application
+      try {
+        if (typeof trackPrintDialogClosed === 'function') {
+          trackPrintDialogClosed(activeTab, isReprint);
+        } else if (Analytics?.trackPrintDialogClosed) {
+          Analytics.trackPrintDialogClosed(activeTab, isReprint);
+        }
+      } catch (analyticsErr) {
+        console.warn('[Cards] Analytics tracking error (non-fatal):', analyticsErr);
+      }
     } catch (err: any) {
       alert(err.message || 'Error authorizing print.');
     } finally {
@@ -391,11 +409,6 @@ export default function CardsShowcasePage() {
       setIsExporting(true);
       const printJobId = `pj_${crypto.randomUUID()}`;
 
-      trackEvent(ANALYTICS_EVENTS.PRINT_STARTED, {
-        docType: activeTab.toUpperCase(),
-        printFormat: 'PDF',
-      });
-
       const res = await authorizePrintAction({
         documentType: activeTab,
         cardIdentifier: currentDocTitle,
@@ -409,11 +422,17 @@ export default function CardsShowcasePage() {
       }
 
       const isReprint = res.fee === 0;
-      trackEvent(ANALYTICS_EVENTS.PRINT_COMPLETED, {
-        docType: activeTab.toUpperCase(),
-        printFormat: 'PDF',
-        isReprint,
-      });
+
+      // Track verified export initiation (post-authorization)
+      try {
+        if (typeof trackPrintInitiated === 'function') {
+          trackPrintInitiated(activeTab, isReprint, res.fee);
+        } else if (Analytics?.trackPrintInitiated) {
+          Analytics.trackPrintInitiated(activeTab, isReprint, res.fee);
+        }
+      } catch (analyticsErr) {
+        console.warn('[Cards] Analytics tracking error (non-fatal):', analyticsErr);
+      }
 
       if (isReprint) {
         trackEvent(ANALYTICS_EVENTS.REPEAT_PRINT, {
@@ -423,6 +442,17 @@ export default function CardsShowcasePage() {
       }
 
       await exportCardAsPdf(frontCardRef.current, backCardRef.current, currentDocTitle);
+
+      // Track completion
+      try {
+        if (typeof trackPrintDialogClosed === 'function') {
+          trackPrintDialogClosed(activeTab, isReprint);
+        } else if (Analytics?.trackPrintDialogClosed) {
+          Analytics.trackPrintDialogClosed(activeTab, isReprint);
+        }
+      } catch (analyticsErr) {
+        console.warn('[Cards] Analytics tracking error (non-fatal):', analyticsErr);
+      }
     } catch (err: any) {
       alert(err.message || 'Failed to generate PDF. Please try again.');
     } finally {

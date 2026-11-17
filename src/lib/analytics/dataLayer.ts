@@ -4,9 +4,10 @@
  *
  * PRIVACY GUARANTEES:
  * 1. Zero Citizen PII: Strips document numbers (Aadhaar, PAN, Voter, DL, RC, Ration), names, photos, DOB.
- * 2. Zero Financial Data: Strips wallet balances, bank accounts, UPI IDs.
+ * 2. Zero Financial Data: Strips wallet balances, bank accounts, UPI IDs, ledgers.
  * 3. Sanitized URLs: Strips query parameters containing sensitive tokens or document references.
  * 4. Safe Failover: Operates safely during SSR, SSG, and client environments without throwing errors.
+ * 5. Adversarial Hardening: Defends against circular references, Unicode whitespace, nested arrays, and sentence embeddings.
  */
 
 export const DEFAULT_GTM_ID = 'GTM-MKXHQ658';
@@ -22,67 +23,195 @@ declare global {
 }
 
 /**
- * Denylist of sensitive key names that must never enter dataLayer under any circumstances.
+ * Explicit allowlist of legitimate analytics parameter keys.
+ * Normalized to lowercase alphanumeric without punctuation.
  */
-const SENSITIVE_KEYS_DENYLIST = new Set([
+const SAFE_EXEMPT_KEYS = new Set([
+  'doctype',
+  'doccategory',
+  'itemname',
+  'itemid',
+  'paymentmethod',
+  'transactionid',
+  'orderid',
+  'pagepath',
+  'pagetitle',
+  'pagelocation',
+  'referrer',
+  'errortype',
+  'printformat',
+  'printertray',
+  'operatorrole',
+  'devicetype',
+  'safestatus',
+  'safemetadata',
+  'safeparam',
+  'safemetric',
+  'safecontext',
+  'safenote',
+  'status',
+  'isreprint',
+  'fee',
+  'value',
+  'price',
+  'quantity',
+  'rechargeamount',
+  'timestamp',
+  'currency',
+  'ismanual',
+  'missingcount',
+  'event',
+  'method',
+  'createdat',
+  'label',
+  'identifier',
+]);
+
+/**
+ * Root tokens for sensitive citizen or authentication keys.
+ */
+const SENSITIVE_KEY_ROOTS = [
   'aadhaar',
   'aadhar',
   'uid',
   'pan',
-  'pannumber',
   'epic',
-  'voterid',
   'voter',
   'dl',
-  'licensenumber',
-  'drivinglicence',
+  'licen',
   'rc',
-  'registrationnumber',
-  'chassisnumber',
-  'enginenumber',
+  'chassis',
+  'engine',
   'ration',
-  'rationcard',
-  'name',
+  'farmer',
+  'agristack',
+  'father',
+  'mother',
+  'spouse',
+  'citizen',
+  'beneficiary',
+  'fullname',
   'firstname',
   'lastname',
-  'fullname',
-  'fathername',
   'dob',
-  'dateofbirth',
-  'phone',
+  'birth',
+  'address',
+  'city',
+  'pincode',
   'mobile',
-  'contactnumber',
+  'phone',
+  'contact',
+  'cell',
+  'sms',
   'email',
   'upi',
-  'upiid',
   'vpa',
-  'accountnumber',
+  'bank',
+  'account',
   'ifsc',
+  'cardnumber',
+  'cvv',
+  'expiry',
   'balance',
-  'walletbalance',
-  'currentbalance',
-  'remainingbalance',
-  'balancebefore',
-  'balanceafter',
-  'token',
-  'authtoken',
+  'ledger',
+  'walletbal',
   'password',
+  'passcode',
   'secret',
   'jwt',
+  'token',
+  'auth',
+  'bearer',
+  'apikey',
   'photo',
   'signature',
   'image',
-  'imagebase64',
   'canvas',
-]);
+  'biometric',
+  'fingerprint',
+  'iris',
+];
 
 /**
- * Regex patterns to detect accidental leakages in string values.
+ * Regex patterns to detect sensitive values even when embedded in sentences.
  */
-const AADHAAR_REGEX = /\b[2-9]{1}[0-9]{3}\s?[0-9]{4}\s?[0-9]{4}\b/;
-const PAN_REGEX = /\b[A-Z]{5}[0-9]{4}[A-Z]{1}\b/i;
-const EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
-const INDIAN_PHONE_REGEX = /\b(?:\+91|91)?[6-9]\d{9}\b/;
+const SENSITIVE_PATTERNS = [
+  // 12-digit Aadhaar / identity number (continuous or spaced)
+  /(?:^|\D)\d{4}\s?\d{4}\s?\d{4}(?:\D|$)/,
+  // 10-char Indian PAN
+  /(?:^|\D)[A-Z]{5}\s?[0-9]{4}\s?[A-Z](?:\D|$)/i,
+  // EPIC / Voter ID (3 letters + 7 digits)
+  /(?:^|\D)[A-Z]{3}\s?[0-9]{7}(?:\D|$)/i,
+  // Driving Licence (e.g., DL0420220000001, MH12 20110012345)
+  /(?:^|\D)[A-Z]{2}[-\s]?[0-9]{2}\s?[0-9]{4}[-\s]?[0-9]{7}(?:\D|$)/i,
+  /(?:^|\D)DL[-\s]?[0-9]{10,15}(?:\D|$)/i,
+  // Vehicle RC (e.g., DL01AB1234, MH-12-DE-1433)
+  /(?:^|\D)[A-Z]{2}[-\s]?[0-9]{1,2}[-\s]?[A-Z]{1,3}[-\s]?[0-9]{4}(?:\D|$)/i,
+  // Indian Mobile (+91, 91, 0, or 10-digit)
+  /(?:^|\D)(?:\+91|91|0)?[6-9]\d{9}(?:\D|$)/,
+  // Email Address
+  /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/,
+  // IFSC Code
+  /\b[A-Z]{4}0[A-Z0-9]{6}\b/i,
+  // UPI VPA
+  /[a-zA-Z0-9.\-_]{2,256}@[a-zA-Z]{2,64}/,
+  // JWT Token structure
+  /eyJ[A-Za-z0-9-_=]+\.eyJ[A-Za-z0-9-_=]+/,
+  // Bearer Token / API Key
+  /(?:Bearer\s+[A-Za-z0-9-_.]+|sk_live_[A-Za-z0-9]+)/i,
+];
+
+/**
+ * Checks whether a key is classified as sensitive citizen or auth metadata.
+ */
+function isKeySensitive(rawKey: string): boolean {
+  const normKey = rawKey.toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  // Exact exempt keys are safe
+  if (SAFE_EXEMPT_KEYS.has(normKey)) {
+    return false;
+  }
+
+  // Exact match for name
+  if (normKey === 'name' || normKey === 'fname' || normKey === 'lname') {
+    return true;
+  }
+
+  // Check against sensitive root tokens
+  for (const root of SENSITIVE_KEY_ROOTS) {
+    if (root === 'dl' || root === 'rc' || root === 'uid') {
+      if (normKey === root || normKey.startsWith(root) || normKey.endsWith(root)) {
+        return true;
+      }
+    } else if (normKey.includes(root)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Checks whether a string value contains sensitive citizen or authentication data.
+ */
+function isValueSensitive(val: string, key?: string): boolean {
+  const normKey = (key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+
+  // Allow transaction IDs, order IDs, timestamps from sensitive pattern rejection
+  if (normKey === 'transactionid' || normKey === 'orderid' || normKey === 'timestamp' || normKey === 'itemid') {
+    return false;
+  }
+
+  // Normalize unicode spaces and control characters
+  const normalized = val.replace(/[\u200B-\u200D\uFEFF\u00A0\t\r\n]+/g, ' ').trim();
+
+  // Fast check: Base64 data URIs
+  if (normalized.startsWith('data:image/') || normalized.startsWith('data:application/')) {
+    return true;
+  }
+
+  return SENSITIVE_PATTERNS.some((pattern) => pattern.test(normalized));
+}
 
 /**
  * Strips sensitive query parameters from URLs or paths before sending to analytics.
@@ -91,7 +220,6 @@ export function sanitizeAnalyticsUrl(rawUrlOrPath: string): string {
   if (!rawUrlOrPath) return '/';
 
   try {
-    // If relative path, anchor with dummy base
     const isRelative = rawUrlOrPath.startsWith('/');
     const url = new URL(rawUrlOrPath, 'https://printportal.accero.app');
 
@@ -104,14 +232,21 @@ export function sanitizeAnalyticsUrl(rawUrlOrPath: string): string {
       'card',
       'number',
       'aadhaar',
+      'aadhar',
       'pan',
       'epic',
+      'voter',
       'dl',
       'rc',
+      'ration',
+      'farmer',
       'email',
       'phone',
+      'mobile',
       'code',
       'session',
+      'jwt',
+      'bearer',
     ];
 
     sensitiveParamNames.forEach((param) => {
@@ -123,52 +258,94 @@ export function sanitizeAnalyticsUrl(rawUrlOrPath: string): string {
     }
     return url.toString();
   } catch {
-    // Fallback if URL parsing fails
     return rawUrlOrPath.split('?')[0] || '/';
   }
 }
 
 /**
- * Deep sanitation for any object intended for window.dataLayer.
+ * Deep sanitization for any object intended for window.dataLayer or analytics dispatchers.
+ * Guards against circular references, nested objects, and arrays.
  */
-export function sanitizeDataLayerPayload(data: Record<string, any>): Record<string, any> {
+export function sanitizeDataLayerPayload(
+  data: Record<string, any>,
+  visited: WeakSet<object> = new WeakSet()
+): Record<string, any> {
   if (!data || typeof data !== 'object') return {};
+
+  // Detect and break circular references
+  if (visited.has(data)) {
+    return {};
+  }
+  visited.add(data);
 
   const clean: Record<string, any> = {};
 
   for (const [key, value] of Object.entries(data)) {
-    const normalizedKey = key.toLowerCase().replace(/[-_]/g, '');
-
-    // 1. Check against sensitive keys denylist
-    if (SENSITIVE_KEYS_DENYLIST.has(normalizedKey)) {
+    if (value === null || value === undefined) {
       continue;
     }
 
-    // 2. Filter sensitive string values
+    // 1. Key Denylist Check
+    if (isKeySensitive(key)) {
+      continue; // Drop key entirely
+    }
+
+    // 2. Special object handling
+    if (value instanceof Date) {
+      clean[key] = value.toISOString();
+      continue;
+    }
+
+    if (value instanceof Error) {
+      if (!isValueSensitive(value.message, key)) {
+        clean[key] = value.message.slice(0, 200);
+      } else {
+        clean[key] = '[REDACTED_PII]';
+      }
+      continue;
+    }
+
+    // 3. String value checks
     if (typeof value === 'string') {
-      if (
-        AADHAAR_REGEX.test(value) ||
-        PAN_REGEX.test(value) ||
-        EMAIL_REGEX.test(value) ||
-        INDIAN_PHONE_REGEX.test(value)
-      ) {
-        continue; // Drop value containing sensitive citizen identifier
+      if (value === '[REDACTED_PII]') {
+        clean[key] = value;
+        continue;
+      }
+
+      if (isValueSensitive(value, key)) {
+        continue; // Drop key entirely from dataLayer
       }
 
       // Sanitize URL strings
-      if (key.toLowerCase().includes('url') || key.toLowerCase().includes('path') || key.toLowerCase().includes('referrer')) {
+      const lowerKey = key.toLowerCase();
+      if (lowerKey.includes('url') || lowerKey.includes('path') || lowerKey.includes('referrer')) {
         clean[key] = sanitizeAnalyticsUrl(value);
       } else {
-        clean[key] = value.slice(0, 200); // cap string length
+        clean[key] = value.slice(0, 200);
       }
     } else if (typeof value === 'number' || typeof value === 'boolean') {
       clean[key] = value;
     } else if (Array.isArray(value)) {
       clean[key] = value
-        .filter((item) => typeof item === 'string' || typeof item === 'number' || typeof item === 'boolean')
+        .map((item) => {
+          if (typeof item === 'object' && item !== null) {
+            return sanitizeDataLayerPayload(item, visited);
+          }
+          if (typeof item === 'string') {
+            return isValueSensitive(item) ? '[REDACTED_PII]' : item.slice(0, 200);
+          }
+          if (typeof item === 'number' || typeof item === 'boolean') {
+            return item;
+          }
+          return null;
+        })
+        .filter((item) => item !== null && (typeof item !== 'object' || Object.keys(item).length > 0))
         .slice(0, 10);
-    } else if (typeof value === 'object' && value !== null) {
-      clean[key] = sanitizeDataLayerPayload(value);
+    } else if (typeof value === 'object') {
+      const nestedClean = sanitizeDataLayerPayload(value, visited);
+      if (Object.keys(nestedClean).length > 0) {
+        clean[key] = nestedClean;
+      }
     }
   }
 
@@ -176,7 +353,7 @@ export function sanitizeDataLayerPayload(data: Record<string, any>): Record<stri
 }
 
 /**
- * Pushes a sanitized event object into window.dataLayer.
+ * Authoritative push to window.dataLayer after strict central sanitization.
  */
 export function pushToDataLayer(eventPayload: Record<string, any>): void {
   if (typeof window === 'undefined') return;
@@ -197,7 +374,7 @@ export function pushToDataLayer(eventPayload: Record<string, any>): void {
 }
 
 /**
- * Helper to dispatch virtual page_view event on Next.js App Router navigation.
+ * Dispatches virtual page_view event on Next.js App Router navigation.
  */
 export function pushPageView(pathname: string, searchParamsString?: string): void {
   if (typeof window === 'undefined') return;

@@ -53,7 +53,10 @@ export function generateOrganizationSchema() {
 }
 
 /**
- * WebSite Schema for SearchAction & Site Recognition
+ * WebSite Schema for Site Recognition & Entity Identity
+ * Note: Sitelinks Searchbox was retired by Google in November 2024.
+ * Obsolete SearchAction declarations have been removed to prevent phantom
+ * crawl errors on non-existent query parameter endpoints (/services?q=...).
  */
 export function generateWebSiteSchema() {
   const baseUrl = getBaseUrl();
@@ -68,14 +71,6 @@ export function generateWebSiteSchema() {
       'Preformatted CR80 PVC card formatting and document processing platform with real-time split-screen editing and missing-data detection.',
     publisher: {
       '@id': `${baseUrl}/#organization`,
-    },
-    potentialAction: {
-      '@type': 'SearchAction',
-      target: {
-        '@type': 'EntryPoint',
-        urlTemplate: `${baseUrl}/services?q={search_term_string}`,
-      },
-      'query-input': 'required name=search_term_string',
     },
   };
 }

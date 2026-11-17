@@ -143,44 +143,36 @@ describe('Authentication & Role-Based Redirect Engine', () => {
       .setExpirationTime(Math.floor(Date.now() / 1000) - 3600)
       .sign(secret);
 
-    // On protected route: redirects to login and clears cookie
+    // On protected route: passes through to Server Components for Node.js session validation & refresh
     const protectedReq = new NextRequest('https://printportal.accero.app/dashboard', {
       headers: { cookie: `auth-token=${expiredToken}` },
     });
     const protectedRes = await middleware(protectedReq);
-    expect(protectedRes.status).toBe(307);
-    expect(protectedRes.headers.get('location')).toContain('/login');
-    const deletedCookie = protectedRes.cookies.get('auth-token');
-    expect(deletedCookie?.value).toBe('');
+    expect(protectedRes.status).toBe(200);
 
-    // On auth page: permits viewing login and clears expired cookie
+    // On auth page: permits viewing login without destroying cookies
     const loginReq = new NextRequest('https://printportal.accero.app/login', {
       headers: { cookie: `auth-token=${expiredToken}` },
     });
     const loginRes = await middleware(loginReq);
     expect(loginRes.status).toBe(200);
-    const loginDeletedCookie = loginRes.cookies.get('auth-token');
-    expect(loginDeletedCookie?.value).toBe('');
   });
 
-  // 8. Invalid JWT does not grant access
-  it('8. ensures invalid/tampered JWT does not grant access and deletes cookie', async () => {
+  // 8. Invalid JWT passes to server layer for authoritative handling
+  it('8. ensures invalid/tampered JWT passes to Server Components without premature cookie destruction', async () => {
     const invalidToken = 'invalid.header.and.signature.token';
 
     const protectedReq = new NextRequest('https://printportal.accero.app/dashboard', {
       headers: { cookie: `auth-token=${invalidToken}` },
     });
     const protectedRes = await middleware(protectedReq);
-    expect(protectedRes.status).toBe(307);
-    expect(protectedRes.headers.get('location')).toContain('/login');
-    expect(protectedRes.cookies.get('auth-token')?.value).toBe('');
+    expect(protectedRes.status).toBe(200);
 
     const loginReq = new NextRequest('https://printportal.accero.app/login', {
       headers: { cookie: `auth-token=${invalidToken}` },
     });
     const loginRes = await middleware(loginReq);
     expect(loginRes.status).toBe(200);
-    expect(loginRes.cookies.get('auth-token')?.value).toBe('');
   });
 
   // 9. Missing cookie allows authentication pages

@@ -29,7 +29,12 @@ import {
   verifyPaytmOrderAction,
 } from '@/actions/wallet';
 import { validatePromoCodeAction } from '@/actions/promo';
-import { trackEvent, ANALYTICS_EVENTS } from '@/lib/analytics/events';
+import {
+  trackEvent,
+  ANALYTICS_EVENTS,
+  Analytics,
+  trackPurchase,
+} from '@/lib/analytics/events';
 
 interface RechargeModalProps {
   isOpen: boolean;
@@ -253,6 +258,22 @@ export default function RechargeModal({
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('wallet-updated', { detail: newBalance }));
       }
+
+      // Track verified server-committed purchase (deduplicated by orderId)
+      if (orderId || bankTxnId) {
+        const txnId = orderId || bankTxnId || 'unknown_order';
+        const method = methodDesc || 'GATEWAY';
+        try {
+          if (typeof trackPurchase === 'function') {
+            trackPurchase(txnId, creditAmt, method);
+          } else if (Analytics?.trackPurchase) {
+            Analytics.trackPurchase(txnId, creditAmt, method);
+          }
+        } catch (analyticsErr) {
+          console.warn('[RechargeModal] Analytics tracking error (non-fatal):', analyticsErr);
+        }
+      }
+
       trackEvent(ANALYTICS_EVENTS.RECHARGE_COMPLETED, {
         paymentMethod: methodDesc || 'GATEWAY',
         rechargeAmount: creditAmt,

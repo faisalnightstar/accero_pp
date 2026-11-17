@@ -109,8 +109,8 @@ const comparisonTable = [
   },
   {
     feature: 'Data Privacy & Security',
-    competitor: 'Basic web upload without documented hardware-grade citizen record encryption',
-    accero: 'AES-256 GCM encryption at rest, role-based access control, DPDP Act 2023 compliance',
+    competitor: 'Undocumented citizen record encryption and data retention policies [OBSERVED]',
+    accero: '72-Hour ephemeral document cache with automated TTL expiration, role-based access control, DPDP-aligned design',
     advantage: 'Accero',
   },
   {

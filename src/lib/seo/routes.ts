@@ -47,13 +47,14 @@ export const CANONICAL_PUBLIC_ROUTES: CanonicalRouteConfig[] = [
   { path: '/services/ration-card-printing', priority: 0.9, changeFrequency: 'weekly', category: 'service', lastModified: '2026-11-14' },
   { path: '/services/farmer-id-printing', priority: 0.9, changeFrequency: 'weekly', category: 'service', lastModified: '2026-11-14' },
 
-  // 4. Feature Detail Pages
+  // 4. Feature Detail Pages & Public Tools
   { path: '/features/document-lookup', priority: 0.8, changeFrequency: 'monthly', category: 'feature', lastModified: '2026-11-10' },
   { path: '/features/document-management', priority: 0.8, changeFrequency: 'monthly', category: 'feature', lastModified: '2026-11-10' },
   { path: '/features/document-editing', priority: 0.8, changeFrequency: 'monthly', category: 'feature', lastModified: '2026-11-10' },
   { path: '/features/document-printing', priority: 0.8, changeFrequency: 'monthly', category: 'feature', lastModified: '2026-11-10' },
   { path: '/features/multilingual-printing', priority: 0.8, changeFrequency: 'monthly', category: 'feature', lastModified: '2026-11-10' },
   { path: '/features/wallet-management', priority: 0.8, changeFrequency: 'monthly', category: 'feature', lastModified: '2026-11-10' },
+  { path: '/tools/cr80-card-size-calculator', priority: 0.85, changeFrequency: 'weekly', category: 'feature', lastModified: '2026-11-17' },
 
   // 5. Target Audience Solution Pages
   { path: '/solutions/cyber-cafes', priority: 0.8, changeFrequency: 'monthly', category: 'solution', lastModified: '2026-11-10' },

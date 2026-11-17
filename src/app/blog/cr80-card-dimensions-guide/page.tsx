@@ -135,6 +135,22 @@ export default function Cr80DimensionsArticlePage() {
             </p>
           </div>
 
+          {/* Interactive Calculator Callout */}
+          <div className="bg-sky-50 border border-sky-200 rounded-2xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div>
+              <span className="text-xs font-bold uppercase tracking-wider text-sky-800">Interactive Product Tool</span>
+              <h3 className="text-base sm:text-lg font-bold text-slate-900 mt-0.5">Need Custom DPI or Bleed Calculations?</h3>
+              <p className="text-xs sm:text-sm text-slate-600 mt-1">Use our free CR80 Card Size Calculator to convert dimensions to exact pixels for 96, 300, 600, or 1200 DPI with live SVG preview and copyable CSS.</p>
+            </div>
+            <Link
+              href="/tools/cr80-card-size-calculator"
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#1D3557] hover:bg-[#14243b] text-white text-xs sm:text-sm font-semibold shrink-0 transition-colors shadow-xs"
+            >
+              <span>Open CR80 Calculator</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
           {/* Article Body */}
           <div className="bg-white rounded-3xl border border-slate-200 p-8 sm:p-12 shadow-sm space-y-8 text-sm text-slate-700 leading-relaxed">
             <section className="space-y-4">

@@ -106,8 +106,8 @@ const evaluationCriteria = [
   {
     criterion: 'Security & Compliance',
     description: 'Account isolation, data encryption, and citizen privacy protection',
-    skStatus: 'Not independently verified',
-    acceroFeature: 'DPDP-aligned privacy architecture, 256-bit SSL, zero credential exposure',
+    skStatus: 'Not independently verified [UNVERIFIED]',
+    acceroFeature: 'DPDP-aligned privacy architecture, 256-bit TLS encryption, 72-hour ephemeral document retention',
   },
 ];
 

@@ -99,9 +99,9 @@ const comparisonTable = [
     advantage: 'Accero',
   },
   {
-    feature: 'Data Security & DPDP Compliance',
-    competitor: 'Unverified database storage without documented encryption standards',
-    accero: 'AES-256 GCM encryption at rest, role-based access control, DPDP Act compliance',
+    feature: 'Data Security & Retention',
+    competitor: 'Undocumented retention policies and security specifications [OBSERVED]',
+    accero: '72-Hour ephemeral document cache with automated TTL expiration, role-based access control, DPDP-aligned design',
     advantage: 'Accero',
   },
   {

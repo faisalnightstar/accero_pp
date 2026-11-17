@@ -1,17 +1,19 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
-import { Upload, X, Check, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { Upload, X, Check, Image as ImageIcon, AlertCircle, Loader2 } from 'lucide-react';
 
 interface AssetDropzoneProps {
   label: string;
   value?: string;
-  onChange: (base64: string) => void;
+  onChange: (base64OrUrl: string) => void;
   onClear: () => void;
   aspectRatio?: 'photo' | 'signature';
   helperText?: string;
   required?: boolean;
   isMissing?: boolean;
+  docType?: string;
+  uploadToCloudinary?: boolean;
 }
 
 export default function AssetDropzone({
@@ -23,9 +25,13 @@ export default function AssetDropzone({
   helperText,
   required = false,
   isMissing = false,
+  docType = 'pan',
+  uploadToCloudinary = true,
 }: AssetDropzoneProps) {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [isOptimized, setIsOptimized] = useState<boolean>(Boolean(value && value.includes('cloudinary.com')));
   const [errorMsg, setErrorMsg] = useState<string>('');
 
   const handleFileProcess = (file: File) => {
@@ -45,10 +51,40 @@ export default function AssetDropzone({
     }
 
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = async (e) => {
       const result = e.target?.result as string;
       if (result) {
+        // Step 1: Immediate instant preview on the card canvas
         onChange(result);
+
+        // Step 2: Background Sharp compression and Cloudinary upload
+        if (uploadToCloudinary) {
+          setIsUploading(true);
+          try {
+            const res = await fetch('/api/media/upload', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                dataUrl: result,
+                docType,
+                profile: aspectRatio === 'signature' ? 'signature' : 'documentPhoto',
+                isPrivate: true,
+              }),
+            });
+
+            if (res.ok) {
+              const data = await res.json();
+              if (data.secureUrl) {
+                onChange(data.secureUrl);
+                setIsOptimized(true);
+              }
+            }
+          } catch {
+            // Keep local dataUrl - user is never interrupted
+          } finally {
+            setIsUploading(false);
+          }
+        }
       }
     };
     reader.onerror = () => {
@@ -128,13 +164,37 @@ export default function AssetDropzone({
               />
             </div>
             <div>
-              <span className="text-xs font-bold text-navy flex items-center gap-1">
-                <Check className="w-3.5 h-3.5 text-emerald-600" />
-                Asset Loaded
-              </span>
-              <p className="text-[10px] text-gray-500">
-                Ready for live card rendering
-              </p>
+              {isUploading ? (
+                <>
+                  <span className="text-xs font-bold text-navy flex items-center gap-1">
+                    <Loader2 className="w-3.5 h-3.5 text-blue-600 animate-spin" />
+                    Optimizing Asset...
+                  </span>
+                  <p className="text-[10px] text-blue-600">
+                    Compressing & uploading to Cloudinary
+                  </p>
+                </>
+              ) : isOptimized || (value && value.includes('cloudinary.com')) ? (
+                <>
+                  <span className="text-xs font-bold text-navy flex items-center gap-1">
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    Cloudinary Optimized
+                  </span>
+                  <p className="text-[10px] text-emerald-600 font-medium">
+                    High-DPI PVC ready
+                  </p>
+                </>
+              ) : (
+                <>
+                  <span className="text-xs font-bold text-navy flex items-center gap-1">
+                    <Check className="w-3.5 h-3.5 text-emerald-600" />
+                    Asset Loaded
+                  </span>
+                  <p className="text-[10px] text-gray-500">
+                    Ready for live card rendering
+                  </p>
+                </>
+              )}
             </div>
           </div>
 

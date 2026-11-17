@@ -418,7 +418,38 @@ export async function verifyAndCreditPaytmPayment(
     const paytmResult = await queryPaytmOrderStatus(payment.paytmMid, payment.orderId);
 
     if (paytmResult.isPaid) {
-      const creditAmount = paytmResult.amount || payment.amount;
+      // Security Check: Validate reported amount matches order amount (prevent tampering)
+      if (
+        paytmResult.amount !== undefined &&
+        Math.abs(paytmResult.amount - payment.amount) > 0.01
+      ) {
+        payment.status = 'FAILED';
+        payment.gatewayResponse = {
+          ...paytmResult.raw,
+          securityAlert: `Amount mismatch: expected ₹${payment.amount}, gateway returned ₹${paytmResult.amount}`,
+        };
+        await payment.save();
+
+        await logAuditEvent({
+          actorId: payment.userId,
+          action: 'WALLET_PAYMENT_AMOUNT_MISMATCH',
+          resourceType: 'PAYMENT',
+          resourceId: payment.orderId,
+          details: {
+            expectedAmount: payment.amount,
+            reportedAmount: paytmResult.amount,
+          },
+          status: 'WARNING',
+        });
+
+        return {
+          success: false,
+          status: 'failed',
+          error: `Payment verification failed: paid amount (₹${paytmResult.amount}) does not match expected order amount (₹${payment.amount}).`,
+        };
+      }
+
+      const creditAmount = payment.amount;
 
       // 3. Atomic Claim: Transition status from PENDING -> PROCESSING
       // If two concurrent requests reach this point, ONLY ONE will succeed in updating

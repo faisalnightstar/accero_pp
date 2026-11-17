@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { MessageCircle } from 'lucide-react';
+import { pushToDataLayer } from '@/lib/analytics/dataLayer';
 
 interface WhatsAppSupportWidgetProps {
   phoneNumber?: string;
@@ -17,14 +18,11 @@ export default function WhatsAppSupportWidget({
   defaultMessage = 'Hello Accero Support, I run a CSC / Cyber Cafe and have a question about PrintPortal.',
 }: WhatsAppSupportWidgetProps) {
   const handleClick = () => {
-    // Dispatch analytics event to GTM / GA4
-    if (typeof window !== 'undefined' && (window as any).dataLayer) {
-      (window as any).dataLayer.push({
-        event: 'whatsapp_support_click',
-        pagePath: window.location.pathname,
-        timestamp: new Date().toISOString(),
-      });
-    }
+    // Dispatch sanitized analytics event to GTM / GA4
+    pushToDataLayer({
+      event: 'whatsapp_support_click',
+      pagePath: typeof window !== 'undefined' ? window.location.pathname : '',
+    });
   };
 
   const whatsappUrl = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(
@@ -34,7 +32,7 @@ export default function WhatsAppSupportWidget({
   return (
     <aside
       aria-label="WhatsApp Support"
-      className="fixed bottom-6 right-6 z-40 no-print"
+      className="fixed bottom-20 sm:bottom-6 right-4 sm:right-6 z-40 no-print"
     >
       <a
         href={whatsappUrl}

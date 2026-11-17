@@ -17,9 +17,9 @@ describe('Technical SEO & Public Route Indexing Architecture', () => {
   const sitemapUrls = generatedSitemap.map((item) => item.url);
 
   describe('1. Sitemap Coverage & Parity', () => {
-    it('contains all 52 genuinely public canonical website routes', () => {
-      expect(CANONICAL_PUBLIC_ROUTES).toHaveLength(52);
-      expect(generatedSitemap).toHaveLength(52);
+    it('contains all 53 genuinely public canonical website routes (52 baseline + 1 CR80 calculator)', () => {
+      expect(CANONICAL_PUBLIC_ROUTES).toHaveLength(53);
+      expect(generatedSitemap).toHaveLength(53);
     });
 
     it('ensures every sitemap URL starts with the canonical HTTPS domain', () => {
