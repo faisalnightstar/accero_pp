@@ -23,6 +23,8 @@ import { buildPageMetadata } from '@/lib/seo/metadata';
 import {
   generateSoftwareApplicationSchema,
   generateFaqSchema,
+  generateOrganizationSchema,
+  generateWebSiteSchema,
 } from '@/lib/seo/structuredData';
 import PageTracker from '@/components/analytics/PageTracker';
 import { ANALYTICS_EVENTS } from '@/lib/analytics/events';
@@ -37,12 +39,15 @@ import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Accero PrintPortal – Document Processing & Printing Software',
+  title: 'Accero PrintPortal – Online Print Portal & PVC Card Printing Software',
   description:
-    'Simplify document processing and printing with Accero PrintPortal. Manage document lookups, multilingual layouts, editing and print-ready CR80 PVC workflows from one platform.',
+    'Accero PrintPortal: Online print portal for CSC VLEs and cyber cafes. Format, preview and print PAN, Aadhaar, Voter, DL, RC and Ration PVC cards with zero waste.',
   path: '/',
   keywords: [
-    'document printing software',
+    'print portal',
+    'online print portal',
+    'csc print portal',
+    'digital print portal',
     'pvc card printing software',
     'cyber cafe document management software',
     'csc operator software',
@@ -225,6 +230,8 @@ const homeFaqs = [
 ];
 
 export default function HomePage() {
+  const organizationSchema = generateOrganizationSchema();
+  const websiteSchema = generateWebSiteSchema();
   const softwareSchema = generateSoftwareApplicationSchema(
     'Accero PrintPortal',
     'BusinessApplication',
@@ -242,6 +249,14 @@ export default function HomePage() {
   return (
     <>
       <PageTracker event={ANALYTICS_EVENTS.HOMEPAGE_VISIT} metadata={{ pagePath: '/' }} />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}

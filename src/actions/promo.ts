@@ -301,7 +301,7 @@ export async function togglePromoCodeStatusAction(id: string, isActive: boolean)
     const updated = await PromoCode.findByIdAndUpdate(
       id,
       { isActive },
-      { new: true }
+      { returnDocument: 'after' }
     );
     if (!updated) {
       return { success: false, error: 'Promo code not found.' };

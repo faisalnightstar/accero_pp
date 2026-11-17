@@ -19,6 +19,53 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Direct root-level document aliases canonicalized to /services/*
+      {
+        source: '/pan-card-printing',
+        destination: '/services/pan-card-printing',
+        permanent: true,
+      },
+      {
+        source: '/aadhaar-card-printing',
+        destination: '/services/aadhaar-document-management',
+        permanent: true,
+      },
+      {
+        source: '/voter-id-printing',
+        destination: '/services/voter-id-printing',
+        permanent: true,
+      },
+      {
+        source: '/driving-licence-printing',
+        destination: '/services/driving-licence-printing',
+        permanent: true,
+      },
+      {
+        source: '/vehicle-rc-printing',
+        destination: '/services/vehicle-rc-printing',
+        permanent: true,
+      },
+      {
+        source: '/ration-card-printing',
+        destination: '/services/ration-card-printing',
+        permanent: true,
+      },
+      {
+        source: '/farmer-id-printing',
+        destination: '/services/farmer-id-printing',
+        permanent: true,
+      },
+      {
+        source: '/csc-printing-software',
+        destination: '/csc-operator-software',
+        permanent: true,
+      },
+      {
+        source: '/online-pvc-card-maker',
+        destination: '/pvc-card-printing-software',
+        permanent: true,
+      },
+      // Service subpath redirects
       {
         source: '/services/pan-card',
         destination: '/services/pan-card-printing',

@@ -83,9 +83,10 @@ const platformNav = [
     name: 'Specialized Portals',
     items: [
       { name: 'Print Portal Overview', href: '/print-portal' },
+      { name: 'CSC Print Portal', href: '/csc-print-portal' },
+      { name: 'Cyber Cafe Printing Software', href: '/cyber-cafe-printing-software' },
       { name: 'Best Portal for CSC', href: '/best-print-portal-for-csc' },
       { name: 'For Cyber Cafes', href: '/print-portal-for-cyber-cafe' },
-      { name: 'For Retailers', href: '/print-portal-for-retailers' },
       { name: 'PVC Card Software', href: '/pvc-card-printing-software' },
       { name: 'CSC Operator Software', href: '/csc-operator-software' },
     ],

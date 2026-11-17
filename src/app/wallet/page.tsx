@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { getWalletBalance, getWalletTransactions } from '@/actions/wallet';
 import RechargeModal from '@/components/wallet/RechargeModal';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface TransactionItem {
   id: string;
@@ -203,9 +204,13 @@ export default function WalletPage() {
 
             <div className="my-4">
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">
-                  ₹{stats.balance.toFixed(2)}
-                </span>
+                {isLoading ? (
+                  <Skeleton className="h-9 w-32 rounded-lg bg-white/20" />
+                ) : (
+                  <span className="text-3xl sm:text-4xl font-black text-white tracking-tight">
+                    ₹{stats.balance.toFixed(2)}
+                  </span>
+                )}
                 <span className="text-xs text-slate-400 font-mono">INR</span>
               </div>
               {stats.promotionalBalance !== undefined && stats.promotionalBalance > 0 && (
@@ -247,9 +252,13 @@ export default function WalletPage() {
 
             <div className="my-4">
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-white tracking-tight">
-                  ₹{stats.totalCredited.toFixed(2)}
-                </span>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-28 rounded-lg bg-slate-800" />
+                ) : (
+                  <span className="text-3xl font-black text-white tracking-tight">
+                    ₹{stats.totalCredited.toFixed(2)}
+                  </span>
+                )}
                 <span className="text-xs text-slate-500 font-mono">INR</span>
               </div>
               <p className="text-[11px] text-slate-400 mt-1">
@@ -275,9 +284,13 @@ export default function WalletPage() {
 
             <div className="my-4">
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-white tracking-tight">
-                  ₹{stats.totalDebited.toFixed(2)}
-                </span>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-28 rounded-lg bg-slate-800" />
+                ) : (
+                  <span className="text-3xl font-black text-white tracking-tight">
+                    ₹{stats.totalDebited.toFixed(2)}
+                  </span>
+                )}
                 <span className="text-xs text-slate-500 font-mono">INR</span>
               </div>
               <p className="text-[11px] text-slate-400 mt-1">
@@ -303,9 +316,13 @@ export default function WalletPage() {
 
             <div className="my-4">
               <div className="flex items-baseline gap-2">
-                <span className="text-3xl font-black text-white tracking-tight">
-                  {totalCount}
-                </span>
+                {isLoading ? (
+                  <Skeleton className="h-8 w-20 rounded-lg bg-slate-800" />
+                ) : (
+                  <span className="text-3xl font-black text-white tracking-tight">
+                    {totalCount}
+                  </span>
+                )}
                 <span className="text-xs text-slate-500 font-mono">Events</span>
               </div>
               <p className="text-[11px] text-slate-400 mt-1">
@@ -421,14 +438,34 @@ export default function WalletPage() {
               </thead>
               <tbody className="divide-y divide-slate-800/60">
                 {isLoading ? (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-12 text-center text-slate-500">
-                      <div className="flex items-center justify-center gap-2">
-                        <RefreshCw className="w-4 h-4 animate-spin text-[#F4D35E]" />
-                        <span>Loading ledger history...</span>
-                      </div>
-                    </td>
-                  </tr>
+                  Array.from({ length: 6 }).map((_, rIdx) => (
+                    <tr key={`skel-row-${rIdx}`} className="animate-pulse">
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="w-8 h-8 rounded-lg bg-slate-800" />
+                          <div className="space-y-1.5">
+                            <Skeleton className="h-4 w-28 rounded bg-slate-800" />
+                            <Skeleton className="h-3 w-16 rounded bg-slate-800/60" />
+                          </div>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <Skeleton className="h-5 w-20 rounded-full bg-slate-800" />
+                      </td>
+                      <td className="px-6 py-4">
+                        <Skeleton className="h-4 w-32 rounded bg-slate-800" />
+                      </td>
+                      <td className="px-6 py-4">
+                        <Skeleton className="h-4 w-40 rounded bg-slate-800" />
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Skeleton className="h-4 w-16 rounded ml-auto bg-slate-800" />
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <Skeleton className="h-4 w-20 rounded ml-auto bg-slate-800" />
+                      </td>
+                    </tr>
+                  ))
                 ) : filteredTransactions.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-16 text-center text-slate-500">

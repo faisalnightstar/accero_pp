@@ -128,6 +128,18 @@ export const PROVIDER_REGISTRY: Record<string, ProviderRegistration> = {
     defaultTimeoutMs: 6000,
     description: 'Internal diagnostic endpoint for verifying Fixie static IP egress',
   },
+
+  // 8. WebAPI: PAN Verification Gateway (V1 & V2)
+  webapi: {
+    id: 'webapi',
+    name: 'WebAPI PAN Verification',
+    routing: process.env.PAN_LOOKUP_USE_FIXIE === 'true' ? 'fixie' : 'direct',
+    allowedHostnames: ['webapi.in.net'],
+    requiresWhitelisting: false,
+    requireHttps: true,
+    defaultTimeoutMs: 10000,
+    description: 'WebAPI.in.net PAN verification gateway (V1 and V2)',
+  },
 } as const;
 
 /**

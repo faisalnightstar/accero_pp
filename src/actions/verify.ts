@@ -5,6 +5,8 @@ import { VerificationResult } from '@/lib/verify/types';
 import { getSession } from '@/lib/auth';
 import { lookupDocument } from '@/lib/documents/documentLookup';
 import { lookupAndBillVoter } from '@/lib/documents/voterLookup';
+import { lookupAndBillPan } from '@/lib/pan';
+import { getPanQrXmlString, PanCardData } from '@/types/cards';
 import { getConfiguredServicePricing } from '@/lib/wallet/pricing';
 import { getWalletBalance } from '@/actions/wallet';
 import { maskIdentifier } from '@/lib/network/proxy-config';
@@ -104,7 +106,71 @@ export async function verifyDocument(
     return voterResult;
   }
 
-  // 3. Unrelated document types keep existing centralized database-first lookup untouched
+  // 3. PAN lookup uses lookup-time billing + WebAPI V1/V2 fallback workflow
+  if (docType === 'pan') {
+    const panResult = await lookupAndBillPan({
+      userId: session.userId,
+      panNumber: sanitizedId,
+      requestId,
+    });
+    console.log('[VerifyAction] verifyDocument pan completed', {
+      id: maskedId,
+      success: panResult.status === 'SUCCESS',
+      providerVersion: panResult.providerVersion,
+      fallbackUsed: panResult.fallbackUsed,
+      errorCode: panResult.errorCode,
+      errorMessage: panResult.errorMessage,
+      feeDeducted: panResult.feeDeducted,
+      latencyMs: panResult.latencyMs,
+    });
+
+    const isSuccess = panResult.status === 'SUCCESS';
+    const cardData: Partial<PanCardData> = isSuccess
+      ? {
+          panNumber: panResult.pan,
+          fullName: panResult.fullName || '',
+          fatherName: panResult.fatherName || '',
+          dateOfBirth: panResult.dateOfBirth || '',
+          gender:
+            panResult.gender?.toUpperCase() === 'FEMALE'
+              ? 'FEMALE'
+              : panResult.gender?.toUpperCase() === 'MALE'
+              ? 'MALE'
+              : undefined,
+          qrData: getPanQrXmlString({
+            panNumber: panResult.pan,
+            fullName: panResult.fullName || '',
+            fatherName: panResult.fatherName || '',
+            dateOfBirth: panResult.dateOfBirth || '',
+            gender:
+              panResult.gender?.toUpperCase() === 'FEMALE'
+                ? 'FEMALE'
+                : 'MALE',
+          }),
+        }
+      : {};
+
+    return {
+      success: isSuccess,
+      documentType: 'pan',
+      idNumber: sanitizedId,
+      data: cardData,
+      provider: `WebAPI (${panResult.providerVersion.toUpperCase()})`,
+      providerVersion: panResult.providerVersion,
+      fallbackUsed: panResult.fallbackUsed,
+      errorCode: panResult.errorCode,
+      docId: panResult.docId,
+      isPartial: false,
+      errorMessage:
+        panResult.errorMessage || (isSuccess ? undefined : panResult.message),
+      feeDeducted: panResult.feeDeducted,
+      currentBalance: panResult.currentBalance,
+      isFreeReprint: panResult.isFreeReprint,
+      latencyMs: panResult.latencyMs,
+    };
+  }
+
+  // 4. Unrelated document types keep existing centralized database-first lookup untouched
   const lookup = await lookupDocument({
     userId: session.userId,
     docType,

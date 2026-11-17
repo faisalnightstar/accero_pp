@@ -230,13 +230,13 @@ export function HeroSection() {
             {/* Top Pill */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-[#1D3557] text-xs font-semibold">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>Independent Document Layout &amp; Card Printing SaaS</span>
+              <span>Online Print Portal for CSC Operators, Cyber Cafes &amp; Print Shops</span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D3557] tracking-tight leading-[1.15]">
-              Pixel-Perfect PVC Cards with{' '}
-              <span className="text-[#8B1E2D]">Zero Missing Data</span>
+              Online Print Portal for{' '}
+              <span className="text-[#8B1E2D]">Pixel-Perfect PVC Cards</span>
             </h1>
 
             {/* Clear Value Description */}

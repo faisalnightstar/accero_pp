@@ -17,6 +17,8 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { getSupportOverviewMetrics } from '@/actions/support';
+import { CardSkeleton } from '@/components/skeletons/CardSkeleton';
+import { ListSkeleton } from '@/components/skeletons/ListSkeleton';
 
 export default function SupportOverviewPage() {
   const [metrics, setMetrics] = useState<any | null>(null);
@@ -71,9 +73,13 @@ export default function SupportOverviewPage() {
       </div>
 
       {loading || !metrics ? (
-        <div className="bg-slate-950 border border-slate-800 rounded-2xl p-16 flex flex-col items-center justify-center">
-          <Loader2 className="w-8 h-8 text-emerald-400 animate-spin mb-3" />
-          <p className="text-sm text-slate-400">Loading support operations data...</p>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <CardSkeleton key={i} variant="stat" className="bg-slate-900 border-slate-800" />
+            ))}
+          </div>
+          <ListSkeleton items={4} className="bg-slate-900 border-slate-800" hasHeader={true} />
         </div>
       ) : (
         <div className="space-y-6">

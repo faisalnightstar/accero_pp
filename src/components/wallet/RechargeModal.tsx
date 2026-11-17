@@ -889,9 +889,34 @@ export default function RechargeModal({
                   <div className="flex flex-col items-center justify-center space-y-3">
                     <div className="relative p-3 bg-white rounded-2xl shadow-2xl border-2 border-sky-500/30">
                       {isGeneratingOrder ? (
-                        <div className="w-48 h-48 flex flex-col items-center justify-center text-slate-500 gap-2">
-                          <Loader2 className="w-8 h-8 animate-spin text-[#002e6e]" />
-                          <span className="text-xs font-semibold">Generating QR...</span>
+                        <div
+                          role="status"
+                          aria-busy="true"
+                          aria-label="Generating secure dynamic UPI QR code"
+                          className="w-48 h-48 flex flex-col items-center justify-center p-3 relative rounded-xl bg-slate-50 border border-slate-200"
+                        >
+                          <div className="w-full h-full p-2 grid grid-cols-4 grid-rows-4 gap-1.5 animate-pulse motion-reduce:animate-none">
+                            <div className="bg-slate-300 rounded border border-slate-400/50" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-300 rounded border border-slate-400/50" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-300 rounded border border-slate-400/50" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-200 rounded" />
+                            <div className="bg-slate-200 rounded" />
+                          </div>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/70 backdrop-blur-[1px] rounded-xl text-slate-700 gap-1.5">
+                            <Loader2 className="w-6 h-6 animate-spin text-[#002e6e]" />
+                            <span className="text-[11px] font-bold tracking-tight">Generating UPI QR...</span>
+                          </div>
                         </div>
                       ) : currentOrder?.qrDataUrl ? (
                         <div className="relative">

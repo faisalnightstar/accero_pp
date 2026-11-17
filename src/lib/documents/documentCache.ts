@@ -373,7 +373,7 @@ export async function saveDocumentToCache({
           ...(!effectiveIsPaid ? { isPaid: false } : {}),
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
 
     return updated;

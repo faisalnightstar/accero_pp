@@ -464,7 +464,7 @@ export async function verifyAndCreditPaytmPayment(
             processingStartedAt: new Date(),
           },
         },
-        { new: true }
+        { returnDocument: 'after' }
       );
 
       if (!claimedPayment) {
@@ -583,7 +583,7 @@ export async function verifyAndCreditPaytmPayment(
             transactions: { $each: transactionsToPush },
           },
         },
-        { new: true, upsert: true }
+        { returnDocument: 'after', upsert: true }
       );
 
       // Patch balanceAfter on the newly pushed transactions

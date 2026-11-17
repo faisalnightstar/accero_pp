@@ -262,7 +262,7 @@ export async function deductWalletFee(
           },
         },
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!updatedWallet) {
@@ -481,7 +481,7 @@ export async function rechargeWallet(
           },
         },
       },
-      { new: true, upsert: true }
+      { returnDocument: 'after', upsert: true }
     );
 
     if (updatedWallet.transactions && updatedWallet.transactions.length > 0) {
@@ -575,7 +575,7 @@ export async function approveManualRecharge(
           reviewedAt: new Date(),
         },
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!claimed) {
@@ -601,7 +601,7 @@ export async function approveManualRecharge(
           },
         },
       },
-      { new: true, upsert: true }
+      { returnDocument: 'after', upsert: true }
     );
 
     if (updatedWallet && updatedWallet.transactions.length > 0) {
@@ -659,7 +659,7 @@ export async function rejectManualRecharge(
           rejectionReason: (reason || 'Invalid or unverified UTR').trim(),
         },
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!updated) {

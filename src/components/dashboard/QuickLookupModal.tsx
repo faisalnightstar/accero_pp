@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { DocumentType } from '@/types/cards';
 import { validateEpicNumber } from '@/lib/verify/validators';
+import { validatePanNumber } from '@/lib/pan/pan.validation';
 
 import { DEFAULT_SERVICE_PRICING } from '@/lib/wallet/constants';
 
@@ -68,6 +69,14 @@ export function QuickLookupModal({
       const epicCheck = validateEpicNumber(sanitized);
       if (!epicCheck.valid) {
         setError(epicCheck.errorMessage || 'Please enter a valid Voter EPIC number.');
+        return;
+      }
+    }
+
+    if (selectedType === 'pan') {
+      const panCheck = validatePanNumber(sanitized);
+      if (!panCheck.valid) {
+        setError(panCheck.errorMessage || 'Please enter a valid 10-character PAN number (e.g., ABCDE1234F).');
         return;
       }
     }

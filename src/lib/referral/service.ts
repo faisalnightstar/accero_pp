@@ -232,7 +232,7 @@ export async function qualifyAndRewardReferral(
             },
           },
         },
-        { new: true, upsert: true }
+        { returnDocument: 'after', upsert: true }
       );
 
       if (referrerWallet && referrerWallet.transactions.length > 0) {
@@ -280,7 +280,7 @@ export async function qualifyAndRewardReferral(
             },
           },
         },
-        { new: true, upsert: true }
+        { returnDocument: 'after', upsert: true }
       );
 
       if (referredWallet && referredWallet.transactions.length > 0) {

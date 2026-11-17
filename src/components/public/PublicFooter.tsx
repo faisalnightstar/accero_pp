@@ -105,6 +105,16 @@ export default function PublicFooter() {
                 </Link>
               </li>
               <li>
+                <Link href="/csc-print-portal" className="hover:text-white transition-colors">
+                  CSC Print Portal
+                </Link>
+              </li>
+              <li>
+                <Link href="/cyber-cafe-printing-software" className="hover:text-white transition-colors">
+                  Cyber Cafe Software
+                </Link>
+              </li>
+              <li>
                 <Link href="/best-print-portal-for-csc" className="hover:text-white transition-colors">
                   Best Portal for CSC
                 </Link>

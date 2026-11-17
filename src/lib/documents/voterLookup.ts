@@ -97,7 +97,7 @@ async function recordVerificationRequest(params: {
           ...(params.refundReason ? { refundReason: params.refundReason } : {}),
         },
       },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: 'after' }
     );
   } catch (err) {
     console.warn('[VoterLookup] Non-fatal error recording VerificationRequest:', err);
@@ -525,7 +525,7 @@ async function executeVoterLookupInternal({
         },
       },
     },
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   if (!updatedWallet) {
@@ -667,7 +667,7 @@ async function executeVoterLookupInternal({
             },
           },
         },
-        { new: true }
+        { returnDocument: 'after' }
       );
 
       if (refundedWallet) {

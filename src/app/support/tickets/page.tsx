@@ -29,6 +29,7 @@ import {
   escalateSupportTicket,
   resolveSupportTicket,
 } from '@/actions/support';
+import { Skeleton } from '@/components/ui/skeleton';
 import { TicketCategory, TicketPriority, TicketStatus } from '@/models/SupportTicket';
 
 const CATEGORIES: TicketCategory[] = [
@@ -361,12 +362,18 @@ export default function SupportTicketsPage() {
             </thead>
             <tbody className="divide-y divide-slate-800/80">
               {loading ? (
-                <tr>
-                  <td colSpan={8} className="px-5 py-12 text-center text-slate-500">
-                    <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-cyan-400" />
-                    Loading support tickets...
-                  </td>
-                </tr>
+                Array.from({ length: 6 }).map((_, rIdx) => (
+                  <tr key={`skel-row-${rIdx}`} className="animate-pulse">
+                    <td className="px-5 py-3.5"><Skeleton className="h-4 w-20 rounded bg-slate-800" /></td>
+                    <td className="px-5 py-3.5"><Skeleton className="h-4 w-48 rounded bg-slate-800" /></td>
+                    <td className="px-5 py-3.5"><Skeleton className="h-4 w-32 rounded bg-slate-800" /></td>
+                    <td className="px-5 py-3.5"><Skeleton className="h-5 w-16 rounded-full bg-slate-800" /></td>
+                    <td className="px-5 py-3.5"><Skeleton className="h-5 w-20 rounded-full bg-slate-800" /></td>
+                    <td className="px-5 py-3.5"><Skeleton className="h-4 w-24 rounded bg-slate-800" /></td>
+                    <td className="px-5 py-3.5"><Skeleton className="h-4 w-20 rounded bg-slate-800" /></td>
+                    <td className="px-5 py-3.5 text-right"><Skeleton className="h-8 w-16 rounded-lg ml-auto bg-slate-800" /></td>
+                  </tr>
+                ))
               ) : tickets.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-5 py-12 text-center text-slate-500">

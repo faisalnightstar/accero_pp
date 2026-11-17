@@ -162,7 +162,7 @@ export async function authorizePrint({
           },
         },
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     // If deduction failed due to insufficient funds

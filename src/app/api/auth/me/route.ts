@@ -25,7 +25,11 @@ export async function GET() {
 
     await connectToDatabase();
 
-    const user = await User.findById(session.userId);
+    const [user, wallet] = await Promise.all([
+      User.findById(session.userId).select('name email phone role').lean(),
+      Wallet.findOne({ userId: session.userId }).select('balance').lean(),
+    ]);
+
     if (!user) {
       return NextResponse.json(
         { authenticated: false, user: null },
@@ -33,18 +37,16 @@ export async function GET() {
       );
     }
 
-    const wallet = await Wallet.findOne({ userId: user._id });
-
     return NextResponse.json(
       {
         authenticated: true,
         user: {
-          id: user._id,
-          name: user.name,
-          email: user.email,
-          phone: user.phone,
-          role: user.role,
-          walletBalance: wallet ? wallet.balance : 0,
+          id: (user as any)._id,
+          name: (user as any).name,
+          email: (user as any).email,
+          phone: (user as any).phone,
+          role: (user as any).role,
+          walletBalance: wallet ? (wallet as any).balance : 0,
         },
       },
       { status: 200, headers: NO_CACHE_HEADERS }

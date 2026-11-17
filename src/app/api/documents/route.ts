@@ -286,19 +286,19 @@ export async function GET(request: Request) {
       filter.isComplete = isCompleteParam === 'true';
     }
 
-    // Total count for pagination
-    const totalCount = await DocumentRecord.countDocuments(filter);
-
-    // Optimized projection excluding heavy image fields from list view
-    const documents = await DocumentRecord.find(filter)
-      .select({
-        frontImage: 0,
-        backImage: 0,
-      })
-      .sort({ updatedAt: -1, createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .lean();
+    // Concurrently execute count and projection-optimized find query
+    const [totalCount, documents] = await Promise.all([
+      DocumentRecord.countDocuments(filter),
+      DocumentRecord.find(filter)
+        .select({
+          frontImage: 0,
+          backImage: 0,
+        })
+        .sort({ updatedAt: -1, createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+    ]);
 
     return NextResponse.json({
       success: true,

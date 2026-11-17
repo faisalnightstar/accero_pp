@@ -152,7 +152,7 @@ export default function AssetDropzone({
         <div className="relative border border-gray-200 rounded-xl p-2 bg-gray-50 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <div
-              className={`rounded border border-gray-300 bg-white overflow-hidden flex items-center justify-center shrink-0 ${
+              className={`rounded border border-gray-300 bg-white overflow-hidden flex items-center justify-center shrink-0 relative ${
                 aspectRatio === 'photo' ? 'w-12 h-14' : 'w-24 h-10'
               }`}
             >
@@ -162,6 +162,15 @@ export default function AssetDropzone({
                 alt={label}
                 className="w-full h-full object-contain"
               />
+              {isUploading && (
+                <div
+                  role="status"
+                  aria-busy="true"
+                  className="absolute inset-0 bg-slate-900/40 backdrop-blur-[1px] flex items-center justify-center animate-pulse motion-reduce:animate-none"
+                >
+                  <Loader2 className="w-4 h-4 text-white animate-spin" />
+                </div>
+              )}
             </div>
             <div>
               {isUploading ? (

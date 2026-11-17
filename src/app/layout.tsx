@@ -29,12 +29,15 @@ export const metadata: Metadata = {
   metadataBase: new URL(PRIMARY_CANONICAL_DOMAIN),
   manifest: '/manifest.webmanifest',
   title: {
-    default: 'Accero PrintPortal | Document Processing & Printing Software',
+    default: 'Accero PrintPortal | Online Print Portal & PVC Card Printing Software',
     template: '%s | Accero PrintPortal',
   },
   description:
-    'Simplify document processing and printing with Accero PrintPortal. Manage document lookups, multilingual layouts, editing, and print-ready CR80 PVC card workflows from one platform.',
+    'Accero PrintPortal: Leading online print portal for CSC operators and cyber cafes. Fast document formatting, split-screen editor, and zero-waste PVC card printing.',
   keywords: [
+    'print portal',
+    'online print portal',
+    'csc print portal',
     'document printing software',
     'pvc card printing software',
     'cyber cafe document management',
@@ -77,28 +80,28 @@ export const metadata: Metadata = {
     locale: 'en_IN',
     url: PRIMARY_CANONICAL_DOMAIN,
     siteName: 'Accero PrintPortal',
-    title: 'Accero PrintPortal | Document Processing & Printing Software',
+    title: 'Accero PrintPortal | Online Print Portal & PVC Card Printing Software',
     description:
-      'Simplify document processing and printing with Accero PrintPortal. Manage document lookups, multilingual layouts, editing, and print-ready CR80 PVC workflows from one platform.',
+      'Accero PrintPortal: Leading online print portal for CSC operators and cyber cafes. Fast document formatting, split-screen editor, and zero-waste PVC card printing.',
     images: [
       {
         url: `${PRIMARY_CANONICAL_DOMAIN}/api/og?title=${encodeURIComponent(
-          'Document Processing & Printing Software'
+          'Online Print Portal & PVC Card Printing Software'
         )}`,
         width: 1200,
         height: 630,
-        alt: 'Accero PrintPortal - Document Processing & Printing Software',
+        alt: 'Accero PrintPortal - Online Print Portal & PVC Card Printing Software',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Accero PrintPortal | Document Processing & Printing Software',
+    title: 'Accero PrintPortal | Online Print Portal & PVC Card Printing Software',
     description:
-      'Simplify document processing and printing with Accero PrintPortal. Manage document lookups, multilingual layouts, editing, and print-ready CR80 PVC workflows.',
+      'Accero PrintPortal: Leading online print portal for CSC operators and cyber cafes. Fast document formatting, split-screen editor, and zero-waste PVC card printing.',
     images: [
       `${PRIMARY_CANONICAL_DOMAIN}/api/og?title=${encodeURIComponent(
-        'Document Processing & Printing Software'
+        'Online Print Portal & PVC Card Printing Software'
       )}`,
     ],
     creator: '@acceroapp',

@@ -513,7 +513,7 @@ export async function executeAdministrativeWalletAdjustment(params: {
         },
       },
     },
-    { new: true }
+    { returnDocument: 'after' }
   );
 
   // Immutable Audit Entry
@@ -833,7 +833,7 @@ export async function toggleCampaignStatus(campaignId: string, status: 'ACTIVE' 
   assertRole(session, ['super_admin', 'admin'], 'toggle campaign status');
   await connectToDatabase();
 
-  const campaign = await Campaign.findByIdAndUpdate(campaignId, { status }, { new: true });
+  const campaign = await Campaign.findByIdAndUpdate(campaignId, { status }, { returnDocument: 'after' });
   if (campaign) {
     await PromoCode.findOneAndUpdate(
       { code: campaign.code },
@@ -971,7 +971,7 @@ export async function updateAdminServiceConfig(
   const conf = await ServiceConfig.findOneAndUpdate(
     { serviceId },
     updateFields,
-    { new: true, upsert: true }
+    { returnDocument: 'after', upsert: true }
   );
 
   await logAuditEvent({

@@ -28,6 +28,16 @@ export const metadata: Metadata = buildPageMetadata({
 
 const articles = [
   {
+    slug: '/blog/what-is-a-digital-print-portal',
+    category: 'Industry Guide',
+    title: 'What Is a Digital Print Portal? Complete Guide for CSC Operators & Cyber Cafes',
+    snippet:
+      'Understand how modern digital print portals work in India, how they prevent ruined PVC card stock, and which printer trays deliver zero-margin alignment.',
+    date: 'November 2026',
+    readTime: '8 min read',
+    featured: true,
+  },
+  {
     slug: '/blog/cr80-card-dimensions-guide',
     category: 'Hardware & Standards',
     title: 'CR80 Card Dimensions: The Complete Size & Measurement Guide',
@@ -35,7 +45,7 @@ const articles = [
       'Everything you need to know about ISO/IEC 7810 ID-1 standard dimensions in millimeters, inches, and pixels at 300 DPI for physical PVC card printing.',
     date: 'November 2026',
     readTime: '6 min read',
-    featured: true,
+    featured: false,
   },
   {
     slug: '/blog/pvc-card-printer-tray-guide',

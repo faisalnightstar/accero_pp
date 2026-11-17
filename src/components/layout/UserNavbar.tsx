@@ -21,6 +21,7 @@ import {
   Sparkles,
   Gift,
   Ticket,
+  Search,
 } from 'lucide-react';
 import RechargeModal from '@/components/wallet/RechargeModal';
 import InstallNavbarButton from '@/components/pwa/InstallNavbarButton';
@@ -123,6 +124,12 @@ export default function UserNavbar({
       href: '/studio',
       icon: Layers,
       active: pathname.startsWith('/studio'),
+    },
+    {
+      name: 'PAN Lookup',
+      href: '/dashboard/pan-lookup',
+      icon: Search,
+      active: pathname.startsWith('/dashboard/pan-lookup'),
     },
     {
       name: 'Templates',

@@ -28,9 +28,11 @@ export const CANONICAL_PUBLIC_ROUTES: CanonicalRouteConfig[] = [
   { path: '/solutions', priority: 0.9, changeFrequency: 'weekly', category: 'core', lastModified: '2026-11-10' },
 
   // 2. High-Intent Commercial Pillar & Competitor-Intent Pages
-  { path: '/print-portal', priority: 0.95, changeFrequency: 'daily', category: 'pillar', lastModified: '2026-11-10' },
+  { path: '/print-portal', priority: 0.95, changeFrequency: 'daily', category: 'pillar', lastModified: '2026-11-18' },
+  { path: '/csc-print-portal', priority: 0.95, changeFrequency: 'daily', category: 'pillar', lastModified: '2026-11-18' },
   { path: '/best-print-portal-for-csc', priority: 0.9, changeFrequency: 'weekly', category: 'pillar', lastModified: '2026-11-10' },
   { path: '/print-portal-for-cyber-cafe', priority: 0.9, changeFrequency: 'weekly', category: 'pillar', lastModified: '2026-11-10' },
+  { path: '/cyber-cafe-printing-software', priority: 0.95, changeFrequency: 'daily', category: 'pillar', lastModified: '2026-11-18' },
   { path: '/print-portal-for-retailers', priority: 0.9, changeFrequency: 'weekly', category: 'pillar', lastModified: '2026-11-10' },
   { path: '/pvc-card-printing-software', priority: 0.9, changeFrequency: 'weekly', category: 'pillar', lastModified: '2026-11-10' },
   { path: '/csc-operator-software', priority: 0.85, changeFrequency: 'weekly', category: 'pillar', lastModified: '2026-11-10' },
@@ -63,7 +65,8 @@ export const CANONICAL_PUBLIC_ROUTES: CanonicalRouteConfig[] = [
   { path: '/solutions/digital-service-centers', priority: 0.8, changeFrequency: 'monthly', category: 'solution', lastModified: '2026-11-10' },
 
   // 6. Educational Cornerstone Guides & Resources
-  { path: '/blog', priority: 0.8, changeFrequency: 'weekly', category: 'blog', lastModified: '2026-11-10' },
+  { path: '/blog', priority: 0.8, changeFrequency: 'weekly', category: 'blog', lastModified: '2026-11-18' },
+  { path: '/blog/what-is-a-digital-print-portal', priority: 0.85, changeFrequency: 'monthly', category: 'blog', lastModified: '2026-11-18' },
   { path: '/blog/cr80-card-dimensions-guide', priority: 0.7, changeFrequency: 'monthly', category: 'blog', lastModified: '2026-11-10' },
   { path: '/blog/pvc-card-printer-tray-guide', priority: 0.7, changeFrequency: 'monthly', category: 'blog', lastModified: '2026-11-10' },
   { path: '/blog/cyber-cafe-document-printing-guide', priority: 0.7, changeFrequency: 'monthly', category: 'blog', lastModified: '2026-11-10' },

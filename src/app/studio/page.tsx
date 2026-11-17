@@ -211,6 +211,23 @@ function StudioPageContent() {
               message: `${sourceText}.${feeNote}`,
               type: 'success',
             });
+          } else if (resolvedType === 'pan') {
+            const feeNote =
+              res.isFreeReprint || res.feeDeducted === 0
+                ? ' (₹0 — Already paid / Saved record)'
+                : ` (₹${res.feeDeducted ?? 20} debited)`;
+            const sourceText =
+              res.fallbackUsed && res.providerVersion === 'v2'
+                ? 'Verified via WebAPI V2 fallback'
+                : res.providerVersion === 'v2'
+                  ? 'Verified via WebAPI V2'
+                  : res.providerVersion === 'v1'
+                    ? 'Verified via WebAPI V1'
+                    : 'Loaded saved PAN record';
+            setToastAlert({
+              message: `${sourceText}.${feeNote}`,
+              type: 'success',
+            });
           } else {
             setToastAlert({
               message: `Retrieved record for ${urlLookup} via ${res.provider || 'Gateway'}.`,
@@ -606,10 +623,15 @@ function StudioPageContent() {
   return (
     <>
       {isLoadingDoc && (
-        <div className="fixed inset-0 z-50 bg-navy/20 backdrop-blur-xs flex items-center justify-center">
-          <div className="bg-white p-4 rounded-xl shadow-lg flex items-center gap-3">
+        <div
+          role="status"
+          aria-busy="true"
+          aria-live="polite"
+          className="fixed inset-0 z-50 bg-navy/20 backdrop-blur-xs flex items-center justify-center animate-pulse motion-reduce:animate-none"
+        >
+          <div className="bg-white dark:bg-slate-900 p-4 rounded-xl shadow-lg border border-slate-200 dark:border-slate-800 flex items-center gap-3">
             <Loader2 className="w-5 h-5 text-burgundy animate-spin" />
-            <span className="text-xs font-semibold text-navy">Loading saved card data...</span>
+            <span className="text-xs font-semibold text-navy dark:text-white">Loading saved card data...</span>
           </div>
         </div>
       )}

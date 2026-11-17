@@ -26,8 +26,16 @@ import {
 } from 'lucide-react';
 import { QuickLookupModal } from '@/components/dashboard/QuickLookupModal';
 import RechargeModal from '@/components/wallet/RechargeModal';
+import { Skeleton } from '@/components/ui/skeleton';
+import { TableSkeleton } from '@/components/skeletons/TableSkeleton';
 import { DocumentType } from '@/types/cards';
 import { DEFAULT_SERVICE_PRICING } from '@/lib/wallet/constants';
+
+import {
+  fetchClientSession,
+  getStoredSession,
+  storeClientSession,
+} from '@/lib/authClient';
 
 interface UserData {
   id: string;
@@ -118,8 +126,20 @@ const cardServices: Array<{
 
 export default function DashboardPage() {
   const router = useRouter();
-  const [user, setUser] = useState<UserData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<UserData | null>(() => {
+    const stored = getStoredSession();
+    if (stored) {
+      return {
+        id: stored.id,
+        name: stored.name,
+        email: stored.email,
+        phone: stored.phone || '',
+        role: stored.role || 'user',
+        walletBalance: stored.walletBalance,
+      };
+    }
+    return null;
+  });
   const [savedDocs, setSavedDocs] = useState<SavedDocument[]>([]);
   const [docsLoading, setDocsLoading] = useState(true);
   const [showLookupModal, setShowLookupModal] = useState(false);
@@ -146,58 +166,108 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    async function loadSessionAndDocs() {
-      try {
-        const res = await fetch('/api/auth/me');
-        if (!res.ok) {
-          router.push('/login');
-          return;
-        }
-        const data = await res.json();
-        if (!data.authenticated || !data.user) {
-          router.push('/login');
-          return;
-        }
-        setUser(data.user);
+    let isMounted = true;
 
-        // Fetch user's saved documents from MongoDB
-        const docsRes = await fetch('/api/documents?limit=10');
-        if (docsRes.ok) {
-          const docsData = await docsRes.json();
-          setSavedDocs(docsData.documents || []);
-        }
-
-        // Fetch live dynamic pricing from SSOT API
-        fetch('/api/services/pricing')
-          .then((r) => (r.ok ? r.json() : null))
-          .then((pData) => {
-            if (pData?.success && Array.isArray(pData.services)) {
-              const updated: Record<string, any> = {};
-              pData.services.forEach((s: any) => {
-                updated[s.serviceId] = {
-                  fee: s.fee,
-                  originalFee: s.originalFee,
-                  discountPercent: s.discountPercent,
-                  offerActive: s.offerActive,
-                  offerBadge: s.offerBadge,
-                };
-              });
-              setPricingMap(updated);
-            }
-          })
-          .catch(() => {});
-      } catch {
-        router.push('/login');
-      } finally {
-        setLoading(false);
-        setDocsLoading(false);
-      }
+    // Check storage immediately if user is not yet set
+    const stored = getStoredSession();
+    if (stored && !user) {
+      setUser({
+        id: stored.id,
+        name: stored.name,
+        email: stored.email,
+        phone: stored.phone || '',
+        role: stored.role || 'user',
+        walletBalance: stored.walletBalance,
+      });
     }
-    loadSessionAndDocs();
+
+    // 1. Fetch user session in parallel using deduplicated client session manager
+    fetchClientSession()
+      .then((res) => {
+        if (!isMounted) return;
+        if (res.authenticated && res.user) {
+          setUser({
+            id: res.user.id,
+            name: res.user.name,
+            email: res.user.email,
+            phone: res.user.phone || '',
+            role: res.user.role || 'user',
+            walletBalance: res.user.walletBalance,
+          });
+        } else if (!res.authenticated) {
+          router.push('/login');
+        }
+      })
+      .catch(() => {});
+
+    // 2. Fetch user's saved documents from MongoDB in parallel (does not block page)
+    fetch('/api/documents?limit=10')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((docsData) => {
+        if (!isMounted) return;
+        if (docsData?.documents) {
+          setSavedDocs(docsData.documents);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (isMounted) {
+          setDocsLoading(false);
+        }
+      });
+
+    // 3. Fetch live dynamic pricing in parallel
+    fetch('/api/services/pricing')
+      .then((r) => (r.ok ? r.json() : null))
+      .then((pData) => {
+        if (!isMounted) return;
+        if (pData?.success && Array.isArray(pData.services)) {
+          const updated: Record<string, any> = {};
+          pData.services.forEach((s: any) => {
+            updated[s.serviceId] = {
+              fee: s.fee,
+              originalFee: s.originalFee,
+              discountPercent: s.discountPercent,
+              offerActive: s.offerActive,
+              offerBadge: s.offerBadge,
+            };
+          });
+          setPricingMap(updated);
+        }
+      })
+      .catch(() => {});
+
+    // 4. Listen for custom wallet-updated events
+    const handleWalletUpdated = (e: any) => {
+      const newBal = e.detail;
+      if (typeof newBal === 'number') {
+        setUser((prev) => (prev ? { ...prev, walletBalance: newBal } : prev));
+      } else {
+        fetchClientSession(true).then((res) => {
+          if (isMounted && res.user) {
+            setUser({
+              id: res.user.id,
+              name: res.user.name,
+              email: res.user.email,
+              phone: res.user.phone || '',
+              role: res.user.role || 'user',
+              walletBalance: res.user.walletBalance,
+            });
+          }
+        });
+      }
+    };
+
+    window.addEventListener('wallet-updated', handleWalletUpdated);
+    return () => {
+      isMounted = false;
+      window.removeEventListener('wallet-updated', handleWalletUpdated);
+    };
   }, [router]);
 
   const handleLogout = async () => {
     try {
+      storeClientSession(null);
       await fetch('/api/auth/logout', { method: 'POST' });
       router.push('/login');
       router.refresh();
@@ -205,17 +275,6 @@ export default function DashboardPage() {
       router.push('/login');
     }
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-[70vh] flex items-center justify-center">
-        <div className="flex items-center gap-3 text-slate-600">
-          <div className="w-6 h-6 border-3 border-[#8B1E2D] border-t-transparent rounded-full animate-spin" />
-          <span className="font-medium text-sm">Loading operator session...</span>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
@@ -277,9 +336,13 @@ export default function DashboardPage() {
               <Wallet className="w-6 h-6 text-[#F4D35E]" />
             </div>
             <div className="mt-3 flex items-baseline gap-2">
-              <span className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
-                ₹{typeof user?.walletBalance === 'number' ? user.walletBalance.toFixed(2) : '0.00'}
-              </span>
+              {user ? (
+                <span className="text-4xl sm:text-5xl font-extrabold tracking-tight text-white">
+                  ₹{typeof user.walletBalance === 'number' ? user.walletBalance.toFixed(2) : '0.00'}
+                </span>
+              ) : (
+                <Skeleton className="h-12 w-44 rounded-xl bg-white/20" />
+              )}
               <span className="text-sm text-slate-400">INR</span>
             </div>
             <p className="mt-2 text-xs text-slate-300">
@@ -441,10 +504,7 @@ export default function DashboardPage() {
         </div>
 
         {docsLoading ? (
-          <div className="py-8 flex items-center justify-center gap-2 text-slate-400 text-xs">
-            <Loader2 className="w-4 h-4 animate-spin text-burgundy" />
-            <span>Loading document library...</span>
-          </div>
+          <TableSkeleton rows={4} columns={4} showHeader={true} className="border-0 shadow-none" />
         ) : savedDocs.length === 0 ? (
           <div className="py-8 text-center border-2 border-dashed border-slate-200 rounded-xl space-y-2">
             <p className="text-xs text-slate-500 font-medium">
@@ -589,6 +649,15 @@ export default function DashboardPage() {
                 </div>
 
               <div className="mt-6 pt-4 border-t border-slate-100 flex flex-col gap-2">
+                {card.type === 'pan' && (
+                  <Link
+                    href="/dashboard/pan-lookup"
+                    className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition-all border border-emerald-200"
+                  >
+                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                    <span>PAN Verification Gateway</span>
+                  </Link>
+                )}
                 <button
                   type="button"
                   onClick={() => {

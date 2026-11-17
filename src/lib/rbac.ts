@@ -78,8 +78,10 @@ export function getSafeRedirectUrl(
     return fallback;
   }
 
-  // Prevent redirect loops to login/register or auth API endpoints
+  // Prevent redirect loops to login/register, auth API endpoints, or homepage
   if (
+    trimmed === '/' ||
+    trimmed.startsWith('/?') ||
     trimmed === '/login' ||
     trimmed.startsWith('/login?') ||
     trimmed === '/register' ||

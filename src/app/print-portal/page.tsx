@@ -29,20 +29,18 @@ import { FAQSection } from '@/components/public/FAQSection';
 import { CTASection } from '@/components/public/CTASection';
 
 export const metadata: Metadata = buildPageMetadata({
-  title: 'Print Portal – Online Document Processing & Card Printing | Accero',
+  title: 'Digital Print Portal Platform Overview & Architecture | Accero',
   description:
-    'Accero PrintPortal helps CSC operators, cyber cafes and retailers process, manage and print supported PAN, Aadhaar, Voter, DL, RC and other document formats.',
+    'Comprehensive overview of Accero PrintPortal: document processing architecture, split-screen missing field detection, ISO CR80 card specifications, and operator economics.',
   path: '/print-portal',
   keywords: [
-    'print portal',
-    'online print portal',
-    'digital print portal',
-    'best print portal',
+    'digital print portal architecture',
+    'print portal specifications',
+    'pvc print portal overview',
     'best print portal in india',
     'pan print portal',
     'voter print portal',
     'aadhaar print portal',
-    'csc print portal',
     'document printing portal',
     'pvc card printing portal',
     'cyber cafe print software',
@@ -149,18 +147,18 @@ export default function PrintPortalPillarPage() {
             <div className="max-w-4xl space-y-6">
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 text-[#1D3557] text-xs font-bold border border-slate-200">
                 <Sparkles className="w-3.5 h-3.5 text-[#8B1E2D]" />
-                <span>Next-Generation Document Printing Gateway</span>
+                <span>Enterprise Document Processing &amp; Card Layout Gateway</span>
               </div>
 
               <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[#1D3557] tracking-tight leading-tight">
-                Online <span className="text-[#8B1E2D]">Print Portal</span> for CSC Operators, Cyber Cafes &amp; Retailers
+                Digital <span className="text-[#8B1E2D]">Print Portal</span> Architecture &amp; System Specifications
               </h1>
 
               {/* AEO / GEO Definition Snippet Box */}
               <div className="flex items-start gap-4 p-5 sm:p-6 rounded-2xl bg-slate-50/90 border border-slate-200/90 shadow-xs">
                 <div className="w-1.5 self-stretch bg-[#1D3557] rounded-full shrink-0" />
                 <p className="text-slate-700 text-sm sm:text-base leading-relaxed font-medium">
-                  <strong className="text-[#1D3557]">Accero PrintPortal</strong> is an independent, high-performance document processing and printing platform engineered for cyber cafes, CSC operators, and print shops in India. It features a real-time split-screen editor that flags missing demographic data in amber, prevents ruined PVC cards, conforms to ISO/IEC 7810 ID-1 standard dimensions (85.60 mm &times; 53.98 mm), and provides 100% free lifetime re-prints.
+                  <strong className="text-[#1D3557]">Accero PrintPortal</strong> is an independent, high-performance document processing and printing platform engineered for cyber cafes, CSC operators, and print shops in India. To start formatting cards right away, visit our <Link href="/" className="text-[#E63946] underline font-bold">Online Print Portal Homepage</Link> or launch the live studio.
                 </p>
               </div>
 

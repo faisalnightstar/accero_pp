@@ -272,6 +272,127 @@ describe('Authentication & Role-Based Redirect Engine', () => {
     expect(unauthorizedReturnRes.headers.get('location')).toBe('https://printportal.accero.app/dashboard');
   });
 
+  // 13. Homepage (/) redirect behavior for authenticated vs unauthenticated users
+  describe('13. Homepage (/) authentication redirect policy', () => {
+    it('allows unauthenticated visitor to view homepage (/) without redirect', async () => {
+      const req = new NextRequest('https://printportal.accero.app/');
+      const res = await middleware(req);
+      expect(res.status).toBe(200);
+      expect(res.headers.get('location')).toBeNull();
+    });
+
+    it('redirects authenticated regular user/operator visiting / to /dashboard', async () => {
+      const token = await signJwtToken({
+        userId: 'user_001',
+        email: 'user@accero.app',
+        name: 'Regular User',
+        role: 'user',
+      });
+
+      const req = new NextRequest('https://printportal.accero.app/', {
+        headers: { cookie: `auth-token=${token}` },
+      });
+      const res = await middleware(req);
+      expect(res.status).toBe(307);
+      expect(res.headers.get('location')).toBe('https://printportal.accero.app/dashboard');
+    });
+
+    it('redirects authenticated admin visiting / to /admin', async () => {
+      const adminToken = await signJwtToken({
+        userId: 'admin_001',
+        email: 'admin@accero.app',
+        name: 'Admin User',
+        role: 'admin',
+      });
+
+      const req = new NextRequest('https://printportal.accero.app/', {
+        headers: { cookie: `auth-token=${adminToken}` },
+      });
+      const res = await middleware(req);
+      expect(res.status).toBe(307);
+      expect(res.headers.get('location')).toBe('https://printportal.accero.app/admin');
+    });
+
+    it('redirects authenticated support agent visiting / to /support', async () => {
+      const supportToken = await signJwtToken({
+        userId: 'support_001',
+        email: 'support@accero.app',
+        name: 'Support Agent',
+        role: 'support_agent',
+      });
+
+      const req = new NextRequest('https://printportal.accero.app/', {
+        headers: { cookie: `auth-token=${supportToken}` },
+      });
+      const res = await middleware(req);
+      expect(res.status).toBe(307);
+      expect(res.headers.get('location')).toBe('https://printportal.accero.app/support');
+    });
+
+    it('preserves public SEO and marketing pages for authenticated users', async () => {
+      const token = await signJwtToken({
+        userId: 'user_001',
+        email: 'user@accero.app',
+        name: 'Regular User',
+        role: 'user',
+      });
+
+      // Public services page
+      const servicesReq = new NextRequest('https://printportal.accero.app/services/pan-card-printing', {
+        headers: { cookie: `auth-token=${token}` },
+      });
+      const servicesRes = await middleware(servicesReq);
+      expect(servicesRes.status).toBe(200);
+      expect(servicesRes.headers.get('location')).toBeNull();
+
+      // Public pricing page
+      const pricingReq = new NextRequest('https://printportal.accero.app/pricing', {
+        headers: { cookie: `auth-token=${token}` },
+      });
+      const pricingRes = await middleware(pricingReq);
+      expect(pricingRes.status).toBe(200);
+      expect(pricingRes.headers.get('location')).toBeNull();
+
+      // Public tools page
+      const toolsReq = new NextRequest('https://printportal.accero.app/tools/cr80-card-size-calculator', {
+        headers: { cookie: `auth-token=${token}` },
+      });
+      const toolsRes = await middleware(toolsReq);
+      expect(toolsRes.status).toBe(200);
+      expect(toolsRes.headers.get('location')).toBeNull();
+    });
+
+    it('allows access to homepage when token is expired or invalid', async () => {
+      const secret = getJwtSecretKey();
+      const expiredToken = await new SignJWT({
+        userId: 'expired_user',
+        email: 'expired@accero.app',
+        name: 'Expired',
+        role: 'user',
+      })
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuer('accero-printportal')
+        .setAudience('accero-users')
+        .setIssuedAt(Math.floor(Date.now() / 1000) - 7200)
+        .setExpirationTime(Math.floor(Date.now() / 1000) - 3600)
+        .sign(secret);
+
+      const expiredReq = new NextRequest('https://printportal.accero.app/', {
+        headers: { cookie: `auth-token=${expiredToken}` },
+      });
+      const expiredRes = await middleware(expiredReq);
+      expect(expiredRes.status).toBe(200);
+      expect(expiredRes.headers.get('location')).toBeNull();
+
+      const invalidReq = new NextRequest('https://printportal.accero.app/', {
+        headers: { cookie: 'auth-token=malformed.invalid.token' },
+      });
+      const invalidRes = await middleware(invalidReq);
+      expect(invalidRes.status).toBe(200);
+      expect(invalidRes.headers.get('location')).toBeNull();
+    });
+  });
+
   describe('getSafeRedirectUrl helper unit tests', () => {
     it('returns role dashboard when returnTo is null or undefined', () => {
       expect(getSafeRedirectUrl(null, 'admin')).toBe('/admin');
@@ -285,7 +406,9 @@ describe('Authentication & Role-Based Redirect Engine', () => {
       expect(getSafeRedirectUrl('javascript:alert(1)', 'user')).toBe('/dashboard');
     });
 
-    it('rejects auth paths to prevent loops', () => {
+    it('rejects auth paths and root homepage to prevent loops', () => {
+      expect(getSafeRedirectUrl('/', 'user')).toBe('/dashboard');
+      expect(getSafeRedirectUrl('/?redirect=/foo', 'user')).toBe('/dashboard');
       expect(getSafeRedirectUrl('/login', 'user')).toBe('/dashboard');
       expect(getSafeRedirectUrl('/login?redirect=/foo', 'user')).toBe('/dashboard');
       expect(getSafeRedirectUrl('/register', 'user')).toBe('/dashboard');

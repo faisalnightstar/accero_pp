@@ -83,10 +83,11 @@ export async function middleware(request: NextRequest) {
   }
 
   const pathname = request.nextUrl.pathname;
+  const isHomepage = pathname === '/';
   const isAuthPage = pathname === '/login' || pathname === '/register';
 
-  // If visitor is on /login or /register, redirect already-authenticated users to their dashboard
-  if (isAuthPage) {
+  // If visitor is on homepage (/), /login, or /register, redirect already-authenticated users to their dashboard
+  if (isHomepage || isAuthPage) {
     const token = extractToken(request);
     if (!token) {
       return response;
@@ -95,9 +96,10 @@ export async function middleware(request: NextRequest) {
     const payload = await verifyMiddlewareToken(token);
     if (payload) {
       const role = (payload.role as string | undefined)?.toLowerCase();
-      const rawReturnTo =
-        request.nextUrl.searchParams.get('returnTo') ||
-        request.nextUrl.searchParams.get('redirect');
+      const rawReturnTo = isAuthPage
+        ? request.nextUrl.searchParams.get('returnTo') ||
+          request.nextUrl.searchParams.get('redirect')
+        : null;
       const safeDestination = getSafeRedirectUrl(rawReturnTo, role);
 
       return NextResponse.redirect(new URL(safeDestination, request.url));
