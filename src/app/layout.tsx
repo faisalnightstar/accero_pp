@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Suspense } from 'react';
 import './globals.css';
-import Navbar from '@/components/layout/Navbar';
-import Footer from '@/components/layout/Footer';
-import WhatsAppSupportWidget from '@/components/layout/WhatsAppSupportWidget';
+import AppLayoutShell from '@/components/layout/AppLayoutShell';
 import ServiceWorkerRegistration from '@/components/pwa/ServiceWorkerRegistration';
 import InstallPrompt from '@/components/pwa/InstallPrompt';
 import { SpeedInsights } from '@vercel/speed-insights/next';
@@ -151,10 +149,7 @@ export default function RootLayout({
         <Suspense fallback={null}>
           <AppRouterPageTracker />
         </Suspense>
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <WhatsAppSupportWidget />
-        <Footer />
+        <AppLayoutShell>{children}</AppLayoutShell>
         <Analytics />
         <SpeedInsights />
       </body>

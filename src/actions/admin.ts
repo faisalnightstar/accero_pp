@@ -41,158 +41,203 @@ import mongoose from 'mongoose';
 export async function getAdminOverviewMetrics() {
   const session = await getSession();
   assertRole(session, ['super_admin', 'admin'], 'view admin overview metrics');
-  await connectToDatabase();
 
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-
-  // 1. Operator Counts
-  const [totalOperators, activeOperators, suspendedOperators, newRegistrationsToday, newRegistrationsMonth] =
-    await Promise.all([
-      User.countDocuments({ role: { $in: ['user', 'operator', 'customer'] } }),
-      User.countDocuments({ role: { $in: ['user', 'operator', 'customer'] }, status: 'active' }),
-      User.countDocuments({ role: { $in: ['user', 'operator', 'customer'] }, status: 'suspended' }),
-      User.countDocuments({
-        role: { $in: ['user', 'operator', 'customer'] },
-        createdAt: { $gte: todayStart },
-      }),
-      User.countDocuments({
-        role: { $in: ['user', 'operator', 'customer'] },
-        createdAt: { $gte: monthStart },
-      }),
-    ]);
-
-  // 2. Financial Metrics: Total Wallet Liability (Sum of all wallet balances)
-  const walletLiabilityAgg = await Wallet.aggregate([
-    { $group: { _id: null, totalBalance: { $sum: '$balance' }, totalCredited: { $sum: '$totalCredited' }, totalDebited: { $sum: '$totalDebited' } } },
-  ]);
-  const totalWalletLiability = walletLiabilityAgg[0]?.totalBalance || 0;
-  const totalWalletDeductions = walletLiabilityAgg[0]?.totalDebited || 0;
-
-  // 3. Recharge & Revenue Metrics (Completed Payments)
-  const [totalRevenueAgg, todayRevenueAgg, monthRevenueAgg, totalFailedPayments] = await Promise.all([
-    Payment.aggregate([
-      { $match: { status: 'PAID' } },
-      { $group: { _id: null, total: { $sum: '$amount' } } },
-    ]),
-    Payment.aggregate([
-      { $match: { status: 'PAID', createdAt: { $gte: todayStart } } },
-      { $group: { _id: null, total: { $sum: '$amount' } } },
-    ]),
-    Payment.aggregate([
-      { $match: { status: 'PAID', createdAt: { $gte: monthStart } } },
-      { $group: { _id: null, total: { $sum: '$amount' } } },
-    ]),
-    Payment.countDocuments({ status: { $in: ['FAILED', 'failed'] } }),
-  ]);
-
-  const totalRevenue = totalRevenueAgg[0]?.total || 0;
-  const todayRevenue = todayRevenueAgg[0]?.total || 0;
-  const monthlyRevenue = monthRevenueAgg[0]?.total || 0;
-
-  // 4. Promotional Bonus Ledger Aggregation
-  const bonusAgg = await Wallet.aggregate([
-    { $unwind: '$transactions' },
-    { $match: { 'transactions.category': 'PROMOTIONAL_BONUS' } },
-    { $group: { _id: null, totalBonus: { $sum: '$transactions.amount' } } },
-  ]);
-  const totalPromotionalBonus = bonusAgg[0]?.totalBonus || 0;
-
-  // 5. Document Lookups & Printing Activity
-  const [totalLookups, totalCompleteDocs, printStatsAgg, outstandingTickets, pendingManualUtrs] =
-    await Promise.all([
-      DocumentRecord.countDocuments({}),
-      DocumentRecord.countDocuments({ isComplete: true }),
-      DocumentRecord.aggregate([
-        {
-          $group: {
-            _id: null,
-            totalPrints: { $sum: '$printCount' },
-            reprints: {
-              $sum: { $cond: [{ $gt: ['$printCount', 1] }, { $subtract: ['$printCount', 1] }, 0] },
-            },
-          },
-        },
-      ]),
-      SupportTicket.countDocuments({ status: { $in: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ESCALATED'] } }),
-      ManualRechargeRequest.countDocuments({ status: 'PENDING' }),
-    ]);
-
-  const totalSuccessfulPrints = printStatsAgg[0]?.totalPrints || 0;
-  const totalReprints = printStatsAgg[0]?.reprints || 0;
-  const failedLookups = Math.max(0, totalLookups - totalCompleteDocs);
-
-  // 6. 7-Day Revenue & Registration Trend Data
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-  const dailyRevenueTrend = await Payment.aggregate([
-    { $match: { status: 'PAID', createdAt: { $gte: sevenDaysAgo } } },
-    {
-      $group: {
-        _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-        revenue: { $sum: '$amount' },
-        count: { $sum: 1 },
-      },
-    },
-    { $sort: { _id: 1 } },
-  ]);
-
-  // 7. Service Usage Distribution
-  const serviceDistribution = await DocumentRecord.aggregate([
-    { $group: { _id: '$docType', count: { $sum: 1 }, prints: { $sum: '$printCount' } } },
-    { $sort: { count: -1 } },
-  ]);
-
-  return {
+  const fallbackMetrics = {
     operators: {
-      total: totalOperators,
-      active: activeOperators,
-      suspended: suspendedOperators,
-      newToday: newRegistrationsToday,
-      newMonth: newRegistrationsMonth,
+      total: 0,
+      active: 0,
+      suspended: 0,
+      newToday: 0,
+      newMonth: 0,
     },
     finance: {
-      totalWalletLiability,
-      totalRechargeVolume: totalRevenue,
-      totalPromotionalBonus,
-      totalWalletDeductions,
-      totalRevenue,
-      todayRevenue,
-      monthlyRevenue,
-      pendingManualUtrs,
-      failedPayments: totalFailedPayments,
+      totalWalletLiability: 0,
+      totalRechargeVolume: 0,
+      totalPromotionalBonus: 0,
+      totalWalletDeductions: 0,
+      totalRevenue: 0,
+      todayRevenue: 0,
+      monthlyRevenue: 0,
+      pendingManualUtrs: 0,
+      failedPayments: 0,
     },
     revenue: {
-      total: totalRevenue,
-      today: todayRevenue,
-      thisMonth: monthlyRevenue,
-      pending: pendingManualUtrs,
+      total: 0,
+      today: 0,
+      thisMonth: 0,
+      pending: 0,
     },
     operations: {
-      totalLookups,
-      failedLookups,
-      totalSuccessfulPrints,
-      totalReprints,
-      outstandingTickets,
+      totalLookups: 0,
+      failedLookups: 0,
+      totalSuccessfulPrints: 0,
+      totalReprints: 0,
+      outstandingTickets: 0,
     },
     trends: {
-      dailyRevenue: dailyRevenueTrend.map((d) => ({
-        date: String(d._id),
-        revenue: Number(d.revenue) || 0,
-        count: Number(d.count) || 0,
-      })),
+      dailyRevenue: [],
+      serviceUsage: [],
+    },
+    serviceUsage: [],
+  };
+
+  try {
+    await connectToDatabase();
+
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+    // 1. Operator Counts
+    const [totalOperators, activeOperators, suspendedOperators, newRegistrationsToday, newRegistrationsMonth] =
+      await Promise.all([
+        User.countDocuments({ role: { $in: ['user', 'operator', 'customer'] } }),
+        User.countDocuments({ role: { $in: ['user', 'operator', 'customer'] }, status: 'active' }),
+        User.countDocuments({ role: { $in: ['user', 'operator', 'customer'] }, status: 'suspended' }),
+        User.countDocuments({
+          role: { $in: ['user', 'operator', 'customer'] },
+          createdAt: { $gte: todayStart },
+        }),
+        User.countDocuments({
+          role: { $in: ['user', 'operator', 'customer'] },
+          createdAt: { $gte: monthStart },
+        }),
+      ]);
+
+    // 2. Financial Metrics: Total Wallet Liability (Sum of all wallet balances)
+    const walletLiabilityAgg = await Wallet.aggregate([
+      { $group: { _id: null, totalBalance: { $sum: '$balance' }, totalCredited: { $sum: '$totalCredited' }, totalDebited: { $sum: '$totalDebited' } } },
+    ]);
+    const totalWalletLiability = walletLiabilityAgg[0]?.totalBalance || 0;
+    const totalWalletDeductions = walletLiabilityAgg[0]?.totalDebited || 0;
+
+    // 3. Recharge & Revenue Metrics (Completed Payments)
+    const [totalRevenueAgg, todayRevenueAgg, monthRevenueAgg, totalFailedPayments] = await Promise.all([
+      Payment.aggregate([
+        { $match: { status: 'PAID' } },
+        { $group: { _id: null, total: { $sum: '$amount' } } },
+      ]),
+      Payment.aggregate([
+        { $match: { status: 'PAID', createdAt: { $gte: todayStart } } },
+        { $group: { _id: null, total: { $sum: '$amount' } } },
+      ]),
+      Payment.aggregate([
+        { $match: { status: 'PAID', createdAt: { $gte: monthStart } } },
+        { $group: { _id: null, total: { $sum: '$amount' } } },
+      ]),
+      Payment.countDocuments({ status: { $in: ['FAILED', 'failed'] } }),
+    ]);
+
+    const totalRevenue = totalRevenueAgg[0]?.total || 0;
+    const todayRevenue = todayRevenueAgg[0]?.total || 0;
+    const monthlyRevenue = monthRevenueAgg[0]?.total || 0;
+
+    // 4. Promotional Bonus Ledger Aggregation
+    const bonusAgg = await Wallet.aggregate([
+      { $unwind: '$transactions' },
+      { $match: { 'transactions.category': 'PROMOTIONAL_BONUS' } },
+      { $group: { _id: null, totalBonus: { $sum: '$transactions.amount' } } },
+    ]);
+    const totalPromotionalBonus = bonusAgg[0]?.totalBonus || 0;
+
+    // 5. Document Lookups & Printing Activity
+    const [totalLookups, totalCompleteDocs, printStatsAgg, outstandingTickets, pendingManualUtrs] =
+      await Promise.all([
+        DocumentRecord.countDocuments({}),
+        DocumentRecord.countDocuments({ isComplete: true }),
+        DocumentRecord.aggregate([
+          {
+            $group: {
+              _id: null,
+              totalPrints: { $sum: '$printCount' },
+              reprints: {
+                $sum: { $cond: [{ $gt: ['$printCount', 1] }, { $subtract: ['$printCount', 1] }, 0] },
+              },
+            },
+          },
+        ]),
+        SupportTicket.countDocuments({ status: { $in: ['OPEN', 'ASSIGNED', 'IN_PROGRESS', 'ESCALATED'] } }),
+        ManualRechargeRequest.countDocuments({ status: 'PENDING' }),
+      ]);
+
+    const totalSuccessfulPrints = printStatsAgg[0]?.totalPrints || 0;
+    const totalReprints = printStatsAgg[0]?.reprints || 0;
+    const failedLookups = Math.max(0, totalLookups - totalCompleteDocs);
+
+    // 6. 7-Day Revenue & Registration Trend Data
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const dailyRevenueTrend = await Payment.aggregate([
+      { $match: { status: 'PAID', createdAt: { $gte: sevenDaysAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          revenue: { $sum: '$amount' },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ]);
+
+    // 7. Service Usage Distribution
+    const serviceDistribution = await DocumentRecord.aggregate([
+      { $group: { _id: '$docType', count: { $sum: 1 }, prints: { $sum: '$printCount' } } },
+      { $sort: { count: -1 } },
+    ]);
+
+    return {
+      operators: {
+        total: totalOperators,
+        active: activeOperators,
+        suspended: suspendedOperators,
+        newToday: newRegistrationsToday,
+        newMonth: newRegistrationsMonth,
+      },
+      finance: {
+        totalWalletLiability,
+        totalRechargeVolume: totalRevenue,
+        totalPromotionalBonus,
+        totalWalletDeductions,
+        totalRevenue,
+        todayRevenue,
+        monthlyRevenue,
+        pendingManualUtrs,
+        failedPayments: totalFailedPayments,
+      },
+      revenue: {
+        total: totalRevenue,
+        today: todayRevenue,
+        thisMonth: monthlyRevenue,
+        pending: pendingManualUtrs,
+      },
+      operations: {
+        totalLookups,
+        failedLookups,
+        totalSuccessfulPrints,
+        totalReprints,
+        outstandingTickets,
+      },
+      trends: {
+        dailyRevenue: dailyRevenueTrend.map((d) => ({
+          date: String(d._id),
+          revenue: Number(d.revenue) || 0,
+          count: Number(d.count) || 0,
+        })),
+        serviceUsage: serviceDistribution.map((s) => ({
+          service: String(s._id || 'OTHER'),
+          lookups: Number(s.count) || 0,
+          prints: Number(s.prints) || 0,
+        })),
+      },
       serviceUsage: serviceDistribution.map((s) => ({
-        service: String(s._id || 'OTHER'),
-        lookups: Number(s.count) || 0,
+        docType: String(s._id || 'OTHER'),
+        count: Number(s.count) || 0,
         prints: Number(s.prints) || 0,
       })),
-    },
-    serviceUsage: serviceDistribution.map((s) => ({
-      docType: String(s._id || 'OTHER'),
-      count: Number(s.count) || 0,
-      prints: Number(s.prints) || 0,
-    })),
-  };
+    };
+  } catch (error) {
+    console.error('[Admin] Database connection or aggregation error in getAdminOverviewMetrics:', error);
+    return fallbackMetrics;
+  }
 }
 
 /**

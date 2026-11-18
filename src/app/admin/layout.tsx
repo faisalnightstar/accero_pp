@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import { isAdmin, isSuperAdmin } from '@/lib/rbac';
+import AdminHeader from '@/components/layout/admin/AdminHeader';
 import {
   LayoutDashboard,
   Users,
@@ -181,6 +182,14 @@ export default async function AdminLayout({
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-y-auto">
+        <AdminHeader
+          user={{
+            id: session.userId,
+            name: session.name,
+            email: session.email,
+            role: session.role,
+          }}
+        />
         <main className="flex-1 p-4 sm:p-6 lg:p-8 max-w-7xl w-full mx-auto space-y-6">
           {children}
         </main>

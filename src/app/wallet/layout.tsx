@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
-import { getSession } from '@/lib/auth';
+import { getOperatorUserSession } from '@/lib/layout/operatorSession';
 import { buildPrivateMetadata } from '@/lib/seo/metadata';
+import OperatorShell from '@/components/layout/operator/OperatorShell';
 
 export const metadata: Metadata = buildPrivateMetadata('Operator Wallet & Ledger');
 export const dynamic = 'force-dynamic';
@@ -11,11 +12,11 @@ export default async function WalletLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const session = await getSession();
+  const user = await getOperatorUserSession();
 
-  if (!session) {
+  if (!user) {
     redirect('/login?redirect=/wallet');
   }
 
-  return <>{children}</>;
+  return <OperatorShell user={user}>{children}</OperatorShell>;
 }
