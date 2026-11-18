@@ -11,6 +11,7 @@ import Wallet from '@/models/Wallet';
 import PrintJob from '@/models/PrintJob';
 import User from '@/models/User';
 import { CACHE_TTL_MS } from '@/lib/documents/documentCache';
+import * as providerClient from '@/lib/network/provider-client';
 
 vi.mock('@/lib/auth', async () => {
   const actual = await vi.importActual<typeof auth>('@/lib/auth');
@@ -99,6 +100,14 @@ describe('End-to-End Document Lifecycle & Integration Scenarios', () => {
       totalDebited: 300,
       isLowBalance: false,
     });
+    vi.mocked(Wallet.findOne).mockReturnValue({
+      lean: vi.fn().mockResolvedValue({
+        balance: 200,
+        transactions: [],
+      }),
+      balance: 200,
+      transactions: [],
+    } as any);
     vi.mocked(User.findById).mockReturnValue({
       lean: vi.fn().mockResolvedValue({
         _id: userObjectId,
@@ -208,14 +217,36 @@ describe('End-to-End Document Lifecycle & Integration Scenarios', () => {
       missingFields: [],
     } as any);
 
+    process.env.PAN_LOOKUP_API_TOKEN = 'test_pan_token';
+    vi.spyOn(providerClient, 'providerFetch').mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        status: '100',
+        message: 'PAN Validate Successfully',
+        pan: 'BNZPK4321A',
+        fullname: 'ANITA DESHMUKH',
+        fathername: 'SANJAY DESHMUKH',
+        dob: '15-07-1995',
+      }),
+    } as any);
+
     // Search document
     const searchRes = await verifyActions.verifyDocument('pan', 'BNZPK4321A');
     expect(searchRes.success).toBe(true);
     expect(searchRes.data.fullName).toBe('ANITA DESHMUKH');
-    expect(orchestrator.executeProviderCascade).toHaveBeenCalled();
     expect(DocumentRecord.findOneAndUpdate).toHaveBeenCalled(); // Saved in MongoDB with 72h TTL
 
     // 2. User prints document
+    vi.mocked(DocumentRecord.findOne).mockResolvedValue({
+      _id: createdDocId,
+      userId: userObjectId,
+      docType: 'PAN',
+      cardIdentifier: 'BNZPK4321A',
+      data: freshApiData,
+      isPaid: false,
+    } as any);
+
     vi.mocked(PrintJob.findOne).mockReturnValue({
       lean: vi.fn().mockResolvedValue(null),
     } as any);

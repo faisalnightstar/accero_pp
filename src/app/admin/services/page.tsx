@@ -16,11 +16,21 @@ import {
   Zap,
   Flame,
   Check,
+  Activity,
+  ArrowUp,
+  ArrowDown,
+  RotateCcw,
+  Radio,
+  CheckCircle,
+  XCircle,
 } from 'lucide-react';
 import {
   getAdminServices,
   updateAdminServiceConfig,
   applyBatchServiceDiscount,
+  getAdminVoterProviderStatus,
+  resetAdminCircuitBreaker,
+  testAdminProviderConnection,
 } from '@/actions/admin';
 import { ServiceType } from '@/models/ServiceConfig';
 import {
@@ -48,6 +58,79 @@ export default function AdminServicesPage() {
   // Batch offer state
   const [batchDiscount, setBatchDiscount] = useState<number>(20);
   const [batchBadge, setBatchBadge] = useState<string>('20% OFF');
+
+  // Voter multi-provider & circuit breaker state
+  const [voterProviders, setVoterProviders] = useState<any[]>([]);
+  const [testingProvider, setTestingProvider] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<Record<string, { success: boolean; message: string; latencyMs: number }>>({});
+  const [resettingCircuit, setResettingCircuit] = useState<string | null>(null);
+  const [voterPriority, setVoterPriority] = useState<string[]>(['neoapi', 'webapi_in', 'fastnexora']);
+  const [savingPriority, setSavingPriority] = useState(false);
+
+  const fetchVoterProviders = async () => {
+    try {
+      const p = await getAdminVoterProviderStatus();
+      setVoterProviders(p);
+    } catch (err: any) {
+      console.warn('Failed to load voter provider statuses:', err);
+    }
+  };
+
+  const handleTestConnection = async (id: string) => {
+    setTestingProvider(id);
+    try {
+      const res = await testAdminProviderConnection(id);
+      setTestResults((prev) => ({ ...prev, [id]: res }));
+    } catch (err: any) {
+      setTestResults((prev) => ({
+        ...prev,
+        [id]: { success: false, message: err?.message || 'Test failed', latencyMs: 0 },
+      }));
+    } finally {
+      setTestingProvider(null);
+    }
+  };
+
+  const handleResetCircuit = async (id: string) => {
+    setResettingCircuit(id);
+    try {
+      await resetAdminCircuitBreaker(id);
+      await fetchVoterProviders();
+      setFeedback({ type: 'success', message: `Circuit breaker reset for ${id}.` });
+    } catch (err: any) {
+      setFeedback({ type: 'error', message: err?.message || 'Failed to reset circuit' });
+    } finally {
+      setResettingCircuit(null);
+    }
+  };
+
+  const handleMovePriority = (index: number, direction: 'up' | 'down') => {
+    const newIdx = direction === 'up' ? index - 1 : index + 1;
+    if (newIdx < 0 || newIdx >= voterPriority.length) return;
+    const next = [...voterPriority];
+    const temp = next[index];
+    next[index] = next[newIdx];
+    next[newIdx] = temp;
+    setVoterPriority(next);
+  };
+
+  const handleSaveVoterPriority = async () => {
+    setSavingPriority(true);
+    try {
+      await updateAdminServiceConfig('VOTER', {
+        providerPriority: voterPriority,
+      });
+      setFeedback({
+        type: 'success',
+        message: `Voter provider priority updated: ${voterPriority.join(' ➔ ')}`,
+      });
+      await fetchServices();
+    } catch (err: any) {
+      setFeedback({ type: 'error', message: err?.message || 'Failed to save priority' });
+    } finally {
+      setSavingPriority(false);
+    }
+  };
 
   const fetchServices = async () => {
     setLoading(true);
@@ -78,6 +161,9 @@ export default function AdminServicesPage() {
         maint[sid] = Boolean(s.maintenanceMode);
         notices[sid] = s.maintenanceNotice || '';
         enabled[sid] = s.enabled !== false;
+        if (s.serviceId === 'VOTER' && Array.isArray(s.providerPriority) && s.providerPriority.length > 0) {
+          setVoterPriority(s.providerPriority);
+        }
       });
 
       setEditFees(fees);
@@ -88,6 +174,8 @@ export default function AdminServicesPage() {
       setEditMaintenance(maint);
       setEditNotices(notices);
       setEditEnabled(enabled);
+
+      await fetchVoterProviders();
     } catch (err: any) {
       console.error('Failed to load services:', err);
       setFeedback({ type: 'error', message: err.message || 'Failed to load services' });
@@ -350,6 +438,210 @@ export default function AdminServicesPage() {
           <p className="text-blue-300/80 leading-relaxed">
             Changing pricing or discount percentages here automatically updates the public <strong>/pricing</strong> rate card, Studio search bar fee badges, and wallet deduction engines in real time. Saved document re-prints always remain 100% free (₹0).
           </p>
+        </div>
+      </div>
+
+      {/* Voter Multi-Provider Failover & Circuit Breaker Health Center */}
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-5 shadow-xl">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
+              <Activity className="w-5 h-5" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-white flex items-center gap-2">
+                Voter Verification Multi-Provider Failover & Circuit Breakers
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                  Reliability Engine
+                </span>
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Configure provider priority order, monitor real-time upstream health metrics, and manage circuit breakers.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={fetchVoterProviders}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-medium border border-slate-700 transition-colors self-start sm:self-auto"
+          >
+            <RefreshCw className="w-3.5 h-3.5" />
+            Refresh Metrics
+          </button>
+        </div>
+
+        {/* Priority Order Manager */}
+        <div className="p-4 bg-slate-950/80 border border-slate-800/80 rounded-xl space-y-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div>
+              <span className="text-xs font-semibold text-slate-200">
+                Automatic Provider Cascade Priority
+              </span>
+              <p className="text-[11px] text-slate-400">
+                Primary provider is attempted first. If it encounters a retryable failure (5xx, timeout, gateway error), system automatically cascades to subsequent providers.
+              </p>
+            </div>
+            <button
+              onClick={handleSaveVoterPriority}
+              disabled={savingPriority}
+              className="flex items-center gap-1 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-medium transition-colors disabled:opacity-50 self-start sm:self-auto"
+            >
+              {savingPriority ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              Save Priority
+            </button>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            {voterPriority.map((providerId, idx) => {
+              const label =
+                providerId === 'neoapi'
+                  ? 'NeoAPI (V1/V2)'
+                  : providerId === 'webapi_in'
+                    ? 'WebAPI.in'
+                    : providerId === 'fastnexora'
+                      ? 'FastNexora'
+                      : providerId;
+
+              return (
+                <div
+                  key={providerId}
+                  className="flex items-center gap-2 bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-xs font-mono"
+                >
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800">
+                    #{idx + 1} {idx === 0 ? 'Primary' : 'Fallback'}
+                  </span>
+                  <span className="text-white font-medium">{label}</span>
+                  <div className="flex items-center gap-0.5 ml-1">
+                    <button
+                      onClick={() => handleMovePriority(idx, 'up')}
+                      disabled={idx === 0}
+                      className="p-1 text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400"
+                      title="Move Up"
+                    >
+                      <ArrowUp className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={() => handleMovePriority(idx, 'down')}
+                      disabled={idx === voterPriority.length - 1}
+                      className="p-1 text-slate-400 hover:text-white disabled:opacity-30 disabled:hover:text-slate-400"
+                      title="Move Down"
+                    >
+                      <ArrowDown className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Live Provider Health Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {voterProviders.map((vp) => {
+            const isTesting = testingProvider === vp.id;
+            const isResetting = resettingCircuit === vp.id;
+            const testResult = testResults[vp.id];
+            const circuitState = vp.circuit?.state || 'CLOSED';
+
+            return (
+              <div
+                key={vp.id}
+                className="bg-slate-950/70 border border-slate-800 rounded-xl p-4 flex flex-col justify-between space-y-3"
+              >
+                <div>
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-800/80">
+                    <span className="text-xs font-bold text-white">{vp.name}</span>
+                    <span
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
+                        circuitState === 'CLOSED'
+                          ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
+                          : circuitState === 'OPEN'
+                            ? 'bg-rose-500/10 text-rose-400 border-rose-500/30'
+                            : 'bg-amber-500/10 text-amber-400 border-amber-500/30'
+                      }`}
+                    >
+                      Circuit: {circuitState}
+                    </span>
+                  </div>
+
+                  <div className="mt-2 space-y-1.5 text-[11px] text-slate-400">
+                    <div className="flex items-center justify-between">
+                      <span>Credentials:</span>
+                      <span className={vp.configured ? 'text-emerald-400 font-mono' : 'text-rose-400'}>
+                        {vp.configured ? vp.maskedKey : 'Not Set'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Routing:</span>
+                      <span className="text-slate-300 text-[10px]">{vp.routingPolicy}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Success Rate:</span>
+                      <span className="text-emerald-400 font-semibold">{vp.health?.successRate ?? 100}%</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Requests (S/F):</span>
+                      <span className="font-mono text-slate-300">
+                        {vp.health?.totalRequests ?? 0} ({vp.health?.successfulRequests ?? 0}/{vp.health?.failedRequests ?? 0})
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span>Latency (Avg/P95):</span>
+                      <span className="font-mono text-slate-300">
+                        {vp.health?.avgLatencyMs ?? 0}ms / {vp.health?.p95LatencyMs ?? 0}ms
+                      </span>
+                    </div>
+                    {vp.circuit?.consecutiveFailures > 0 && (
+                      <div className="flex items-center justify-between text-rose-400">
+                        <span>Consecutive Failures:</span>
+                        <span className="font-bold">{vp.circuit.consecutiveFailures} / 3</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {testResult && (
+                    <div
+                      className={`mt-2 p-2 rounded-lg text-[10px] border flex items-center gap-1.5 ${
+                        testResult.success
+                          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                          : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                      }`}
+                    >
+                      {testResult.success ? (
+                        <CheckCircle className="w-3.5 h-3.5 shrink-0" />
+                      ) : (
+                        <XCircle className="w-3.5 h-3.5 shrink-0" />
+                      )}
+                      <span className="truncate">
+                        {testResult.message} ({testResult.latencyMs}ms)
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="pt-2 border-t border-slate-800/80 flex items-center gap-2">
+                  <button
+                    onClick={() => handleTestConnection(vp.id)}
+                    disabled={isTesting}
+                    className="flex-1 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-[11px] font-medium border border-slate-700 transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+                  >
+                    {isTesting ? <Loader2 className="w-3 h-3 animate-spin" /> : <Radio className="w-3 h-3 text-cyan-400" />}
+                    Test Probe
+                  </button>
+                  {circuitState !== 'CLOSED' && (
+                    <button
+                      onClick={() => handleResetCircuit(vp.id)}
+                      disabled={isResetting}
+                      className="py-1.5 px-2 bg-rose-950/80 hover:bg-rose-900 text-rose-300 border border-rose-800 rounded-lg text-[11px] font-medium transition-colors flex items-center justify-center gap-1 disabled:opacity-50"
+                      title="Reset Circuit"
+                    >
+                      {isResetting ? <Loader2 className="w-3 h-3 animate-spin" /> : <RotateCcw className="w-3 h-3" />}
+                      Reset
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 

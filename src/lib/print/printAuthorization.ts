@@ -5,7 +5,12 @@ import PrintJob, { PrintFormat } from '@/models/PrintJob';
 import DocumentRecord from '@/models/DocumentRecord';
 import User from '@/models/User';
 import { SERVICE_FEES, normalizeDocType } from '@/lib/wallet/constants';
-import { getConfiguredServicePricing, isDocumentAlreadyPaid } from '@/lib/wallet/pricing';
+import {
+  getConfiguredServicePricing,
+  isDocumentAlreadyPaid,
+  verifyLegitimateReprintEntitlement,
+} from '@/lib/wallet/pricing';
+import { normalizeDocumentIdentifier } from '@/lib/documents/documentCache';
 import { logAuditEvent } from '@/lib/logger/audit';
 
 export interface AuthorizePrintParams {
@@ -115,15 +120,83 @@ export async function authorizePrint({
     }
   }
 
-  // 3. SERVER-SIDE PRICING ENFORCEMENT & FREE REPRINT CHECK
+  // 3. SERVER-SIDE PRICING ENFORCEMENT & STRICT IDENTITY VERIFICATION
   // Never accept fee supplied by the browser
   const pricing = await getConfiguredServicePricing(cleanDocType);
   let fee = pricing.fee ?? SERVICE_FEES[cleanDocType] ?? 20;
 
-  // Check if document was already paid & saved for this user (Free Lifetime Reprints)
+  // If a documentId is referenced, verify ownership and prevent cross-document switching
+  if (documentId) {
+    if (!mongoose.Types.ObjectId.isValid(documentId)) {
+      return {
+        success: false,
+        printJobId: cleanPrintJobId,
+        fee: 0,
+        error: {
+          code: 'INVALID_INPUT',
+          message: 'Invalid document ID format.',
+        },
+      };
+    }
+
+    const docQuery = DocumentRecord.findOne({
+      _id: new mongoose.Types.ObjectId(documentId),
+      userId: userObjectId,
+    });
+    const docRecord = (typeof (docQuery as any)?.lean === 'function'
+      ? await (docQuery as any).lean()
+      : await docQuery) as any;
+
+    if (!docRecord) {
+      return {
+        success: false,
+        printJobId: cleanPrintJobId,
+        fee: 0,
+        error: {
+          code: 'INVALID_INPUT',
+          message: 'Document record not found or not owned by user.',
+        },
+      };
+    }
+
+    // Cross-document attack check: Ensure document type matches
+    if (docRecord.docType && docRecord.docType.toUpperCase() !== cleanDocType.toUpperCase()) {
+      return {
+        success: false,
+        printJobId: cleanPrintJobId,
+        fee: 0,
+        error: {
+          code: 'INVALID_INPUT',
+          message: 'Document identity has changed. Document type does not match verified record. Please perform a new authorized lookup.',
+        },
+      };
+    }
+
+    // Cross-document attack check: Ensure card identifier matches
+    const expectedId = normalizeDocumentIdentifier(cleanDocType, docRecord.cardIdentifier);
+    if (cleanCardId && cleanCardId !== expectedId) {
+      return {
+        success: false,
+        printJobId: cleanPrintJobId,
+        fee: 0,
+        error: {
+          code: 'INVALID_INPUT',
+          message: 'Document identity has changed. Card identifier does not match verified record. Please perform a new authorized lookup.',
+        },
+      };
+    }
+  }
+
+  // Check if document is legitimately eligible for ₹0 Free Reprint
   if (cleanCardId) {
-    const isPaid = await isDocumentAlreadyPaid(userId, cleanDocType, cleanCardId);
-    if (isPaid) {
+    const reprintCheck = await verifyLegitimateReprintEntitlement({
+      userId,
+      docType: cleanDocType,
+      cardIdentifier: cleanCardId,
+      documentId,
+    });
+
+    if (reprintCheck.eligible) {
       fee = 0;
     }
   }

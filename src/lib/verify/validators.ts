@@ -14,7 +14,10 @@ export type VoterValidationErrorCode =
   | 'INVALID_STATUS'
   | 'INVALID_SAMPLE_CODE'
   | 'EPIC_MISMATCH'
-  | 'NOT_FOUND';
+  | 'NOT_FOUND'
+  | 'CAPTCHA_REQUIRED'
+  | 'CAPTCHA_INVALID'
+  | 'CAPTCHA_EXPIRED';
 
 export function normalizeEpicNumber(raw: string | null | undefined): string {
   return (raw || '').trim().replace(/\s+/g, '').toUpperCase();
@@ -144,10 +147,20 @@ export function validateNeoApiVoterResponse(
   }
 
   if (!isSuccessMessage(topMsg)) {
+    const isNotFound =
+      /not\s*found|no\s*record/i.test(topMsg) ||
+      /not\s*found|no\s*record/i.test(topError) ||
+      String(json.sampleCode ?? '').trim() === '404' ||
+      (Array.isArray((json as any).response?.docs) &&
+        (json as any).response.docs.some((d: any) =>
+          /not\s*found|no\s*record/i.test(String(d?.Message || '')) ||
+          String(d?.sampleCode || '').trim() === '404'
+        ));
+
     return {
       valid: false,
-      errorCode: /not\s*found|no\s*record/i.test(topMsg) ? 'NOT_FOUND' : 'PROVIDER_ERROR',
-      reason: 'Top-level Message did not indicate success.',
+      errorCode: isNotFound ? 'NOT_FOUND' : 'PROVIDER_ERROR',
+      reason: isNotFound ? 'No voter record found.' : 'Top-level Message did not indicate success.',
     };
   }
 
@@ -240,6 +253,164 @@ export function validateNeoApiVoterResponse(
   return {
     valid: true,
     doc,
+  };
+}
+
+export interface WebApiInVoterValidationResult {
+  valid: boolean;
+  doc?: Record<string, any>;
+  errorCode?: VoterValidationErrorCode;
+  reason?: string;
+}
+
+/**
+ * Strictly validates a WebAPI.in Voter response payload:
+ * - status must be true (or indicate success)
+ * - data must be a valid non-empty object
+ * - Returned epicNumber matches requested EPIC after normalization
+ * - Identifies auth, not-found, and captcha specific failure codes
+ */
+export function validateWebApiInVoterResponse(
+  raw: unknown,
+  requestedEpic: string
+): WebApiInVoterValidationResult {
+  if (!isPlainObject(raw)) {
+    return {
+      valid: false,
+      errorCode: 'MALFORMED_RESPONSE',
+      reason: 'WebAPI.in returned non-object response payload.',
+    };
+  }
+
+  const msg = pickString(raw.message ?? raw.Message ?? raw.error);
+  const status = raw.status;
+
+  if (isAuthErrorText(msg)) {
+    return {
+      valid: false,
+      errorCode: 'AUTH_ERROR',
+      reason: 'WebAPI.in authentication or token error.',
+    };
+  }
+
+  if (/captcha\s*(?:is\s*)?required/i.test(msg)) {
+    return {
+      valid: false,
+      errorCode: 'CAPTCHA_REQUIRED',
+      reason: 'Voter lookup requires captcha verification.',
+    };
+  }
+
+  if (/invalid\s*captcha/i.test(msg) || /wrong\s*captcha/i.test(msg)) {
+    return {
+      valid: false,
+      errorCode: 'CAPTCHA_INVALID',
+      reason: 'Incorrect captcha entered.',
+    };
+  }
+
+  if (/captcha\s*expired/i.test(msg) || /session\s*expired/i.test(msg)) {
+    return {
+      valid: false,
+      errorCode: 'CAPTCHA_EXPIRED',
+      reason: 'Captcha challenge has expired.',
+    };
+  }
+
+  if (status !== true && status !== 'true') {
+    if (/(?:not\s*found|no\s*(?:.*)?found|invalid\s*(?:epic|voter)|record\s*not\s*found|no\s*record)/i.test(msg)) {
+      return {
+        valid: false,
+        errorCode: 'NOT_FOUND',
+        reason: msg || 'No voter record found for this EPIC.',
+      };
+    }
+    return {
+      valid: false,
+      errorCode: 'PROVIDER_ERROR',
+      reason: msg || 'WebAPI.in status did not indicate success.',
+    };
+  }
+
+  const doc = isPlainObject(raw.data) ? raw.data : undefined;
+  if (!doc || Object.keys(doc).length === 0) {
+    return {
+      valid: false,
+      errorCode: 'EMPTY_DOCS',
+      reason: 'WebAPI.in data object was empty or missing.',
+    };
+  }
+
+  const normalizedRequested = normalizeEpicNumber(requestedEpic);
+  const normalizedReturned = normalizeEpicNumber(
+    doc.epicNumber || doc.epic || doc.voter_no || raw.epic || ''
+  );
+
+  if (normalizedReturned && normalizedReturned !== normalizedRequested) {
+    return {
+      valid: false,
+      errorCode: 'EPIC_MISMATCH',
+      reason: 'Returned EPIC number did not match requested EPIC number.',
+    };
+  }
+
+  return {
+    valid: true,
+    doc,
+  };
+}
+
+export interface WebApiInCaptchaValidationResult {
+  valid: boolean;
+  captchaId?: string;
+  captchaDataUri?: string;
+  errorCode?: 'MALFORMED_RESPONSE' | 'AUTH_ERROR' | 'PROVIDER_ERROR';
+  reason?: string;
+}
+
+/**
+ * Validates a WebAPI.in captcha generation payload:
+ * - success is true
+ * - captchaId is a non-empty string
+ * - captcha is a valid data URI or base64 string
+ */
+export function validateWebApiInCaptchaResponse(raw: unknown): WebApiInCaptchaValidationResult {
+  if (!isPlainObject(raw)) {
+    return {
+      valid: false,
+      errorCode: 'MALFORMED_RESPONSE',
+      reason: 'Non-object captcha response payload.',
+    };
+  }
+
+  const msg = pickString(raw.message ?? raw.error);
+  if (isAuthErrorText(msg)) {
+    return {
+      valid: false,
+      errorCode: 'AUTH_ERROR',
+      reason: 'Authentication error generating captcha.',
+    };
+  }
+
+  const isSuccess = raw.success === true || raw.status === true;
+  const captchaId = pickString(raw.captchaId || raw.captcha_id);
+  const captcha = pickString(raw.captcha);
+
+  if (!isSuccess || !captchaId || !captcha) {
+    return {
+      valid: false,
+      errorCode: 'PROVIDER_ERROR',
+      reason: msg || 'Captcha generation response missing required fields.',
+    };
+  }
+
+  // Ensure captcha has data URI prefix
+  const captchaDataUri = captcha.startsWith('data:') ? captcha : `data:image/jpeg;base64,${captcha}`;
+
+  return {
+    valid: true,
+    captchaId,
+    captchaDataUri,
   };
 }
 

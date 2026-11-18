@@ -18,6 +18,21 @@ export interface ICloudinaryAssetSubdocument {
   accessMode?: 'public' | 'authenticated';
 }
 
+export interface IDocumentIdentityLock {
+  documentType: DocumentType;
+  documentIdentifier: string;
+  lookupStatus: 'SUCCESS' | 'FAILED' | 'PENDING';
+  verificationStatus: 'VERIFIED' | 'UNVERIFIED' | 'MANUAL';
+  paymentStatus: 'PAID' | 'UNPAID' | 'FREE_REPRINT';
+  reprintEligible: boolean;
+  originalLookupTransactionId?: string;
+  provider?: string;
+  providerReference?: string;
+  verifiedAt?: Date;
+  ownerId: string;
+  lockedAt: Date;
+}
+
 export interface IDocumentRecord extends Document {
   userId?: mongoose.Types.ObjectId;
   docType: DocumentType;
@@ -25,6 +40,7 @@ export interface IDocumentRecord extends Document {
   documentNumberHash?: string;
   documentNumberEncrypted?: string;
   inputMode: InputMode;
+  identityLock?: IDocumentIdentityLock;
   data: Record<string, any>;
   missingFields: string[];
   isComplete: boolean;
@@ -82,6 +98,9 @@ const DocumentRecordSchema: Schema<IDocumentRecord> = new Schema(
       type: String,
       enum: ['API', 'MANUAL'],
       default: 'API',
+    },
+    identityLock: {
+      type: Schema.Types.Mixed,
     },
     data: {
       type: Schema.Types.Mixed,

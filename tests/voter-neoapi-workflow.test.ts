@@ -189,10 +189,10 @@ describe('NeoAPI Voter Lookup, V1/V2 Fallback, Field Mapping, Cache & Billing In
 
     vi.mocked(DocumentRecord.findOne).mockImplementation((query: any) => {
       const uid = query.userId?.toString();
-      const docType = query.docType;
       const now = Date.now();
       const found = inMemoryDocs.find((d) => {
-        if (d.userId?.toString() !== uid || d.docType !== docType) return false;
+        if (d.userId?.toString() !== uid) return false;
+        if (query.docType && d.docType?.toUpperCase() !== query.docType?.toString()?.toUpperCase()) return false;
         if (query.expiresAt?.$gt && (!d.expiresAt || new Date(d.expiresAt).getTime() <= now)) {
           return false;
         }

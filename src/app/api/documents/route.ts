@@ -89,6 +89,7 @@ export async function POST(request: Request) {
     const expiresAt = new Date(now.getTime() + CACHE_TTL_MS);
 
     let record;
+    let isIdentityLocked = false;
 
     if (validated.id) {
       if (!mongoose.Types.ObjectId.isValid(validated.id)) {
@@ -102,6 +103,53 @@ export async function POST(request: Request) {
         _id: validated.id,
         userId: session.userId,
       });
+
+      if (!record) {
+        return NextResponse.json(
+          { error: 'Document not found or unauthorized.' },
+          { status: 404 }
+        );
+      }
+
+      // Check Identity Lock: Once a document is verified, paid, or API-fetched, identity is immutable
+      isIdentityLocked = Boolean(record.identityLock || record.isPaid || record.inputMode === 'API');
+      if (isIdentityLocked) {
+        // 1. Prevent document type switching
+        if (record.docType.toUpperCase() !== normalizedDocType) {
+          return NextResponse.json(
+            {
+              error: 'IDENTITY_LOCKED',
+              message: 'Document identity has changed. Document type is locked for this verified document. Please perform a new authorized lookup.',
+            },
+            { status: 403 }
+          );
+        }
+
+        // 2. Prevent cardIdentifier mutation
+        const expectedIdentifier = normalizeDocumentIdentifier(record.docType, record.cardIdentifier);
+        if (cardIdentifier !== expectedIdentifier) {
+          return NextResponse.json(
+            {
+              error: 'IDENTITY_LOCKED',
+              message: 'Document identity has changed. Document number/EPIC is locked for this verified record. Please perform a new authorized lookup.',
+            },
+            { status: 403 }
+          );
+        }
+
+        // 3. Ensure the underlying identity field in data was not modified
+        const rawDataId = resolveCardIdentifier(record.docType, validated.data);
+        const normalizedDataId = normalizeDocumentIdentifier(record.docType, rawDataId);
+        if (normalizedDataId && !normalizedDataId.startsWith('UNKNOWN-') && normalizedDataId !== expectedIdentifier) {
+          return NextResponse.json(
+            {
+              error: 'IDENTITY_LOCKED',
+              message: 'Document identity has changed. Identifier inside document data does not match verified record. Please perform a new authorized lookup.',
+            },
+            { status: 403 }
+          );
+        }
+      }
     }
 
     // Reuse existing record by tenant + docType + identifier/hash to prevent duplicate records
@@ -113,6 +161,7 @@ export async function POST(request: Request) {
       });
       if (existingByIdentity) {
         record = existingByIdentity;
+        isIdentityLocked = Boolean(record.identityLock || record.isPaid || record.inputMode === 'API');
       }
     }
 
@@ -129,9 +178,11 @@ export async function POST(request: Request) {
     });
 
     if (record) {
-      record.docType = normalizedDocType;
-      record.cardIdentifier = cardIdentifier;
-      record.documentNumberHash = hash;
+      if (!isIdentityLocked) {
+        record.docType = normalizedDocType;
+        record.cardIdentifier = cardIdentifier;
+        record.documentNumberHash = hash;
+      }
       record.inputMode = validated.inputMode;
       record.data = imgProcessed.data;
       record.missingFields = validated.missingFields;
@@ -145,6 +196,21 @@ export async function POST(request: Request) {
       if (imgProcessed.hasUploadedToCloudinary) {
         record.imageMigrationStatus = 'MIGRATED';
         record.imageMigratedAt = now;
+      }
+      if (!record.identityLock && record.isPaid) {
+        record.identityLock = {
+          documentType: record.docType,
+          documentIdentifier: record.cardIdentifier,
+          lookupStatus: 'SUCCESS',
+          verificationStatus: record.inputMode === 'API' ? 'VERIFIED' : 'MANUAL',
+          paymentStatus: 'PAID',
+          reprintEligible: true,
+          originalLookupTransactionId: record.paymentReferenceId,
+          provider: record.provider || 'API',
+          verifiedAt: record.paidAt || record.createdAt,
+          ownerId: session.userId,
+          lockedAt: now,
+        };
       }
       record.updatedAt = now;
       await record.save();

@@ -361,6 +361,22 @@ export async function saveDocumentToCache({
       if (effectivePaymentRef) setPayload.paymentReferenceId = effectivePaymentRef;
     }
 
+    if (effectiveIsPaid || effectiveInputMode === 'API') {
+      setPayload.identityLock = {
+        documentType: normalizedType,
+        documentIdentifier: normalizedId,
+        lookupStatus: 'SUCCESS',
+        verificationStatus: effectiveInputMode === 'API' ? 'VERIFIED' : 'MANUAL',
+        paymentStatus: effectiveIsPaid ? 'PAID' : 'UNPAID',
+        reprintEligible: Boolean(effectiveIsPaid),
+        originalLookupTransactionId: effectivePaymentRef,
+        provider: provider || 'API',
+        verifiedAt: effectivePaidAt || fetchedAt,
+        ownerId: userId,
+        lockedAt: fetchedAt,
+      };
+    }
+
     const updated = await DocumentRecord.findOneAndUpdate(
       filter,
       {

@@ -36,6 +36,9 @@ export interface VerificationResult<T = Record<string, any>> {
   requiredFee?: number;
   currentBalance?: number;
   isFreeReprint?: boolean;
+  isIdentityLocked?: boolean;
+  identityLock?: Record<string, any>;
+  paymentReferenceId?: string;
 }
 
 export interface ProviderAdapter {

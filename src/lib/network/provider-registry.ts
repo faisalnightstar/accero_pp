@@ -140,6 +140,22 @@ export const PROVIDER_REGISTRY: Record<string, ProviderRegistration> = {
     defaultTimeoutMs: 10000,
     description: 'WebAPI.in.net PAN verification gateway (V1 and V2)',
   },
+
+  // 9. WebAPI.in: Voter Verification & Captcha Gateway
+  webapi_in: {
+    id: 'webapi_in',
+    name: 'WebAPI.in Voter Gateway',
+    routing:
+      process.env.VOTER_LOOKUP_USE_FIXIE === 'true' ||
+      process.env.WEBAPI_IN_USE_FIXIE === 'true'
+        ? 'fixie'
+        : 'direct',
+    allowedHostnames: ['webapi.in.net'],
+    requiresWhitelisting: false,
+    requireHttps: true,
+    defaultTimeoutMs: 10000,
+    description: 'WebAPI.in Voter verification and captcha service',
+  },
 } as const;
 
 /**

@@ -29,7 +29,11 @@ import { validatePanNumber, validateProviderResponse } from './pan.validation';
 import { normalizePanResponse } from './pan.normalizer';
 import { PanLookupError, PAN_ERROR_MESSAGES, getSafePanErrorMessage } from './pan.errors';
 import { getConfiguredServicePricing, isDocumentAlreadyPaid } from '@/lib/wallet/pricing';
-import { saveDocumentToCache, findCachedDocument } from '@/lib/documents/documentCache';
+import {
+  saveDocumentToCache,
+  findCachedDocument,
+  generateDocumentCacheKey,
+} from '@/lib/documents/documentCache';
 import { checkRateLimit } from '@/lib/security/rateLimiter';
 import { maskIdentifier } from '@/lib/network/proxy-config';
 import { providerFetch } from '@/lib/network/provider-client';
@@ -499,18 +503,41 @@ export async function lookupAndBillPan({
           errorMessage: providerRes.errorMessage,
         });
 
-        // Persist failed lookup record for auditing (WITHOUT wallet deduction)
+        // Persist failed lookup record for auditing (WITHOUT wallet deduction and WITHOUT document creation)
         try {
+          const { hash: panHash } = generateDocumentCacheKey('PAN', cleanPan);
           if (canQueryModel(PanLookupRecord?.create)) {
             await PanLookupRecord.create({
               userId: userObjectId,
+              documentRecordId: null,
+              docType: 'PAN',
               panNumber: cleanPan,
+              documentNumberHash: panHash,
               providerVersion: providerRes.version,
               status: 'FAILED',
               serviceFee: 0,
               requestTimestamp: new Date(),
               errorMessage: providerRes.errorMessage || PAN_ERROR_MESSAGES.NOT_FOUND,
             });
+          }
+          if (canQueryModel(VerificationRequest?.findOneAndUpdate)) {
+            await VerificationRequest.findOneAndUpdate(
+              { requestId: attemptRequestId },
+              {
+                $set: {
+                  userId: userObjectId,
+                  docType: 'PAN',
+                  idNumber: cleanPan,
+                  fee: 0,
+                  status: 'FAILED',
+                  provider: 'WebAPI',
+                  providerVersion: providerRes.version,
+                  fallbackUsed: providerRes.fallbackUsed,
+                  refundReason: providerRes.errorMessage || PAN_ERROR_MESSAGES.NOT_FOUND,
+                },
+              },
+              { upsert: true, returnDocument: 'after' }
+            );
           }
         } catch {
           // Non-blocking persistence error
@@ -617,8 +644,40 @@ export async function lookupAndBillPan({
         }
       }
 
-      // Persist verification request, document record, and lookup history in parallel
+      // 1. First, save or update the canonical DocumentRecord to obtain its persistent _id
+      let savedDoc: any = null;
       let savedDocId: string | undefined;
+      try {
+        savedDoc = await saveDocumentToCache({
+          userId,
+          docType: 'PAN',
+          documentNumber: cleanPan,
+          data: {
+            panNumber: cleanPan,
+            fullName: normalized.fullName || '',
+            fatherName: normalized.fatherName || '',
+            dateOfBirth: normalized.dateOfBirth || '',
+            gender: normalized.gender || '',
+            aadhaarNumberAvailable: normalized.aadhaarNumberAvailable,
+            providerVersion: normalized.providerVersion,
+            qrData: `PAN:${cleanPan}|NAME:${normalized.fullName || ''}|FNAME:${normalized.fatherName || ''}|DOB:${normalized.dateOfBirth || ''}`,
+          },
+          provider: `WebAPI (${normalized.providerVersion.toUpperCase()})`,
+          source: 'API',
+          inputMode: 'API',
+          isPaid: true,
+          paymentReferenceId: txReferenceId,
+        });
+        savedDocId = savedDoc?._id?.toString();
+      } catch (err) {
+        console.warn('[PanService] Non-blocking DocumentRecord save error:', err);
+      }
+
+      // Foreign key reference to canonical document record & deterministic index hash
+      const docRecordObjectId = savedDoc?._id ? new mongoose.Types.ObjectId(savedDoc._id) : null;
+      const { hash: panHash } = generateDocumentCacheKey('PAN', cleanPan);
+
+      // 2. Persist audit history (VerificationRequest & PanLookupRecord) linked to DocumentRecord
       await Promise.all([
         (async () => {
           try {
@@ -636,6 +695,7 @@ export async function lookupAndBillPan({
                     providerVersion: providerRes.version,
                     fallbackUsed: providerRes.fallbackUsed,
                     transactionReferenceId: txReferenceId,
+                    ...(docRecordObjectId ? { documentId: docRecordObjectId } : {}),
                   },
                 },
                 { upsert: true, returnDocument: 'after' }
@@ -647,37 +707,13 @@ export async function lookupAndBillPan({
         })(),
         (async () => {
           try {
-            const savedDoc = await saveDocumentToCache({
-              userId,
-              docType: 'PAN',
-              documentNumber: cleanPan,
-              data: {
-                panNumber: cleanPan,
-                fullName: normalized.fullName || '',
-                fatherName: normalized.fatherName || '',
-                dateOfBirth: normalized.dateOfBirth || '',
-                gender: normalized.gender || '',
-                aadhaarNumberAvailable: normalized.aadhaarNumberAvailable,
-                providerVersion: normalized.providerVersion,
-                qrData: `PAN:${cleanPan}|NAME:${normalized.fullName || ''}|FNAME:${normalized.fatherName || ''}|DOB:${normalized.dateOfBirth || ''}`,
-              },
-              provider: `WebAPI (${normalized.providerVersion.toUpperCase()})`,
-              source: 'API',
-              inputMode: 'API',
-              isPaid: true,
-              paymentReferenceId: txReferenceId,
-            });
-            savedDocId = savedDoc?._id?.toString();
-          } catch (err) {
-            console.warn('[PanService] Non-blocking DocumentRecord save error:', err);
-          }
-        })(),
-        (async () => {
-          try {
             if (canQueryModel(PanLookupRecord?.create)) {
               await PanLookupRecord.create({
                 userId: userObjectId,
+                documentRecordId: docRecordObjectId,
+                docType: 'PAN',
                 panNumber: cleanPan,
+                documentNumberHash: panHash,
                 fullName: normalized.fullName,
                 fatherName: normalized.fatherName,
                 dateOfBirth: normalized.dateOfBirth,
@@ -724,6 +760,7 @@ export async function getPanLookupHistory(
   limit = 25
 ): Promise<Array<{
   id: string;
+  documentRecordId: string | null;
   panNumber: string;
   fullName: string | null;
   fatherName: string | null;
@@ -751,6 +788,7 @@ export async function getPanLookupHistory(
 
     return records.map((r) => ({
       id: r._id.toString(),
+      documentRecordId: r.documentRecordId ? r.documentRecordId.toString() : null,
       panNumber: r.panNumber,
       fullName: r.fullName,
       fatherName: r.fatherName,

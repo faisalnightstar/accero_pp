@@ -276,6 +276,8 @@ describe('Centralized Print Billing & Print Authorization Engine', () => {
         userId: userObjectId,
         docType: 'PAN',
         cardIdentifier: 'ABCDE1234F',
+        isPaid: true,
+        paymentReferenceId: `PAN_LOOKUP:${userId}:ABCDE1234F`,
         printCount: 1,
       }),
     } as any);

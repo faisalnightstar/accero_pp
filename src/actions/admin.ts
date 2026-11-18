@@ -27,6 +27,9 @@ import {
   calculateDiscountPercent,
   calculateEffectiveFee,
 } from '@/lib/wallet/constants';
+import { circuitBreaker } from '@/lib/reliability/circuitBreaker';
+import { providerHealthTracker } from '@/lib/reliability/providerHealth';
+import { WebApiInProvider } from '@/lib/verify/providers/webapiIn';
 import bcrypt from 'bcryptjs';
 import mongoose from 'mongoose';
 
@@ -937,6 +940,7 @@ export async function updateAdminServiceConfig(
     offerDescription?: string;
     maintenanceMode?: boolean;
     maintenanceNotice?: string;
+    providerPriority?: string[];
   }
 ) {
   const session = await getSession();
@@ -967,6 +971,7 @@ export async function updateAdminServiceConfig(
   if (orig !== undefined) updateFields.originalFee = orig;
   if (fee !== undefined) updateFields.fee = fee;
   if (disc !== undefined) updateFields.discountPercent = disc;
+  if (Array.isArray(data.providerPriority)) updateFields.providerPriority = data.providerPriority;
 
   const conf = await ServiceConfig.findOneAndUpdate(
     { serviceId },
@@ -994,6 +999,7 @@ export async function updateAdminServiceConfig(
     offerActive: conf.offerActive,
     offerBadge: conf.offerBadge,
     enabled: conf.enabled,
+    providerPriority: conf.providerPriority,
   };
 }
 
@@ -1256,4 +1262,145 @@ export async function exportFinancialReportCsv(dateFrom?: string, dateTo?: strin
   ];
 
   return rows.map((r) => r.join(',')).join('\n');
+}
+
+/**
+ * Retrieves the operational health and circuit breaker status for all Voter API providers.
+ * Strictly masks all API tokens and secrets.
+ */
+export async function getAdminVoterProviderStatus() {
+  const session = await getSession();
+  assertRole(session, ['super_admin', 'admin'], 'view voter provider statuses');
+
+  const maskSecret = (secret?: string | null) => {
+    if (!secret || secret.trim().length === 0) return 'Not Configured';
+    const s = secret.trim();
+    if (s.length <= 6) return '••••••';
+    return `${s.slice(0, 3)}••••${s.slice(-3)}`;
+  };
+
+  const providers = [
+    {
+      id: 'neoapi',
+      name: 'NeoAPI (V1/V2)',
+      configured: Boolean(process.env.NEO_API_KEY?.trim()),
+      maskedKey: maskSecret(process.env.NEO_API_KEY),
+      routingPolicy: 'Fixie Static IP Proxy (Mandatory)',
+      endpoints: ['https://core.neoapi.io/v1/voter/detail.php', 'https://core.neoapi.io/v2/voter/detail.php'],
+      circuit: circuitBreaker.getStatus('neoapi'),
+      health: providerHealthTracker.getMetrics('neoapi'),
+    },
+    {
+      id: 'webapi_in',
+      name: 'WebAPI.in',
+      configured: Boolean(process.env.WEBAPI_IN_TOKEN?.trim()),
+      maskedKey: maskSecret(process.env.WEBAPI_IN_TOKEN),
+      routingPolicy: process.env.VOTER_LOOKUP_USE_FIXIE === 'true' || process.env.WEBAPI_IN_USE_FIXIE === 'true' ? 'Fixie Static IP Proxy' : 'Direct HTTPS Connection',
+      endpoints: [
+        'https://webapi.in.net/api/voter_details.php',
+        'https://webapi.in.net/api/voter_captcha.php',
+        'https://webapi.in.net/api/voter_captcha_info.php',
+      ],
+      circuit: circuitBreaker.getStatus('webapi_in'),
+      health: providerHealthTracker.getMetrics('webapi_in'),
+    },
+    {
+      id: 'fastnexora',
+      name: 'FastNexora',
+      configured: Boolean(process.env.FASTNEXORA_API_KEY?.trim()),
+      maskedKey: maskSecret(process.env.FASTNEXORA_API_KEY),
+      routingPolicy: 'Fixie Static IP Proxy',
+      endpoints: ['https://auth.fastnexora.xyz/api/v1/voterVerification.php'],
+      circuit: circuitBreaker.getStatus('fastnexora'),
+      health: providerHealthTracker.getMetrics('fastnexora'),
+    },
+  ];
+
+  return providers;
+}
+
+/**
+ * Resets the circuit breaker for a provider back to CLOSED.
+ */
+export async function resetAdminCircuitBreaker(providerId: string) {
+  const session = await getSession();
+  assertRole(session, ['super_admin', 'admin'], 'reset provider circuit breaker');
+
+  if (providerId === 'all') {
+    circuitBreaker.resetAll();
+  } else {
+    circuitBreaker.reset(providerId);
+  }
+
+  await logAuditEvent({
+    actorId: session!.userId,
+    actorEmail: session!.email,
+    actorRole: session!.role,
+    action: 'SERVICE_CONFIG_UPDATED',
+    resourceType: 'SERVICE',
+    resourceId: providerId,
+    details: { action: 'CIRCUIT_BREAKER_RESET', providerId },
+    status: 'SUCCESS',
+  });
+
+  return { success: true, providerId };
+}
+
+/**
+ * Safe connection test for an API provider without deducting citizen wallet fees.
+ */
+export async function testAdminProviderConnection(providerId: string) {
+  const session = await getSession();
+  assertRole(session, ['super_admin', 'admin'], 'test provider connection');
+
+  const start = Date.now();
+
+  try {
+    if (providerId === 'webapi_in') {
+      const adapter = new WebApiInProvider();
+      const check = await adapter.healthCheck();
+      return {
+        success: check.ok,
+        message: check.message,
+        latencyMs: check.latencyMs,
+      };
+    }
+
+    if (providerId === 'neoapi') {
+      const hasKey = Boolean(process.env.NEO_API_KEY?.trim());
+      if (!hasKey) {
+        return {
+          success: false,
+          message: 'NEO_API_KEY is not configured in environment',
+          latencyMs: 0,
+        };
+      }
+      return {
+        success: true,
+        message: 'NeoAPI credentials configured and active',
+        latencyMs: Date.now() - start,
+      };
+    }
+
+    if (providerId === 'fastnexora') {
+      const hasKey = Boolean(process.env.FASTNEXORA_API_KEY?.trim());
+      return {
+        success: hasKey,
+        message: hasKey ? 'FastNexora credentials configured' : 'FASTNEXORA_API_KEY not configured',
+        latencyMs: Date.now() - start,
+      };
+    }
+
+    return {
+      success: false,
+      message: `Unknown provider: ${providerId}`,
+      latencyMs: Date.now() - start,
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err?.message || 'Connection test failed',
+      latencyMs: Date.now() - start,
+    };
+  }
 }

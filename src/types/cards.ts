@@ -249,6 +249,7 @@ export interface RationCardData {
   districtRegional?: string;
   state?: string;
   stateRegional?: string;
+  stateCode?: string;
   issueDate?: string;
   validUpto?: string;
   status?: 'ACTIVE' | 'INACTIVE';
@@ -433,6 +434,7 @@ export interface VoterCardData {
   districtRegional?: string;
   state?: string;
   stateRegional?: string;
+  stateCode?: string;
   fullAddress: string;
   fullAddressRegional?: string;
   photoUrl?: string;

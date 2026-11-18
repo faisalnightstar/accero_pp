@@ -19,6 +19,7 @@ import {
   AlertTriangle,
   Sprout,
   UtensilsCrossed,
+  Lock,
 } from 'lucide-react';
 import StudioLayout from '@/components/studio/StudioLayout';
 import CardForm from '@/components/studio/CardForm';
@@ -71,6 +72,12 @@ function StudioPageContent() {
   } = useCardStudio(resolvedType);
 
   const [currentDocId, setCurrentDocId] = useState<string | null>(urlDocId);
+  const [identityLock, setIdentityLock] = useState<Record<string, any> | null>(null);
+
+  const isIdentityLocked = Boolean(
+    identityLock || (currentDocId && (cardData?.isPaid || cardData?.isVerified))
+  );
+
   const [isLoadingDoc, setIsLoadingDoc] = useState<boolean>(false);
   const [toastAlert, setToastAlert] = useState<{ message: string; type: 'info' | 'warning' | 'error' | 'success' } | null>(null);
   const [isSaving, setIsSaving] = useState<boolean>(false);
@@ -108,6 +115,19 @@ function StudioPageContent() {
           const doc = payload.document;
           loadData(doc.docType as DocumentType, doc.data);
           setCurrentDocId(doc.id);
+          if (doc.isIdentityLocked || doc.identityLock || doc.isPaid) {
+            setIdentityLock(
+              doc.identityLock || {
+                documentType: doc.docType.toUpperCase(),
+                documentIdentifier: doc.cardIdentifier,
+                lookupStatus: 'SUCCESS',
+                verificationStatus: doc.inputMode === 'API' ? 'VERIFIED' : 'MANUAL',
+                paymentStatus: doc.isPaid ? 'PAID' : 'UNPAID',
+                reprintEligible: doc.isPaid === true,
+                originalLookupTransactionId: doc.paymentReferenceId,
+              }
+            );
+          }
         }
       })
       .catch((err) => {
@@ -131,6 +151,8 @@ function StudioPageContent() {
       if (urlDocType !== lastUrlTypeRef.current) {
         lastUrlTypeRef.current = urlDocType;
         switchDocType(urlDocType);
+        setIdentityLock(null);
+        setCurrentDocId(null);
       }
     }
   }, [urlDocType, urlDocId, switchDocType]);
@@ -142,6 +164,7 @@ function StudioPageContent() {
       autoLookupKeyRef.current = null;
       switchDocType(newType);
       setCurrentDocId(null);
+      setIdentityLock(null);
       setSaveSuccess(null);
       // Synchronize URL search params so browser address matches active tab
       const params = new URLSearchParams(searchParams.toString());
@@ -184,6 +207,17 @@ function StudioPageContent() {
         if (res.success && res.data && Object.keys(res.data).length > 0) {
           loadData(resolvedType, res.data);
           setCurrentDocId(res.docId || null);
+          setIdentityLock(
+            res.identityLock || {
+              documentType: resolvedType.toUpperCase(),
+              documentIdentifier: res.idNumber || urlLookup,
+              lookupStatus: 'SUCCESS',
+              verificationStatus: 'VERIFIED',
+              paymentStatus: 'PAID',
+              reprintEligible: true,
+              originalLookupTransactionId: res.paymentReferenceId,
+            }
+          );
 
           if (typeof res.currentBalance === 'number' && typeof window !== 'undefined') {
             window.dispatchEvent(
@@ -277,6 +311,7 @@ function StudioPageContent() {
   const handleNewBlank = () => {
     resetToBlank();
     setCurrentDocId(null);
+    setIdentityLock(null);
     setSaveSuccess(null);
     setSaveError(null);
   };
@@ -290,6 +325,7 @@ function StudioPageContent() {
       const payload = {
         id: currentDocId || undefined,
         docType,
+        cardIdentifier: identityLock?.documentIdentifier || resolveCurrentIdentifier(),
         inputMode: currentDocId ? 'MANUAL' : 'API',
         data: cardData,
         missingFields: completeness.missingKeys,
@@ -714,9 +750,23 @@ function StudioPageContent() {
             <StudioSearchBar
               docType={docType}
               isDirty={isDirty}
+              isIdentityLocked={isIdentityLocked}
+              lockedIdentifier={identityLock?.documentIdentifier || resolveCurrentIdentifier()}
               onDataLoaded={(data, meta) => {
                 loadData(docType, data);
                 setCurrentDocId(meta?.docId || null);
+                if (meta?.isIdentityLocked || meta?.identityLock) {
+                  setIdentityLock(
+                    meta.identityLock || {
+                      documentType: docType.toUpperCase(),
+                      documentIdentifier: resolveCurrentIdentifier(),
+                      lookupStatus: 'SUCCESS',
+                      verificationStatus: 'VERIFIED',
+                      paymentStatus: 'PAID',
+                      reprintEligible: true,
+                    }
+                  );
+                }
                 setSaveSuccess(null);
               }}
               onToast={(msg, type) => {
@@ -724,6 +774,52 @@ function StudioPageContent() {
                 setTimeout(() => setToastAlert(null), 5000);
               }}
             />
+
+            {/* Document Verification & Payment Status Banner */}
+            {isIdentityLocked && (
+              <div className="bg-slate-900 border border-emerald-500/40 rounded-xl p-3.5 shadow-sm text-xs space-y-2.5">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2 flex-wrap gap-2">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <span className="font-bold text-white tracking-wide">
+                      Verified Document Session
+                    </span>
+                  </div>
+                  <span className="font-mono text-[11px] text-emerald-300 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/30 font-semibold">
+                    {identityLock?.documentIdentifier || resolveCurrentIdentifier()}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  <div className="flex flex-col bg-slate-800/80 p-2 rounded-lg border border-slate-700/60">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Verification Status</span>
+                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1 mt-0.5">
+                      <Check className="w-3 h-3 text-emerald-400" />
+                      Verified via API
+                    </span>
+                  </div>
+                  <div className="flex flex-col bg-slate-800/80 p-2 rounded-lg border border-slate-700/60">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Payment Status</span>
+                    <span className="text-xs font-bold text-emerald-400 flex items-center gap-1 mt-0.5">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                      Already paid
+                    </span>
+                  </div>
+                  <div className="flex flex-col bg-slate-800/80 p-2 rounded-lg border border-slate-700/60">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Reprint Fee</span>
+                    <span className="text-xs font-bold text-[#F4D35E] mt-0.5">
+                      ₹0 (Free reprint)
+                    </span>
+                  </div>
+                  <div className="flex flex-col bg-slate-800/80 p-2 rounded-lg border border-slate-700/60">
+                    <span className="text-[10px] text-slate-400 uppercase tracking-wider font-semibold">Lookup Status</span>
+                    <span className="text-xs font-bold text-slate-300 flex items-center gap-1 mt-0.5">
+                      <Lock className="w-3 h-3 text-slate-400" />
+                      Disabled
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {toastAlert && (
               <div
@@ -755,6 +851,7 @@ function StudioPageContent() {
               data={cardData}
               onFieldChange={updateField}
               missingKeys={completeness.missingKeys}
+              isIdentityLocked={isIdentityLocked}
             />
           </div>
         }

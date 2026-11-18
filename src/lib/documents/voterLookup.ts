@@ -8,6 +8,10 @@ import { validateEpicNumber } from '@/lib/verify/validators';
 import { getProvidersForDocType } from '@/lib/verify/providerFactory';
 import { executeProviderCascade } from '@/lib/verify/orchestrator';
 import {
+  getPrioritizedVoterProviders,
+  executeVoterLookupWithCaptcha,
+} from '@/lib/verify/voterOrchestrator';
+import {
   findCachedDocument,
   findExistingDocumentRecord,
   saveDocumentToCache,
@@ -25,6 +29,10 @@ export interface VoterLookupParams {
   userId: string;
   epicNumber: string;
   requestId?: string;
+  captchaId?: string;
+  captchaAnswer?: string;
+  stateCd?: string;
+  providerId?: string;
 }
 
 /**
@@ -154,6 +162,10 @@ export async function lookupAndBillVoter({
   userId,
   epicNumber,
   requestId,
+  captchaId,
+  captchaAnswer,
+  stateCd,
+  providerId,
 }: VoterLookupParams): Promise<VerificationResult> {
   const startTime = Date.now();
 
@@ -262,6 +274,18 @@ export async function lookupAndBillVoter({
       status: 'SUCCESS',
     });
 
+    const docIdentityLock = cachedDoc.identityLock || {
+      documentType: 'VOTER',
+      documentIdentifier: normalizedEpic,
+      lookupStatus: 'SUCCESS',
+      verificationStatus: 'VERIFIED',
+      paymentStatus: 'PAID',
+      reprintEligible: true,
+      originalLookupTransactionId: cachedDoc.paymentReferenceId,
+      ownerId: userId,
+      lockedAt: cachedDoc.createdAt,
+    };
+
     return {
       success: true,
       documentType: 'voter',
@@ -272,6 +296,9 @@ export async function lookupAndBillVoter({
       docId: cachedDoc._id.toString(),
       feeDeducted: 0,
       isFreeReprint: true,
+      isIdentityLocked: true,
+      identityLock: docIdentityLock,
+      paymentReferenceId: cachedDoc.paymentReferenceId,
       currentBalance,
       latencyMs: Date.now() - startTime,
     };
@@ -289,6 +316,7 @@ export async function lookupAndBillVoter({
       ...sharedResult,
       feeDeducted: 0,
       isFreeReprint: true,
+      isIdentityLocked: true,
     };
   }
 
@@ -298,6 +326,11 @@ export async function lookupAndBillVoter({
     requestId,
     fee: serviceConfig.fee,
     startTime,
+    captchaId,
+    captchaAnswer,
+    stateCd,
+    providerId,
+    providerPriority: serviceConfig.providerPriority,
   }).finally(() => {
     inFlightVoterLookups.delete(inflightKey);
   });
@@ -312,12 +345,22 @@ async function executeVoterLookupInternal({
   requestId,
   fee,
   startTime,
+  captchaId,
+  captchaAnswer,
+  stateCd,
+  providerId,
+  providerPriority,
 }: {
   userId: string;
   normalizedEpic: string;
   requestId?: string;
   fee: number;
   startTime: number;
+  captchaId?: string;
+  captchaAnswer?: string;
+  stateCd?: string;
+  providerId?: string;
+  providerPriority?: string[];
 }): Promise<VerificationResult> {
   const userObjectId = new mongoose.Types.ObjectId(userId);
   const txReferenceId = buildVoterLookupReferenceId(userId, normalizedEpic);
@@ -353,33 +396,53 @@ async function executeVoterLookupInternal({
     }
   }
 
-  // Step 3: Execute NeoAPI V1 -> V2 Lookup
-  const providers = getProvidersForDocType('voter');
-  console.log('[VoterLookup] Executing provider cascade', {
-    epic: maskEpicForLog(normalizedEpic),
-    providers: providers.map((p) => p.name),
-    fee,
-  });
-  if (providers.length === 0) {
-    console.warn('[VoterLookup] No voter providers configured', {
-      epic: maskEpicForLog(normalizedEpic),
-    });
-    const currentBalance = await getSafeBalance(userId);
-    return {
-      success: false,
-      documentType: 'voter',
-      idNumber: normalizedEpic,
-      data: {},
-      isPartial: false,
-      errorCode: 'NO_PROVIDER',
-      errorMessage: 'Voter verification provider is not configured. No wallet amount was charged.',
-      feeDeducted: 0,
-      currentBalance,
-      latencyMs: Date.now() - startTime,
-    };
-  }
+  // Step 3: Execute Multi-Provider Cascade (or Captcha lookup if captcha parameters provided)
+  let cascadeResult: VerificationResult;
 
-  const cascadeResult = await executeProviderCascade('voter', normalizedEpic, providers);
+  if (captchaId && captchaAnswer) {
+    console.log('[VoterLookup] Executing captcha lookup', {
+      epic: maskEpicForLog(normalizedEpic),
+      providerId: providerId || 'webapi_in',
+      hasCaptchaId: Boolean(captchaId),
+    });
+    cascadeResult = await executeVoterLookupWithCaptcha({
+      epicNumber: normalizedEpic,
+      captchaId,
+      captchaAnswer,
+      stateCd,
+      providerId,
+    });
+  } else {
+    const prioritized = getPrioritizedVoterProviders(providerPriority).map((p) => p.provider);
+    const providers = prioritized.length > 0 ? prioritized : getProvidersForDocType('voter');
+
+    console.log('[VoterLookup] Executing provider cascade', {
+      epic: maskEpicForLog(normalizedEpic),
+      providers: providers.map((p) => p.name),
+      fee,
+    });
+
+    if (providers.length === 0) {
+      console.warn('[VoterLookup] No voter providers configured', {
+        epic: maskEpicForLog(normalizedEpic),
+      });
+      const currentBalance = await getSafeBalance(userId);
+      return {
+        success: false,
+        documentType: 'voter',
+        idNumber: normalizedEpic,
+        data: {},
+        isPartial: false,
+        errorCode: 'NO_PROVIDER',
+        errorMessage: 'Voter verification provider is not configured. No wallet amount was charged.',
+        feeDeducted: 0,
+        currentBalance,
+        latencyMs: Date.now() - startTime,
+      };
+    }
+
+    cascadeResult = await executeProviderCascade('voter', normalizedEpic, providers);
+  }
 
   // Never charge or overwrite existing records on provider failure
   if (!cascadeResult.success || !cascadeResult.data || Object.keys(cascadeResult.data).length === 0) {
@@ -778,6 +841,22 @@ async function executeVoterLookupInternal({
     docId: savedDoc._id?.toString(),
     feeDeducted: fee,
     isFreeReprint: false,
+    isIdentityLocked: true,
+    identityLock: savedDoc.identityLock || {
+      documentType: 'VOTER',
+      documentIdentifier: normalizedEpic,
+      lookupStatus: 'SUCCESS',
+      verificationStatus: 'VERIFIED',
+      paymentStatus: 'PAID',
+      reprintEligible: true,
+      originalLookupTransactionId: txReferenceId,
+      provider: cascadeResult.provider || 'NeoAPI',
+      providerReference: cascadeResult.providerVersion,
+      verifiedAt: new Date(),
+      ownerId: userId,
+      lockedAt: new Date(),
+    },
+    paymentReferenceId: txReferenceId,
     currentBalance: updatedWallet.balance,
     latencyMs: Date.now() - startTime,
   };

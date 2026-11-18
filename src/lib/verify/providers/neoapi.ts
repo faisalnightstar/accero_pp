@@ -386,7 +386,9 @@ export class NeoApiProvider implements ProviderAdapter {
     const finalErrorCode =
       v1Result.errorCode === 'AUTH_ERROR' || v2Result.errorCode === 'AUTH_ERROR'
         ? 'AUTH_ERROR'
-        : v2Result.errorCode || v1Result.errorCode || 'UPSTREAM_ERROR';
+        : v1Result.errorCode === 'NOT_FOUND' || v2Result.errorCode === 'NOT_FOUND'
+          ? 'NOT_FOUND'
+          : v2Result.errorCode || v1Result.errorCode || 'UPSTREAM_ERROR';
 
     console.warn(
       JSON.stringify({

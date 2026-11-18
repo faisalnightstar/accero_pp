@@ -2,6 +2,7 @@ import { DocumentType } from '@/types/cards';
 import { ProviderAdapter } from './types';
 import { FastNexoraProvider } from './providers/fastnexora';
 import { NeoApiProvider } from './providers/neoapi';
+import { WebApiInProvider } from './providers/webapiIn';
 import { AxenApiProvider } from './providers/axenapi';
 import { MockProvider } from './providers/mock';
 
@@ -32,9 +33,11 @@ export function getProvidersForDocType(docType: DocumentType): ProviderAdapter[]
     }
 
     case 'voter': {
-      // NeoAPI V1 (primary) -> NeoAPI V2 (automatic fallback) inside NeoApiProvider
+      // Prioritized Voter Provider resolution (NeoAPI primary, WebAPI.in secondary, FastNexora fallback)
       if (process.env.NEO_API_KEY) {
         list.push(new NeoApiProvider());
+      } else if (process.env.WEBAPI_IN_TOKEN) {
+        list.push(new WebApiInProvider());
       } else if (process.env.FASTNEXORA_API_KEY) {
         list.push(new FastNexoraProvider());
       }

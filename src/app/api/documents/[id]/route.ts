@@ -44,6 +44,21 @@ export async function GET(
       (doc as any).expiresAt && new Date((doc as any).expiresAt).getTime() > Date.now()
     );
 
+    const isPaid = (doc as any).isPaid === true;
+    const isIdentityLocked = Boolean((doc as any).identityLock || isPaid || (doc as any).inputMode === 'API');
+
+    const identityLock = (doc as any).identityLock || {
+      documentType: (doc as any).docType,
+      documentIdentifier: (doc as any).cardIdentifier,
+      lookupStatus: 'SUCCESS',
+      verificationStatus: (doc as any).inputMode === 'API' ? 'VERIFIED' : 'MANUAL',
+      paymentStatus: isPaid ? 'PAID' : 'UNPAID',
+      reprintEligible: isPaid,
+      originalLookupTransactionId: (doc as any).paymentReferenceId,
+      ownerId: (doc as any).userId?.toString(),
+      lockedAt: (doc as any).createdAt,
+    };
+
     const docPayload = {
       id: (doc as any)._id.toString(),
       docType: (doc as any).docType.toLowerCase(),
@@ -57,6 +72,9 @@ export async function GET(
       fetchedAt: (doc as any).fetchedAt,
       expiresAt: (doc as any).expiresAt,
       isCacheValid,
+      isPaid,
+      isIdentityLocked,
+      identityLock,
       createdAt: (doc as any).createdAt,
       updatedAt: (doc as any).updatedAt,
     };

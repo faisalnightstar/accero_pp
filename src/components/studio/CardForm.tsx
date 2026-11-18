@@ -17,6 +17,7 @@ import {
   Loader2,
   Plus,
   Trash2,
+  Lock,
 } from 'lucide-react';
 import { VOTER_LANGUAGES, VoterLanguageCode, translateVoterText } from '@/lib/voterLanguages';
 import { AADHAAR_LANGUAGES, AadhaarLanguageCode, translateAadhaarText } from '@/lib/aadhaarLanguages';
@@ -46,13 +47,26 @@ interface CardFormProps {
   data: any;
   onFieldChange: (key: string, value: any) => void;
   missingKeys?: string[];
+  isIdentityLocked?: boolean;
 }
+
+const isIdentityKey = (type: DocumentType, key: string): boolean => {
+  if (type === 'voter') return key === 'epicNumber';
+  if (type === 'pan') return key === 'panNumber';
+  if (type === 'aadhaar') return key === 'aadhaarNumber';
+  if (type === 'dl') return key === 'dlNumber';
+  if (type === 'rc') return key === 'registrationNumber' || key === 'chassisNumber';
+  if (type === 'ration') return key === 'rationCardNumber';
+  if (type === 'farmer') return key === 'farmerId';
+  return false;
+};
 
 export default function CardForm({
   docType,
   data,
   onFieldChange,
   missingKeys = [],
+  isIdentityLocked = false,
 }: CardFormProps) {
   const [isTranslating, setIsTranslating] = useState(false);
   const [isAadhaarTranslating, setIsAadhaarTranslating] = useState(false);
@@ -302,7 +316,7 @@ export default function CardForm({
     onFieldChange('vehicleClasses', updated);
   };
 
-  // Helper to render an input field with optional amber missing-field badge
+  // Helper to render an input field with optional amber missing-field badge or locked identity treatment
   const renderInput = (
     key: string,
     label: string,
@@ -312,6 +326,7 @@ export default function CardForm({
   ) => {
     const isMissing = missingKeys.includes(key);
     const value = data ? (data[key] ?? '') : '';
+    const isLocked = Boolean(isIdentityLocked && isIdentityKey(docType, key));
 
     return (
       <div className="flex flex-col gap-1.5" id={`field-container-${key}`}>
@@ -320,28 +335,42 @@ export default function CardForm({
             htmlFor={`input-${key}`}
             className="text-xs font-semibold text-gray-700 flex items-center gap-1"
           >
+            {isLocked && <Lock className="w-3.5 h-3.5 text-slate-500 inline-block mr-0.5" />}
             <span>{label}</span>
             {required && <span className="text-crimson">*</span>}
           </label>
 
-          {isMissing && (
+          {isLocked ? (
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-600 border border-slate-200">
+              <Lock className="w-2.5 h-2.5 text-slate-500" />
+              Verified Identity (Locked)
+            </span>
+          ) : isMissing ? (
             <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
               <AlertCircle className="w-3 h-3 text-amber-600" />
               Missing from API
             </span>
-          )}
+          ) : null}
         </div>
 
         <input
           id={`input-${key}`}
           type={type}
           value={value}
-          onChange={(e) => onFieldChange(key, e.target.value)}
-          placeholder={placeholder}
-          className={`w-full px-3 py-2 text-xs rounded-lg border transition-all outline-none font-medium ${isMissing
-            ? 'border-amber-400 bg-amber-50/20 focus:border-amber-500 focus:ring-2 focus:ring-amber-200'
-            : 'border-gray-300 bg-white focus:border-steel-blue focus:ring-2 focus:ring-steel-blue/20 text-navy'
-            }`}
+          readOnly={isLocked}
+          disabled={isLocked}
+          onChange={(e) => {
+            if (isLocked) return;
+            onFieldChange(key, e.target.value);
+          }}
+          placeholder={isLocked ? `Locked: ${value}` : placeholder}
+          className={`w-full px-3 py-2 text-xs rounded-lg border transition-all outline-none font-medium ${
+            isLocked
+              ? 'border-slate-300 bg-slate-100/90 text-slate-700 font-mono cursor-not-allowed select-none'
+              : isMissing
+                ? 'border-amber-400 bg-amber-50/20 focus:border-amber-500 focus:ring-2 focus:ring-amber-200'
+                : 'border-gray-300 bg-white focus:border-steel-blue focus:ring-2 focus:ring-steel-blue/20 text-navy'
+          }`}
         />
       </div>
     );

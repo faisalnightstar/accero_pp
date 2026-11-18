@@ -14,6 +14,8 @@ const envSchema = z.object({
   
   // External Verification APIs
   NEO_API_KEY: z.string().optional(),
+  WEBAPI_IN_TOKEN: z.string().optional(),
+  VOTER_PROVIDER_ORDER: z.string().optional(),
   AXEN_API_KEY: z.string().optional(),
   FASTNEXORA_API_KEY: z.string().optional(),
   
@@ -43,6 +45,8 @@ export function getEnv(): EnvConfig {
     PAYTM_WEBSITE: process.env.PAYTM_WEBSITE,
     PAYTM_ENVIRONMENT: process.env.PAYTM_ENVIRONMENT,
     NEO_API_KEY: process.env.NEO_API_KEY,
+    WEBAPI_IN_TOKEN: process.env.WEBAPI_IN_TOKEN,
+    VOTER_PROVIDER_ORDER: process.env.VOTER_PROVIDER_ORDER,
     AXEN_API_KEY: process.env.AXEN_API_KEY,
     FASTNEXORA_API_KEY: process.env.FASTNEXORA_API_KEY,
     UPSTASH_REDIS_REST_URL: process.env.UPSTASH_REDIS_REST_URL,

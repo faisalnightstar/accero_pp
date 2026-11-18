@@ -10,6 +10,7 @@ import { getPanQrXmlString, PanCardData } from '@/types/cards';
 import { getConfiguredServicePricing } from '@/lib/wallet/pricing';
 import { getWalletBalance } from '@/actions/wallet';
 import { maskIdentifier } from '@/lib/network/proxy-config';
+import { getVoterCaptchaChallenge } from '@/lib/verify/voterOrchestrator';
 
 /**
  * Returns active server-configured pricing for a document service.
@@ -166,6 +167,20 @@ export async function verifyDocument(
       feeDeducted: panResult.feeDeducted,
       currentBalance: panResult.currentBalance,
       isFreeReprint: panResult.isFreeReprint,
+      isIdentityLocked: isSuccess,
+      identityLock: isSuccess
+        ? {
+            documentType: 'PAN',
+            documentIdentifier: sanitizedId,
+            lookupStatus: 'SUCCESS',
+            verificationStatus: 'VERIFIED',
+            paymentStatus: 'PAID',
+            reprintEligible: true,
+            originalLookupTransactionId: panResult.transactionReferenceId,
+            ownerId: session.userId,
+            lockedAt: new Date(),
+          }
+        : undefined,
       latencyMs: panResult.latencyMs,
     };
   }
@@ -218,7 +233,74 @@ export async function verifyDocument(
     docId: lookup.docId,
     feeDeducted: 0, // No deduction on preview/search for non-voter services
     isFreeReprint: lookup.cache?.hit,
+    isIdentityLocked: true,
+    identityLock: {
+      documentType: docType.toUpperCase() as any,
+      documentIdentifier: sanitizedId,
+      lookupStatus: 'SUCCESS',
+      verificationStatus: 'VERIFIED',
+      paymentStatus: lookup.cache?.hit ? 'PAID' : 'UNPAID',
+      reprintEligible: Boolean(lookup.cache?.hit),
+      ownerId: session.userId,
+      lockedAt: new Date(),
+    },
     currentBalance,
     latencyMs: lookup.latencyMs,
   };
+}
+
+/**
+ * Server action to generate a fresh Voter captcha challenge without exposing credentials.
+ */
+export async function getVoterCaptchaAction(providerId?: string): Promise<{
+  success: boolean;
+  captchaId?: string;
+  captchaDataUri?: string;
+  providerId?: string;
+  errorMessage?: string;
+}> {
+  const session = await getSession();
+  if (!session?.userId) {
+    return {
+      success: false,
+      errorMessage: 'Please sign in to generate verification captcha.',
+    };
+  }
+
+  return await getVoterCaptchaChallenge(providerId || 'webapi_in');
+}
+
+/**
+ * Server action to execute Voter verification with user-provided captcha.
+ */
+export async function verifyVoterWithCaptchaAction(params: {
+  epicNumber: string;
+  captchaId: string;
+  captchaAnswer: string;
+  stateCd?: string;
+  providerId?: string;
+  requestId?: string;
+}): Promise<VerificationResult> {
+  const session = await getSession();
+  if (!session?.userId) {
+    return {
+      success: false,
+      documentType: 'voter',
+      idNumber: (params.epicNumber || '').trim().toUpperCase(),
+      data: {},
+      isPartial: false,
+      errorMessage: 'Please sign in to verify documents.',
+    };
+  }
+
+  const sanitizedEpic = (params.epicNumber || '').trim().toUpperCase();
+  return await lookupAndBillVoter({
+    userId: session.userId,
+    epicNumber: sanitizedEpic,
+    requestId: params.requestId,
+    captchaId: params.captchaId,
+    captchaAnswer: params.captchaAnswer,
+    stateCd: params.stateCd,
+    providerId: params.providerId,
+  });
 }
