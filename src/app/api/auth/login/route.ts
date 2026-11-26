@@ -117,6 +117,11 @@ export async function POST(request: Request) {
       );
     }
 
+    // Update lastLoginAt timestamp on every successful login
+    await User.findByIdAndUpdate(user._id, {
+      $set: { lastLoginAt: new Date() },
+    });
+
     // Fetch user wallet balance
     const wallet = await Wallet.findOne({ userId: user._id });
     const balance = wallet ? wallet.balance : 0;
