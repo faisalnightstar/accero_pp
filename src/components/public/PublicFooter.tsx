@@ -401,6 +401,10 @@ export default function PublicFooter() {
               Terms of Service
             </Link>
             <span className="text-slate-600 hidden sm:inline">&bull;</span>
+            <Link href="/refund-policy" className="py-2 text-slate-300 hover:text-white transition-colors">
+              Refund Policy
+            </Link>
+            <span className="text-slate-600 hidden sm:inline">&bull;</span>
             <Link href="/sitemap.xml" className="py-2 text-slate-300 hover:text-white transition-colors">
               Sitemap
             </Link>

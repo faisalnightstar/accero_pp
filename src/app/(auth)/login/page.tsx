@@ -1,8 +1,32 @@
 import React, { Suspense } from 'react';
+import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/lib/auth';
 import { getSafeRedirectUrl } from '@/lib/rbac';
+import { buildPageMetadata } from '@/lib/seo/metadata';
 import LoginForm from './LoginForm';
+
+export const metadata: Metadata = buildPageMetadata({
+  title: 'Operator Login | Accero PrintPortal – Access CSC & Cyber Cafe Card Studio',
+  description:
+    'Sign in to Accero PrintPortal. Access your operator wallet, document lookup cascade, live CR80 split-screen card editor, and free lifetime reprints.',
+  path: '/login',
+  keywords: [
+    'print portal login',
+    'csc print portal login',
+    'indiprint portal login',
+    'digital print portal sign in',
+    'vle print portal login',
+    'operator login print portal',
+    'fast print portal login',
+    'retail print portal login',
+    'print portal member login',
+    'distributor login print portal',
+    'cyber cafe login portal',
+    'acp print login',
+    'free print portal login',
+  ],
+});
 
 export const dynamic = 'force-dynamic';
 

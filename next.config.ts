@@ -151,6 +151,92 @@ const nextConfig: NextConfig = {
         destination: '/services/farmer-id-printing',
         permanent: true,
       },
+      // Competitor and legacy URL pattern redirects
+      {
+        source: '/service',
+        destination: '/services',
+        permanent: true,
+      },
+      {
+        source: '/services/aadhaar-print',
+        destination: '/services/aadhaar-document-management',
+        permanent: true,
+      },
+      {
+        source: '/services/pan-card-print',
+        destination: '/services/pan-card-printing',
+        permanent: true,
+      },
+      {
+        source: '/services/voter-id-print',
+        destination: '/services/voter-id-printing',
+        permanent: true,
+      },
+      {
+        source: '/services/driving-licence-print',
+        destination: '/services/driving-licence-printing',
+        permanent: true,
+      },
+      {
+        source: '/services/rc-print',
+        destination: '/services/vehicle-rc-printing',
+        permanent: true,
+      },
+      {
+        source: '/services/ration-card-print',
+        destination: '/services/ration-card-printing',
+        permanent: true,
+      },
+      {
+        source: '/services/farmer-card-print',
+        destination: '/services/farmer-id-printing',
+        permanent: true,
+      },
+      {
+        source: '/services/pvc-card-print',
+        destination: '/pvc-card-printing-software',
+        permanent: true,
+      },
+      {
+        source: '/services/ayushman-card-print',
+        destination: '/services',
+        permanent: true,
+      },
+      {
+        source: '/services/e-shram-print',
+        destination: '/services',
+        permanent: true,
+      },
+      {
+        source: '/services/abha-card-print',
+        destination: '/services',
+        permanent: true,
+      },
+      {
+        source: '/services/udyam-print',
+        destination: '/services',
+        permanent: true,
+      },
+      {
+        source: '/password-reset',
+        destination: '/forgot-password',
+        permanent: true,
+      },
+      {
+        source: '/abouts',
+        destination: '/about',
+        permanent: true,
+      },
+      {
+        source: '/contacts',
+        destination: '/contact',
+        permanent: true,
+      },
+      {
+        source: '/terms-condition',
+        destination: '/terms',
+        permanent: true,
+      },
     ];
   },
   async headers() {

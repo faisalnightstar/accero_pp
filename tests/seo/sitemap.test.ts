@@ -7,9 +7,9 @@ describe('Sitemap Integrity & Governance', () => {
   const generatedSitemap = sitemap();
   const sitemapUrls = generatedSitemap.map((item) => item.url);
 
-  it('matches exactly the 56 canonical public routes registered in routes.ts (52 baseline + 1 CR80 calculator + 3 search-intent expansion routes)', () => {
+  it('matches exactly the 57 canonical public routes registered in routes.ts (52 baseline + 1 CR80 calculator + 3 search-intent expansion routes + 1 refund policy)', () => {
     expect(generatedSitemap.length).toBe(CANONICAL_PUBLIC_ROUTES.length);
-    expect(generatedSitemap.length).toBe(56);
+    expect(generatedSitemap.length).toBe(57);
   });
 
   it('ensures every sitemap URL starts with the authoritative production domain', () => {

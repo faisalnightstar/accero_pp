@@ -81,6 +81,7 @@ export const CANONICAL_PUBLIC_ROUTES: CanonicalRouteConfig[] = [
   { path: '/security', priority: 0.6, changeFrequency: 'monthly', category: 'trust', lastModified: '2026-11-10' },
   { path: '/privacy-policy', priority: 0.5, changeFrequency: 'yearly', category: 'trust', lastModified: '2026-11-10' },
   { path: '/terms', priority: 0.5, changeFrequency: 'yearly', category: 'trust', lastModified: '2026-11-10' },
+  { path: '/refund-policy', priority: 0.5, changeFrequency: 'yearly', category: 'trust', lastModified: '2026-11-26' },
 
   // 8. Competitor Comparison & Migration Pages
   { path: '/compare/digitalportal-alternative', priority: 0.85, changeFrequency: 'weekly', category: 'comparison', lastModified: '2026-11-13' },
