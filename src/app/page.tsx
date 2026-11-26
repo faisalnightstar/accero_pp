@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import {
@@ -230,6 +231,8 @@ const homeFaqs = [
 ];
 
 export default function HomePage() {
+  ReactDOM.preload('/assets/pan/nsdl-front.jpg', { as: 'image', fetchPriority: 'high' });
+
   const organizationSchema = generateOrganizationSchema();
   const websiteSchema = generateWebSiteSchema();
   const softwareSchema = generateSoftwareApplicationSchema(
@@ -350,7 +353,7 @@ export default function HomePage() {
                 <div className="pt-1">
                   <Link
                     href="/features/document-lookup"
-                    aria-label="Learn more about document lookup and manual entry"
+                    aria-label="Explore document lookup – learn more about document lookup and manual entry"
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1D3557] hover:text-[#8B1E2D] transition-colors"
                   >
                     <span>Explore document lookup</span>
@@ -375,7 +378,7 @@ export default function HomePage() {
                 <div className="pt-1">
                   <Link
                     href="/features/document-editing"
-                    aria-label="Learn more about split-screen live editing"
+                    aria-label="Explore live editing – learn more about split-screen live editing"
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1D3557] hover:text-[#8B1E2D] transition-colors"
                   >
                     <span>Explore live editing</span>
@@ -397,7 +400,7 @@ export default function HomePage() {
                 <div className="pt-1">
                   <Link
                     href="/features/multilingual-printing"
-                    aria-label="Learn more about multilingual typography"
+                    aria-label="Explore multilingual printing – learn more about multilingual typography"
                     className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#1D3557] hover:text-[#8B1E2D] transition-colors"
                   >
                     <span>Explore multilingual printing</span>
@@ -432,7 +435,7 @@ export default function HomePage() {
               <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between">
                 <div className="space-y-4">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
                       Manual Mode
                     </span>
                     <h3 className="text-lg font-bold text-[#1D3557] mt-1">Manual Draft &amp; Format</h3>
@@ -473,7 +476,7 @@ export default function HomePage() {
                 </span>
                 <div className="space-y-4">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
                       Operator Standard
                     </span>
                     <h3 className="text-lg font-bold text-[#1D3557] mt-1">Instant Verified Lookup</h3>
@@ -515,7 +518,7 @@ export default function HomePage() {
               <div className="bg-white rounded-2xl p-6 border border-slate-200/90 shadow-xs flex flex-col justify-between">
                 <div className="space-y-4">
                   <div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
                       High Volume
                     </span>
                     <h3 className="text-lg font-bold text-[#1D3557] mt-1">Multi-Counter Enterprise</h3>

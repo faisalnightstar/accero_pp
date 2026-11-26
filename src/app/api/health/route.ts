@@ -10,7 +10,7 @@ export async function GET() {
   let isHealthy = false;
 
   try {
-    if (process.env.MONGODB_URI) {
+    if (process.env.ACCERO_MONGODB_URI || process.env.ACCERO_MONGODB_URI) {
       await connectToDatabase();
       const readyState = mongoose.connection.readyState;
       // 0 = disconnected, 1 = connected, 2 = connecting, 3 = disconnecting
@@ -31,7 +31,7 @@ export async function GET() {
       latencyMs: Date.now() - startTime,
       database: {
         status: dbStatus,
-        configured: Boolean(process.env.MONGODB_URI),
+        configured: Boolean(process.env.ACCERO_MONGODB_URI) || Boolean(process.env.ACCERO_MONGODB_URI),
       },
     });
   } catch (error: any) {

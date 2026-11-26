@@ -1,5 +1,182 @@
 {
-  "uploads": [],
+  "uploads": [
+    {
+      "testNumber": 1,
+      "label": "PAN portrait",
+      "folder": "accero/test/services/pan",
+      "publicId": "accero/test/services/pan/ba6c422c-33cf-4af9-9e1d-972fc024821e",
+      "assetId": "7610f4b6ae00bc3bc3ca6ee6f7124ebd",
+      "format": "jpg",
+      "originalBytes": 4994,
+      "processedBytes": 2689,
+      "dimensions": "800x1000",
+      "profile": "documentPhoto",
+      "accessMode": "authenticated",
+      "cloudinaryVerified": true,
+      "httpStatus": 200,
+      "deletedCleanly": true
+    },
+    {
+      "testNumber": 2,
+      "label": "Aadhaar portrait",
+      "folder": "accero/test/services/aadhaar",
+      "publicId": "accero/test/services/aadhaar/e2771446-bbd3-4b1f-9963-ac2faf06f205",
+      "assetId": "436d6d3722db24129e13d2a15a194345",
+      "format": "jpg",
+      "originalBytes": 4500,
+      "processedBytes": 2441,
+      "dimensions": "750x950",
+      "profile": "documentPhoto",
+      "accessMode": "authenticated",
+      "cloudinaryVerified": true,
+      "httpStatus": 200,
+      "deletedCleanly": true
+    },
+    {
+      "testNumber": 3,
+      "label": "Voter portrait",
+      "folder": "accero/test/services/voter",
+      "publicId": "accero/test/services/voter/905c69c5-3ddc-405e-8e05-0da15d0b88a7",
+      "assetId": "9c6a1ee9934c90e083e2cd9108cd27d0",
+      "format": "jpg",
+      "originalBytes": 4030,
+      "processedBytes": 2207,
+      "dimensions": "700x900",
+      "profile": "documentPhoto",
+      "accessMode": "authenticated",
+      "cloudinaryVerified": true,
+      "httpStatus": 200,
+      "deletedCleanly": true
+    },
+    {
+      "testNumber": 4,
+      "label": "Driving Licence portrait",
+      "folder": "accero/test/services/driving-license",
+      "publicId": "accero/test/services/driving-license/ba9ace93-f041-477d-b05f-659082c9e796",
+      "assetId": "a2b1e55120b4bbf74658bbab68c4494d",
+      "format": "jpg",
+      "originalBytes": 5417,
+      "processedBytes": 2901,
+      "dimensions": "820x1050",
+      "profile": "documentPhoto",
+      "accessMode": "authenticated",
+      "cloudinaryVerified": true,
+      "httpStatus": 200,
+      "deletedCleanly": true
+    },
+    {
+      "testNumber": 5,
+      "label": "RC vehicle image",
+      "folder": "accero/test/services/vehicle-rc",
+      "publicId": "accero/test/services/vehicle-rc/7a3a25b5-0c4c-4334-a17e-d7bb4200aae1",
+      "assetId": "c7ac4f8824cbdf6a5edcd267307cea7d",
+      "format": "jpg",
+      "originalBytes": 5445,
+      "processedBytes": 2915,
+      "dimensions": "1100x800",
+      "profile": "documentPhoto",
+      "accessMode": "authenticated",
+      "cloudinaryVerified": true,
+      "httpStatus": 200,
+      "deletedCleanly": true
+    },
+    {
+      "testNumber": 6,
+      "label": "Farmer ID portrait",
+      "folder": "accero/test/services/farmer-id",
+      "publicId": "accero/test/services/farmer-id/b6ac2eba-9221-497b-8e27-2fdd583a1eff",
+      "assetId": "0af653b7c52626f73c4eb22d81a07884",
+      "format": "jpg",
+      "originalBytes": 4500,
+      "processedBytes": 2442,
+      "dimensions": "750x950",
+      "profile": "documentPhoto",
+      "accessMode": "authenticated",
+      "cloudinaryVerified": true,
+      "httpStatus": 200,
+      "deletedCleanly": true
+    },
+    {
+      "testNumber": 7,
+      "label": "Signature with transparent background",
+      "folder": "accero/test/documents/signatures",
+      "publicId": "accero/test/documents/signatures/3b557144-0460-43c8-972b-88d137ae7629",
+      "assetId": "85d6f09739fe33c9dc3e984d09b797e1",
+      "format": "png",
+      "originalBytes": 1322,
+      "processedBytes": 1322,
+      "dimensions": "900x350",
+      "profile": "signature",
+      "accessMode": "authenticated",
+      "cloudinaryVerified": true,
+      "httpStatus": 200,
+      "deletedCleanly": true
+    },
+    {
+      "testNumber": 8,
+      "label": "Operator avatar",
+      "folder": "accero/test/users/avatars",
+      "publicId": "accero/test/users/avatars/77d408fb-1747-44d8-8da3-0afed54f4443",
+      "assetId": "d1ff52f4bce90c6b89263c920d1597bf",
+      "format": "webp",
+      "originalBytes": 2436,
+      "processedBytes": 550,
+      "dimensions": "512x512",
+      "profile": "avatar",
+      "accessMode": "public",
+      "cloudinaryVerified": true,
+      "httpStatus": 200,
+      "deletedCleanly": true
+    },
+    {
+      "testNumber": 9,
+      "label": "Marketing banner",
+      "folder": "accero/test/marketing/banners",
+      "publicId": "accero/test/marketing/banners/8c558863-5890-4ea0-9af2-87548df0b885",
+      "assetId": "54eda49d0f7bb8bfbc634039a9cb1620",
+      "format": "webp",
+      "originalBytes": 12510,
+      "processedBytes": 3792,
+      "dimensions": "1920x1080",
+      "profile": "marketing",
+      "accessMode": "public",
+      "cloudinaryVerified": true,
+      "httpStatus": 200,
+      "deletedCleanly": true
+    },
+    {
+      "testNumber": 10,
+      "label": "Blog featured image",
+      "folder": "accero/test/marketing/blog",
+      "publicId": "accero/test/marketing/blog/adf63e4f-2e62-4bfd-9814-44eb2f1b857a",
+      "assetId": "93d85b3064ff854643cc43a216662bac",
+      "format": "webp",
+      "originalBytes": 7793,
+      "processedBytes": 2362,
+      "dimensions": "1400x900",
+      "profile": "blog",
+      "accessMode": "public",
+      "cloudinaryVerified": true,
+      "httpStatus": 200,
+      "deletedCleanly": true
+    },
+    {
+      "testNumber": 11,
+      "label": "Generated card canvas preview",
+      "folder": "accero/test/documents/generated-previews",
+      "publicId": "accero/test/documents/generated-previews/0cf53f8d-7dc9-4298-80ca-1a0d709bccb0",
+      "assetId": "dc20909345f9e7ac0e6c3812a7e206a5",
+      "format": "webp",
+      "originalBytes": 4046,
+      "processedBytes": 1208,
+      "dimensions": "1000x638",
+      "profile": "temporaryPreview",
+      "accessMode": "authenticated",
+      "cloudinaryVerified": true,
+      "httpStatus": 200,
+      "deletedCleanly": true
+    }
+  ],
   "benchmarks": [
     {
       "scenario": "High-Resolution Smartphone Portrait (3000x4000 JPEG)",
@@ -99,9 +276,24 @@
   ],
   "mongoChecks": [
     {
+      "check": "Subdocument schema validation",
+      "docId": "6b078b749cf50b68820dbba7",
+      "publicId": "accero/test/services/pan/0dbdd96a-7f85-4ae9-bd80-b967016067c6",
+      "metadataMatches": true,
+      "base64Eliminated": true
+    },
+    {
       "check": "Legacy Base64 passthrough",
       "passed": true
     }
   ],
-  "replacementChecks": []
+  "replacementChecks": [
+    {
+      "test": "Atomic replacement and orphan prevention",
+      "publicIdA": "accero/test/temporary/6450d31e-b976-4c88-9120-27386d05ef97",
+      "publicIdB": "accero/test/temporary/fd698e6b-358f-47a1-a938-b4ad4ae1474a",
+      "oldAssetDestroyed": true,
+      "newAssetLive": true
+    }
+  ]
 }

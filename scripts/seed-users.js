@@ -51,8 +51,8 @@ function loadEnv() {
 
 loadEnv();
 
-const MONGODB_URI =
-  process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/accero_printportal';
+const ACCERO_MONGODB_URI =
+  process.env.ACCERO_MONGODB_URI || process.env.ACCERO_MONGODB_URI;
 
 const UserSchema = new mongoose.Schema(
   {
@@ -163,9 +163,9 @@ async function seed() {
   console.log('----------------------------------------------------');
   console.log('Accero PrintPortal - Role & User Seeding Engine');
   console.log('----------------------------------------------------');
-  console.log(`Connecting to MongoDB: ${MONGODB_URI.replace(/:([^@]+)@/, ':****@')}`);
+  console.log(`Connecting to MongoDB: ${ACCERO_MONGODB_URI.replace(/:([^@]+)@/, ':****@')}`);
 
-  await mongoose.connect(MONGODB_URI);
+  await mongoose.connect(ACCERO_MONGODB_URI);
 
   console.log('Database connected successfully.\n');
 

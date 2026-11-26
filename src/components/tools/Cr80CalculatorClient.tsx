@@ -78,6 +78,7 @@ Corner Radius: ${calc.cornerRadiusPx}px (${CR80_STANDARD.CORNER_RADIUS_MM}mm)`;
             size="sm"
             onClick={copyToClipboard}
             icon={copied ? <Check className="w-4 h-4 text-emerald-600" /> : <Copy className="w-4 h-4" />}
+            aria-label="Copy specification dimensions"
           >
             {copied ? 'Copied Specs!' : 'Copy Dimensions'}
           </Button>
@@ -87,6 +88,7 @@ Corner Radius: ${calc.cornerRadiusPx}px (${CR80_STANDARD.CORNER_RADIUS_MM}mm)`;
             onClick={handleReset}
             icon={<RotateCcw className="w-4 h-4" />}
             title="Reset to 300 DPI defaults"
+            aria-label="Reset to 300 DPI defaults"
           >
             Reset
           </Button>
@@ -146,6 +148,8 @@ Corner Radius: ${calc.cornerRadiusPx}px (${CR80_STANDARD.CORNER_RADIUS_MM}mm)`;
               </div>
             </div>
             <input
+              id="custom-dpi-slider"
+              aria-label="Target resolution DPI slider"
               type="range"
               min="72"
               max="1200"
@@ -154,7 +158,7 @@ Corner Radius: ${calc.cornerRadiusPx}px (${CR80_STANDARD.CORNER_RADIUS_MM}mm)`;
               onChange={(e) => setDpi(parseInt(e.target.value, 10))}
               className="w-full accent-[#1D3557] cursor-pointer"
             />
-            <div className="flex justify-between text-[11px] text-slate-400">
+            <div className="flex justify-between text-[11px] text-slate-600">
               <span>72 (Web)</span>
               <span>300 (Standard)</span>
               <span>600 (High-Res)</span>
@@ -180,7 +184,7 @@ Corner Radius: ${calc.cornerRadiusPx}px (${CR80_STANDARD.CORNER_RADIUS_MM}mm)`;
                   key={val}
                   type="button"
                   onClick={() => setBleedMm(val)}
-                  className={`py-2 px-3 rounded-lg border text-xs font-medium text-center transition-all ${
+                  className={`min-h-[44px] py-2 px-3 rounded-lg border text-xs font-medium text-center transition-all ${
                     bleedMm === val
                       ? 'border-[#8B1E2D] bg-[#8B1E2D]/5 text-[#8B1E2D] font-bold'
                       : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
@@ -209,7 +213,7 @@ Corner Radius: ${calc.cornerRadiusPx}px (${CR80_STANDARD.CORNER_RADIUS_MM}mm)`;
                   key={u}
                   type="button"
                   onClick={() => setUnit(u)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
+                  className={`min-h-[44px] px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${
                     unit === u
                       ? 'bg-white text-slate-900 shadow-xs border border-slate-200'
                       : 'text-slate-600 hover:text-slate-900'

@@ -22,8 +22,8 @@ const envContent = fs.readFileSync('.env.local', 'utf8');
 let mongoUri = '';
 let jwtSecret = 'accero_secure_cache_salt_fallback_min_32';
 for (const line of envContent.split('\n')) {
-  if (line.startsWith('MONGODB_URI=')) {
-    mongoUri = line.replace('MONGODB_URI=', '').trim();
+  if (line.startsWith('ACCERO_MONGODB_URI=')) {
+    mongoUri = line.replace('ACCERO_MONGODB_URI=', '').trim();
   }
   if (line.startsWith('JWT_SECRET=')) {
     jwtSecret = line.replace('JWT_SECRET=', '').trim();
@@ -31,7 +31,7 @@ for (const line of envContent.split('\n')) {
 }
 
 if (!mongoUri) {
-  console.error('[Migration] ERROR: No MONGODB_URI found in .env.local');
+  console.error('[Migration] ERROR: No ACCERO_MONGODB_URI found in .env.local');
   process.exit(1);
 }
 

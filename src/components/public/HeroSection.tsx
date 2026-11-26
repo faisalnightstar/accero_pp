@@ -246,7 +246,7 @@ export function HeroSection() {
 
             {/* Document Selector Pills */}
             <div className="space-y-2 pt-2">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600">
                 Select Card Workflow to Preview:
               </span>
               <div className="flex flex-wrap gap-2">
@@ -278,6 +278,8 @@ export function HeroSection() {
                 </div>
                 <input
                   type="text"
+                  id="hero-card-lookup-input"
+                  aria-label={`Enter ${currentDoc.name} number or ID to open in studio`}
                   value={lookupValue}
                   onChange={(e) => setLookupValue(e.target.value)}
                   placeholder={currentDoc.placeholder}
@@ -295,7 +297,7 @@ export function HeroSection() {
               </div>
 
               {/* Example Trigger */}
-              <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 px-1">
+              <div className="flex items-center justify-between text-[11px] text-slate-600 pt-2 px-1">
                 <span>
                   Example {currentDoc.name}:{' '}
                   <button
@@ -339,10 +341,10 @@ export function HeroSection() {
               {/* Header Specification */}
               <div className="flex items-center justify-between pb-3 border-b border-slate-200">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
                     Live Template Canvas
                   </span>
-                  <h3 className="text-sm font-bold text-[#1D3557]">{currentDoc.name}</h3>
+                  <h2 className="text-sm font-bold text-[#1D3557]">{currentDoc.name}</h2>
                 </div>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
                   {currentDoc.tag}
@@ -362,8 +364,8 @@ export function HeroSection() {
 
               {/* Interactive View Controls */}
               <div className="flex items-center justify-between pt-2 border-t border-slate-200 text-xs">
-                <div className="flex items-center gap-1.5 text-slate-500 text-[11px]">
-                  <RotateCw className="w-3.5 h-3.5 text-slate-400" />
+                <div className="flex items-center gap-1.5 text-slate-600 text-[11px]">
+                  <RotateCw className="w-3.5 h-3.5 text-slate-500" />
                   <span>300+ DPI Print Layout</span>
                 </div>
 

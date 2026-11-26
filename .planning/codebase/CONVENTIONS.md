@@ -40,7 +40,7 @@
   - `kebab-case` for file and directory names (e.g., `src/components/card-renderer/pan-card.tsx`).
   - `PascalCase` for React components and TypeScript types/interfaces (`PanCard`, `DocumentFormProps`).
   - `camelCase` for functions, hooks, and variables (`fetchVoterDetails`, `useWallet`).
-  - `UPPER_SNAKE_CASE` for environment variables and configuration constants (`MONGODB_URI`, `NEO_API_KEY`).
+  - `UPPER_SNAKE_CASE` for environment variables and configuration constants (`ACCERO_MONGODB_URI`, `NEO_API_KEY`).
 - **State Management:** React hooks (`useState`, `useReducer`, `useOptimistic`) for form editing and dynamic card synchronization.
 - **Validation:** Zod schemas for all API payloads and form fields (validating 10-character PAN format, 12-digit Aadhaar format, EPIC format, DL number, vehicle RC number).
 - **SEO & Metadata:**

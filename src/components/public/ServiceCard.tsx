@@ -96,7 +96,7 @@ export function ServiceCard({ service, className = '' }: ServiceCardProps) {
             <span className="text-base font-extrabold text-[#1D3557]">₹{fee}</span>
             <span className="text-[11px] text-slate-500">/ lookup</span>
             {originalFee > fee && (
-              <span className="text-[11px] line-through text-slate-400">₹{originalFee}</span>
+              <span className="text-[11px] line-through text-slate-600 font-medium">₹{originalFee}</span>
             )}
           </div>
           {discountPercent > 0 && (

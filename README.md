@@ -326,7 +326,7 @@ The application requires environment variables defined in `.env.local`. Refer to
 
 | Variable | Description | Required in Dev |
 | :--- | :--- | :--- |
-| `MONGODB_URI` | MongoDB connection string (e.g. `mongodb://localhost:27017/accero_pp` or Atlas URI) | **Yes** |
+| `ACCERO_MONGODB_URI` | MongoDB connection string (e.g. `mongodb://localhost:27017/accero_pp` or Atlas URI) | **Yes** |
 | `JWT_SECRET` | 32+ character random secret for signing Jose JWT tokens | **Yes** |
 | `NEXT_PUBLIC_APP_URL` | Base public URL (e.g. `http://localhost:3000` in dev, `https://printportal.accero.app` in prod) | **Yes** |
 | `PAYTM_MID` | Paytm Merchant Identifier for payment orders | Optional |

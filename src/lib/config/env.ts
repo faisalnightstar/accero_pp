@@ -2,27 +2,27 @@ import { z } from 'zod';
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  MONGODB_URI: z.string().min(1, 'MONGODB_URI is required'),
+  ACCERO_MONGODB_URI: z.string().min(1, 'ACCERO_MONGODB_URI is required'),
   JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters long for cryptographic security'),
-  
+
   // Payment Credentials (Paytm)
   PAYTM_MID: z.string().optional(),
   PAYTM_MERCHANT_KEY: z.string().optional(),
   PAYTM_UPI: z.string().optional(),
   PAYTM_WEBSITE: z.string().default('DEFAULT'),
   PAYTM_ENVIRONMENT: z.enum(['STANDARD', 'CUSTOM']).default('STANDARD'),
-  
+
   // External Verification APIs
   NEO_API_KEY: z.string().optional(),
   WEBAPI_IN_TOKEN: z.string().optional(),
   VOTER_PROVIDER_ORDER: z.string().optional(),
   AXEN_API_KEY: z.string().optional(),
   FASTNEXORA_API_KEY: z.string().optional(),
-  
+
   // Distributed Rate Limiting (Upstash Redis)
   UPSTASH_REDIS_REST_URL: z.string().url().optional(),
   UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
-  
+
   // Sandbox testing control (strictly forbidden in production)
   ALLOW_SANDBOX_RECHARGE: z.string().optional(),
   ALLOW_MOCK_PROVIDERS: z.string().optional(),
@@ -37,7 +37,7 @@ export function getEnv(): EnvConfig {
 
   const rawEnv = {
     NODE_ENV: process.env.NODE_ENV,
-    MONGODB_URI: process.env.MONGODB_URI,
+    ACCERO_MONGODB_URI: process.env.ACCERO_MONGODB_URI || process.env.MONGODB_URI,
     JWT_SECRET: process.env.JWT_SECRET,
     PAYTM_MID: process.env.PAYTM_MID || process.env.MID1,
     PAYTM_MERCHANT_KEY: process.env.PAYTM_MERCHANT_KEY,
@@ -62,7 +62,7 @@ export function getEnv(): EnvConfig {
       .map((i) => `  - ${i.path.join('.')}: ${i.message}`)
       .join('\n');
     const msg = `[CRITICAL CONFIG ERROR] Invalid or missing environment configuration:\n${errorDetails}`;
-    
+
     // In production or when JWT_SECRET is missing, fail immediately
     if (process.env.NODE_ENV === 'production' || !process.env.JWT_SECRET) {
       console.error(msg);

@@ -30,7 +30,7 @@ Core variables without which the Next.js runtime, authentication, or persistence
 
 | Variable Name | Purpose & Runtime Scope | Validation & Enforcement |
 | :--- | :--- | :--- |
-| `MONGODB_URI` | MongoDB connection string (Replica Set / MongoDB Atlas) for users, ledger, cards, and audits. | Enforced in `src/lib/config/env.ts` and `src/lib/mongodb.ts`. |
+| `ACCERO_MONGODB_URI` | MongoDB connection string (Replica Set / MongoDB Atlas) for users, ledger, cards, and audits. | Enforced in `src/lib/config/env.ts` and `src/lib/mongodb.ts`. |
 | `JWT_SECRET` | Primary cryptographic key (min 32 chars) for signing and verifying Jose JWT session tokens. | Enforced in `src/lib/config/env.ts` and `src/lib/auth.ts`. |
 | `NODE_ENV` | Next.js runtime environment mode (`development`, `production`, `test`). | Core framework standard. |
 | `NEXT_PUBLIC_APP_URL` | Public canonical base URL (e.g. `https://printportal.accero.app`) for SEO, sitemaps, and canonical tags. | Enforced in `src/lib/seo/canonical.ts`. |
@@ -141,7 +141,7 @@ Variables strictly restricted to local development or Vitest integration testing
 ## 5. Deployment & Vercel Configuration Guide
 
 For production deployments on Vercel:
-1. Configure `MONGODB_URI`, `JWT_SECRET`, and `NEXT_PUBLIC_APP_URL` in the Vercel Project Settings under **Environment Variables**.
+1. Configure `ACCERO_MONGODB_URI`, `JWT_SECRET`, and `NEXT_PUBLIC_APP_URL` in the Vercel Project Settings under **Environment Variables**.
 2. For live recharges, configure `PAYTM_MID`, `PAYTM_MERCHANT_KEY`, and `PAYTM_UPI`.
 3. For static egress whitelisting, configure `FIXIE_URL`.
 4. For edge rate limiting, configure `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`.

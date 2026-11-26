@@ -25,11 +25,11 @@ describe('PageSpeed Insights Fixes Verification', () => {
     // Should not contain bare <span>Learn more</span>
     expect(content).not.toMatch(/<span>Learn more<\/span>/);
 
-    // Should contain descriptive links with aria-label
+    // Should contain descriptive links with accessible aria-label (WCAG 2.5.3 compliant)
     expect(content).toContain('<span>Explore document lookup</span>');
     expect(content).toContain('<span>Explore live editing</span>');
     expect(content).toContain('<span>Explore multilingual printing</span>');
-    expect(content).toContain('aria-label="Learn more about document lookup and manual entry"');
+    expect(content).toMatch(/aria-label=".*document lookup.*"/);
   });
 
   it('uses WCAG AAA compliant high-contrast color for FAQ question markers on white backgrounds', () => {

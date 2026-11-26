@@ -83,7 +83,11 @@ export default function PublicFooter() {
                 </Link>
               </li>
               <li className="pt-1">
-                <Link href="/services" className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors inline-flex items-center gap-1">
+                <Link
+                  href="/services"
+                  aria-label="View complete directory of all document print services"
+                  className="text-[11px] text-slate-300 hover:text-white transition-colors inline-flex items-center gap-1"
+                >
                   <span>View All Services</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
@@ -196,7 +200,11 @@ export default function PublicFooter() {
                 </Link>
               </li>
               <li className="pt-1">
-                <Link href="/features" className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors inline-flex items-center gap-1">
+                <Link
+                  href="/features"
+                  aria-label="Explore all core platform features and capabilities"
+                  className="text-[11px] text-slate-300 hover:text-white transition-colors inline-flex items-center gap-1"
+                >
                   <span>Explore Features</span>
                   <ArrowRight className="w-3 h-3" />
                 </Link>
@@ -368,32 +376,32 @@ export default function PublicFooter() {
         </div>
 
         {/* Regulatory Disclaimer Banner */}
-        <div className="mt-10 pt-6 border-t border-slate-900 text-[11px] text-slate-500 leading-relaxed space-y-2">
-          <div className="flex items-start gap-2.5 bg-slate-900/60 p-3.5 rounded-xl border border-slate-800">
-            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+        <div className="mt-10 pt-6 border-t border-slate-900 text-[11px] text-slate-300 leading-relaxed space-y-2">
+          <div className="flex items-start gap-2.5 bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 text-slate-300">
+            <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
             <p>
-              <strong>Important Compliance Notice:</strong> Accero PrintPortal is an independent commercial software platform engineered for document layout formatting and physical card tray alignment. It is not an official government portal, and is not affiliated with, authorized by, or an official partner of UIDAI, NSDL, UTIITSL, the Election Commission of India, MoRTH, or State Food Departments. Output templates conform to the international physical standard ISO/IEC 7810 ID-1 (CR80: 85.60 mm &times; 53.98 mm).
+              <strong className="text-white">Important Compliance Notice:</strong> Accero PrintPortal is an independent commercial software platform engineered for document layout formatting and physical card tray alignment. It is not an official government portal, and is not affiliated with, authorized by, or an official partner of UIDAI, NSDL, UTIITSL, the Election Commission of India, MoRTH, or State Food Departments. Output templates conform to the international physical standard ISO/IEC 7810 ID-1 (CR80: 85.60 mm &times; 53.98 mm).
             </p>
           </div>
         </div>
 
         {/* Bottom Copyright & Legal Links */}
-        <div className="mt-6 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>&copy; {new Date().getFullYear()} Accero Technologies. All rights reserved.</p>
-          <div className="flex items-center gap-4">
-            <Link href="/llms.txt" rel="nofollow" className="hover:text-slate-400 transition-colors">
+        <div className="mt-6 pt-6 border-t border-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-300">
+          <p className="text-slate-300">&copy; {new Date().getFullYear()} Accero Technologies. All rights reserved.</p>
+          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-slate-300">
+            <Link href="/llms.txt" rel="nofollow" className="py-2 text-slate-300 hover:text-white transition-colors">
               llms.txt
             </Link>
-            <span>&bull;</span>
-            <Link href="/privacy-policy" className="hover:text-slate-400 transition-colors">
+            <span className="text-slate-600 hidden sm:inline">&bull;</span>
+            <Link href="/privacy-policy" className="py-2 text-slate-300 hover:text-white transition-colors">
               Privacy Policy
             </Link>
-            <span>&bull;</span>
-            <Link href="/terms" className="hover:text-slate-400 transition-colors">
+            <span className="text-slate-600 hidden sm:inline">&bull;</span>
+            <Link href="/terms" className="py-2 text-slate-300 hover:text-white transition-colors">
               Terms of Service
             </Link>
-            <span>&bull;</span>
-            <Link href="/sitemap.xml" className="hover:text-slate-400 transition-colors">
+            <span className="text-slate-600 hidden sm:inline">&bull;</span>
+            <Link href="/sitemap.xml" className="py-2 text-slate-300 hover:text-white transition-colors">
               Sitemap
             </Link>
           </div>

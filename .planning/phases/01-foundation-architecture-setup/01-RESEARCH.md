@@ -37,7 +37,7 @@ Phase 1 establishes the root application framework for PrintPortal Next.js. The 
   export async function connectToDatabase() {
     if (cached.conn) return cached.conn;
     if (!cached.promise) {
-      cached.promise = mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/printportal', {
+      cached.promise = mongoose.connect(process.env.ACCERO_MONGODB_URI || 'mongodb://localhost:27017/printportal', {
         bufferCommands: false,
       });
     }

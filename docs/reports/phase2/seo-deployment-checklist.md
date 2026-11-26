@@ -81,7 +81,7 @@ Accero PrintPortal processes identity documents. **Never collect or pass sensiti
 | Item | Responsible Party | Notes |
 |---|---|---|
 | Production DNS A/CNAME Record | Domain Administrator | Point `printportal.accero.app` to Vercel IP `76.76.21.21`. |
-| Production Environment Variables | Vercel Project Admin | Set `NEXT_PUBLIC_APP_URL=https://printportal.accero.app` and `MONGODB_URI`. |
+| Production Environment Variables | Vercel Project Admin | Set `NEXT_PUBLIC_APP_URL=https://printportal.accero.app` and `ACCERO_MONGODB_URI`. |
 | GSC DNS Verification | Webmaster | Add Google verification TXT record to DNS. |
 | Paytm Production Gateway | Financial Admin | Confirm live merchant keys before accepting operator deposits. |
 

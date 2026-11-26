@@ -63,6 +63,10 @@ export default function PanCardCanvas({
         <img
           src={sheetAsset}
           alt={`PAN Card ${activeVariant.toUpperCase()} Sheet`}
+          width={1280}
+          height={386}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-fill pointer-events-none select-none"
         />
 
@@ -87,7 +91,7 @@ export default function PanCardCanvas({
               crossOrigin="anonymous"
             />
           ) : (
-            <div className="flex flex-col items-center justify-center text-gray-400">
+            <div className="flex flex-col items-center justify-center text-slate-600">
               <User className="w-4 h-4 opacity-70" />
               <span className="text-[5px] uppercase font-semibold">Photo</span>
             </div>
@@ -212,6 +216,10 @@ export default function PanCardCanvas({
         <img
           src={backAsset}
           alt={`PAN Card ${activeVariant.toUpperCase()} Back`}
+          width={1011}
+          height={638}
+          loading="lazy"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-fill pointer-events-none select-none"
         />
       </div>
@@ -236,6 +244,10 @@ export default function PanCardCanvas({
       <img
         src={frontAsset}
         alt={`PAN Card ${activeVariant.toUpperCase()} Front`}
+        width={1011}
+        height={638}
+        fetchPriority="high"
+        decoding="async"
         className="absolute inset-0 w-full h-full object-fill pointer-events-none select-none"
       />
 
@@ -258,7 +270,7 @@ export default function PanCardCanvas({
             crossOrigin="anonymous"
           />
         ) : (
-          <div className="flex flex-col items-center justify-center text-gray-400">
+          <div className="flex flex-col items-center justify-center text-slate-600">
             <User className="w-5 h-5 opacity-70" />
             <span className="text-[6px] uppercase font-semibold">Photo</span>
           </div>

@@ -6,7 +6,7 @@ if (typeof dns.setDefaultResultOrder === 'function') {
   dns.setDefaultResultOrder('ipv4first');
 }
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const ACCERO_MONGODB_URI = process.env.ACCERO_MONGODB_URI || process.env.MONGODB_URI;
 
 interface MongooseCache {
   conn: typeof mongoose | null;
@@ -25,9 +25,9 @@ if (!globalThis.mongooseCache) {
 }
 
 export async function connectToDatabase(): Promise<typeof mongoose> {
-  const uri = process.env.MONGODB_URI || MONGODB_URI;
+  const uri = process.env.ACCERO_MONGODB_URI || process.env.MONGODB_URI || ACCERO_MONGODB_URI;
   if (!uri) {
-    throw new Error('Please define the MONGODB_URI environment variable in .env.local');
+    throw new Error('Please define the ACCERO_MONGODB_URI or MONGODB_URI environment variable in .env.local');
   }
 
   if (cached.conn) {

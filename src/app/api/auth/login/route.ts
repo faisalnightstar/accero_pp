@@ -72,7 +72,7 @@ export async function POST(request: Request) {
       });
 
       return NextResponse.json(
-        { error: 'Invalid email/phone or password.' },
+        { error: 'Invalid email/phone.' },
         { status: 401 }
       );
     }
@@ -112,7 +112,7 @@ export async function POST(request: Request) {
       });
 
       return NextResponse.json(
-        { error: 'Invalid email/phone or password.' },
+        { error: 'Invalid password.' },
         { status: 401 }
       );
     }

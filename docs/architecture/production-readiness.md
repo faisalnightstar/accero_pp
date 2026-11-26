@@ -106,7 +106,7 @@ Test Suites Summary:
 ## 4. Production Deployment Checklist
 
 - [x] **`NODE_ENV`**: Set to `production`.
-- [x] **`MONGODB_URI`**: Production MongoDB Atlas Replica Set connection string.
+- [x] **`ACCERO_MONGODB_URI`**: Production MongoDB Atlas Replica Set connection string.
 - [x] **`JWT_SECRET`**: Cryptographically secure 32+ character key.
 - [x] **`PAYTM_MID`, `PAYTM_MERCHANT_KEY`, `PAYTM_UPI`**: Configured in production environment.
 - [x] **`ALLOW_SANDBOX_RECHARGE`**: Omitted or set to `false`.
