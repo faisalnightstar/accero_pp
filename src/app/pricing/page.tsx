@@ -46,6 +46,14 @@ export const metadata: Metadata = buildPageMetadata({
     'csc print portal recharge rates',
     'per card printing charges for vle',
     'transparent print portal pricing',
+    'print portal wallet recharge',
+    'fastprintportal wallet recharge',
+    'digital print portal wallet recharge',
+    'retailer id print portal price',
+    'distributor id print portal cost',
+    'cheapest csc print portal recharge',
+    'wallet based print portal',
+    'instant upi wallet recharge print portal',
   ],
 });
 

@@ -75,6 +75,17 @@ export const metadata: Metadata = buildPageMetadata({
     'epson l805 pvc card printing software',
     'canon g570 id card tray printing software',
     'cr80 pvc card printing without photoshop',
+    'smart csc tools alternative',
+    'fastergyan print tools alternative',
+    'vle club aadhaar cutter alternative',
+    '1 click id card print action',
+    'photoshop id card action free download alternative',
+    'retailer id print portal',
+    'distributor id print portal',
+    'epson l8050 id card software',
+    'advance aadhar print portal',
+    'manual print portal csc',
+    'dubaria id card software alternative',
   ],
 });
 

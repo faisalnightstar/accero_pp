@@ -46,6 +46,12 @@ export const metadata: Metadata = buildPageMetadata({
     'pvc card printing software for csc',
     'csc card printing software',
     'cheaper than eforms99',
+    'eforms99 wallet balance',
+    'eforms99 id card crop',
+    'eforms99 coupon code',
+    'eforms99 csc tools alternative',
+    'eforms99 photo signature resizer alternative',
+    'eforms99 retailer id',
   ],
 });
 

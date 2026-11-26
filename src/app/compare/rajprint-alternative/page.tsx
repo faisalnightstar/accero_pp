@@ -47,6 +47,12 @@ export const metadata: Metadata = buildPageMetadata({
     'rajprint portal card printing software',
     'switch from rajprint',
     'pvc card printing software',
+    'raj print portal wallet recharge',
+    'rajprint retailer id create',
+    'rajprint aadhar print',
+    'rajprint pan card download',
+    'rajprint.co.in login password reset',
+    'raj print portal replacement',
   ],
 });
 

@@ -27,6 +27,11 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/blog/pvc-card-printer-tray-guide',
   keywords: [
     'how to print pvc card on epson l805',
+    'epson l8050 id card tray printing',
+    'epson l18050 pvc card tray settings',
+    'photoshop id card action vs print portal',
+    'inkjet printable pvc card printing guide',
+    'cd dvd tray to pvc card tray',
     'epson card tray j settings',
     'canon id card tray printing',
     'pvc card tray margin cutoff fix',

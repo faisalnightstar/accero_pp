@@ -32,6 +32,12 @@ export const metadata: Metadata = buildPageMetadata({
     'cyber cafe id card laminator alternative',
     'internet cafe business tools india',
     'cyber cafe photo and card printing software',
+    '1 click id card print action',
+    'photoshop id card action replacement',
+    'epson l8050 pvc card printing cyber cafe',
+    'inkjet printable pvc card cyber cafe printing',
+    'fast print portal for cyber cafe',
+    'cyber cafe identity card printing machine',
   ],
 });
 

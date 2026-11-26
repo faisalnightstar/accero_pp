@@ -34,6 +34,13 @@ export const metadata: Metadata = buildPageMetadata({
     'csc vle income boost printing',
     'csc kiosk id card print utility',
     'apna csc card print portal',
+    'vle print portal registration',
+    'smart csc tools replacement',
+    'fastergyan alternative for csc',
+    'vle club cutter alternative',
+    '1 click id card print action for csc',
+    'csc pvc card tray printing epson l8050',
+    'instant pan find csc portal',
   ],
 });
 

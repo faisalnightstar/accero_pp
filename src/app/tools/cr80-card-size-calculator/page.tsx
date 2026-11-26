@@ -39,6 +39,10 @@ export const metadata: Metadata = buildPageMetadata({
     'iso 7810 id 1 card dimensions',
     'calculate id card dimensions 300 dpi',
     'cr80 to pixels converter',
+    'epson l8050 id card tray dimensions',
+    'inkjet printable pvc card dimensions',
+    'photoshop cr80 template pixels',
+    'id card printing 1 click action dimensions',
   ],
 });
 

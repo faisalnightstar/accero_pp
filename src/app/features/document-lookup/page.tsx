@@ -27,6 +27,10 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/features/document-lookup',
   keywords: [
     'document lookup software',
+    'pan find print portal',
+    'lost pan number find by aadhaar',
+    'instant aadhar to pan find',
+    'fast demographic lookup cascade',
     'instant document lookup',
     'pan card number lookup',
     'voter id lookup software',

@@ -48,6 +48,12 @@ export const metadata: Metadata = buildPageMetadata({
     'online print portal for CSC',
     'digital print portal for retailers',
     'better than sk print portal',
+    'sk print portal wallet recharge',
+    'sk print portal id create',
+    'sk print portal contact number',
+    'skprint portal aadhar pan print',
+    'sk print portal replacement',
+    'skprintportal retailer login',
   ],
 });
 

@@ -52,6 +52,15 @@ export const metadata: Metadata = buildPageMetadata({
     'instant id card print portal',
     'smart card printing software for pc',
     'pvc card maker online',
+    'fast print portal login',
+    'digitalportal in retailer login',
+    'smart csc tools alternative',
+    'fastergyan tools alternative',
+    'vle club print portal',
+    'retailer id print portal',
+    'distributor id print portal',
+    '1 click id card print action',
+    'epson l8050 id card tray printing',
   ],
 });
 

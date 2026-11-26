@@ -42,6 +42,12 @@ export const metadata: Metadata = buildPageMetadata({
     'kamboj portal coupon',
     'best pan card print portal in india',
     'uti nsdl pan print alternative',
+    'kamboj portal wallet recharge',
+    'kamboj pan find',
+    'kamboj portal retailer id',
+    'kamboj pan card coupon buy',
+    'uti pan coupon alternative',
+    'kambojpanportel login',
   ],
 });
 

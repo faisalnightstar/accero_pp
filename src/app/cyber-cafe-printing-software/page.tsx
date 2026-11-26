@@ -47,6 +47,13 @@ export const metadata: Metadata = buildPageMetadata({
     'smart card printing software for cyber cafe',
     'epson l8050 cyber cafe software',
     'canon g570 cyber cafe printing',
+    '1 click id card print action',
+    'photoshop id card action free download alternative',
+    'smart csc tools cyber cafe',
+    'fastergyan print tools alternative',
+    'vle club aadhaar cutter alternative',
+    'inkjet printable pvc cards for cyber cafe',
+    'cyber cafe pvc card tray printer settings',
   ],
 });
 

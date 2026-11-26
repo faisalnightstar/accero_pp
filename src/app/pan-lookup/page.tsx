@@ -9,6 +9,13 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/pan-lookup',
   keywords: [
     'pan lookup portal',
+    'pan find print portal',
+    'aadhaar to pan find',
+    'lost pan number find by aadhaar',
+    'aadhar se pan number nikale',
+    'pan number search portal',
+    'instant pan pdf download',
+    'pan find service for csc vle',
     'pan card verification gateway',
     'pan card number lookup online',
     'verify pan card demographic details',
