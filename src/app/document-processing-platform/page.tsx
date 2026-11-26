@@ -34,6 +34,12 @@ export const metadata: Metadata = buildPageMetadata({
     'pvc document management system',
     'id card processing engine',
     'citizen document formatting tool',
+    'id card data extraction and formatting',
+    'identity card processing engine',
+    'document layout automation software',
+    'cloud document printing platform',
+    'multi-document batch printing portal',
+    'identity document conversion saas',
   ],
 });
 

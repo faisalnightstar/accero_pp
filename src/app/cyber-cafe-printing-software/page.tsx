@@ -42,6 +42,11 @@ export const metadata: Metadata = buildPageMetadata({
     'epson l805 cyber cafe print tool',
     'cyber cafe software india',
     'cyber cafe card printing business',
+    'cyber cafe billing and card printing software',
+    'instant id card print software cyber cafe',
+    'smart card printing software for cyber cafe',
+    'epson l8050 cyber cafe software',
+    'canon g570 cyber cafe printing',
   ],
 });
 

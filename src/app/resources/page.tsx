@@ -37,6 +37,8 @@ export const metadata: Metadata = buildPageMetadata({
     'cyber cafe training guides',
     'csc operator printer calibration',
     'zero margin card printing css',
+    'pvc card tray templates download',
+    'card printer driver settings guide',
   ],
 });
 

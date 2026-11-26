@@ -46,7 +46,13 @@ export const metadata: Metadata = buildPageMetadata({
     'csc pan card print portal',
     'csc voter print portal',
     'csc aadhaar print portal',
+    'csc ration card print portal',
+    'csc id card print software',
+    'vle card printing software 2026',
+    'maha e seva kendra print portal',
     'सीएससी प्रिंट पोर्टल',
+    'सीएससी वीएलई पोर्टल',
+    'जन सेवा केंद्र कार्ड प्रिंट सॉफ्टवेयर',
   ],
 });
 

@@ -31,6 +31,8 @@ export const metadata: Metadata = buildPageMetadata({
     'ephemeral document cache retention',
     'secure card printing architecture',
     'operator session encryption',
+    'data privacy for csc print portal',
+    'zero storage id card printing',
   ],
 });
 

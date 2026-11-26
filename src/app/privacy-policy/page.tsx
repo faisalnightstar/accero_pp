@@ -11,7 +11,13 @@ export const metadata: Metadata = buildPageMetadata({
   description:
     'Read Accero PrintPortal’s Privacy Policy. Learn how operator account information and document processing data are handled securely and in compliance with data protection laws.',
   path: '/privacy-policy',
-  keywords: ['accero printportal privacy policy', 'document processing privacy', 'data protection policy'],
+  keywords: [
+    'accero printportal privacy policy',
+    'document processing privacy',
+    'data protection policy',
+    'citizen document privacy print portal',
+    'ephemeral data retention policy',
+  ],
 });
 
 export default function PrivacyPolicyPage() {

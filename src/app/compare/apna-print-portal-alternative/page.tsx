@@ -41,8 +41,12 @@ export const metadata: Metadata = buildPageMetadata({
     'apna print alternative',
     'alternative to apna print portal',
     'apnaprintportal.com',
+    'apna print portal login',
+    'apna print portal replacement',
+    'switch from apna print portal',
     'pvc card print portal for csc',
     'best print portal in india',
+    'free registration print portal',
   ],
 });
 

@@ -29,6 +29,9 @@ export const metadata: Metadata = buildPageMetadata({
     'bilingual identity card layout',
     'regional language pvc card print',
     'indian document typography',
+    'regional language id card generator',
+    'unicode devanagari font rendering',
+    'hindi aadhar card print setting',
   ],
 });
 

@@ -29,6 +29,9 @@ export const metadata: Metadata = buildPageMetadata({
     'cyber cafe software india',
     'epson l805 cyber cafe printing',
     'how to print pvc cards in cyber cafe',
+    'cyber cafe id card laminator alternative',
+    'internet cafe business tools india',
+    'cyber cafe photo and card printing software',
   ],
 });
 

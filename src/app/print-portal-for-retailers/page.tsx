@@ -34,6 +34,11 @@ export const metadata: Metadata = buildPageMetadata({
     'retailer wallet software',
     'high volume print portal',
     'print portal registration',
+    'retailer pvc card service portal',
+    'pay as you go print portal for shops',
+    'retailer customer card printing portal',
+    'instant commission print portal',
+    'retail shop id card printing software',
   ],
 });
 

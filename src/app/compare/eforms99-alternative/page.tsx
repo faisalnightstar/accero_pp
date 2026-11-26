@@ -41,8 +41,11 @@ export const metadata: Metadata = buildPageMetadata({
     'alternative to eforms99',
     'eforms99 print portal',
     'eforms99 vs accero',
+    'eforms99 login replacement',
+    'eforms99 card printing alternative',
     'pvc card printing software for csc',
     'csc card printing software',
+    'cheaper than eforms99',
   ],
 });
 

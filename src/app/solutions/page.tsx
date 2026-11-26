@@ -42,6 +42,8 @@ export const metadata: Metadata = buildPageMetadata({
     'pvc card print solutions',
     'vle id card printing tool',
     'epson l805 csc portal',
+    'best software for csc and cyber cafe',
+    'smart card printing solutions india',
   ],
 });
 

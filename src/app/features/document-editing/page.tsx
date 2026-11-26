@@ -31,6 +31,10 @@ export const metadata: Metadata = buildPageMetadata({
     'pvc card preview studio',
     'live card synchronization',
     'id card photo upload tool',
+    'real-time card editor',
+    'fix missing card fields online',
+    'instant id card photo crop',
+    'interactive card design studio',
   ],
 });
 

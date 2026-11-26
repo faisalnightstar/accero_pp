@@ -30,6 +30,9 @@ export const metadata: Metadata = buildPageMetadata({
     'paytm upi print portal recharge',
     'transparent per card pricing',
     'print shop ledger software',
+    'instant wallet balance top up',
+    'low per card print cost',
+    'pay as you print ledger',
   ],
 });
 

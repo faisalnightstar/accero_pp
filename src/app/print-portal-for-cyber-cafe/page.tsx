@@ -33,6 +33,13 @@ export const metadata: Metadata = buildPageMetadata({
     'cyber cafe card printing solutions',
     'pvc id card software for cyber cafe',
     'epson l805 cyber cafe print tool',
+    'cyber cafe id card maker',
+    'cyber cafe pvc print portal',
+    'cyber cafe daily printing portal',
+    'cyber cafe portal login',
+    'best print portal for internet cafe',
+    'cyber cafe card printing business india',
+    'epson l8050 cyber cafe software',
   ],
 });
 

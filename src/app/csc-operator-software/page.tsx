@@ -33,6 +33,13 @@ export const metadata: Metadata = buildPageMetadata({
     'vle desktop utility',
     'csc id card printing tool',
     'common service center software',
+    'csc utility software download',
+    'jan seva kendra software for pc',
+    'csc pvc card printing utility',
+    'csc center software tools',
+    'csc portal document formatter',
+    'csc vle helper tools 2026',
+    'best software for csc center',
   ],
 });
 

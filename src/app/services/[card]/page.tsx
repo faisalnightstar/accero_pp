@@ -58,6 +58,7 @@ export async function generateMetadata({ params }: ServicePageProps): Promise<Me
   return {
     title: config.metaTitle,
     description: config.metaDescription,
+    keywords: config.keywords,
     alternates: {
       canonical: canonicalUrl,
     },

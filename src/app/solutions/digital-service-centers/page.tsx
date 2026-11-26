@@ -29,6 +29,8 @@ export const metadata: Metadata = buildPageMetadata({
     'jan seva kendra software',
     'maha e seva kendra document print',
     'multi counter card printing portal',
+    'sethu center card printing software',
+    'gram panchayat kiosk card printing',
   ],
 });
 

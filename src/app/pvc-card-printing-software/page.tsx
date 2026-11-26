@@ -31,10 +31,18 @@ export const metadata: Metadata = buildPageMetadata({
     'pvc card printing software',
     'id card tray print software',
     'epson l805 card printing software',
+    'epson l8050 id card tray software',
     'canon g3010 pvc print setup',
+    'canon g570 pvc print setup',
+    'canon g670 id card tray settings',
     'cr80 pvc card software',
     'epson tray j printing tool',
     'plastic id card printing software',
+    'cr80 card printing software for pc',
+    'thermal card printer software zebra fargo evolis',
+    'pvc card maker software without coreldraw',
+    'inkjet pvc card printing software free download',
+    'pvc card printing margins zero drift',
   ],
 });
 

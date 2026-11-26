@@ -37,6 +37,8 @@ export const metadata: Metadata = buildPageMetadata({
     'cr80 bleed calculator',
     'id card printing resolution',
     'iso 7810 id 1 card dimensions',
+    'calculate id card dimensions 300 dpi',
+    'cr80 to pixels converter',
   ],
 });
 

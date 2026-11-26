@@ -39,7 +39,11 @@ export const metadata: Metadata = buildPageMetadata({
     'digitalportal.in alternative',
     'digital portal vs Accero',
     'alternative to Digital Portal',
+    'digital portal login replacement',
+    'switch from digital portal to accero',
     'best digital print portal in india',
+    'digital seva card print portal',
+    'modern digital print portal',
   ],
 });
 

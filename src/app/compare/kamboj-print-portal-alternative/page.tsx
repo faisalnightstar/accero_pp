@@ -36,8 +36,12 @@ export const metadata: Metadata = buildPageMetadata({
     'kambojpanportel alternative',
     'kamboj pan portal vs Accero',
     'alternative to Kamboj PAN Portal',
+    'kamboj portal login alternative',
+    'kamboj pvc card print alternative',
     'kamboj pan card print',
+    'kamboj portal coupon',
     'best pan card print portal in india',
+    'uti nsdl pan print alternative',
   ],
 });
 

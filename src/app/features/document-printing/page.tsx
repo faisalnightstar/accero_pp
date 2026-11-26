@@ -31,6 +31,9 @@ export const metadata: Metadata = buildPageMetadata({
     'zero margin print engine',
     '300 dpi id card printing',
     'iso 7810 card layout generator',
+    'direct browser card printing',
+    'epson l8050 pvc card printing',
+    'canon g570 id card tray printing',
   ],
 });
 

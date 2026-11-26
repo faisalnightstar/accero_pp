@@ -31,6 +31,9 @@ export const metadata: Metadata = buildPageMetadata({
     'digital seva card formatting software',
     'csc document printing utility',
     'vle id card printing tool',
+    'csc vle income boost printing',
+    'csc kiosk id card print utility',
+    'apna csc card print portal',
   ],
 });
 

@@ -38,7 +38,11 @@ export const metadata: Metadata = buildPageMetadata({
     'fastprintportal.in alternative',
     'fastprintportal.com alternative',
     'fast print portal vs Accero',
+    'fast print portal login problem',
+    'fast print portal replacement',
+    'switch from fast print portal',
     'best fast print portal in india',
+    'instant print portal alternative',
   ],
 });
 

@@ -30,6 +30,9 @@ export const metadata: Metadata = buildPageMetadata({
     'free card re-print software',
     'id card record keeping',
     'operator document archive',
+    'stored card print history',
+    'encrypted document archive for operators',
+    'client card reprint without recharging',
   ],
 });
 

@@ -33,6 +33,9 @@ export const metadata: Metadata = buildPageMetadata({
     'regional script id card printing',
     'bilingual identity card format',
     'indian language card printing',
+    'marathi pan card print',
+    'bilingual id card font fix',
+    'unicode devanagari font rendering in html',
   ],
 });
 

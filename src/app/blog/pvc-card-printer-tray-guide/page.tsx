@@ -31,6 +31,11 @@ export const metadata: Metadata = buildPageMetadata({
     'canon id card tray printing',
     'pvc card tray margin cutoff fix',
     'epson l850 card printer driver settings',
+    'epson l8050 pvc tray template',
+    'canon g570 id card tray print setup',
+    'canon g670 id card tray settings',
+    'how to align pvc card in tray',
+    'epson zero margin pvc print settings',
   ],
 });
 

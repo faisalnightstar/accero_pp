@@ -35,6 +35,9 @@ export const metadata: Metadata = buildPageMetadata({
     'incomplete pan card lookup',
     'how to edit card fields before printing',
     'prevent ruined pvc card stock',
+    'how to add photo to incomplete id card',
+    'card printing split screen editor',
+    'fix missing photo on pan card print',
   ],
 });
 

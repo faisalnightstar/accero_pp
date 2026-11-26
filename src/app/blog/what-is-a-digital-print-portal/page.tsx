@@ -38,6 +38,9 @@ export const metadata: Metadata = buildPageMetadata({
     'cyber cafe print software guide',
     'epson tray j print portal',
     'print portal vs official portal',
+    'online pvc card printing portal tutorial',
+    'difference between print portal and coreldraw',
+    'best print portal for cyber cafe operators',
   ],
 });
 

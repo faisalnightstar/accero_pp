@@ -33,6 +33,10 @@ export const metadata: Metadata = buildPageMetadata({
     'vahan vehicle rc lookup',
     'driving licence lookup tool',
     'csc operator lookup software',
+    'instant citizen id lookup api',
+    'fast demographic lookup portal',
+    'multi-provider lookup cascade',
+    'pan verification lookup online',
   ],
 });
 

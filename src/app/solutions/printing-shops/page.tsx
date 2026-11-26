@@ -30,6 +30,8 @@ export const metadata: Metadata = buildPageMetadata({
     'thermal card printer software',
     'zebra evolis card print software',
     'cr80 vector pdf export',
+    'batch id card printing shop',
+    'instant pvc badge and card maker',
   ],
 });
 

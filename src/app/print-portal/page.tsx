@@ -35,15 +35,23 @@ export const metadata: Metadata = buildPageMetadata({
   path: '/print-portal',
   keywords: [
     'digital print portal architecture',
+    'print portal',
+    'online print portal',
     'print portal specifications',
     'pvc print portal overview',
     'best print portal in india',
+    'csc print portal software',
     'pan print portal',
     'voter print portal',
     'aadhaar print portal',
     'document printing portal',
     'pvc card printing portal',
     'cyber cafe print software',
+    'cloud document printing platform',
+    'cr80 pvc card format engine',
+    'instant id card print portal',
+    'smart card printing software for pc',
+    'pvc card maker online',
   ],
 });
 

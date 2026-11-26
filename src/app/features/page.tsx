@@ -49,6 +49,9 @@ export const metadata: Metadata = buildPageMetadata({
     'epson l805 card printing software',
     'canon g series pvc card tray',
     'cyber cafe document tools',
+    'pvc id card maker features',
+    'instant citizen id lookup tools',
+    'zero margin card printing engine',
   ],
 });
 

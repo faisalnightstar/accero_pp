@@ -30,6 +30,10 @@ export const metadata: Metadata = buildPageMetadata({
     'cyber cafe document printing profits',
     'how to print identity cards in cyber cafe',
     'csc operator printing playbook',
+    'epson printer for cyber cafe',
+    'pvc card charges for customers in cyber cafe',
+    'cyber cafe profit per card print',
+    'how to start pvc card printing shop',
   ],
 });
 

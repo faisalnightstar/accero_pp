@@ -29,6 +29,8 @@ export const metadata: Metadata = buildPageMetadata({
     'cyber cafe software support',
     'csc operator helpdesk',
     'enterprise print portal inquiry',
+    'print portal customer care number',
+    'card printing printer tray support',
   ],
 });
 

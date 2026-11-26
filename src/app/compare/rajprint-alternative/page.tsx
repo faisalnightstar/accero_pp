@@ -43,6 +43,9 @@ export const metadata: Metadata = buildPageMetadata({
     'raj print portal',
     'rajprint login alternative',
     'raj print csc portal',
+    'rajprint login replacement',
+    'rajprint portal card printing software',
+    'switch from rajprint',
     'pvc card printing software',
   ],
 });

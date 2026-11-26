@@ -25,6 +25,8 @@ export const metadata: Metadata = buildPageMetadata({
     'csc operator portal faq',
     'accero printportal support',
     'free card re-print policy',
+    'pvc card printing problems and solutions',
+    'how to fix margin cutoff on pvc card',
   ],
 });
 

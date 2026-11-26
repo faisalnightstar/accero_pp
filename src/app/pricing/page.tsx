@@ -42,6 +42,10 @@ export const metadata: Metadata = buildPageMetadata({
     'pay as you go print software',
     'cyber cafe card printing rates',
     'free card re-print portal',
+    'cheapest print portal in india',
+    'csc print portal recharge rates',
+    'per card printing charges for vle',
+    'transparent print portal pricing',
   ],
 });
 

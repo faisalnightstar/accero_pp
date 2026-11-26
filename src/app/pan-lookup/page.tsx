@@ -7,6 +7,16 @@ export const metadata: Metadata = buildPageMetadata({
   description:
     'Instant PAN verification gateway. Verify cardholder name, father name, and DOB from Income Tax database with zero-risk fee structure.',
   path: '/pan-lookup',
+  keywords: [
+    'pan lookup portal',
+    'pan card verification gateway',
+    'pan card number lookup online',
+    'verify pan card demographic details',
+    'pan card father name lookup',
+    'income tax pan verification api',
+    'instant pan number verification',
+    'pan card details by pan number',
+  ],
 });
 
 export default function PanLookupRedirectPage() {

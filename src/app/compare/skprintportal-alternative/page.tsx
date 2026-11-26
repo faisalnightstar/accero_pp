@@ -43,8 +43,11 @@ export const metadata: Metadata = buildPageMetadata({
     'SK Print Portal not working',
     'skprintportal.com',
     'skprintportal alternative',
+    'sk print portal login issue',
+    'sk print portal id registration alternative',
     'online print portal for CSC',
     'digital print portal for retailers',
+    'better than sk print portal',
   ],
 });
 

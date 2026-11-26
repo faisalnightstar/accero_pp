@@ -11,7 +11,13 @@ export const metadata: Metadata = buildPageMetadata({
   description:
     'Review the Terms of Service for Accero PrintPortal. Understand operator usage conditions, prepaid billing terms, compliance requirements, and liability boundaries.',
   path: '/terms',
-  keywords: ['accero printportal terms of service', 'operator terms', 'saas usage agreement'],
+  keywords: [
+    'accero printportal terms of service',
+    'operator terms',
+    'saas usage agreement',
+    'print portal terms and conditions',
+    'wallet refund policy print portal',
+  ],
 });
 
 export default function TermsOfServicePage() {

@@ -40,6 +40,22 @@ export const metadata: Metadata = {
   title: 'PVC Card Printing Services Directory | Accero PrintPortal',
   description:
     'Browse all official-standard preformatted PVC card printing services: PAN Card, Aadhaar Card, Voter ID (EPIC), Driving Licence (DL), Vehicle RC, Ration Card, and Farmer ID. High-DPI ISO 7810 CR80 print-ready PDF export.',
+  keywords: [
+    'pvc card printing services directory',
+    'online print portal services',
+    'pan card print portal',
+    'aadhaar card print portal',
+    'voter id print portal',
+    'driving licence print portal',
+    'vehicle rc print portal',
+    'ration card print portal',
+    'farmer id print portal',
+    'cr80 pvc card printing services',
+    'csc vle card printing portal',
+    'cyber cafe pvc card services',
+    'instant id card printing software',
+    'smart card printing services india',
+  ],
   alternates: {
     canonical: getCanonicalUrl('/services'),
   },

@@ -33,6 +33,8 @@ export const metadata: Metadata = buildPageMetadata({
     'independent document printing platform',
     'cyber cafe printing software company',
     'cr80 document formatting saas',
+    'indian identity card printing software',
+    'csc vle software developer',
   ],
 });
 

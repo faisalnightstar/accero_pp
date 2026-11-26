@@ -32,6 +32,10 @@ export const metadata: Metadata = buildPageMetadata({
     'cr80 size in inches',
     'cr80 size in pixels 300 dpi',
     'pvc card corner radius',
+    '85.60 x 53.98 mm in inches',
+    'cr80 card thickness in mm',
+    'iso 7810 id-1 dimensions guide',
+    'cr80 resolution for printing',
   ],
 });
 

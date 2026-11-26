@@ -21,8 +21,12 @@ export const metadata: Metadata = buildPageMetadata({
     'csc operator articles',
     'id card printing technology',
     'epson l805 card tray guide',
+    'epson l8050 pvc card printing guide',
+    'canon g570 id card printing tutorial',
     'cr80 card size tutorial',
     'bilingual document printing guide',
+    'how to print pvc cards in cyber cafe',
+    'zero margin card printing tutorials',
   ],
 });
 

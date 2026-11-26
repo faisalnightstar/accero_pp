@@ -73,7 +73,7 @@ describe('Comprehensive Cloudinary Integration Verification', () => {
       path.resolve(outDir, 'audit-results.json'),
       JSON.stringify(auditResults, null, 2)
     );
-  });
+  }, 30000);
 
   // -------------------------------------------------------------
   // Phase 3 & 4: Test Actual Cloudinary Uploads (All 11 Categories)
